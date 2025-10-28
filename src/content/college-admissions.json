@@ -1,0 +1,107 @@
+
+{
+    "admissionServices": [
+        {
+            "title": "College Selection Guidance",
+            "description": "Expert advice on choosing the right college based on your academic profile, career goals, and preferences.",
+            "items": [
+                "Personalized college recommendations",
+                "Course and program analysis",
+                "Campus culture assessment",
+                "Career prospects evaluation",
+                "Location and lifestyle factors"
+            ]
+        },
+        {
+            "title": "Application Assistance",
+            "description": "Complete support throughout the application process to maximize your chances of admission.",
+            "items": [
+                "Application form completion",
+                "Document preparation and review",
+                "Statement of Purpose writing",
+                "Letter of recommendation guidance",
+                "Portfolio development support"
+            ]
+        },
+        {
+            "title": "Test & Interview Preparation",
+            "description": "Specialized training to help you excel in entrance tests and interviews for top institutions.",
+            "items": [
+                "SMAT & SSAT Training for IISM",
+                "Comprehensive Interview Preparation",
+                "Language Proficiency Enhancement",
+                "Aptitude Training (QA, VR, LRDI)",
+                "Mock tests and practice sessions"
+            ]
+        },
+        {
+            "title": "Scholarship & Financial Aid",
+            "description": "Guidance on securing scholarships and financial assistance for your education.",
+            "items": [
+                "Scholarship identification",
+                "Application assistance",
+                "Financial aid counseling",
+                "Education loan guidance",
+                "Merit-based funding options"
+            ]
+        }
+    ],
+    "partnerColleges": [
+      {
+        "name": "IISM - International Institute of Sports Management",
+        "logo": "/IISM.png",
+        "description": "As the official admissions and test preparation partner for IISM, we provide comprehensive support for students aspiring to join India's leading sports management institute. We guide you through the SMAT & SSAT entrance exams and the entire admission process.",
+        "href": "https://iismworld.com/",
+        "image": "https://images.pexels.com/photos/248547/pexels-photo-248547.jpeg",
+        "dataAiHint": "soccer stadium",
+        "programs": [
+            { "name": "Bachelor of Sports Management (BSM)", "details": "Duration: 3 Years. A comprehensive undergraduate program focusing on the fundamentals of sports administration, marketing, and event management. Eligibility: HSC or equivalent. Fees: Contact for details." },
+            { "name": "Bachelor of Sports Science (BSS)", "details": "Duration: 3 Years. A program focused on the scientific aspects of sport, including exercise physiology, biomechanics, and nutrition. Eligibility: HSC or equivalent (Science stream preferred). Fees: Contact for details." },
+            { "name": "Master of Sports Management (MSM)", "details": "Duration: 2 Years. An advanced degree for aspiring leaders in the sports industry, covering strategic management, finance, and sports law. Eligibility: Graduate in any field. Fees: Contact for details." },
+            { "name": "Master of SportsScience (MSS)", "details": "Duration: 2 Years. An advanced program for students wanting to specialize in high-performance training, sports analysis, and research. Eligibility: Graduate in a relevant science field. Fees: Contact for details." },
+            { "name": "Post Graduate Program in Sports Management (PGPSM)", "details": "Duration: 11 Months. A specialized program designed to equip graduates with practical skills for a successful career in the sports ecosystem. Eligibility: Graduate in any field. Fees: Contact for details." }
+        ]
+      },
+      {
+        "name": "EIILM-Kolkata",
+        "logo": "/EIILM.png",
+        "description": "We are proud to be associated with EIILM-Kolkata, one of the premier management institutes in Eastern India. We assist students in securing admission to their esteemed MBA and other management programs, ensuring a smooth path to a successful business career.",
+        "href": "https://eiilm.co.in/",
+        "image": "https://images.pexels.com/photos/3184325/pexels-photo-3184325.jpeg",
+        "dataAiHint": "business meeting",
+        "programs": [
+            { "name": "Master of Business Administration (MBA)", "details": "Duration: 2 Years. A flagship AICTE approved program with specializations in Marketing, Finance, HR, Business Analytics, and more." },
+            { "name": "Bachelor of Business Administration (BBA)", "details": "Duration: 3 Years. An undergraduate program affiliated with MAKAUT, focusing on core business principles and management skills." },
+            { "name": "Bachelor of Computer Applications (BCA)", "details": "Duration: 3 Years. An undergraduate program affiliated with MAKAUT, designed for students aspiring to a career in IT and software development." },
+            { "name": "BBA in Hotel and Hospitality Management", "details": "Duration: 3 Years. A specialized BBA program affiliated with MAKAUT, focused on the hospitality industry." },
+            { "name": "B.Sc in Hospitality and Hotel Administration", "details": "Duration: 3 Years. A science-focused degree for the hospitality sector, affiliated with MAKAUT." },
+            { "name": "BBA in Hospital Management", "details": "Duration: 3 Years. A program affiliated with MAKAUT, designed to create professionals for the healthcare management sector." },
+            { "name": "BBA in Media Management", "details": "Duration: 3 Years. A specialized program affiliated with MAKAUT, for management roles in the media industry." },
+            { "name": "BBA in Finance with Leadership", "details": "Duration: 3 Years. An undergraduate program under EKCLE, focused on finance and leadership." },
+            { "name": "BBA(H) in Business Analytics", "details": "Duration: 3 Years. An honors program under EKCLE specializing in business analytics." }
+        ]
+      },
+      {
+        "name": "Brainware University",
+        "logo": "/Brainware.png",
+        "description": "Our partnership with Brainware University allows us to connect students with a wide array of undergraduate and postgraduate programs. We provide end-to-end guidance, from course selection to application submission, for this leading private university in West Bengal.",
+        "href": "https://www.brainwareuniversity.ac.in/",
+        "image": "https://images.pexels.com/photos/267507/pexels-photo-267507.jpeg",
+        "dataAiHint": "modern university campus",
+        "programs": [
+            { "name": "B.Tech in Computer Science & Engineering", "details": "Duration: 4 Years. A comprehensive engineering program with specializations in AI & Machine Learning, Data Science, and Cyber Security. Fees: Approx. ₹1.5 - 2 Lakhs per year." },
+            { "name": "Medical & Allied Health Sciences", "details": "Bachelor: Optometry, Physiotherapy, BPharm, CCT, OTT, MLT, MRIT, Nursing, etc. | Diploma: GNM, DPharm, DMLT | Master: MLT, M.Pharm, Pharmaceutical Chemistry, MSc Optometry, etc. Fees: Vary by program." },
+            { "name": "LLB (Bachelor of Laws)", "details": "Duration: 3 Years. A professional law degree program focusing on various aspects of legal studies and practice. Fees: Approx. ₹1 Lakh per year." },
+            { "name": "B.Sc. (Hons.) in Biotechnology", "details": "Duration: 3 Years. An undergraduate program focusing on genetic engineering, molecular biology, and their applications. Fees: Approx. ₹1.2 Lakhs per year." }
+        ]
+      }
+    ],
+    "admissionProcessSteps": [
+        { "step": "01", "icon": "Users", "title": "Initial Consultation", "description": "Discuss your academic background, career goals, and preferences with our expert counselors." },
+        { "step": "02", "icon": "University", "title": "College Research", "description": "Comprehensive research and shortlisting of colleges that match your profile and aspirations." },
+        { "step": "03", "icon": "FileText", "title": "Application Preparation", "description": "Complete assistance with application forms, documents, and supporting materials." },
+        { "step": "04", "icon": "BookOpen", "title": "Entrance Exam Prep", "description": "Targeted preparation for required entrance exams with mock tests and practice sessions." },
+        { "step": "05", "icon": "Plane", "title": "Application Submission", "description": "Timely submission of applications with proper documentation and follow-up." },
+        { "step": "06", "icon": "Landmark", "title": "Admission Support", "description": "Guidance through the admission process, interviews, and final enrollment procedures." }
+    ]
+}

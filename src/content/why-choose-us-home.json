@@ -1,0 +1,19 @@
+
+{
+  "title": "Why Partner With Whiteboard Consultants?",
+  "description": "As Kolkata's leading education consultants, we are committed to providing personalized, expert guidance to help you achieve your academic and career ambitions.",
+  "features": [
+    { "text": "Experienced counselors with deep industry knowledge." },
+    { "text": "Personalized guidance tailored to your unique profile." },
+    { "text": "Comprehensive support for both study abroad and domestic admissions." },
+    { "text": "High success rate in test preparation and visa applications." },
+    { "text": "End-to-end support from initial counseling to pre-departure." },
+    { "text": "Official TOEFL iBT Market Ambassadors" },
+    { "text": "Official partners with top universities like UOW India", "href": "https://www.uow.edu.au/india/courses/find-an-agent/" }
+  ],
+  "image": {
+    "src": "/whiteboard-team.webp",
+    "alt": "A dedicated team of education consultants collaborating",
+    "ai_hint": "team collaboration"
+  }
+}

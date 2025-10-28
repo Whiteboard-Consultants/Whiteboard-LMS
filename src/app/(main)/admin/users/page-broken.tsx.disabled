@@ -1,0 +1,2 @@
+// Disabled broken admin users page - placeholder while migrating from Firebase to Supabase
+export default function DisabledAdminUsersPage() { return null; }

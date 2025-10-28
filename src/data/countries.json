@@ -1,0 +1,163 @@
+
+[
+    {
+        "slug": "ireland",
+        "name": "Ireland",
+        "countryCode": "IE",
+        "title": "Study in Ireland - Top Universities & Visa Advice | Whiteboard",
+        "description": "Explore world-class education in Ireland. Whiteboard Consultants in Kolkata helps students with university applications, visa processes, and scholarship opportunities in Ireland.",
+        "image": "/destinations/studying-in-ireland.webp",
+        "top_universities": [
+            "Trinity College Dublin",
+            "University College Dublin",
+            "National University of Ireland Galway",
+            "University College Cork"
+        ],
+        "popular_courses": [
+            "Data Science & Analytics",
+            "Business Analytics",
+            "Pharmaceutical Sciences",
+            "Computer Science"
+        ]
+    },
+    {
+        "slug": "uk",
+        "name": "UK",
+        "countryCode": "GB",
+        "title": "Study in the UK - Premier Consultants in Kolkata | Whiteboard Consultants",
+        "description": "Your guide to studying in the United Kingdom. Get assistance with top UK universities, courses, student visas, and the new Graduate Route from our experts in Kolkata.",
+        "image": "/destinations/studying-in-uk.webp",
+        "top_universities": [
+            "University of Oxford",
+            "University of Cambridge",
+            "Imperial College London",
+            "UCL (University College London)"
+        ],
+        "popular_courses": [
+            "Business Studies",
+            "Medicine",
+            "Law",
+            "Computer Science"
+        ]
+    },
+    {
+        "slug": "germany",
+        "name": "Germany",
+        "countryCode": "DE",
+        "title": "Study in Germany - Public Universities & Free Education | Whiteboard",
+        "description": "Learn about studying in Germany, including its public universities with low or no tuition fees. Get guidance on admissions, visa requirements, and courses from our Kolkata office.",
+        "image": "/destinations/studying-in-germany.webp",
+        "top_universities": [
+            "Technical University of Munich",
+            "Ludwig Maximilian University of Munich",
+            "Heidelberg University",
+            "Humboldt University of Berlin"
+        ],
+        "popular_courses": [
+            "Engineering (Mechanical, Automotive)",
+            "Computer Science & IT",
+            "Business & Management",
+            "Humanities"
+        ]
+    },
+    {
+        "slug": "usa",
+        "name": "USA",
+        "countryCode": "US",
+        "title": "Study in the USA - Your Ultimate Guide | Whiteboard Consultants",
+        "description": "Explore opportunities to study in the USA. Get expert guidance from Kolkata's best consultants on universities, courses, visa applications, and scholarships for the United States.",
+        "image": "/destinations/studying-in-usa.webp",
+        "top_universities": [
+            "Harvard University",
+            "Stanford University",
+            "Massachusetts Institute of Technology (MIT)",
+            "California Institute of Technology (Caltech)"
+        ],
+        "popular_courses": [
+            "Computer Science",
+            "Business Administration",
+            "Engineering",
+            "Data Science"
+        ]
+    },
+    {
+        "slug": "canada",
+        "name": "Canada",
+        "countryCode": "CA",
+        "title": "Study in Canada - Top Universities & Courses | Whiteboard Consultants",
+        "description": "Discover your study options in Canada. Whiteboard Consultants in Kolkata provides complete support for admissions, study permits, and scholarships for Canadian universities.",
+        "image": "/destinations/studying-in-canada.webp",
+        "top_universities": [
+            "University of Toronto",
+            "University of British Columbia",
+            "McGill University",
+            "McMaster University"
+        ],
+        "popular_courses": [
+            "Business & Finance",
+            "Computer Science & IT",
+            "Engineering",
+            "Health & Medicine"
+        ]
+    },
+    {
+        "slug": "australia",
+        "name": "Australia",
+        "countryCode": "AU",
+        "title": "Study in Australia - Expert Visa & University Guidance | Whiteboard",
+        "description": "Plan your education in Australia with the best consultants in Kolkata. We offer help with top universities, student visas (subclass 500), and post-study work opportunities.",
+        "image": "/destinations/studying-in-australia.webp",
+        "top_universities": [
+            "The Australian National University",
+            "The University of Melbourne",
+            "The University of Sydney",
+            "The University of New South Wales (UNSW)"
+        ],
+        "popular_courses": [
+            "Business & Management",
+            "Medical & Health Science",
+            "IT",
+            "Engineering"
+        ]
+    },
+    {
+        "slug": "new-zealand",
+        "name": "New Zealand",
+        "countryCode": "NZ",
+        "title": "Study in New Zealand - Admissions & Visa Help | Whiteboard",
+        "description": "Discover the benefits of studying in New Zealand. Our Kolkata-based team provides expert advice on universities, courses, and student visas for New Zealand.",
+        "image": "/destinations/studying-in-new-zealand.webp",
+        "top_universities": [
+            "The University of Auckland",
+            "University of Otago",
+            "Victoria University of Wellington",
+            "University of Canterbury"
+        ],
+        "popular_courses": [
+            "Business",
+            "Engineering",
+            "IT",
+            "Tourism & Hospitality"
+        ]
+    },
+    {
+        "slug": "dubai",
+        "name": "Dubai",
+        "countryCode": "AE",
+        "title": "Study in Dubai - International Hub for Education | Whiteboard",
+        "description": "Experience education in the vibrant city of Dubai. Whiteboard Consultants helps you explore top international branch campuses, courses, and visa processes for studying in the UAE.",
+        "image": "/destinations/studying-in-dubai.webp",
+        "top_universities": [
+            "University of Birmingham Dubai",
+            "Heriot-Watt University Dubai",
+            "Middlesex University Dubai",
+            "American University in Dubai (AUD)"
+        ],
+        "popular_courses": [
+            "Business & Management",
+            "Tourism & Hospitality",
+            "Engineering",
+            "Architecture"
+        ]
+    }
+]

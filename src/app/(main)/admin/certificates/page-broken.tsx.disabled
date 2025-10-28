@@ -1,0 +1,2 @@
+// Disabled broken admin certificates page - placeholder while migrating from Firebase to Supabase
+export default function DisabledAdminCertificatesPage() { return null; }

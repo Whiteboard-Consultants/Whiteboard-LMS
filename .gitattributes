@@ -1,0 +1,27 @@
+# Prevent OneDrive sync conflicts for development files
+.next/ export-ignore
+node_modules/ export-ignore
+*.log export-ignore
+.env.local export-ignore
+
+# Ensure consistent line endings
+* text=auto
+*.js text eol=lf
+*.jsx text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.css text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.eot binary

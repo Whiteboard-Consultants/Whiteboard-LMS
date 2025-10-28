@@ -1,0 +1,5 @@
+// Disabled broken admin coupons page - moved out of compiled routes while we fix it
+// Original file contents were intentionally broken for debugging and have been disabled.
+export default function DisabledCouponsPage() {
+  return null;
+}

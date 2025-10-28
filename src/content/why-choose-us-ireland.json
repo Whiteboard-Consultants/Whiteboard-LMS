@@ -1,0 +1,18 @@
+
+{
+  "title": "Why Choose Whiteboard Consultants For Your Irish Adventure?",
+  "description": "As the top study in Ireland consultants in Kolkata, we provide tailored guidance to ensure your academic journey is a success.",
+  "features": [
+    { "text": "Expert counselors with firsthand experience of the Irish education system." },
+    { "text": "Personalized guidance for course and university selection in Ireland." },
+    { "text": "High success rate for Irish student visa applications." },
+    { "text": "Specialized advice for careers in Ireland's booming tech and pharma sectors." },
+    { "text": "Comprehensive test preparation for TOEFL/IELTS." },
+    { "text": "End-to-end support from application to pre-departure." }
+  ],
+  "image": {
+    "src": "https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg",
+    "alt": "A team of education consultants collaborating on study in Ireland applications",
+    "ai_hint": "team collaboration"
+  }
+}

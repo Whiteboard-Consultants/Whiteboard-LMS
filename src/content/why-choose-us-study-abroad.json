@@ -1,0 +1,22 @@
+
+{
+  "title": "Why Choose Whiteboard for Your Global Education Journey?",
+  "description": "With years of experience in international education consulting and a focus on emerging technologies, we provide personalized guidance to help you achieve your study abroad goals.",
+  "features": [
+    { "text": "Expert counselors with international education experience" },
+    { "text": "Personalized guidance based on your academic profile" },
+    { "text": "Specialized advice for emerging technology fields" },
+    { "text": "Comprehensive test preparation programs" },
+    { "text": "Official TOEFL iBT Market Ambassadors providing authentic guidance" },
+    { "text": "University application and admission support" },
+    { "text": "Visa guidance and documentation assistance" },
+    { "text": "Scholarship and financial aid counseling" },
+    { "text": "Pre-departure orientation and support" },
+    { "text": "Post-arrival assistance and guidance" }
+  ],
+  "image": {
+    "src": "/study-abroad/why-choose-us-study-abroad.webp",
+    "alt": "A team of education consultants collaborating on study abroad applications",
+    "ai_hint": "team celebrating"
+  }
+}

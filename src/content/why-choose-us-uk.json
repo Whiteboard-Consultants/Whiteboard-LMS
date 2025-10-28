@@ -1,0 +1,18 @@
+
+{
+  "title": "Why Choose Whiteboard Consultants For Your UK Ambitions?",
+  "description": "As the leading study in UK consultants in Kolkata, we provide tailored guidance to ensure your academic journey is a resounding success.",
+  "features": [
+    { "text": "Deep understanding of the UCAS application system." },
+    { "text": "Personalized guidance for selecting from 150+ UK universities." },
+    { "text": "High success rate for UK student visa applications." },
+    { "text": "Expert advice on crafting compelling Personal Statements." },
+    { "text": "Comprehensive test preparation for IELTS & TOEFL." },
+    { "text": "End-to-end support from application to pre-departure." }
+  ],
+  "image": {
+    "src": "https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg",
+    "alt": "A team of education consultants collaborating on study in the UK applications",
+    "ai_hint": "team collaboration"
+  }
+}

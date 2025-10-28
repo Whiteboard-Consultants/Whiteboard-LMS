@@ -1,0 +1,96 @@
+
+{
+    "programs": [
+        {
+            "title": "Graduate Certificate in Computing",
+            "description": "Gain specialised knowledge in computing with a focus on system analysis and project management. This short course option is designed for those who are inspired to enter the booming industry of computing technology.",
+            "duration": "6 months",
+            "intake": "March, July, November",
+            "cost": "$9,300 AUD (2025)",
+            "eligibility": [
+                "Bachelor's degree in any discipline with a minimum of 50% marks.",
+                "Applicants with other qualifications and relevant work experience will be considered.",
+                "TOEFL iBT score of 79 overall, with 18 in Reading & Writing, 17 in Listening & Speaking (or equivalent) if recent qualification not in English."
+            ]
+        },
+        {
+            "title": "Master of Computing (Data Analytics)",
+            "description": "Bridge computing and data analytics expertise, catering to diverse graduates, while mastering the technical and ethical dimensions of this booming field. Develop a broad knowledge and the skills to get ahead of the next generation of computing professionals.",
+            "duration": "18 months",
+            "intake": "March, July, November",
+            "cost": "$27,900 AUD",
+            "eligibility": [
+                "Bachelor's degree in computer science, software engineering, or IT with a minimum of 60% marks.",
+                "Or, a Graduate Certificate in Computing from UOW.",
+                "TOEFL iBT score of 86 overall, with 18 in Reading & Writing, 17 in Listening & Speaking (or equivalent) if recent qualification not in English."
+            ]
+        },
+        {
+            "title": "Graduate Certificate in Financial Technology",
+            "description": "Gain a strong understanding of how technology is being applied to a range of domains such as banking and insurance. This short course option focuses on cutting-edge developments within this advancing industry.",
+            "duration": "6 months",
+            "intake": "July, November",
+            "cost": "$9,300 AUD",
+            "eligibility": [
+                "Bachelor's degree in business, economics, finance, or a related field with a minimum of 50% marks.",
+                "Relevant work experience may be considered.",
+                "TOEFL iBT score of 70 overall, with 18 in Reading, 18 in Writing, 12 in Listening & 12 in Speaking (or equivalent) if recent qualification not in English."
+            ]
+        },
+        {
+            "title": "Master of Financial Technology (FinTech)",
+            "description": "Develop a comprehensive understanding of the financial technology industry and its impact on the global economy. Explore the intersection of finance and technology, and equip yourself with the expertise in this rapidly growing field.",
+            "duration": "18 months",
+            "intake": "March, July, November",
+            "cost": "$37,200 AUD",
+            "eligibility": [
+                "Bachelor's degree in business, finance, IT or a related field with a minimum of 60% marks.",
+                "Or, a Graduate Certificate in Financial Technology from UOW.",
+                "TOEFL iBT score of 86 overall, with 18 in Reading & Writing, 17 in Listening & Speaking (or equivalent) if recent qualification not in English."
+            ]
+        },
+        {
+            "title": "Master of Financial Technology (FinTech) Extension",
+            "description": "Offering an in-depth and comprehensive exploration of FinTech, including courses in web development, system analysis, and project management. Providing a unique opportunity for students to gain industry experience through a professional workplace internship.",
+            "duration": "24 months",
+            "intake": "March, July, November",
+            "cost": "$27,900 AUD",
+            "eligibility": [
+                "Bachelor's degree in business, finance, IT or a related field with a minimum of 60% marks.",
+                 "Or, a Graduate Certificate in Financial Technology from UOW.",
+                 "TOEFL iBT score of 86 overall, with 18 in Reading & Writing, 17 in Listening & Speaking (or equivalent) if recent qualification not in English."
+            ]
+        }
+    ],
+    "whyUowIndia": [
+        { "icon": "GraduationCap", "title": "Australian Degree in India", "description": "Earn a globally recognized Australian degree from a top-ranked university while studying in India." },
+        { "icon": "Building", "title": "State-of-the-Art Campus", "description": "Study at the GIFT City, Gandhinagar campus with modern facilities and a vibrant learning environment." },
+        { "icon": "Zap", "title": "Industry-Focused Curriculum", "description": "Courses are designed in collaboration with industry partners to ensure you are job-ready upon graduation." },
+        { "icon": "Users", "title": "Global Transfer Options", "description": "Seamlessly transfer to UOW's campuses in Australia or Dubai to gain international exposure." }
+    ],
+    "scholarships": [
+        { "icon": "Award", "title": "Vice-Chancellor's Leadership Scholarship", "value": "25% Tuition Fee Waiver", "description": "A prestigious scholarship awarded to two outstanding students from each course, per intake, based on strong academic merit and a compelling written application." },
+        { "icon": "Feather", "title": "Women Leaders in FinTech & Data Analytics Scholarship", "value": "50% Tuition Fee Waiver", "description": "Awarded to one exceptional female student from each course per intake to champion women in technology and finance." },
+        { "icon": "Percent", "title": "UOW India Bursary", "value": "10% Tuition Fee Waiver", "description": "This bursary is automatically awarded to all international students who enroll in a UOW India course, making your education more affordable." },
+        { "icon": "CalendarClock", "title": "Early Bird Offer", "value": "$2,000 AUD Bursary", "description": "Receive a significant bursary when you accept your offer and pay your deposit by the specified deadline for the upcoming intake. A great way to start your journey!" }
+    ],
+    "whyApplyWithUs": [
+        "Official representation of UOW India, ensuring authentic information.",
+        "Expert guidance on program selection based on your career goals.",
+        "Step-by-step assistance with the entire application process.",
+        "Support with TOEFL/IELTS preparation and exam booking.",
+        "Free counseling session to clarify all your doubts and chart your path.",
+        "Post-admission support to ensure a smooth transition to university life."
+    ],
+    "industryPartners": [
+        "Afthonia Labs", "Allied Digital", "ANZ", "Ayekart", "Bank of America", 
+        "BeFree", "Cybage", "Delta Tech", "GEN8i", "Glomo Pay", "HSBC", "IBM - ICE", 
+        "ICICI", "iHub and SSIP", "Rubiscape Private Limited", "Odoo", "V-Man"
+    ],
+    "studentLife": [
+        { "icon": "Home", "title": "Accommodation", "description": "Modern, secure, and fully-equipped student housing is available close to the campus, offering a comfortable and convenient living experience." },
+        { "icon": "HeartHandshake", "title": "Student Support Services", "description": "A dedicated team provides comprehensive support, including academic advising, wellness programs, and assistance for students with disabilities." },
+        { "icon": "Users", "title": "Campus Life at GIFT City", "description": "Experience a vibrant campus atmosphere with various clubs, events, and societies. Engage in networking opportunities within the dynamic GIFT City ecosystem." },
+        { "icon": "Briefcase", "title": "Career Services", "description": "Benefit from a dedicated career services team offering resume workshops, interview coaching, and strong connections with industry partners for internships and job placements." }
+    ]
+}
