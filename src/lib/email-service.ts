@@ -1,18 +1,131 @@
 import nodemailer from 'nodemailer';
+import { google } from 'googleapis';
 
-// Email configuration
-const createTransporter = () => {
-  // Configure based on your email service provider
-  // This example uses Gmail SMTP - you can configure for other providers
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASSWORD,
-    },
-  });
+// Token cache to avoid unnecessary API calls
+class TokenCache {
+  private token: string | null = null;
+  private expiresAt: number = 0;
+
+  set(token: string, expiresIn: number) {
+    this.token = token;
+    this.expiresAt = Date.now() + (expiresIn * 1000) - 5 * 60 * 1000; // 5 min buffer
+  }
+
+  isValid(): boolean {
+    return this.token !== null && Date.now() < this.expiresAt;
+  }
+
+  get(): string | null {
+    return this.isValid() ? this.token : null;
+  }
+
+  clear() {
+    this.token = null;
+    this.expiresAt = 0;
+  }
+}
+
+const tokenCache = new TokenCache();
+
+// Get Gmail OAuth2 access token
+async function getGmailAccessToken(): Promise<string | null> {
+  try {
+    if (!process.env.GMAIL_CLIENT_ID || !process.env.GMAIL_CLIENT_SECRET || !process.env.GMAIL_REFRESH_TOKEN) {
+      return null;
+    }
+
+    // Check cache first
+    const cachedToken = tokenCache.get();
+    if (cachedToken) {
+      return cachedToken;
+    }
+
+    const oauth2Client = new google.auth.OAuth2(
+      process.env.GMAIL_CLIENT_ID,
+      process.env.GMAIL_CLIENT_SECRET,
+      'http://localhost:3000/api/auth/callback'
+    );
+
+    oauth2Client.setCredentials({
+      refresh_token: process.env.GMAIL_REFRESH_TOKEN,
+    });
+
+    const { credentials } = await oauth2Client.refreshAccessToken();
+    const accessToken = credentials.access_token;
+
+    if (!accessToken) {
+      return null;
+    }
+
+    // Cache the token
+    tokenCache.set(accessToken, credentials.expiry_date ? 
+      Math.floor((credentials.expiry_date - Date.now()) / 1000) : 3600);
+
+    return accessToken;
+  } catch (error) {
+    console.error('Failed to get Gmail access token:', error);
+    return null;
+  }
+}
+
+// Email configuration - Smart routing based on account type
+// Primary: SMTP2GO (proven reliable for Google Workspace accounts)
+// Fallback: Gmail OAuth2 (if configured for personal Gmail)
+const createTransporter = async () => {
+  // Try SMTP2GO first (primary service for workspace accounts)
+  if (process.env.SMTP_USER && process.env.SMTP_PASSWORD) {
+    try {
+      const port = parseInt(process.env.SMTP_PORT || '2525');
+      const secure = process.env.SMTP_SECURE === 'true'; // Only true if explicitly set
+      
+      console.log('Creating SMTP2GO transporter with:', {
+        host: process.env.SMTP_HOST,
+        port,
+        secure,
+        user: process.env.SMTP_USER,
+      });
+
+      return nodemailer.createTransport({
+        host: process.env.SMTP_HOST || 'mail.smtp2go.com',
+        port,
+        secure,
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASSWORD,
+        },
+      });
+    } catch (error) {
+      console.warn('SMTP2GO transporter creation failed:', error);
+      // Continue to fallback
+    }
+  }
+
+  // Fallback to Gmail OAuth2 if configured
+  if (process.env.GMAIL_CLIENT_ID && process.env.GMAIL_REFRESH_TOKEN) {
+    try {
+      const accessToken = await getGmailAccessToken();
+      if (accessToken) {
+        console.log('Using Gmail OAuth2 as fallback email service');
+        return nodemailer.createTransport({
+          host: 'smtp.gmail.com',
+          port: 465,
+          secure: true,
+          auth: {
+            type: 'OAuth2',
+            user: process.env.GMAIL_USER,
+            clientId: process.env.GMAIL_CLIENT_ID,
+            clientSecret: process.env.GMAIL_CLIENT_SECRET,
+            refreshToken: process.env.GMAIL_REFRESH_TOKEN,
+            accessToken: accessToken,
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Gmail OAuth2 also unavailable:', error);
+    }
+  }
+
+  throw new Error('No email service configured (neither SMTP2GO nor Gmail OAuth2)');
 };
 
 export interface ContactSubmissionData {
@@ -28,15 +141,21 @@ export interface ContactSubmissionData {
 export async function sendAdminNotification(submission: ContactSubmissionData): Promise<boolean> {
   try {
     // Check if email configuration is available
-    if (!process.env.SMTP_USER || !process.env.SMTP_PASSWORD || !process.env.ADMIN_EMAIL) {
-      console.warn('Email configuration missing. Skipping admin notification.');
+    if (!process.env.ADMIN_EMAIL) {
+      console.warn('Admin email not configured. Skipping admin notification.');
       return false;
     }
 
-    const transporter = createTransporter();
+    // Check for either Gmail OAuth2 or SMTP2GO
+    const hasGmailOAuth2 = process.env.GMAIL_CLIENT_ID && process.env.GMAIL_REFRESH_TOKEN;
+    const hasSMTP2GO = process.env.SMTP_USER && process.env.SMTP_PASSWORD;
 
-    // Verify SMTP connection
-    await transporter.verify();
+    if (!hasGmailOAuth2 && !hasSMTP2GO) {
+      console.warn('No email service configured. Skipping admin notification.');
+      return false;
+    }
+
+    const transporter = await createTransporter();
 
     const adminEmail = process.env.ADMIN_EMAIL;
     const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER;
@@ -121,19 +240,28 @@ Reply directly to: ${submission.email}
 export async function sendAutoReply(submission: ContactSubmissionData): Promise<boolean> {
   try {
     // Check if email configuration is available
-    if (!process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
-      console.warn('Email configuration missing. Skipping auto-reply.');
+    const hasGmailOAuth2 = process.env.GMAIL_CLIENT_ID && process.env.GMAIL_REFRESH_TOKEN;
+    const hasSMTP2GO = process.env.SMTP_USER && process.env.SMTP_PASSWORD;
+
+    if (!hasGmailOAuth2 && !hasSMTP2GO) {
+      console.warn('No email service configured. Skipping auto-reply.');
       return false;
     }
 
-    const transporter = createTransporter();
+    const transporter = await createTransporter();
     const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER;
 
     const subject = `Thank you for contacting Whiteboard Consultants - ${submission.inquiryType}`;
     
+    // Use production URL for logo in emails (since localhost won't work when sent)
+    const logoUrl = process.env.NODE_ENV === 'production' 
+      ? `https://whiteboard-lms.vercel.app/logo.png`
+      : `${process.env.NEXT_PUBLIC_SITE_URL}/logo.png`;
+    
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
         <div style="text-align: center; margin-bottom: 30px;">
+          <img src="${logoUrl}" alt="Whiteboard Consultants" style="max-width: 200px; height: auto; margin-bottom: 15px; display: block;">
           <h1 style="color: #2563eb; margin: 0;">Whiteboard Consultants</h1>
           <p style="color: #64748b; margin: 5px 0 0 0;">Your Future | Our Focus</p>
         </div>

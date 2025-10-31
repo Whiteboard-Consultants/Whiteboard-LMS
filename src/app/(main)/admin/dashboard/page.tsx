@@ -10,6 +10,7 @@ import { PageHeader } from '@/components/page-header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/use-auth';
 import { AnnouncementBanner } from '@/components/announcement-banner';
+import { AdminRevenueCard } from '@/components/admin-revenue-card';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -187,28 +188,12 @@ export default function AdminDashboardPage() {
             </Link>
           </div>
         </div>
+      </div>
 
-        <div className="border rounded-lg p-6">
-          <h3 className="text-lg font-semibold mb-4">System Status</h3>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span>Authentication:</span>
-              <span className="text-green-600">✓ Active (Supabase)</span>
-            </div>
-            <div className="flex justify-between">
-              <span>User Management:</span>
-              <span className="text-green-600">✓ Active</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Cart System:</span>
-              <span className="text-yellow-600">⚠ Local Storage Only</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Course Management:</span>
-              <span className="text-gray-500">○ Pending Migration</span>
-            </div>
-          </div>
-        </div>
+      {/* Revenue Analytics Section */}
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold tracking-tight font-headline">Revenue Analytics</h2>
+        <AdminRevenueCard />
       </div>
     </div>
   );

@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { PlusCircle, Lightbulb, Edit, Users, BookOpen, StarIcon } from "lucide-react";
+import { PlusCircle, Lightbulb, Edit, Users, BookOpen, StarIcon, DollarSign } from "lucide-react";
 import { subDays } from 'date-fns';
 
 import { supabase } from "@/lib/supabase";
@@ -23,6 +23,7 @@ import type { Course } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AnnouncementBanner } from "@/components/announcement-banner";
 import { Separator } from "@/components/ui/separator";
+import { RevenueCard } from "@/components/revenue-card";
 
 
 export default function InstructorDashboardPage() {
@@ -30,6 +31,7 @@ export default function InstructorDashboardPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [newEnrollments, setNewEnrollments] = useState(0);
+  const [totalRevenue, setTotalRevenue] = useState(0);
 
   useEffect(() => {
     if (authLoading) {
@@ -223,6 +225,13 @@ export default function InstructorDashboardPage() {
   const averageRating = courses.length > 0
     ? (courses.reduce((sum, course) => sum + course.rating, 0) / courses.length).toFixed(2)
     : "N/A";
+  
+  // Calculate total revenue from all courses
+  const revenue = courses.reduce((sum, course) => {
+    const coursePrice = course.price || 0;
+    const studentCount = course.studentCount || 0;
+    return sum + (coursePrice * studentCount);
+  }, 0);
 
   return (
     <div className="space-y-8">
@@ -265,7 +274,7 @@ export default function InstructorDashboardPage() {
 
       <div className="space-y-6">
         <h2 className="text-2xl font-bold tracking-tight font-headline">Overall Performance</h2>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
             <StatCard
             title="Total Students"
             value={loading ? "..." : totalStudents.toLocaleString()}
@@ -283,6 +292,7 @@ export default function InstructorDashboardPage() {
             >
               <p className="text-xs text-muted-foreground pt-1">Across all courses</p>
             </StatCard>
+            <RevenueCard courses={courses} loading={loading} />
         </div>
       </div>
 
