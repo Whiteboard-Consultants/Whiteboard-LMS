@@ -130,43 +130,69 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
       
       {/* Current Image Preview */}
       {value && (
-        <div className="relative group">
-          <div className="relative w-full h-48 rounded-lg overflow-hidden bg-gray-1
-00 border">
-            <Image
-              src={value}
-              alt="Featured image preview"
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              onError={(e) => {
-                // Handle broken images
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-                target.parentElement?.classList.add('flex', 'items-center', 'justify-center');
-                if (target.parentElement) {
-                  target.parentElement.innerHTML = `
-                    <div class="flex flex-col items-center justify-center text-gray-400 p-4">
-                      <svg class="w-8 h-8 mb-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
-                      </svg>
-                      <span class="text-sm">Failed to load image</span>
-                    </div>
-                  `;
-                }
-              }}
-            />
+        <div className="space-y-3">
+          <div className="relative w-full rounded-lg overflow-hidden bg-gray-100 border">
+            <div className="relative w-full h-48">
+              <Image
+                src={value}
+                alt="Featured image preview"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                onError={(e) => {
+                  // Handle broken images
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  target.parentElement?.classList.add('flex', 'items-center', 'justify-center');
+                  if (target.parentElement) {
+                    target.parentElement.innerHTML = `
+                      <div class="flex flex-col items-center justify-center text-gray-400 p-4">
+                        <svg class="w-8 h-8 mb-2" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="text-sm">Failed to load image</span>
+                      </div>
+                    `;
+                  }
+                }}
+              />
+            </div>
           </div>
-          <Button
-            type="button"
-            variant="destructive"
-            size="icon"
-            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-            onClick={handleRemoveImage}
-            disabled={disabled}
-          >
-            <X className="h-4 w-4" />
-          </Button>
+          
+          {/* Action Buttons */}
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="flex-1"
+              onClick={() => {
+                setUploadTab('upload');
+              }}
+              disabled={disabled}
+              title="Replace featured image with a new one"
+            >
+              Replace Image
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              className="flex-1 flex items-center justify-center gap-2"
+              onClick={() => {
+                handleRemoveImage();
+                toast({
+                  title: "✅ Image Removed",
+                  description: "Featured image has been cleared. Save your post to apply changes.",
+                });
+              }}
+              disabled={disabled}
+              title="Delete featured image"
+            >
+              <X className="h-4 w-4" />
+              <span>Delete Image</span>
+            </Button>
+          </div>
         </div>
       )}
 

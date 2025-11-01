@@ -73,10 +73,9 @@ export async function createPost(formData: PostFormData, authorData: { id: strin
       featured: validatedData.featured,
       published: true, // for the existing 'published' boolean field
       tags: tagsArray,
-      ...(validatedData.imageUrl && validatedData.imageUrl.trim() !== "" && {
-        featured_image: validatedData.imageUrl,
-        featured_image_url: validatedData.imageUrl
-      }),
+      // Set featured image or null if empty
+      featured_image: validatedData.imageUrl?.trim() || null,
+      featured_image_url: validatedData.imageUrl?.trim() || null,
       author_id: authorData.id,
       author_name: authorData.name,
       read_time_minutes: readTimeMinutes,
@@ -154,10 +153,9 @@ export async function updatePost(postId: string, formData: PostFormData, authorD
       featured: validatedData.featured,
       published: validatedData.featured, // update published status based on featured for now
       tags: tagsArray,
-      ...(validatedData.imageUrl && validatedData.imageUrl.trim() !== "" && {
-        featured_image: validatedData.imageUrl,
-        featured_image_url: validatedData.imageUrl
-      }),
+      // Set featured image or null if empty (allows deletion)
+      featured_image: validatedData.imageUrl?.trim() || null,
+      featured_image_url: validatedData.imageUrl?.trim() || null,
       read_time_minutes: readTimeMinutes,
       updated_at: new Date().toISOString(),
     };
