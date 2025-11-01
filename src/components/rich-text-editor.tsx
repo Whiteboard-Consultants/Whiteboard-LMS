@@ -5,6 +5,7 @@ import { useEffect, useState, useId, useRef, useCallback } from 'react';
 import { useEditor, EditorContent, Editor, ReactNodeViewRenderer, NodeViewWrapper } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { TextStyle } from '@tiptap/extension-text-style';
+import { Extension } from '@tiptap/core';
 import BaseImage from '@tiptap/extension-image';
 import {
   Bold, Italic, Strikethrough, Heading1, Heading2, Heading3, Pilcrow, List, ListOrdered, Quote, Minus, Undo, Redo, ImageIcon, Loader2, ChevronDown
@@ -14,6 +15,50 @@ import { useAuth } from '@/hooks/use-auth';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import type { ReactNodeViewProps } from '@tiptap/react';
+
+// Custom FontSize extension
+const FontSize = Extension.create({
+  name: 'fontSize',
+  addOptions() {
+    return {
+      types: ['textStyle'],
+    };
+  },
+  addGlobalAttributes() {
+    return [
+      {
+        types: this.options.types,
+        attributes: {
+          fontSize: {
+            default: null,
+            parseHTML: element => {
+              const fontSize = element.style.fontSize;
+              return fontSize ? { fontSize } : null;
+            },
+            renderHTML: attributes => {
+              if (!attributes.fontSize) {
+                return {};
+              }
+              return {
+                style: `font-size: ${attributes.fontSize}`,
+              };
+            },
+          },
+        },
+      },
+    ];
+  },
+  addCommands() {
+    return {
+      setFontSize: (fontSize: string) => ({ commands }) => {
+        return commands.setMark('textStyle', { fontSize });
+      },
+      unsetFontSize: () => ({ commands }) => {
+        return commands.resetAttributes('textStyle', 'fontSize');
+      },
+    };
+  },
+});
 
 const ImageView = ({ node, selected }: ReactNodeViewProps<HTMLElement>) => {
   const { src, alt } = node.attrs as { src: string; alt?: string };
@@ -75,9 +120,19 @@ const EditorToolbar = ({ editor }: { editor: Editor | null }) => {
     }
     
     console.log(`📝 Applying font size: ${fontSize}`);
-    const result = editor.chain().focus().setMark('textStyle', { fontSize }).run();
-    console.log(`✅ Font size applied:`, result);
-    setCurrentFontSize(fontSize);
+    try {
+      // Use the custom setFontSize command
+      const result = editor.chain().focus().setFontSize(fontSize).run();
+      console.log(`✅ Font size applied:`, result);
+      setCurrentFontSize(fontSize);
+    } catch (error) {
+      console.error('❌ Error applying font size:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to apply font size'
+      });
+    }
   }, [editor, toast]);
 
   // Update font size state when editor selection changes (debounced)
@@ -409,6 +464,7 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
         },
       }),
       TextStyle,
+      FontSize,
       ConfiguredImage,
     ],
     content: content,
