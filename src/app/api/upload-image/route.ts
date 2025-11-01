@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     const fileExtension = file.name.split('.').pop() || 'jpg';
     const fileName = `${uuidv4()}.${fileExtension}`;
     const filePath = `blog_images/${fileName}`;
-    const bucket = 'course-assets';
+    const bucket = 'course-assets'; // Note: Ensure this bucket has public access enabled in Supabase
 
     // Get Supabase URL
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
