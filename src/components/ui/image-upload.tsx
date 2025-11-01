@@ -117,10 +117,22 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
     <div className="space-y-4">
       <Label>Featured Image</Label>
       
+      {/* Upload Success Message */}
+      {value && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+          <p className="text-sm font-medium text-green-900">
+            ✅ Image selected successfully! 
+            <br />
+            <span className="text-xs text-green-700 mt-1 block">Remember to save your blog post to publish this image.</span>
+          </p>
+        </div>
+      )}
+      
       {/* Current Image Preview */}
       {value && (
         <div className="relative group">
-          <div className="relative w-full h-48 rounded-lg overflow-hidden bg-gray-100 border">
+          <div className="relative w-full h-48 rounded-lg overflow-hidden bg-gray-1
+00 border">
             <Image
               src={value}
               alt="Featured image preview"
