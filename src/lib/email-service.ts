@@ -261,9 +261,7 @@ export async function sendAutoReply(submission: ContactSubmissionData): Promise<
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <img src="${logoUrl}" alt="Whiteboard Consultants" style="max-width: 200px; height: auto; margin-bottom: 15px; display: block;">
-          <h1 style="color: #2563eb; margin: 0;">Whiteboard Consultants</h1>
-          <p style="color: #64748b; margin: 5px 0 0 0;">Your Future | Our Focus</p>
+          <img src="${logoUrl}" alt="Whiteboard Consultants" style="max-width: 200px; height: auto; display: block; margin: 0 auto;">
         </div>
         
         <h2 style="color: #1e40af;">Thank you for reaching out!</h2>
