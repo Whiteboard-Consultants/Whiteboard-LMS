@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, User, Tag } from "lucide-react";
 import { Metadata } from "next";
 import { convertToDate } from "@/lib/date-utils";
-import { parseSlugFromUrl } from "@/lib/slug-utils";
+import { parseSlugFromUrl, generateSlug } from "@/lib/slug-utils";
 
 
 type PostPageProps = {
@@ -19,7 +19,16 @@ type PostPageProps = {
 async function getPost(slug: string): Promise<Post | null> {
     const posts = await getPosts();
     const decodedSlug = parseSlugFromUrl(slug);
-    const post = posts.find(p => p.slug === decodedSlug || p.slug === slug);
+    const normalizedSlug = generateSlug(decodedSlug);
+    
+    // Try multiple matching strategies to handle various URL formats
+    const post = posts.find(p => 
+        p.slug === decodedSlug || 
+        p.slug === slug || 
+        p.slug === normalizedSlug ||
+        // Fallback: Match by normalized title for manually-typed URLs
+        generateSlug(p.title) === normalizedSlug
+    );
     return post || null;
 }
 
