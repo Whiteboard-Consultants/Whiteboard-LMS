@@ -62,9 +62,23 @@ const EditorToolbar = ({ editor }: { editor: Editor | null }) => {
   // Memoized font size change handler
   const handleFontSizeChange = useCallback((fontSize: string) => {
     if (!editor) return;
-    editor.chain().focus().setMark('textStyle', { fontSize }).run();
+    
+    // Check if text is selected
+    const { from, to } = editor.state.selection;
+    if (from === to) {
+      toast({
+        variant: 'destructive',
+        title: 'No text selected',
+        description: 'Please select text before changing font size.'
+      });
+      return;
+    }
+    
+    console.log(`📝 Applying font size: ${fontSize}`);
+    const result = editor.chain().focus().setMark('textStyle', { fontSize }).run();
+    console.log(`✅ Font size applied:`, result);
     setCurrentFontSize(fontSize);
-  }, [editor]);
+  }, [editor, toast]);
 
   // Update font size state when editor selection changes (debounced)
   useEffect(() => {
@@ -232,6 +246,7 @@ const EditorToolbar = ({ editor }: { editor: Editor | null }) => {
           className="flex items-center gap-2 p-2 rounded-lg hover:bg-accent bg-transparent border border-input focus:ring-2 focus:ring-primary focus:border-primary outline-none min-w-[120px] justify-between"
           aria-label="Font size"
           aria-expanded={isDropdownOpen}
+          title="Select text first, then choose a font size"
         >
           <span className="text-sm">
             {currentFontSize === '10px' && 'Tiny'}
