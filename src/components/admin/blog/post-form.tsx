@@ -79,6 +79,22 @@ export function PostForm({ post, onSubmit, isSubmitting }: PostFormProps) {
         />
         <FormField
           control={form.control}
+          name="imageUrl"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <ImageUpload
+                  value={field.value || ""}
+                  onChange={field.onChange}
+                  disabled={isSubmitting}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
           name="slug"
           render={({ field }) => (
             <FormItem>
@@ -143,22 +159,6 @@ export function PostForm({ post, onSubmit, isSubmitting }: PostFormProps) {
               <FormLabel>Content</FormLabel>
               <FormControl>
                 <RichTextEditor content={field.value} onChange={field.onChange} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="imageUrl"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <ImageUpload
-                  value={field.value || ""}
-                  onChange={field.onChange}
-                  disabled={isSubmitting}
-                />
               </FormControl>
               <FormMessage />
             </FormItem>

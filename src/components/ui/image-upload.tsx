@@ -226,10 +226,10 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
               }}
               disabled={disabled || isUploading}
               className="hidden"
-              id="image-upload"
+              id="featured-image-upload"
             />
             <label
-              htmlFor="image-upload"
+              htmlFor="featured-image-upload"
               className={`cursor-pointer flex flex-col items-center gap-2 ${
                 disabled || isUploading ? 'cursor-not-allowed opacity-50' : ''
               }`}
