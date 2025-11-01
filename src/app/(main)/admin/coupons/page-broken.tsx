@@ -122,7 +122,7 @@ export default function CouponsPage() {
                                 variant={"outline"}
                                 className={cn("pl-3 text-left font-normal", !field.value && "text-muted-foreground")}
                               >
-                                {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                                {field.value ? format(field.value, "dd MMM yyyy") : <span>Pick a date</span>}
                                 <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                               </Button>
                             </FormControl>
@@ -169,7 +169,7 @@ export default function CouponsPage() {
                                 <TableCell className="capitalize">{coupon.type}</TableCell>
                                 <TableCell>{coupon.type === 'percentage' ? `${coupon.value}%` : `$${coupon.value}`}</TableCell>
                                 <TableCell>{coupon.usageCount} / {coupon.usageLimit || '∞'}</TableCell>
-                                <TableCell>{coupon.expiresAt ? format(coupon.expiresAt.toDate(), 'PPP') : 'Never'}</TableCell>
+                                <TableCell>{coupon.expiresAt ? format(coupon.expiresAt.toDate(), 'dd MMM yyyy') : 'Never'}</TableCell>
                                 <TableCell><Switch checked={coupon.isActive} onCheckedChange={(checked) => handleStatusChange(coupon.id, checked)} /></TableCell>
                                 <TableCell className="text-right">
                                     <AlertDialog>

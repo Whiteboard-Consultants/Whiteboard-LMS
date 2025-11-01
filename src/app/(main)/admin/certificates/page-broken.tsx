@@ -113,7 +113,7 @@ export default function CertificateRequestsPage() {
                          <CardContent>
                              <div className="mb-4">
                                 <p className="text-sm">Email: {req.studentEmail}</p>
-                                <p className="text-sm">Completed: {new Date(req.enrolledAt as string).toLocaleDateString()}</p>
+                                <p className="text-sm">Completed: {format(new Date(req.enrolledAt as string), 'dd MMM yyyy')}</p>
                              </div>
                              <Button size="sm" onClick={() => handleApprove(req.id)} disabled={updatingId === req.id} className="w-full">
                                 {updatingId === req.id ? (
@@ -163,7 +163,7 @@ export default function CertificateRequestsPage() {
                       <p className="text-xs text-muted-foreground">{req.studentEmail}</p>
                   </TableCell>
                   <TableCell>{req.courseTitle}</TableCell>
-                  <TableCell>{format(new Date(req.enrolledAt as string), 'PPP')}</TableCell>
+                  <TableCell>{format(new Date(req.enrolledAt as string), 'dd MMM yyyy')}</TableCell>
                   <TableCell>{req.averageScore?.toFixed(2) ?? 'N/A'}%</TableCell>
                   <TableCell className="text-right">
                     <Button

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import { format } from "date-fns";
 import { supabase } from "@/lib/supabase";
 import { PageHeader } from "@/components/page-header";
 import { convertToDate } from "@/lib/date-utils";
@@ -147,7 +148,7 @@ export default function AdminUsersPage() {
         name: user.name || 'Unknown',
         email: user.email,
         role: user.role || 'student',
-        date: new Date(user.created_at).toLocaleDateString(),
+        date: format(new Date(user.created_at), 'dd MMM yyyy'),
         status: 'pending' as const
       }));
 
@@ -710,7 +711,7 @@ export default function AdminUsersPage() {
                                     <p className="font-semibold">{enrollment.courseTitle}</p>
                                     <p className="text-sm text-muted-foreground">Enrolled: {(() => {
                                         const date = convertToDate(enrollment.enrolledAt);
-                                        return date ? date.toLocaleDateString() : 'Invalid date';
+                                        return date ? format(date, 'dd MMM yyyy') : 'Invalid date';
                                     })()}</p>
                                     <Badge variant={enrollment.status === 'approved' ? 'secondary' : 'default'} className="mt-1">{enrollment.status}</Badge>
                                 </div>
@@ -768,7 +769,7 @@ export default function AdminUsersPage() {
                    <p className="text-sm text-muted-foreground">Joined</p>
                    <p className="font-medium">{(() => {
                        const date = convertToDate(viewingProfileUser.createdAt);
-                       return date ? date.toLocaleDateString() : 'Invalid date';
+                       return date ? format(date, 'dd MMM yyyy') : 'Invalid date';
                    })()}</p>
                  </div>
                </div>

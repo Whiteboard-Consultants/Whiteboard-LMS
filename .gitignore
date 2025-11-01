@@ -105,3 +105,19 @@ next-env.d.ts
 # functions compiled output
 /src/functions/lib
 .env.local.new
+
+# Sensitive credentials and documentation files
+GMAIL_OAUTH2_*.md
+VERCEL_*.md
+EMAIL_*.md
+RECAPTCHA_*.md
+INTEGRATION_*.md
+GITHUB_*.md
+FINAL_*.md
+READY_*.md
+SESSION_*.md
+IMPLEMENTATION_*.md
+QUICK_REFERENCE_*.md
+RTE_*.md
+get-gmail-*.js
+test-*.js

@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Star, StarHalf } from 'lucide-react';
 import { Review } from '@/types';
 import { toast } from 'sonner';
+import { format } from 'date-fns';
 import { submitCourseReview, getCourseReviews, getUserCourseReview } from '@/app/student/actions';
 
 interface CourseReviewsProps {
@@ -201,11 +202,7 @@ const ReviewForm = ({
 
 const ReviewCard = ({ review }: { review: Review }) => {
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    return format(new Date(dateString), 'dd MMM yyyy');
   };
 
   return (

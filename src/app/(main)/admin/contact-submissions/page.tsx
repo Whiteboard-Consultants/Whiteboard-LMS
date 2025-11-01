@@ -275,7 +275,7 @@ export default function ContactSubmissionsPage() {
                       <TableCell>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <Calendar className="h-3 w-3" />
-                          {format(new Date(submission.submitted_at), 'MMM dd, yyyy HH:mm')}
+                          {format(new Date(submission.submitted_at), 'dd MMM yyyy HH:mm')}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -334,7 +334,7 @@ export default function ContactSubmissionsPage() {
                       {submission.first_name} {submission.last_name}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {submission.inquiry_type} • {format(new Date(submission.submitted_at), 'MMM dd')}
+                      {submission.inquiry_type} • {format(new Date(submission.submitted_at), 'dd MMM')}
                     </p>
                   </div>
                 ))}
@@ -388,7 +388,7 @@ export default function ContactSubmissionsPage() {
                           </div>
                           <div>
                             <p className="text-sm font-medium text-muted-foreground mb-1">Submitted</p>
-                            <p className="font-medium text-sm">{format(new Date(selectedSubmission.submitted_at), 'MMMM dd, yyyy HH:mm')}</p>
+                            <p className="font-medium text-sm">{format(new Date(selectedSubmission.submitted_at), 'dd MMMM yyyy HH:mm')}</p>
                           </div>
                         </div>
                       </div>

@@ -68,7 +68,7 @@ export function RevenueCard({ courses, loading }: RevenueCardProps) {
             </div>
           )}
           <p className="text-xs text-muted-foreground pt-2">
-            From {format(startDate, 'MMM dd, yyyy')} to {format(endDate, 'MMM dd, yyyy')}
+            From {format(startDate, 'dd MMM yyyy')} to {format(endDate, 'dd MMM yyyy')}
           </p>
         </div>
 

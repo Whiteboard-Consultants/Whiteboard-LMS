@@ -64,7 +64,7 @@ export function BlogPostHeader({ post }: BlogPostHeaderProps) {
         
         <Separator orientation="vertical" className="h-4" />
         
-        <span>Published on {format(new Date(post.publishedAt || post.createdAt), "PPP")}</span>
+        <span>Published on {format(new Date(post.publishedAt || post.createdAt), "dd MMM yyyy")}</span>
       </div>
 
       {/* Featured Image */}

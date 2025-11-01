@@ -229,7 +229,7 @@ function BlogPostCard({ post }: { post: Post }) {
                 <Calendar className="w-3 h-3 mr-1" />
                 {(() => {
                   const date = convertToDate(post.publishedAt || post.createdAt);
-                  return date ? format(date, "MMM d, yyyy") : "Unknown date";
+                  return date ? format(date, "dd MMM yyyy") : "Unknown date";
                 })()}
               </span>
               <span className="flex items-center">

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { format } from 'date-fns';
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -174,7 +175,7 @@ export default function AdminCertificatesPage() {
                         </div>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <Calendar className="h-4 w-4" />
-                          Requested: {new Date(request.certificate_requested_at!).toLocaleDateString()}
+                          Requested: {format(new Date(request.certificate_requested_at!), 'dd MMM yyyy')}
                         </div>
                       </div>
                       <Badge variant="secondary">Pending</Badge>
@@ -248,7 +249,7 @@ export default function AdminCertificatesPage() {
                         </div>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <Calendar className="h-4 w-4" />
-                          Approved: {new Date(certificate.certificate_approved_at!).toLocaleDateString()}
+                          Approved: {format(new Date(certificate.certificate_approved_at!), 'dd MMM yyyy')}
                         </div>
                       </div>
                       <Badge variant="default" className="bg-green-100 text-green-800">

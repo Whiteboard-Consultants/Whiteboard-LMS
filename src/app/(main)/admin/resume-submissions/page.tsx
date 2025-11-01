@@ -248,7 +248,7 @@ export default function ResumeSubmissionsPage() {
                   <TableCell>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Calendar className="h-3 w-3" />
-                      {format(new Date(submission.submitted_at), 'MMM dd, yyyy HH:mm')}
+                      {format(new Date(submission.submitted_at), 'dd MMM yyyy HH:mm')}
                     </div>
                   </TableCell>
                   <TableCell>

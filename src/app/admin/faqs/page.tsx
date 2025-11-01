@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Plus, Edit2, Trash2, Eye, EyeOff, History } from 'lucide-react'
+import { format } from 'date-fns'
 import type { FAQsManagementData } from '@/types/faq'
 
 interface FAQListState {
@@ -217,7 +218,7 @@ export default function AdminFAQsPage() {
                       {faq.helpful_count || 0}👍 / {faq.unhelpful_count || 0}👎
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
-                      {new Date(faq.updated_at).toLocaleDateString()}
+                      {format(new Date(faq.updated_at), 'dd MMM yyyy')}
                     </td>
                     <td className="px-6 py-4 text-right text-sm">
                       <div className="flex items-center justify-end gap-2">

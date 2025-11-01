@@ -22,7 +22,7 @@ export async function generateAndUploadCertificate({
 }: GenerateAndUploadCertificateParams) {
   // 1. Render PDF to buffer
   try {
-    const formattedDate = format(date, 'MMMM d, yyyy');
+    const formattedDate = format(date, 'dd MMMM yyyy');
     console.log('[Certificate] Generating PDF for:', { studentName, courseTitle, instructorName, formattedDate });
     const pdfBuffer = await renderToBuffer(
       <CertificatePDF

@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { Download, Users, Star, DollarSign, Loader2, User as UserIcon, ArrowLeft, BookOpen, TrendingUp, Calendar, Award, BarChart3 } from "lucide-react";
 import Link from "next/link";
+import { format } from "date-fns";
 
 import { supabase } from "@/lib/supabase";
 import { PageHeader } from "@/components/page-header";
@@ -743,11 +744,11 @@ export default function AdminReportsPage() {
                                             </div>
                                             <div>
                                                 <p className="text-xs text-muted-foreground">Enrolled On</p>
-                                                <p className="text-sm font-medium">{new Date(student.enrolledAt).toLocaleDateString()}</p>
+                                                <p className="text-sm font-medium">{format(new Date(student.enrolledAt), 'dd MMM yyyy')}</p>
                                             </div>
                                             <div>
                                                 <p className="text-xs text-muted-foreground">Last Login</p>
-                                                <p className="text-sm font-medium">{student.lastAccessedAt ? new Date(student.lastAccessedAt).toLocaleDateString() : 'N/A'}</p>
+                                                <p className="text-sm font-medium">{student.lastAccessedAt ? format(new Date(student.lastAccessedAt), 'dd MMM yyyy') : 'N/A'}</p>
                                             </div>
                                             <div>
                                                 <p className="text-xs text-muted-foreground">Progress</p>
@@ -806,8 +807,8 @@ export default function AdminReportsPage() {
                             </TableCell>
                             <TableCell>{student.email}</TableCell>
                             <TableCell>{student.courseTitle}</TableCell>
-                            <TableCell>{new Date(student.enrolledAt).toLocaleDateString()}</TableCell>
-                            <TableCell>{student.lastAccessedAt ? new Date(student.lastAccessedAt).toLocaleDateString() : 'N/A'}</TableCell>
+                            <TableCell>{format(new Date(student.enrolledAt), 'dd MMM yyyy')}</TableCell>
+                            <TableCell>{student.lastAccessedAt ? format(new Date(student.lastAccessedAt), 'dd MMM yyyy') : 'N/A'}</TableCell>
                             <TableCell>
                             <div className="flex items-center gap-2">
                                 <Progress value={student.progress} className="w-32 h-2" />

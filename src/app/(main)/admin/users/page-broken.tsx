@@ -3,6 +3,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { collection, onSnapshot, query, where, getDoc, getDocs, doc } from "firebase/firestore";
+import { format } from "date-fns";
 import Link from "next/link";
 import { db } from "@/lib/firebase-compat";
 import { PageHeader } from "@/components/page-header";
@@ -79,7 +80,7 @@ export default function AdminUsersPage() {
       const requests = snapshot.docs.map(doc => ({
         ...doc.data(),
         id: doc.id,
-        date: doc.data().date?.toDate().toLocaleDateString() ?? 'N/A'
+        date: doc.data().date?.toDate() ? format(doc.data().date.toDate(), 'dd MMM yyyy') : 'N/A'
       })) as RegistrationRequest[];
       setPendingRegistrations(requests);
     });
@@ -435,7 +436,7 @@ export default function AdminUsersPage() {
                             <li key={enrollment.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-md">
                                 <div>
                                     <p className="font-semibold">{enrollment.courseTitle}</p>
-                                    <p className="text-sm text-muted-foreground">Enrolled: {enrollment.enrolledAt.toDate().toLocaleDateString()}</p>
+                                    <p className="text-sm text-muted-foreground">Enrolled: {format(enrollment.enrolledAt.toDate(), 'dd MMM yyyy')}</p>
                                     <Badge variant={enrollment.status === 'approved' ? 'secondary' : 'default'} className="mt-1">{enrollment.status}</Badge>
                                 </div>
                                 <AlertDialog>

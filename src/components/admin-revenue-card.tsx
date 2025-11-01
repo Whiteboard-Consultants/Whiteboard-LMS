@@ -111,7 +111,7 @@ export function AdminRevenueCard() {
                   ₹{totalRevenue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                 </div>
                 <p className="text-sm text-muted-foreground pt-2">
-                  Total platform revenue from {format(startDate, 'MMM dd, yyyy')} to {format(endDate, 'MMM dd, yyyy')}
+                  Total platform revenue from {format(startDate, 'dd MMM yyyy')} to {format(endDate, 'dd MMM yyyy')}
                 </p>
               </div>
             )}
