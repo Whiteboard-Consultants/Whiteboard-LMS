@@ -193,6 +193,14 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
           </p>
         </div>
       )}
+      
+      {/* No Image Message */}
+      {!value && (
+        <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded">
+          <p className="text-sm text-amber-800 font-medium">⚠️ No Featured Image Selected</p>
+          <p className="text-xs text-amber-700 mt-1">Upload a featured image below to display it as the hero image on the blog post.</p>
+        </div>
+      )}
 
       {/* Upload/URL Input */}
       <Tabs value={uploadTab} onValueChange={(v) => setUploadTab(v as "upload" | "url")} className="w-full">
