@@ -20,9 +20,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Get service role key for server-side Supabase Storage operations
-    const serviceRoleKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
+    // Using SUPABASE_SERVICE_ROLE_KEY (without NEXT_PUBLIC_ prefix) to keep it server-only and secure
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     if (!serviceRoleKey) {
-      console.error('❌ Missing NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY');
+      console.error('❌ Missing SUPABASE_SERVICE_ROLE_KEY');
       return NextResponse.json({ 
         success: false, 
         error: 'Server configuration error' 
