@@ -402,8 +402,14 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
     },
     editorProps: {
       attributes: {
-        class: 'prose dark:prose-invert prose-sm sm:prose-base lg:prose-lg xl:prose-2xl m-5 focus:outline-none min-h-[150px]',
-        style: 'line-height: 1.6;',
+        class: 'prose dark:prose-invert prose-sm max-w-full m-5 focus:outline-none min-h-[150px]',
+        style: `
+          line-height: 1.6;
+          --tw-prose-headings: var(--tw-prose-body);
+          --tw-prose-h1: 32px;
+          --tw-prose-h2: 24px;
+          --tw-prose-h3: 20px;
+        `,
       },
     },
   });
@@ -427,7 +433,33 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
         onChange={() => {}}
       />
       <EditorToolbar editor={editor} />
-      <EditorContent editor={editor} />
+      <div className="prose-custom">
+        <style>{`
+          .prose-custom :where(h1):not(:where([class~="not-prose"] *)) {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+          }
+          .prose-custom :where(h2):not(:where([class~="not-prose"] *)) {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 0.75rem;
+            margin-bottom: 0.5rem;
+          }
+          .prose-custom :where(h3):not(:where([class~="not-prose"] *)) {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            margin-bottom: 0.25rem;
+          }
+          .prose-custom :where(p):not(:where([class~="not-prose"] *)) {
+            margin-top: 0.25rem;
+            margin-bottom: 0.25rem;
+          }
+        `}</style>
+        <EditorContent editor={editor} />
+      </div>
     </div>
   );
 };
