@@ -5,6 +5,8 @@ import Image from "next/image";
 import { ArrowRight, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { getPosts } from "@/lib/supabase-data";
+import { format } from "date-fns";
+import { convertToDate } from "@/lib/date-utils";
 
 export const metadata: Metadata = {
   title: "Blog | Whiteboard Consultants",
@@ -64,7 +66,7 @@ export default async function BlogPage() {
                     <div className="p-6 flex flex-col flex-grow">
                       <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
                           <Badge variant="secondary">{post.category}</Badge>
-                          <time dateTime={new Date(post.createdAt).toISOString()}>{new Date(post.createdAt).toLocaleDateString()}</time>
+                          <time dateTime={new Date(post.createdAt).toISOString()}>{format(convertToDate(post.publishedAt || post.createdAt) || new Date(post.createdAt), 'dd MMM yyyy')}</time>
                       </div>
                       <h2 className="text-xl font-bold font-headline text-foreground group-hover:text-primary dark:group-hover:text-white">
                         {post.title}

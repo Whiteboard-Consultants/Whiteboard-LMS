@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, User, Tag } from "lucide-react";
 import { Metadata } from "next";
 import { convertToDate } from "@/lib/date-utils";
+import { format } from "date-fns";
 import { parseSlugFromUrl, generateSlug } from "@/lib/slug-utils";
 
 
@@ -134,7 +135,7 @@ export default async function PostPage({ params }: PostPageProps) {
                                 <div className="hidden sm:block w-1 h-1 bg-white/60 rounded-full"></div>
                                 <div className="flex items-center gap-2">
                                     <Calendar className="h-4 w-4 md:h-5 md:w-5" />
-                                    <time dateTime={createdDate?.toISOString() || ''}>{createdDate?.toLocaleDateString() || 'Unknown date'}</time>
+                                    <time dateTime={createdDate?.toISOString() || ''}>{createdDate ? format(createdDate, 'dd MMM yyyy') : 'Unknown date'}</time>
                                 </div>
                                 <div className="hidden sm:block w-1 h-1 bg-white/60 rounded-full"></div>
                                 <div className="flex items-center gap-2">

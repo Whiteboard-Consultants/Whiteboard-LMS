@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Award, Eye, Calendar, Download, ExternalLink } from 'lucide-react';
+import { format } from 'date-fns';
 
 import { useAuth } from '@/hooks/use-auth';
 import { PageHeader } from '@/components/page-header';
@@ -105,14 +106,14 @@ export default function MyCertificatesPage() {
                                     <div className="flex items-center gap-2">
                                         <Calendar className="h-4 w-4" />
                                         <span>
-                                            Completed: {new Date(cert.enrolled_at).toLocaleDateString()}
+                                            Completed: {format(new Date(cert.enrolled_at), 'dd MMM yyyy')}
                                         </span>
                                     </div>
                                     {cert.certificate_approved_at && (
                                         <div className="flex items-center gap-2">
                                             <Award className="h-4 w-4" />
                                             <span>
-                                                Certified: {new Date(cert.certificate_approved_at).toLocaleDateString()}
+                                                Certified: {format(new Date(cert.certificate_approved_at), 'dd MMM yyyy')}
                                             </span>
                                         </div>
                                     )}
