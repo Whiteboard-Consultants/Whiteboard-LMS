@@ -279,68 +279,53 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     getInitialSession();
 
     // Listen for auth changes
+    // IMPORTANT: Avoid calling signOut() inside this listener as it can create infinite loops
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log("Auth state change event:", event);
         
         try {
-          // Check for expired tokens on auth state changes
-          if (session && isTokenExpired(session)) {
-            console.log("Auth state change detected expired token, attempting refresh...");
-            
-            // Try to refresh the session
-            const { data: refreshedSession, error: refreshError } = await supabase.auth.refreshSession();
-            
-            if (refreshError) {
-              console.log("Failed to refresh session during auth change:", refreshError.message);
-              
-              // Handle specific refresh token errors
-              if (refreshError.message?.includes('Refresh Token Not Found') || 
-                  refreshError.message?.includes('Invalid Refresh Token') ||
-                  refreshError.message?.includes('refresh_token_not_found')) {
-                console.log("Invalid refresh token detected during auth change, clearing session...");
-                // Clear any stored session data
-                clearAuthStorage();
-                await supabase.auth.signOut();
-              }
-              
-              setUser(null);
-              setUserData(null);
-              setLoading(false);
-              return;
-            }
-            
-            if (!refreshedSession?.session) {
-              console.log("No session returned after refresh during auth change, signing out...");
-              await supabase.auth.signOut();
-              setUser(null);
-              setUserData(null);
-              setLoading(false);
-              return;
-            }
-            
-            // Use the refreshed session
-            setUser(refreshedSession.session.user);
-            setAccessToken(refreshedSession.session.access_token || null);
-            if (refreshedSession.session.user) {
-              await fetchUserData(refreshedSession.session.user);
-            }
-          } else {
-            setUser(session?.user ?? null);
-            setAccessToken(session?.access_token || null);
+          // Only handle specific auth events to avoid loops
+          if (event === 'SIGNED_OUT') {
+            // User explicitly signed out or session expired
+            console.log("SIGNED_OUT event received, clearing user data...");
+            setUser(null);
+            setUserData(null);
+            setAccessToken(null);
+            setLoading(false);
+            return;
+          }
+          
+          // For SIGNED_IN and TOKEN_REFRESHED, update the session data
+          if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
             if (session?.user) {
+              setUser(session.user);
+              setAccessToken(session.access_token || null);
               await fetchUserData(session.user);
             } else {
+              setUser(null);
               setUserData(null);
+              setAccessToken(null);
             }
+            setLoading(false);
+            return;
+          }
+          
+          // For other events, just update the session if it exists
+          setUser(session?.user ?? null);
+          setAccessToken(session?.access_token || null);
+          if (session?.user) {
+            await fetchUserData(session.user);
+          } else {
+            setUserData(null);
           }
           setLoading(false);
         } catch (error) {
           console.error("Error during auth state change:", error);
-          // Clear auth storage on unexpected errors
-          clearAuthStorage();
+          // On error, only clear state - don't call signOut() to avoid loops
           setUser(null);
           setUserData(null);
+          setAccessToken(null);
           setLoading(false);
         }
       }
