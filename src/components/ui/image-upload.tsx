@@ -117,21 +117,15 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
     <div className="space-y-4">
       <Label>Featured Image</Label>
       
-      {/* Upload Success Message */}
-      {value && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-          <p className="text-sm font-medium text-green-900">
-            ✅ Image selected successfully! 
-            <br />
-            <span className="text-xs text-green-700 mt-1 block">Remember to save your blog post to publish this image.</span>
-          </p>
-        </div>
-      )}
-      
       {/* Current Image Preview */}
       {value && (
-        <div className="space-y-3">
-          <div className="relative w-full rounded-lg overflow-hidden bg-gray-100 border">
+        <div className="space-y-4 bg-gradient-to-b from-blue-50 to-white p-4 rounded-lg border border-blue-200">
+          <div className="flex justify-between items-center">
+            <h3 className="font-semibold text-sm text-blue-900">Current Featured Image</h3>
+            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Uploaded</span>
+          </div>
+          
+          <div className="relative w-full rounded-lg overflow-hidden bg-gray-100 border-2 border-gray-200">
             <div className="relative w-full h-48">
               <Image
                 src={value}
@@ -139,6 +133,7 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                priority
                 onError={(e) => {
                   // Handle broken images
                   const target = e.target as HTMLImageElement;
@@ -160,25 +155,24 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
           </div>
           
           {/* Action Buttons */}
-          <div className="flex gap-2">
+          <div className="flex gap-3 pt-2">
             <Button
               type="button"
               variant="outline"
-              size="sm"
-              className="flex-1"
+              className="flex-1 font-semibold"
               onClick={() => {
                 setUploadTab('upload');
               }}
               disabled={disabled}
               title="Replace featured image with a new one"
             >
+              <Upload className="h-4 w-4 mr-2" />
               Replace Image
             </Button>
             <Button
               type="button"
               variant="destructive"
-              size="sm"
-              className="flex-1 flex items-center justify-center gap-2"
+              className="flex-1 font-semibold"
               onClick={() => {
                 handleRemoveImage();
                 toast({
@@ -189,10 +183,14 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
               disabled={disabled}
               title="Delete featured image"
             >
-              <X className="h-4 w-4" />
-              <span>Delete Image</span>
+              <X className="h-4 w-4 mr-2" />
+              Delete Image
             </Button>
           </div>
+          
+          <p className="text-xs text-blue-600 bg-blue-50 p-2 rounded border border-blue-100">
+            💡 Tip: Use "Replace Image" to upload a new one, or "Delete Image" to remove it. Don't forget to save your post!
+          </p>
         </div>
       )}
 
