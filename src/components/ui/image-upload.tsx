@@ -67,7 +67,7 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
       formData.append('file', file);
 
       console.log('🌐 Sending to /api/upload-image with Bearer token');
-      const response = await fetch('/api/upload-image', {
+      const response = await fetch('/api/upload-image?bucket=featured', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${accessToken}` },
         body: formData,

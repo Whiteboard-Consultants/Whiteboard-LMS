@@ -156,8 +156,8 @@ const EditorToolbar = ({ editor }: { editor: Editor | null }) => {
     formData.append('file', file);
 
     try {
-      console.log('🌐 Sending request to /api/upload-image');
-      const response = await fetch('/api/upload-image', {
+      console.log('🌐 Sending request to /api/upload-image with bucket=editor');
+      const response = await fetch('/api/upload-image?bucket=editor', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${accessToken}` },
         body: formData,

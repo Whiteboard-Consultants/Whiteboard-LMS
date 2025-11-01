@@ -54,9 +54,24 @@ export async function POST(request: NextRequest) {
 
     // Generate unique filename
     const fileExtension = file.name.split('.').pop() || 'jpg';
-    const fileName = `${uuidv4()}.${fileExtension}`;
-    const filePath = `blog_images/${fileName}`;
-    const bucket = 'course-assets'; // Note: Ensure this bucket has public access enabled in Supabase
+    const fileName = `${Date.now()}-${file.name.split('.')[0]}.${fileExtension}`;
+    
+    // Get bucket type from query parameter (default to 'uploads' for featured images)
+    const url = new URL(request.url);
+    const bucketType = url.searchParams.get('bucket') || 'featured';
+    
+    let bucket: string;
+    let filePath: string;
+    
+    if (bucketType === 'editor') {
+      // Rich text editor images go to course-assets
+      bucket = 'course-assets';
+      filePath = `blog_images/${fileName}`;
+    } else {
+      // Featured images (default) go to uploads bucket
+      bucket = 'uploads';
+      filePath = `${Date.now()}-${file.name}`;
+    }
 
     // Get Supabase URL
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -77,8 +92,8 @@ export async function POST(request: NextRequest) {
     console.log('🌐 Uploading to Supabase:', {
       url: uploadUrl.substring(0, 80) + '...',
       bucket,
-      folder: 'blog_images',
-      fileName
+      fileName,
+      type: bucketType === 'editor' ? 'Rich Text Editor Image' : 'Featured Image'
     });
 
     const uploadStartTime = Date.now();
