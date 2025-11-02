@@ -9,8 +9,8 @@ import { format } from "date-fns";
 import { convertToDate } from "@/lib/date-utils";
 
 export const metadata: Metadata = {
-  title: "Blog | Whiteboard Consultants",
-  description: "Read the latest articles, news, and insights from the team at Whiteboard Consultants on study abroad, test preparation, and career development.",
+  title: "Education Blog | Study Abroad, Test Prep & Career Tips | Whiteboard Consultants",
+  description: "Discover expert insights on study abroad, IELTS/TOEFL/GMAT/GRE preparation, and career development. Read articles from Whiteboard Consultants' education experts.",
   alternates: {
       canonical: '/blog',
   },
