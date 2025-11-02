@@ -19,8 +19,44 @@ export const metadata: Metadata = {
 export default async function BlogPage() {
   const posts = await getPosts();
 
+  // CollectionPage schema for better SERP visibility
+  const collectionSchema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Whiteboard Consultants Blog",
+    "description": "Expert insights on study abroad, test preparation, and career development",
+    "url": "https://www.whiteboardconsultant.com/blog",
+    "image": "https://www.whiteboardconsultant.com/blog-hero.jpg",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Whiteboard Consultants",
+      "url": "https://www.whiteboardconsultant.com"
+    },
+    "mainEntity": {
+      "@type": "ItemList",
+      "itemListElement": posts.slice(0, 10).map((post, index) => ({
+        "@type": "ListItem",
+        "position": index + 1,
+        "url": `https://www.whiteboardconsultant.com/blog/${encodeURIComponent(post.slug)}`,
+        "name": post.title,
+        "image": post.imageUrl,
+        "description": post.excerpt,
+        "author": {
+          "@type": "Person",
+          "name": post.author.name
+        },
+        "datePublished": post.publishedAt || post.createdAt
+      }))
+    }
+  };
+
   return (
-    <div className="bg-background dark:bg-black">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
+      />
+      <div className="bg-background dark:bg-black">
       <section className="bg-slate-100 dark:bg-slate-dark py-16 sm:py-24">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl font-headline">
@@ -88,6 +124,7 @@ export default async function BlogPage() {
           )}
         </div>
       </section>
-    </div>
+      </div>
+    </>
   );
 }
