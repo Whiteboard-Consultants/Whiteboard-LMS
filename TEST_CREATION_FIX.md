@@ -34,7 +34,7 @@ When creating a test without selecting a course ("None" option), the form was se
 
 ## ✅ Solution Applied
 
-### Changes Made to `/src/app/instructor/tests/actions.ts`:
+### Part 1: Code Changes to `/src/app/instructor/tests/actions.ts` ✅ DONE
 
 #### 1. **createTest() function** (Line 40)
 ```typescript
@@ -66,6 +66,40 @@ time_limit: testData.duration,
 
 // After:
 duration: testData.duration,
+```
+
+### Part 2: Database Schema Fix ⚠️ REQUIRED
+
+The actual issue is that the `course_id` column in the database has a `NOT NULL` constraint. We need to make it nullable:
+
+**Migration File:** `/migrations/make_course_id_nullable.sql`
+```sql
+ALTER TABLE tests 
+ALTER COLUMN course_id DROP NOT NULL;
+```
+
+**How to Apply:**
+
+**Option A: Supabase Dashboard (Recommended)**
+1. Go to https://supabase.com/dashboard
+2. Select your project
+3. Go to **SQL Editor**
+4. Click **New Query**
+5. Paste:
+   ```sql
+   ALTER TABLE tests ALTER COLUMN course_id DROP NOT NULL;
+   ```
+6. Click **Run**
+7. Refresh your app
+
+**Option B: Using Supabase CLI**
+```bash
+supabase db execute "ALTER TABLE tests ALTER COLUMN course_id DROP NOT NULL;"
+```
+
+**Option C: Using our script**
+```bash
+npm run ts-node scripts/fix-course-id-nullable.ts
 ```
 
 ---
