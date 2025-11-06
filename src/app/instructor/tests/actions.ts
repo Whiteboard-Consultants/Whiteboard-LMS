@@ -36,15 +36,18 @@ async function updateTestQuestionCount(testId: string) {
 
 export async function createTest(testData: any) {
     try {
+        // Ensure course_id is null if not provided or if it's the "none" placeholder
+        const courseId = testData.courseId && testData.courseId !== 'none' ? testData.courseId : null;
+        
         // Use correct column names that exist in the database
         const { data, error } = await db
             .from('tests')
             .insert({
                 title: testData.title,
                 description: testData.description,
-                time_limit: testData.duration, // Using time_limit instead of duration
+                duration: testData.duration, // Using duration (in seconds from form * 60)
                 instructor_id: testData.instructorId,
-                course_id: testData.courseId,
+                course_id: courseId,
                 course_title: testData.courseTitle,
                 type: testData.type || 'assessment',
                 is_time_limited: testData.isTimeLimited ?? true,
@@ -80,9 +83,12 @@ export async function updateTest(testId: string, testData: any) {
         
         if (testData.title !== undefined) updateData.title = testData.title;
         if (testData.description !== undefined) updateData.description = testData.description;
-        if (testData.duration !== undefined) updateData.time_limit = testData.duration;
+        if (testData.duration !== undefined) updateData.duration = testData.duration;
         if (testData.instructorId !== undefined) updateData.instructor_id = testData.instructorId;
-        if (testData.courseId !== undefined) updateData.course_id = testData.courseId;
+        if (testData.courseId !== undefined) {
+            // Ensure course_id is null if not provided or if it's the "none" placeholder
+            updateData.course_id = testData.courseId && testData.courseId !== 'none' ? testData.courseId : null;
+        }
         if (testData.courseTitle !== undefined) updateData.course_title = testData.courseTitle;
         if (testData.type !== undefined) updateData.type = testData.type;
         if (testData.isTimeLimited !== undefined) updateData.is_time_limited = testData.isTimeLimited;
