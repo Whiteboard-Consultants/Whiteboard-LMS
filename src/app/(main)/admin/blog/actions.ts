@@ -18,6 +18,7 @@ const postFormSchema = z.object({
   category: z.string().min(2, { message: "Category must be at least 2 characters." }),
   tags: z.string(),
   featured: z.boolean(),
+  authorName: z.string().min(2, { message: "Author name must be at least 2 characters." }).default("Whiteboard Consultants"),
 });
 
 type PostFormData = z.infer<typeof postFormSchema>;
@@ -77,7 +78,7 @@ export async function createPost(formData: PostFormData, authorData: { id: strin
       featured_image: validatedData.imageUrl?.trim() || null,
       featured_image_url: validatedData.imageUrl?.trim() || null,
       author_id: authorData.id,
-      author_name: authorData.name,
+      author_name: validatedData.authorName, // Use the form-provided author name
       read_time_minutes: readTimeMinutes,
       published_at: new Date().toISOString(),
       created_at: new Date().toISOString(),
@@ -156,14 +157,14 @@ export async function updatePost(postId: string, formData: PostFormData, authorD
       // Set featured image or null if empty (allows deletion)
       featured_image: validatedData.imageUrl?.trim() || null,
       featured_image_url: validatedData.imageUrl?.trim() || null,
+      author_name: validatedData.authorName, // Update with form-provided author name
       read_time_minutes: readTimeMinutes,
       updated_at: new Date().toISOString(),
     };
     
-    // Update author info if provided
+    // Update author id if provided
     if (authorData) {
       updateData.author_id = authorData.id;
-      updateData.author_name = authorData.name;
     }
     
     const { data, error } = await db

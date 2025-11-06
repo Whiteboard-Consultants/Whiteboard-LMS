@@ -5,7 +5,7 @@ import HomePageClient from "@/components/home-page-client";
 
 export const metadata: Metadata = {
   title: 'Whiteboard Consultants | Best Study Abroad & Test Prep in Kolkata',
-  description: 'Top-rated education consultant in Kolkata specializing in study abroad, IELTS/TOEFL/GMAT/GRE test prep, and college admissions. Your journey to global education starts here.',
+  description: 'Expert study abroad & test prep consultant in Kolkata. IELTS, TOEFL, GMAT coaching + college admissions. 1000+ success stories. Start your global journey today.',
   alternates: {
     canonical: '/',
   },

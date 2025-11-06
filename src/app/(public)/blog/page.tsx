@@ -10,7 +10,7 @@ import { convertToDate } from "@/lib/date-utils";
 
 export const metadata: Metadata = {
   title: "Education Blog | Study Abroad, Test Prep & Career Tips | Whiteboard Consultants",
-  description: "Discover expert insights on study abroad, IELTS/TOEFL/GMAT/GRE preparation, and career development. Read articles from Whiteboard Consultants' education experts.",
+  description: "Expert education blog on study abroad, IELTS/TOEFL/GMAT/GRE prep, and career development. Get free tips from Kolkata's leading education consultants.",
   alternates: {
       canonical: '/blog',
   },

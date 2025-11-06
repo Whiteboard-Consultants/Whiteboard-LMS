@@ -6,7 +6,7 @@ import WhyChooseUsSection from "@/components/sections/why-choose-us-section";
 
 export const metadata: Metadata = {
   title: "Study in USA from India | Top US University Consultants in Kolkata",
-  description: "Your complete guide to studying in the USA. Get expert advice from Kolkata's leading consultants on top universities, courses, admission requirements (SAT, ACT, GRE, GMAT), F-1 visa, and costs for Indian students.",
+  description: "Study in USA with expert consultants in Kolkata. Top universities, SAT/GRE/GMAT prep, F-1 visa, OPT, and career guidance for Indian students.",
   alternates: {
     canonical: '/study-abroad/usa',
   },

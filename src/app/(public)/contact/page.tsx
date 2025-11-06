@@ -4,7 +4,7 @@ import ContactPageClient from '@/components/contact-page-client';
 
 export const metadata: Metadata = {
   title: 'Contact Us | Whiteboard Consultants',
-  description: 'Get in touch with Whiteboard Consultants in Kolkata. Contact us for expert guidance on study abroad, test preparation, college admissions, and career counseling.',
+  description: 'Contact Whiteboard Consultants in Kolkata for expert guidance on study abroad, test prep, and college admissions. Free consultation available today.',
     alternates: {
         canonical: '/contact',
     },

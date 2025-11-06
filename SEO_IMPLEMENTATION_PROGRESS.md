@@ -35,62 +35,182 @@
 
 ---
 
-## 🔄 In Progress / Pending Tasks
+## ✅ Completed Tasks (Continued)
 
-### Task 1: Create FAQ Pages and Schema
-**Priority:** 🔴 HIGH  
-**Timeline:** Week 1  
-**Effort:** 4-6 hours
-
-**What Needs to Be Done:**
-1. Create `/src/app/(public)/faqs/page.tsx` file
-2. Add metadata: title, description, canonical
-3. Implement FAQPage schema with 20+ question-answer pairs
-4. Organize FAQs by categories:
-   - Study Abroad (5-7 FAQs)
-   - Test Prep: IELTS/TOEFL (5-7 FAQs)
-   - Test Prep: GMAT/GRE (3-5 FAQs)
-   - Career Development (3-5 FAQs)
-   - General (3-5 FAQs)
-
-**Sample FAQs to Include:**
-```
-Study Abroad:
-- "Which is the best country to study abroad from India?"
-- "How much does it cost to study abroad?"
-- "What is the procedure to study abroad?"
-- "How long does it take to prepare for studying abroad?"
-- "Which test is required for studying abroad?"
-- "What is the minimum IELTS score for studying abroad?"
-- "Can I study abroad without IELTS?"
-
-Test Prep:
-- "What is the difference between IELTS and TOEFL?"
-- "How long does it take to prepare for IELTS?"
-- "What is the average IELTS score?"
-- "Is GMAT or GRE better for MBA?"
-- "How to prepare for GMAT/GRE?"
-
-Career:
-- "How does studying abroad help career growth?"
-- "Can I work while studying abroad?"
-- "Is it possible to get admission without GPA?"
-- "How to improve chances of getting scholarship?"
-```
-
-**Files to Create:**
-- [ ] `/src/app/(public)/faqs/page.tsx`
-- [ ] Component: `/src/components/structured-data/faq-schema.tsx` (optional)
-
-**Expected Impact:**
-- 📈 Capture "people also ask" queries
-- 📈 Position zero/featured snippet opportunities
-- 📈 30-50% increase in question-based search traffic
-- 📈 Improved Google's understanding of site expertise
+### 5. FAQ Pages and Schema
+- **Location:** `/src/app/(public)/faqs/page.tsx`
+- **Status:** ✅ COMPLETE
+- **Completion Date:** November 2, 2025
+- **Content:** 25 FAQs across 4 categories (Study Abroad, Test Prep, Career, Application)
+- **Schema Type:** FAQPage with 25 Question/Answer entities
+- **UI Features:** Accordion for expandable answers, hero section, CTA section
+- **Expected Impact:** 30-50% traffic increase from question-based queries, position zero captures
 
 ---
 
-### Task 2: Create Service Area Landing Pages
+## 🔄 In Progress / Pending Tasks
+
+### Task 1: Test FAQ Page & Validate Schema
+**Priority:** 🔴 HIGH  
+**Timeline:** Week 1 (Immediate - Day 1)  
+**Effort:** 1-2 hours
+
+**What Needs to Be Done:**
+1. [ ] Start dev server: `npm run dev`
+2. [ ] Navigate to `http://localhost:3000/faqs`
+3. [ ] Verify page loads correctly with all 25 FAQs
+4. [ ] Test accordion functionality (expand/collapse FAQs)
+5. [ ] Test CTA section and contact button
+6. [ ] Validate schema with [Google Rich Results Test](https://search.google.com/test/rich-results)
+   - Copy page URL or HTML
+   - Check for "Eligible" status
+   - Verify 25 Question/Answer pairs detected
+7. [ ] Check console for any JavaScript errors
+8. [ ] Test responsive design on mobile (DevTools)
+9. [ ] Verify metadata in `<head>`:
+   - Title: "FAQs | Study Abroad, Test Prep & Career Tips | Whiteboard Consultants"
+   - Description: Present and compelling
+   - Canonical: /faqs
+
+**Expected Issues to Check For:**
+- ✅ All FAQs visible and expandable
+- ✅ No formatting errors or broken links
+- ✅ Schema renders without errors
+- ✅ Mobile responsive layout works
+
+**Success Criteria:**
+- ✅ Page renders without errors
+- ✅ All 25 FAQs expand/collapse correctly
+- ✅ Schema validates as "Eligible" in Rich Results Test
+- ✅ No console errors
+
+**Next Step After Validation:**
+- Commit changes to git with message: "feat: Add FAQ page with FAQPage schema for position zero capture"
+
+---
+
+### Task 2: Create Question-Focused Blog Content
+**Priority:** 🟡 MEDIUM  
+**Timeline:** Week 2-3  
+**Effort:** 12-16 hours
+
+**What Needs to Be Done:**
+1. Create 6-8 high-value blog posts targeting question-based keywords
+2. Each post should:
+   - Target long-tail, question-based keywords
+   - Include FAQ section with 10+ related questions
+   - Use comparison tables and visuals where applicable
+   - Have internal links to courses/service pages
+   - Include call-to-action (CTA) to schedule consultation
+   - Target featured snippet format (lists, tables, definitions)
+
+**Blog Posts to Create (in priority order):**
+
+1. **"IELTS vs TOEFL: Complete Comparison for Indian Students"**
+   - Slug: `ielts-vs-toefl-comparison`
+   - Keywords: "ielts vs toefl", "ielts or toefl", "which is easier ielts or toefl"
+   - Format: Comparison table (format, scoring, timing, cost, acceptance)
+   - FAQ section with 10+ questions
+   - Internal link to: IELTS course, TOEFL course
+
+2. **"How to Prepare for IELTS in 30 Days: Complete Study Plan"**
+   - Slug: `how-to-prepare-for-ielts-30-days`
+   - Keywords: "how to prepare for ielts", "ielts preparation", "30 day ielts prep"
+   - Format: Week-by-week breakdown with specific tasks
+   - Include: Scoring tips, common mistakes, practice tests
+   - CTA: "Start your IELTS preparation today"
+
+3. **"Which Country is Best to Study Abroad? Complete Guide 2024"**
+   - Slug: `best-country-to-study-abroad`
+   - Keywords: "best country to study abroad", "where to study abroad", "study abroad countries"
+   - Format: Country comparison table (USA, UK, Canada, Germany, Australia)
+   - Compare: Cost, scholarships, work opportunities, visa ease, post-study work
+   - Internal link to: Destination guides
+
+4. **"Step-by-Step Guide: How to Get USA Student Visa"**
+   - Slug: `how-to-get-usa-student-visa`
+   - Keywords: "how to get student visa usa", "student visa requirements usa", "student visa process"
+   - Format: Step-by-step process with timeline
+   - Include: Document checklist, interview tips, common rejection reasons
+   - CTA: "Get expert visa guidance"
+
+5. **"Minimum GMAT Score for Top MBA Colleges Worldwide"**
+   - Slug: `minimum-gmat-score-top-mba-colleges`
+   - Keywords: "minimum gmat score", "average gmat score", "gmat score requirements"
+   - Format: Table listing top 50 MBA programs with GMAT score ranges
+   - Include: GMAT prep timeline, scoring strategies
+   - Internal link to: GMAT course
+
+6. **"Can I Work While Studying Abroad? Complete Guide by Country"**
+   - Slug: `can-i-work-while-studying-abroad`
+   - Keywords: "can you work while studying abroad", "work while studying", "student work rights"
+   - Format: Country-by-country work restrictions table
+   - Compare: USA, UK, Canada, Australia, Germany (work hours, visa requirements)
+   - FAQ section with 8+ questions
+
+7. **"How to Get Scholarship for Study Abroad: 10 Proven Strategies"**
+   - Slug: `how-to-get-scholarship-study-abroad`
+   - Keywords: "how to get scholarship", "study abroad scholarship", "full scholarship abroad"
+   - Format: 10-point list with detailed explanation
+   - Include: Scholarship types, search strategies, application tips
+   - CTA: "Maximize your scholarship chances"
+
+8. **"IELTS Band 6 vs Band 7 vs Band 8: What's the Difference?"**
+   - Slug: `ielts-band-scores-explained`
+   - Keywords: "ielts band 6", "ielts band 7", "ielts band score difference"
+   - Format: Score comparison table with examples
+   - Include: What you can do with each band, improvement strategies
+   - Internal link to: IELTS course
+
+**Database Entry Requirements:**
+- Title: Post title
+- Slug: URL-friendly slug (auto-generated from title)
+- Excerpt: 150-160 character compelling summary
+- Content: Full blog post content (2000-3000 words)
+- Author: "Whiteboard Consultants"
+- Featured Image: High-quality relevant image (1200x630px minimum)
+- createdAt/updatedAt: Auto-generated
+
+**Content Guidelines for Each Post:**
+- Write in conversational, helpful tone (not overly formal)
+- Start with a compelling hook (why readers should care)
+- Include statistics/data where available
+- Use subheadings (H2, H3) for scannability
+- Include 2-3 internal links to related courses/pages
+- End with clear CTA (schedule consultation, view course, etc.)
+- Target 2500+ words for better ranking potential
+- Include schema markup recommendation (Article schema already in template)
+
+**Implementation Steps:**
+1. [ ] Create database entries for each blog post (or use admin interface if available)
+2. [ ] Write content for posts (Draft → Edit → Publish)
+3. [ ] Add featured images for each post (1200x630px)
+4. [ ] Verify Article schema renders on each post page
+5. [ ] Internal link between related posts
+6. [ ] Submit URLs to Google Search Console
+
+**Expected Impact per Post:**
+- 📈 50-150+ organic traffic per month per post
+- 📈 Featured snippet capture for 2-3 keywords per post
+- 📈 PAA (People Also Ask) visibility increase
+- 📈 Estimated total: 300-1000+ monthly organic visitors after 2-3 months
+
+**Success Metrics:**
+- ✅ All 8 posts published and rendering correctly
+- ✅ Each post has Article schema validation
+- ✅ Internal links working and contextually relevant
+- ✅ Average post length 2500+ words
+- ✅ Featured images optimized and loading fast
+
+**Timeline Breakdown:**
+- Research & outline all 8 posts: 2 hours
+- Write 2-3 posts per day: 4-6 hours per day × 3 days = 12-18 hours
+- Edit, add images, publish: 1-2 hours per day × 3 days = 3-6 hours
+- Total: 17-26 hours (can be split across Week 2-3)
+
+---
+
+### Task 3: Create Service Area Landing Pages
 **Priority:** 🟡 MEDIUM  
 **Timeline:** Week 2  
 **Effort:** 6-8 hours
@@ -113,7 +233,7 @@ Career:
 
 **Meta Title Examples:**
 - "Education Consultant in Park Street Kolkata | Study Abroad Expert"
-- "IELTS Coaching in Salt Lake Kolkata | Test Prep Specialist"
+- "TOEFL Coaching in Salt Lake Kolkata | Test Prep Specialist"
 - "Study Abroad Consultant in Alipore, Kolkata | Career Guidance"
 
 **Schema to Add:**
@@ -126,61 +246,6 @@ Career:
 - 📈 "Near me" search rankings
 - 📈 20-30% increase in local search traffic
 - 📈 Better coverage of neighborhood keywords
-
----
-
-### Task 3: Create Question-Focused Blog Content
-**Priority:** 🟡 MEDIUM  
-**Timeline:** Week 2-3  
-**Effort:** 8-12 hours
-
-**Blog Posts to Create:**
-
-1. **"IELTS vs TOEFL: Complete Comparison for Indian Students"**
-   - Keywords: "ielts vs toefl", "should i take ielts or toefl"
-   - FAQ section with 10+ common questions
-   - Comparison tables
-
-2. **"How to Prepare for IELTS in 30 Days: Complete Study Plan"**
-   - Keywords: "how to prepare for ielts", "30-day ielts preparation"
-   - Day-by-day breakdown
-   - Practice materials, scoring tips
-
-3. **"Which Country is Best to Study Abroad? Complete Guide 2024"**
-   - Keywords: "best country to study abroad", "where to study abroad"
-   - Comparison of USA, UK, Canada, Germany, Australia
-   - Cost vs opportunity analysis
-
-4. **"Step-by-Step Guide: How to Get USA Student Visa"**
-   - Keywords: "how to get student visa", "student visa requirements"
-   - Detailed visa process timeline
-
-5. **"Minimum GMAT Score for Top MBA Colleges Worldwide"**
-   - Keywords: "minimum gmat score", "average gmat score"
-   - Score ranges for top 50 schools
-
-6. **"Can I Work While Studying Abroad? Complete Guide by Country"**
-   - Keywords: "can i work while studying abroad"
-   - Work restrictions by country
-
-7. **"How to Get Scholarship for Study Abroad: 10 Proven Strategies"**
-   - Keywords: "how to get scholarship", "study abroad scholarship"
-
-8. **"IELTS Band 6 vs Band 7 vs Band 8: What's the Difference?"**
-   - Keywords: "ielts band 6", "ielts band 7", "ielts band 8"
-
-**Content Strategy:**
-- Target long-tail, question-based keywords
-- Include FAQ sections in each post
-- Use comparison tables and visuals
-- Internal linking to courses/services
-- Aim for featured snippets
-
-**Expected Impact:**
-- 📈 Capture featured snippet positions
-- 📈 Answer Engine Optimization (AEO) improvement
-- 📈 People Also Ask (PAA) visibility
-- 📈 50-100+ organic traffic per post monthly
 
 ---
 
@@ -386,21 +451,38 @@ Website: whiteboardconsultant.com
 3. ✅ Blog Title Optimization - Updated with keywords
 4. ✅ CollectionPage Schema - Added to blog listing
 5. ✅ Breadcrumbs on Courses Page - Already exists
+6. ✅ FAQ Pages - Created with 25 FAQs and FAQPage schema
 
-### High-Impact Quick Wins:
-1. **FAQ Pages** (2-4 hours) → 30-50% traffic increase potential
+### High-Impact Quick Wins (Next Priority):
+1. **Test FAQ Page & Validate Schema** (1-2 hours) → Deployment ready
 2. **Question-focused blogs** (12-16 hours) → 50+ leads per month potential
 3. **Service area pages** (6-8 hours) → Local pack visibility
 
+### Immediate Action Plan (Next 48 Hours):
+**Day 1 (Today):**
+- [ ] Test FAQ page on localhost at /faqs
+- [ ] Validate FAQPage schema with Google Rich Results Test
+- [ ] Verify all 25 FAQs expand/collapse correctly
+- [ ] Check console for errors
+- [ ] Commit FAQ page to git
+
+**Day 2:**
+- [ ] Start creating first question-focused blog post ("IELTS vs TOEFL")
+- [ ] Set up blog posts database entries
+- [ ] Create featured images
+
 ### Next Phase After These Tasks:
-1. Link building campaign
-2. Content marketing strategy
-3. User experience optimization (CLS, LCP)
-4. Conversion rate optimization (CTR, engagement)
+1. Additional question-focused blog content (6+ more posts)
+2. Service area landing pages (5 locations)
+3. BreadcrumbList schema implementation
+4. Meta description optimization audit
+5. Google My Business setup
+6. Link building campaign
 
 ---
 
 **Last Review:** November 2, 2025  
-**Next Review Date:** December 1, 2025  
+**Last Updated:** November 2, 2025 (FAQ page completion, testing plan added)
+**Next Review Date:** November 5, 2025
 **Owner:** Navnit Daniel  
-**Status:** 🟡 In Progress (40% complete)
+**Status:** 🟡 In Progress (45% complete - 5/11 tasks)

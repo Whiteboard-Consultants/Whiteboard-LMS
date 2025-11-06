@@ -14,7 +14,7 @@ import { getWhyChooseUsData, WhyChooseUsData, getCountriesData, Country } from "
 
 export const metadata: Metadata = {
   title: "Expert Study Abroad Consultants in Kolkata | Whiteboard Consultants",
-  description: "Your expert guide to studying abroad. We offer comprehensive counseling, university selection, application assistance, and visa guidance for students in Kolkata. Explore top destinations like the USA, UK, Canada, and more.",
+  description: "Study abroad expert in Kolkata. University selection, application support, visa guidance for USA, UK, Canada, Australia & more. Free counseling available!",
   alternates: {
     canonical: '/study-abroad',
   },

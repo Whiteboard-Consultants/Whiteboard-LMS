@@ -6,7 +6,7 @@ import WhyChooseUsSection from '@/components/sections/why-choose-us-section';
 
 export const metadata: Metadata = {
   title: "Study in Dubai (UAE) from India | Top Dubai Education Consultants",
-  description: "Your complete guide to studying in Dubai. Get expert advice from Kolkata's leading consultants on top international university campuses, courses, student visas, and costs.",
+  description: "Study in Dubai with expert consultants in Kolkata. International university campuses, tax-free career opportunities, and student visa guidance.",
   alternates: {
     canonical: '/study-abroad/dubai',
   },

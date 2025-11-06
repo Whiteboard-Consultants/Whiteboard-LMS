@@ -6,7 +6,7 @@ import WhyChooseUsSection from '@/components/sections/why-choose-us-section';
 
 export const metadata: Metadata = {
   title: "Study in Ireland | Top Irish Education Consultants in Kolkata",
-  description: "Your complete guide to studying in Ireland. Get expert advice from Kolkata's leading consultants on top universities, courses, admission requirements, student visas, and costs for Indian students.",
+  description: "Study in Ireland with expert guidance from Kolkata. Top universities, affordable tuition, work permits, and post-study visa options. Free consultation!",
   alternates: {
     canonical: '/study-abroad/ireland',
   },

@@ -7,7 +7,7 @@ import WhyChooseUsSection from '@/components/sections/why-choose-us-section';
 
 export const metadata: Metadata = {
   title: "Study in the UK - Premier Consultants in Kolkata | Whiteboard Consultants",
-  description: "Your guide to studying in the United Kingdom. Get assistance with top UK universities, courses, student visas, and the new Graduate Route from our experts in Kolkata.",
+  description: "Study in UK with expert consultants in Kolkata. Top universities, IELTS/TOEFL prep, Graduate Route visa, and career guidance for Indian students.",
   alternates: {
     canonical: '/study-abroad/uk',
   },

@@ -8,7 +8,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
     title: 'Test Prep & Career Courses in Kolkata | Whiteboard Consultants',
-    description: 'Explore expert-led courses for IELTS, TOEFL, GMAT, GRE, and SAT preparation, alongside career development programs. Achieve your academic and professional goals with Kolkata\'s leading education consultants.',
+    description: 'Expert IELTS, TOEFL, GMAT, GRE, SAT prep courses + career development programs in Kolkata. Achieve your academic goals with our proven coaching methods.',
     alternates: {
         canonical: '/courses',
     },

@@ -6,7 +6,7 @@ import WhyChooseUsSection from '@/components/sections/why-choose-us-section';
 
 export const metadata: Metadata = {
   title: "Study in Canada from India | Top Canada Education Consultants in Kolkata",
-  description: "Your complete guide to studying in Canada. Get expert advice from Kolkata's leading consultants on top universities, courses, admission requirements, student visa (SDS), and costs for Indian students.",
+  description: "Study in Canada with expert consultants in Kolkata. Top universities, PGWP, SDS visa, IELTS/TOEFL prep, and career guidance for Indian students.",
   alternates: {
     canonical: '/study-abroad/canada',
   },

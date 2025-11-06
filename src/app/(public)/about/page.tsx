@@ -11,7 +11,7 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'About Us',
-  description: 'Learn about Whiteboard Consultants, the top education consultant in Kolkata. Discover our story, mission, vision, and the expert team dedicated to your academic and career success.',
+  description: 'Meet Whiteboard Consultants - Kolkata\'s top education consultant since 2022. 1000+ students guided to global universities. Expert test prep & admissions support.',
 };
 
 const stats: AboutStatProps[] = [

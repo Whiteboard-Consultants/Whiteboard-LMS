@@ -6,7 +6,7 @@ import WhyChooseUsSection from '@/components/sections/why-choose-us-section';
 
 export const metadata: Metadata = {
   title: "Study in Germany from India | Top German Education Consultants",
-  description: "Study in Germany with expert guidance from Kolkata's leading consultants. Learn about public universities with no tuition fees, admission requirements (APS, Studienkolleg), and the visa process (Blocked Account).",
+  description: "Study in Germany with expert consultants in Kolkata. Tuition-free education, APS/Studienkolleg prep, Blocked Account, and career guidance.",
   alternates: {
     canonical: '/study-abroad/germany',
   },

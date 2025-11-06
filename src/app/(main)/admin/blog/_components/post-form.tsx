@@ -26,6 +26,7 @@ export const postFormSchema = z.object({
   category: z.string().min(2, { message: "Category must be at least 2 characters." }),
   tags: z.string(),
   featured: z.boolean(),
+  authorName: z.string().min(2, { message: "Author name must be at least 2 characters." }).default("Whiteboard Consultants"),
 });
 
 interface PostFormProps {
@@ -46,6 +47,7 @@ export function PostForm({ post, onSubmit, isSubmitting }: PostFormProps) {
       category: post?.category || "",
       tags: post?.tags?.join(", ") || "",
       featured: post?.featured || false,
+      authorName: post?.author?.name || "Whiteboard Consultants",
     },
   });
 
@@ -73,6 +75,22 @@ export function PostForm({ post, onSubmit, isSubmitting }: PostFormProps) {
               <FormControl>
                 <Input placeholder="Post Title" {...field} />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="authorName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Author Name</FormLabel>
+              <FormControl>
+                <Input placeholder="Whiteboard Consultants or Guest Author Name" {...field} />
+              </FormControl>
+              <FormDescription>
+                Enter the blog post author name. Supports team names or individual guest authors.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
