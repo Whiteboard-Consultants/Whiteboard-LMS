@@ -14,7 +14,15 @@ import { Separator } from '@/components/ui/separator';
 import dynamic from 'next/dynamic';
 
 const TestForm = dynamic(() => import('@/components/test-form').then(mod => mod.TestForm), { ssr: false });
-const TestQuestionManager = dynamic(() => import('@/components/test-question-manager').then(mod => mod.TestQuestionManager), {
+const TestSectionBuilder = dynamic(() => import('@/components/test-section-builder').then(mod => mod.TestSectionBuilder), {
+    ssr: false,
+    loading: () => <p>Loading section builder...</p>
+});
+const TestPassageManager = dynamic(() => import('@/components/test-passage-manager').then(mod => mod.TestPassageManager), {
+    ssr: false,
+    loading: () => <p>Loading passage manager...</p>
+});
+const TestQuestionManagerBySection = dynamic(() => import('@/components/test-question-manager-by-section').then(mod => mod.TestQuestionManagerBySection), {
     ssr: false,
     loading: () => <p>Loading question manager...</p>
 });
@@ -88,7 +96,11 @@ export default function EditTestPage() {
             <>
                 <TestForm initialData={test} />
                 <Separator />
-                <TestQuestionManager testId={test.id} />
+                <TestSectionBuilder testId={test.id} />
+                <Separator />
+                <TestPassageManager testId={test.id} />
+                <Separator />
+                <TestQuestionManagerBySection testId={test.id} />
             </>
         )}
       </div>

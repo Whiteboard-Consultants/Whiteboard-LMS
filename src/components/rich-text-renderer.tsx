@@ -3,7 +3,7 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
-import { cn } from '@/lib/utils';
+import { cn, cleanupHTMLParagraphs } from '@/lib/utils';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { FontSize } from '@tiptap/extension-font-size';
 import { Katex } from './tiptap-katex-extension';
@@ -15,9 +15,17 @@ interface RichTextRendererProps {
 }
 
 export function RichTextRenderer({ content, className }: RichTextRendererProps) {
+  // Debug: Log the content being rendered
+  if (content && typeof content === 'string') {
+    console.log('🔍 RichTextRenderer - Content HTML:', content.substring(0, 200));
+  }
+  
+  // Clean the HTML content before rendering to remove excessive empty paragraphs
+  const cleanedContent = cleanupHTMLParagraphs(content);
+  
   const editor = useEditor({
     editable: false,
-    content: content,
+    content: cleanedContent,
     extensions: [
         StarterKit,
         Image,
@@ -29,7 +37,7 @@ export function RichTextRenderer({ content, className }: RichTextRendererProps) 
     ],
     editorProps: {
         attributes: {
-            class: 'prose dark:prose-invert prose-sm sm:prose-base focus:outline-none max-w-none',
+            class: 'prose dark:prose-invert !prose-base !max-w-none focus:outline-none w-full break-words prose-p:leading-relaxed prose-p:my-2 prose-headings:my-3 prose-ul:my-2 prose-ol:my-2 prose-li:my-1 prose-p:text-base prose-p:max-w-none',
         },
     },
     immediatelyRender: false,
@@ -37,12 +45,12 @@ export function RichTextRenderer({ content, className }: RichTextRendererProps) 
 
   useEffect(() => {
     if (editor && content !== editor.getHTML()) {
-      editor.commands.setContent(content);
+      editor.commands.setContent(cleanupHTMLParagraphs(content));
     }
   }, [content, editor]);
 
   return (
-    <div className={cn("rich-text-renderer", className)}>
+    <div className={cn("rich-text-renderer w-full", className)}>
         <EditorContent editor={editor} />
     </div>
   );
