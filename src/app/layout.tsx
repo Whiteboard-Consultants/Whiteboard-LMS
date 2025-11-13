@@ -3,11 +3,13 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { Toaster as Sonner } from "sonner"
 import { AuthProvider } from './auth-provider';
+import { AuthErrorSuppressor } from '@/components/auth-error-suppressor';
 import { CartProvider } from '@/hooks/use-cart';
 import Script from 'next/script';
 import { ThemeProvider } from "@/components/theme-provider";
 import { WebVitalsTracker, PerformanceOptimizations, WebsiteSearchSchema } from '@/components/seo-optimizations';
 import '@/lib/auth-fix'; // Auto-handle auth token issues
+import '@/lib/suppress-auth-errors'; // Suppress expected Supabase auth errors
 import type { Metadata } from 'next';
 import { Poppins, PT_Sans } from 'next/font/google';
 
@@ -219,6 +221,9 @@ export default function RootLayout({
         <WebsiteSearchSchema />
       </head>
       <body className={`${fontBody.variable} ${fontHeadline.variable} font-body`}>
+        {/* Suppress expected Supabase auth errors */}
+        <AuthErrorSuppressor />
+        
         <ThemeProvider
             attribute="class"
             defaultTheme="system"

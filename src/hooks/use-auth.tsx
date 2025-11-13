@@ -201,18 +201,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const getInitialSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
+        
+        // Handle token refresh errors gracefully - these are expected when tokens expire
         if (error) {
-          console.error("Error getting session:", error);
+          const isRefreshTokenError = error.message?.includes('Refresh Token Not Found') || 
+                                      error.message?.includes('Invalid Refresh Token') ||
+                                      error.message?.includes('refresh_token_not_found');
           
-          // Handle specific refresh token errors during initial session check
-          if (error.message?.includes('Refresh Token Not Found') || 
-              error.message?.includes('Invalid Refresh Token') ||
-              error.message?.includes('refresh_token_not_found')) {
-            console.log("Invalid refresh token detected on app start, clearing auth storage...");
+          if (isRefreshTokenError) {
+            // Silently clear old session and continue as unauthenticated
+            console.debug("Invalid refresh token detected on app start, clearing auth storage...");
             clearAuthStorage();
-            await supabase.auth.signOut();
+            setUser(null);
+            setUserData(null);
+            setAccessToken(null);
+            setError(null); // Don't show error to user
+            setLoading(false);
+            return;
           }
           
+          // For other errors, log and set error state
+          console.error("Error getting session:", error);
           setError(new Error(error.message));
           setLoading(false);
           return;
@@ -220,35 +229,41 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         // Check if the session token is expired
         if (session && isTokenExpired(session)) {
-          console.log("Session token is expired, attempting refresh...");
+          console.debug("Session token is expired, attempting refresh...");
           
           // Try to refresh the session
           const { data: refreshedSession, error: refreshError } = await supabase.auth.refreshSession();
           
           if (refreshError) {
-            console.log("Failed to refresh session:", refreshError.message);
+            const isRefreshTokenError = refreshError.message?.includes('Refresh Token Not Found') || 
+                                        refreshError.message?.includes('Invalid Refresh Token') ||
+                                        refreshError.message?.includes('refresh_token_not_found');
             
-            // Handle specific refresh token errors
-            if (refreshError.message?.includes('Refresh Token Not Found') || 
-                refreshError.message?.includes('Invalid Refresh Token') ||
-                refreshError.message?.includes('refresh_token_not_found')) {
-              console.log("Invalid refresh token detected, clearing session and signing out...");
-              // Clear any stored session data
+            if (isRefreshTokenError) {
+              // Silently handle expired refresh tokens
+              console.debug("Invalid refresh token during session refresh, clearing session...");
               clearAuthStorage();
-              await supabase.auth.signOut();
+              setUser(null);
+              setUserData(null);
+              setAccessToken(null);
+              setError(null);
+              setLoading(false);
+              return;
             }
             
+            console.error("Failed to refresh session:", refreshError.message);
             setUser(null);
             setUserData(null);
+            setAccessToken(null);
             setLoading(false);
             return;
           }
           
           if (!refreshedSession?.session) {
-            console.log("No session returned after refresh, signing out...");
-            await supabase.auth.signOut();
+            console.debug("No session returned after refresh, clearing auth...");
             setUser(null);
             setUserData(null);
+            setAccessToken(null);
             setLoading(false);
             return;
           }
@@ -272,6 +287,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         clearAuthStorage();
         setUser(null);
         setUserData(null);
+        setAccessToken(null);
         setLoading(false);
       }
     };
