@@ -2,26 +2,32 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { getDownloadURL, ref, uploadBytes, deleteObject } from 'firebase/storage';
-import { collection, addDoc, doc, updateDoc, serverTimestamp, getDoc, runTransaction, query, where, getDocs } from 'firebase/firestore';
 import { v4 as uuidv4 } from 'uuid';
-
-// FIXME: Firebase imports are temporarily disabled to avoid compatibility warnings
-// This file needs full migration to Supabase
 import { supabase } from '@/lib/supabase';
-
-// Temporary stub variables to avoid compilation errors
-const db = supabase as any;
-const storage = {} as any;
 import type { Course, User, CourseCategory, Test } from '@/types';
 
 async function uploadImage(file: File, folder: string): Promise<string> {
     const fileExtension = file.name.split('.').pop();
     const fileName = `${uuidv4()}.${fileExtension}`;
-    const storageRef = ref(storage, `${folder}/${fileName}`);
-    await uploadBytes(storageRef, file);
-    const downloadUrl = await getDownloadURL(storageRef);
-    return downloadUrl;
+    const filePath = `${folder}/${fileName}`;
+    
+    try {
+      const { error: uploadError } = await supabase.storage
+        .from('course-images')
+        .upload(filePath, file);
+      
+      if (uploadError) throw uploadError;
+      
+      // Get the public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('course-images')
+        .getPublicUrl(filePath);
+      
+      return publicUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      throw error;
+    }
 }
 
 export async function createCourse(formData: FormData) {
@@ -61,21 +67,25 @@ export async function createCourse(formData: FormData) {
 
     if (userRole === 'admin' && instructorId) {
       // Admin is creating the course for a specific instructor
-      const instructorDoc = await getDoc(doc(db, "users", instructorId));
-      if (!instructorDoc.exists()) {
+      const { data: instructorData, error: instructorError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', instructorId)
+        .single();
+      
+      if (instructorError || !instructorData) {
         return { success: false, error: "Selected instructor not found." };
       }
-      const instructorData = instructorDoc.data() as User;
+      
       instructor = {
         id: instructorData.id,
         name: instructorData.name,
       };
     } else {
       // Instructor is creating their own course
-       if (!userName) {
-        // This case should ideally not be hit if FE logic is correct
+      if (!userName) {
         return { success: false, error: 'Instructor name is missing.' };
-       }
+      }
       instructor = {
         id: userId,
         name: userName,
@@ -104,13 +114,20 @@ export async function createCourse(formData: FormData) {
         tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
     };
 
-    const docRef = await addDoc(collection(db, 'courses'), courseData);
-    await updateDoc(docRef, { id: docRef.id });
+    const { data: newCourse, error: insertError } = await supabase
+      .from('courses')
+      .insert([courseData])
+      .select()
+      .single();
+    
+    if (insertError || !newCourse) {
+      throw insertError || new Error('Failed to insert course');
+    }
 
     revalidatePath('/instructor/dashboard');
     revalidatePath('/instructor/courses');
     revalidatePath('/admin/courses');
-    return { success: true, courseId: docRef.id };
+    return { success: true, courseId: newCourse.id };
   } catch (error: unknown) {
     console.error('Error creating course:', error);
     const errorMessage = error instanceof Error ? error.message : 'Failed to create course.';
@@ -147,8 +164,12 @@ export async function updateCourse(courseId: string, formData: FormData) {
             
             if (existingImageUrl) {
                 try {
-                    const oldImageRef = ref(storage, existingImageUrl);
-                    await deleteObject(oldImageRef);
+                    // Extract the file path from the URL
+                    const urlParts = existingImageUrl.split('/');
+                    const filePath = `course_thumbnails/${urlParts[urlParts.length - 1]}`;
+                    await supabase.storage
+                      .from('course-images')
+                      .remove([filePath]);
                 } catch (e) {
                     console.warn("Could not delete old thumbnail, it might not exist:", e);
                 }
@@ -172,19 +193,28 @@ export async function updateCourse(courseId: string, formData: FormData) {
         };
 
         if (instructorId) {
-            const instructorDoc = await getDoc(doc(db, 'users', instructorId));
-            if (!instructorDoc.exists()) {
+            const { data: instructorData, error: instructorError } = await supabase
+              .from('users')
+              .select('*')
+              .eq('id', instructorId)
+              .single();
+            
+            if (instructorError || !instructorData) {
                 return { success: false, error: "Selected instructor not found." };
             }
-            const instructorData = instructorDoc.data() as User;
+            
             dataToUpdate.instructor = {
                 id: instructorData.id,
                 name: instructorData.name,
             };
         }
         
-        const courseRef = doc(db, 'courses', courseId);
-        await updateDoc(courseRef, dataToUpdate);
+        const { error: updateError } = await supabase
+          .from('courses')
+          .update(dataToUpdate)
+          .eq('id', courseId);
+        
+        if (updateError) throw updateError;
 
         revalidatePath(`/instructor/courses/edit/${courseId}`);
         revalidatePath('/instructor/courses');
@@ -208,40 +238,50 @@ export async function deleteCourse(courseId: string, imageUrl: string) {
   }
 
   try {
-    // Use a transaction to ensure atomicity
-    await runTransaction(db, async (transaction) => {
-        const courseRef = doc(db, 'courses', courseId);
-        
-        // 1. Delete associated lessons
-        const lessonsQuery = query(collection(db, 'lessons'), where('courseId', '==', courseId));
-        const lessonsSnapshot = await getDocs(lessonsQuery);
-        lessonsSnapshot.forEach(doc => transaction.delete(doc.ref));
+    // 1. Delete associated lessons
+    await supabase
+      .from('lessons')
+      .delete()
+      .eq('courseId', courseId);
 
-        // 2. Delete associated tests and their questions
-        const testsQuery = query(collection(db, 'tests'), where('courseId', '==', courseId));
-        const testsSnapshot = await getDocs(testsQuery);
-        for (const testDoc of testsSnapshot.docs) {
-            const testData = testDoc.data() as Test;
-            const questionsQuery = query(collection(db, 'questions'), where('testId', '==', testData.id));
-            const questionsSnapshot = await getDocs(questionsQuery);
-            questionsSnapshot.forEach(doc => transaction.delete(doc.ref));
-            transaction.delete(testDoc.ref);
-        }
-        
-        // 3. Delete the course document itself
-        transaction.delete(courseRef);
-    });
+    // 2. Delete associated tests and their questions
+    const { data: tests, error: testsError } = await supabase
+      .from('tests')
+      .select('id')
+      .eq('courseId', courseId);
     
-    // 4. Delete thumbnail from Firebase Storage (outside transaction)
+    if (!testsError && tests) {
+      for (const test of tests) {
+        await supabase
+          .from('questions')
+          .delete()
+          .eq('testId', test.id);
+      }
+      
+      await supabase
+        .from('tests')
+        .delete()
+        .eq('courseId', courseId);
+    }
+    
+    // 3. Delete the course itself
+    const { error: deleteError } = await supabase
+      .from('courses')
+      .delete()
+      .eq('id', courseId);
+    
+    if (deleteError) throw deleteError;
+    
+    // 4. Delete thumbnail from Supabase Storage
     if (imageUrl) {
         try {
-            const storageRef = ref(storage, imageUrl);
-            await deleteObject(storageRef);
+            const urlParts = imageUrl.split('/');
+            const filePath = `course_thumbnails/${urlParts[urlParts.length - 1]}`;
+            await supabase.storage
+              .from('course-images')
+              .remove([filePath]);
         } catch (storageError: unknown) {
-            // Log the error but don't fail the whole operation if the image doesn't exist
-            if (storageError instanceof Error && (storageError as { code?: string }).code !== 'storage/object-not-found') {
-                console.warn(`Could not delete course thumbnail for ${courseId}:`, storageError);
-            }
+            console.warn(`Could not delete course thumbnail for ${courseId}:`, storageError);
         }
     }
     
@@ -269,18 +309,26 @@ export async function updateCourseCertificate(courseId: string, formData: FormDa
         // 2. Delete old certificate if it exists
         if (existingCertificateUrl) {
             try {
-                await deleteObject(ref(storage, existingCertificateUrl));
+                const urlParts = existingCertificateUrl.split('/');
+                const filePath = `course_certificates/${urlParts[urlParts.length - 1]}`;
+                await supabase.storage
+                  .from('course-images')
+                  .remove([filePath]);
             } catch (e: unknown) {
                 console.warn("Could not delete old certificate, it may have already been removed:", e);
             }
         }
 
-        // 3. Update Firestore with new URL
-        const courseRef = doc(db, 'courses', courseId);
-        await updateDoc(courseRef, {
+        // 3. Update Supabase with new URL
+        const { error: updateError } = await supabase
+          .from('courses')
+          .update({
             certificateUrl: newCertificateUrl,
-            hasCertificate: true, // Ensure this is set to true
-        });
+            hasCertificate: true,
+          })
+          .eq('id', courseId);
+        
+        if (updateError) throw updateError;
 
         revalidatePath(`/instructor/courses/edit/${courseId}`);
         return { success: true, newUrl: newCertificateUrl };
@@ -290,7 +338,7 @@ export async function updateCourseCertificate(courseId: string, formData: FormDa
         const errorMessage = error instanceof Error ? error.message : 'Failed to update certificate.';
         return { success: false, error: errorMessage };
     }
-}
+}}
 
 
 export async function deleteCourseThumbnail(courseId: string, imageUrl: string) {
@@ -298,29 +346,43 @@ export async function deleteCourseThumbnail(courseId: string, imageUrl: string) 
     return { success: false, error: "Course ID and Image URL are required." };
   }
   try {
-    const imageRef = ref(storage, imageUrl);
-    await deleteObject(imageRef);
+    const urlParts = imageUrl.split('/');
+    const filePath = `course_thumbnails/${urlParts[urlParts.length - 1]}`;
+    await supabase.storage
+      .from('course-images')
+      .remove([filePath]);
 
-    const courseRef = doc(db, 'courses', courseId);
-    await updateDoc(courseRef, { imageUrl: '' });
+    const { error: updateError } = await supabase
+      .from('courses')
+      .update({ imageUrl: '' })
+      .eq('id', courseId);
+    
+    if (updateError) throw updateError;
 
     revalidatePath(`/instructor/courses/edit/${courseId}`);
     return { success: true };
   } catch (error: unknown) {
     return { success: false, error: "Failed to delete thumbnail." };
   }
-}
+}}
 
 export async function deleteCourseCertificate(courseId: string, certificateUrl: string) {
   if (!courseId || !certificateUrl) {
     return { success: false, error: "Course ID and Certificate URL are required." };
   }
   try {
-    const certRef = ref(storage, certificateUrl);
-    await deleteObject(certRef);
+    const urlParts = certificateUrl.split('/');
+    const filePath = `course_certificates/${urlParts[urlParts.length - 1]}`;
+    await supabase.storage
+      .from('course-images')
+      .remove([filePath]);
 
-    const courseRef = doc(db, 'courses', courseId);
-    await updateDoc(courseRef, { certificateUrl: '', hasCertificate: true });
+    const { error: updateError } = await supabase
+      .from('courses')
+      .update({ certificateUrl: '', hasCertificate: true })
+      .eq('id', courseId);
+    
+    if (updateError) throw updateError;
 
     revalidatePath(`/instructor/courses/edit/${courseId}`);
     return { success: true };
@@ -328,4 +390,4 @@ export async function deleteCourseCertificate(courseId: string, certificateUrl: 
     console.error('Error deleting certificate:', error);
     return { success: false, error: 'Failed to delete certificate.' };
   }
-}
+}}

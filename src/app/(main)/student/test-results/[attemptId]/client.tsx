@@ -4,8 +4,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { TestAttempt, Test, TestQuestion } from "@/types";
-import { getDoc, doc, collection, query, where, getDocs, orderBy } from 'firebase/firestore';
-import { db } from '@/lib/firebase-compat';
+import { supabase } from '@/lib/supabase';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { ArrowLeft } from 'lucide-react';
 
@@ -20,15 +19,33 @@ export function TestResultsClient({ attempt }: TestResultsClientProps) {
   useEffect(() => {
     if (attempt) {
       const fetchTestAndQuestions = async () => {
-        const testRef = doc(db, 'tests', attempt.testId);
-        const testSnap = await getDoc(testRef);
-        if (testSnap.exists()) {
-          setTest(testSnap.data() as Test);
-        }
+        try {
+          // Fetch test from Supabase
+          const { data: testData, error: testError } = await supabase
+            .from('tests')
+            .select('*')
+            .eq('id', attempt.testId)
+            .single();
+          
+          if (testError) throw testError;
+          if (testData) {
+            setTest(testData as Test);
+          }
 
-        const questionsQuery = query(collection(db, 'questions'), where('testId', '==', attempt.testId), orderBy('order'));
-        const questionsSnap = await getDocs(questionsQuery);
-        setQuestions(questionsSnap.docs.map(doc => doc.data() as TestQuestion));
+          // Fetch questions from Supabase
+          const { data: questionsData, error: questionsError } = await supabase
+            .from('questions')
+            .select('*')
+            .eq('testId', attempt.testId)
+            .order('order', { ascending: true });
+          
+          if (questionsError) throw questionsError;
+          if (questionsData) {
+            setQuestions(questionsData as TestQuestion[]);
+          }
+        } catch (error) {
+          console.error('Error fetching test and questions:', error);
+        }
       };
 
       fetchTestAndQuestions();
