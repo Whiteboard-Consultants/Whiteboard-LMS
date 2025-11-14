@@ -47,6 +47,7 @@ export default function TestTaker({ testId }: TestTakerProps) {
   const [test, setTest] = useState<Test | null>(null);
   const [questions, setQuestions] = useState<TestQuestion[]>([]);
   const [answers, setAnswers] = useState<Answer[]>([]);
+  const [passages, setPassages] = useState<Record<string, any>>({});
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -132,10 +133,32 @@ export default function TestTaker({ testId }: TestTakerProps) {
         solution: q.explanation || '',
         marks: q.points || 1,
         order: q.order_number || 0,
-        negativeMarks: 0
+        negativeMarks: 0,
+        passageId: q.passage_id || null,
+        sectionId: q.section_id || null
       })) as TestQuestion[];
       
       setQuestions(questions);
+
+      // Load passages if any question has a passage_id
+      const passageIds = [...new Set(questions
+        .map((q: TestQuestion) => q.passageId)
+        .filter((id): id is string => !!id))];
+      
+      if (passageIds.length > 0) {
+        const { data: passagesData, error: passagesError } = await supabase
+          .from('test_passages')
+          .select('*')
+          .in('id', passageIds);
+        
+        if (!passagesError && passagesData) {
+          const passageMap: Record<string, any> = {};
+          passagesData.forEach((p: any) => {
+            passageMap[p.id] = p;
+          });
+          setPassages(passageMap);
+        }
+      }
       
       const initialAnswers: Answer[] = questions.map((_, i) => ({
           optionIndex: null,
@@ -304,6 +327,14 @@ export default function TestTaker({ testId }: TestTakerProps) {
             <div className="col-span-9">
                 <Card className="min-h-[60vh]">
                     <CardContent className="p-6">
+                        {currentQuestion.passageId && passages[currentQuestion.passageId] && (
+                            <div className="mb-8 p-4 bg-gray-50 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700">
+                                <h3 className="text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300">Passage</h3>
+                                <div className="prose dark:prose-invert max-w-none text-sm">
+                                    <RichTextRenderer content={passages[currentQuestion.passageId].passage_text || ''} />
+                                </div>
+                            </div>
+                        )}
                         <p className="text-sm font-semibold mb-2">Question {currentQuestionIndex + 1}</p>
                         <div className="prose dark:prose-invert max-w-none mb-6">
                            <RichTextRenderer content={currentQuestion.text} />

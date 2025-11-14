@@ -240,6 +240,8 @@ export interface TestQuestion {
     solution: string; // Rich text/JSON string
     marks: number;
     negativeMarks?: number;
+    passageId?: string | null;
+    sectionId?: string | null;
 }
 
 export type TestType = 'practice' | 'final' | 'assessment' | 'quiz';
