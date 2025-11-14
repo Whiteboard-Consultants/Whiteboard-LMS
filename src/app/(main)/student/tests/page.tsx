@@ -333,10 +333,26 @@ function TestGrid({ tests, loading, showProgress = false }: TestGridProps) {
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <CardTitle className="text-lg line-clamp-2">{test.title}</CardTitle>
-                  <CardDescription className="line-clamp-2 mt-1">
-                    {test.description}
-                  </CardDescription>
+                  <CardTitle className="text-lg">{test.title}</CardTitle>
+                  {test.description && (
+                    <div className="mt-2">
+                      {test.description.includes('✓') ? (
+                        // If description contains checkmarks, format as bullet list
+                        <ul className="text-sm text-muted-foreground space-y-1 list-none">
+                          {test.description.split('✓').filter(Boolean).map((item, idx) => (
+                            <li key={idx} className="flex items-start gap-2">
+                              <span className="text-green-600 flex-shrink-0 mt-0.5">✓</span>
+                              <span className="line-clamp-1">{item.trim()}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <CardDescription className="line-clamp-3">
+                          {test.description}
+                        </CardDescription>
+                      )}
+                    </div>
+                  )}
                 </div>
                 {getTestTypeBadge(test.type)}
               </div>
@@ -351,7 +367,7 @@ function TestGrid({ tests, loading, showProgress = false }: TestGridProps) {
                 
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Eye className="h-4 w-4" />
-                  <span>{test.questionCount} questions</span>
+                  <span>{test.questionCount} {test.questionCount === 1 ? 'Question' : 'Questions'}</span>
                 </div>
                 
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
