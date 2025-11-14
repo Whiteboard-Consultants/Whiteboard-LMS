@@ -448,15 +448,12 @@ export async function getTestQuestions(testId: string) {
         
         // Transform database column names to match TestQuestion interface
         const transformedQuestions = data?.map((q: any) => {
-            // Strip HTML tags from question text
-            const cleanText = q.question_text ? q.question_text.replace(/<[^>]*>/g, '') : '';
-            
             return {
                 id: q.id,
                 testId: q.test_id,
                 order: q.order_number,
                 type: q.question_type === 'multiple_choice' ? 'mcq' : 'descriptive',
-                text: cleanText,
+                text: q.question_text || '',
                 options: q.options ? (typeof q.options === 'string' ? JSON.parse(q.options) : q.options) : [],
                 correctOption: q.correct_answer !== null ? parseInt(q.correct_answer) : null,
                 solution: q.explanation || '',
