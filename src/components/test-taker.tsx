@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, TimerIcon, Book, Bookmark, RotateCcw, XSquare, ChevronsRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -48,7 +49,9 @@ export default function TestTaker({ testId }: TestTakerProps) {
   const [questions, setQuestions] = useState<TestQuestion[]>([]);
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [passages, setPassages] = useState<Record<string, any>>({});
+  const [sections, setSections] = useState<any[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [currentSectionId, setCurrentSectionId] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -167,6 +170,21 @@ export default function TestTaker({ testId }: TestTakerProps) {
       setAnswers(initialAnswers);
       setTimeLeft(testData.duration);
 
+      // Load sections
+      const { data: sectionsData, error: sectionsError } = await supabase
+        .from('test_sections')
+        .select('*')
+        .eq('test_id', testId)
+        .order('order_number', { ascending: true });
+      
+      if (!sectionsError && sectionsData) {
+        setSections(sectionsData);
+        // Set the first section as current if sections exist
+        if (sectionsData.length > 0) {
+          setCurrentSectionId(sectionsData[0].id);
+        }
+      }
+
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : "An unknown error occurred.";
       setError(errorMessage);
@@ -260,7 +278,17 @@ export default function TestTaker({ testId }: TestTakerProps) {
     router.push('/student/tests');
   }
 
-  const currentQuestion = questions[currentQuestionIndex];
+  // Get questions for current section (or all if no sections)
+  const sectionQuestions = currentSectionId && sections.length > 0
+    ? questions.filter(q => q.sectionId === currentSectionId)
+    : questions;
+
+  // Get the index of current question within section
+  const sectionQuestionIndex = sectionQuestions.findIndex(q => q.id === questions[currentQuestionIndex]?.id);
+  const displayQuestionIndex = sectionQuestionIndex >= 0 ? sectionQuestionIndex : 0;
+  const sectionCurrentQuestion = sectionQuestions[displayQuestionIndex];
+
+  const currentQuestion = sectionCurrentQuestion || questions[currentQuestionIndex];
   
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
@@ -325,6 +353,17 @@ export default function TestTaker({ testId }: TestTakerProps) {
 
        <div className="grid grid-cols-12 gap-4">
             <div className="col-span-9">
+                {sections.length > 0 && (
+                    <Tabs value={currentSectionId || sections[0]?.id || ''} onValueChange={setCurrentSectionId} className="mb-4">
+                        <TabsList className="grid w-full gap-2" style={{ gridTemplateColumns: `repeat(${Math.min(sections.length, 5)}, minmax(0, 1fr))` }}>
+                            {sections.map((section) => (
+                                <TabsTrigger key={section.id} value={section.id} className="text-xs sm:text-sm">
+                                    {section.name}
+                                </TabsTrigger>
+                            ))}
+                        </TabsList>
+                    </Tabs>
+                )}
                 <Card className="min-h-[60vh]">
                     <CardContent className="p-6">
                         {currentQuestion.passageId && passages[currentQuestion.passageId] && (
@@ -378,18 +417,21 @@ export default function TestTaker({ testId }: TestTakerProps) {
                     </CardHeader>
                     <CardContent className="p-4 space-y-4">
                         <div className="grid grid-cols-5 gap-2">
-                           {questions.map((_, index) => (
-                                <button
-                                    key={index}
-                                    className={cn("h-8 w-8 text-xs rounded-md flex items-center justify-center font-semibold", 
-                                        getStatusColor(answers[index]?.status),
-                                        currentQuestionIndex === index && "ring-2 ring-blue-500 ring-offset-2"
-                                    )}
-                                    onClick={() => handleQuestionChange(index)}
-                                >
-                                    {index + 1}
-                                </button>
-                           ))}
+                           {sectionQuestions.map((question, index) => {
+                                const globalIndex = questions.findIndex(q => q.id === question.id);
+                                return (
+                                  <button
+                                      key={question.id}
+                                      className={cn("h-8 w-8 text-xs rounded-md flex items-center justify-center font-semibold", 
+                                          getStatusColor(answers[globalIndex]?.status),
+                                          globalIndex === currentQuestionIndex && "ring-2 ring-blue-500 ring-offset-2"
+                                      )}
+                                      onClick={() => handleQuestionChange(globalIndex)}
+                                  >
+                                      {index + 1}
+                                  </button>
+                                );
+                           })}
                         </div>
                          <div className="grid grid-cols-2 gap-2 mt-4 text-xs">
                             <Button variant="outline" size="sm">Question Paper</Button>
