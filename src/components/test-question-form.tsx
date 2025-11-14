@@ -282,7 +282,7 @@ export function TestQuestionForm({ testId, existingQuestion, onSuccess, currentQ
                         )}
                     />
 
-                    {/* Question Text with Textarea (plain text) */}
+                    {/* Question Text with Rich Text Editor */}
                     <FormField
                         control={control}
                         name="text"
@@ -290,14 +290,14 @@ export function TestQuestionForm({ testId, existingQuestion, onSuccess, currentQ
                             <FormItem>
                                 <FormLabel>Question Text</FormLabel>
                                 <FormControl>
-                                    <Textarea 
-                                        {...field}
-                                        placeholder="Enter your question here..."
-                                        className="min-h-24"
+                                    <RichTextFormField 
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        placeholder="Enter your question here with formatting..."
                                     />
                                 </FormControl>
                                 <FormDescription>
-                                    Enter the question text
+                                    Enter the question text with formatting
                                 </FormDescription>
                                 <FormMessage />
                             </FormItem>
@@ -373,9 +373,9 @@ export function TestQuestionForm({ testId, existingQuestion, onSuccess, currentQ
                             <FormItem>
                                 <FormLabel>{questionType === 'mcq' ? 'Solution/Explanation' : 'Model Answer'}</FormLabel>
                                 <FormControl>
-                                    <Textarea 
-                                        className="min-h-24" 
-                                        {...field} 
+                                    <RichTextFormField 
+                                        value={field.value || ''}
+                                        onChange={field.onChange}
                                         placeholder={questionType === 'descriptive' 
                                             ? 'Provide the ideal/expected answer for this question...' 
                                             : 'Explain why this is the correct answer...'}
