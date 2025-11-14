@@ -368,9 +368,11 @@ export default function TestTaker({ testId }: TestTakerProps) {
                     <CardContent className="p-6">
                         {currentQuestion.passageId && passages[currentQuestion.passageId] && (
                             <div className="mb-8 p-4 bg-gray-50 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700">
-                                <h3 className="text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300">Passage</h3>
+                                <h3 className="text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300">
+                                    {passages[currentQuestion.passageId].title || 'Passage'}
+                                </h3>
                                 <div className="prose dark:prose-invert max-w-none text-sm">
-                                    <RichTextRenderer content={passages[currentQuestion.passageId].passage_text || ''} />
+                                    <RichTextRenderer content={passages[currentQuestion.passageId].content || ''} />
                                 </div>
                             </div>
                         )}
