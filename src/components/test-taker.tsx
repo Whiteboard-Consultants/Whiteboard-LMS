@@ -52,9 +52,12 @@ export default function TestTaker({ testId }: TestTakerProps) {
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [passages, setPassages] = useState<Record<string, any>>({});
   const [sections, setSections] = useState<any[]>([]);
+  const [sectionDurations, setSectionDurations] = useState<Map<string, number>>(new Map());
+  const [submittedSections, setSubmittedSections] = useState<Set<string>>(new Set());
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [currentSectionId, setCurrentSectionId] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState(0);
+  const [sectionTimeLeft, setSectionTimeLeft] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isIntentionalExit, setIsIntentionalExit] = useState(false);
@@ -181,9 +184,19 @@ export default function TestTaker({ testId }: TestTakerProps) {
       
       if (!sectionsError && sectionsData) {
         setSections(sectionsData);
+        
+        // Build section durations map
+        const durations = new Map<string, number>();
+        sectionsData.forEach((s: any) => {
+          // Use section duration if available, otherwise default to 1200 seconds (20 mins)
+          durations.set(s.id, s.duration || 1200);
+        });
+        setSectionDurations(durations);
+        
         // Set the first section as current if sections exist
         if (sectionsData.length > 0) {
           setCurrentSectionId(sectionsData[0].id);
+          setSectionTimeLeft(durations.get(sectionsData[0].id) || 1200);
         }
       }
 
@@ -213,6 +226,66 @@ export default function TestTaker({ testId }: TestTakerProps) {
     }
 
   }, [timeLeft, loading, handleSubmit]);
+
+  // Sectional Timer Effect
+  useEffect(() => {
+    if (sectionTimeLeft <= 0 && currentSectionId && !submittedSections.has(currentSectionId)) {
+      // Auto-submit section when time expires
+      handleSubmitSection();
+      return;
+    }
+    
+    if (sectionTimeLeft > 0) {
+      const timer = setInterval(() => {
+        setSectionTimeLeft(prev => prev - 1);
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [sectionTimeLeft, currentSectionId, submittedSections]);
+
+  // Handle section submission
+  const handleSubmitSection = () => {
+    if (!currentSectionId) return;
+    
+    // Mark section as submitted
+    setSubmittedSections(prev => new Set(prev).add(currentSectionId));
+    
+    // Move to next section if available
+    const currentIndex = sections.findIndex(s => s.id === currentSectionId);
+    if (currentIndex < sections.length - 1) {
+      const nextSection = sections[currentIndex + 1];
+      setCurrentSectionId(nextSection.id);
+      setSectionTimeLeft(sectionDurations.get(nextSection.id) || 1200);
+      
+      toast({
+        title: "Section Submitted",
+        description: `Moving to ${nextSection.name}`,
+        duration: 2000
+      });
+    } else {
+      // All sections done, submit full test
+      handleSubmit();
+    }
+  };
+
+  // Handle section change - prevent revisiting submitted sections
+  const handleSectionChange = (sectionId: string) => {
+    const currentIndex = sections.findIndex(s => s.id === currentSectionId);
+    const newIndex = sections.findIndex(s => s.id === sectionId);
+    
+    // Only allow moving to current or forward sections, not backward to submitted sections
+    if (newIndex <= currentIndex || !submittedSections.has(sectionId)) {
+      setCurrentSectionId(sectionId);
+      setSectionTimeLeft(sectionDurations.get(sectionId) || 1200);
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Section Locked',
+        description: 'You cannot revisit a section after submitting it.',
+        duration: 2000
+      });
+    }
+  };
 
 
   const updateAnswerStatus = (index: number, newStatus: AnswerStatus) => {
@@ -358,9 +431,20 @@ export default function TestTaker({ testId }: TestTakerProps) {
                 <Button variant="outline" size="icon" title="Instructions">
                     <Book className="h-5 w-5" />
                 </Button>
-                <div className="flex items-center gap-2 bg-gray-200 dark:bg-gray-700 px-3 py-1.5 rounded-md">
-                    <TimerIcon className="h-5 w-5" />
-                    <span className="font-mono font-bold text-lg">{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}</span>
+                <div className="flex items-center gap-4">
+                    {sections.length > 0 && (
+                        <div className="flex items-center gap-2 bg-blue-100 dark:bg-blue-900/30 px-3 py-1.5 rounded-md border border-blue-300 dark:border-blue-700">
+                            <TimerIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                            <span className="font-mono font-bold text-lg text-blue-600 dark:text-blue-400">
+                              {String(Math.floor(sectionTimeLeft / 60)).padStart(2, '0')}:{String(sectionTimeLeft % 60).padStart(2, '0')}
+                            </span>
+                            <span className="text-xs text-blue-600 dark:text-blue-400 ml-1">Section</span>
+                        </div>
+                    )}
+                    <div className="flex items-center gap-2 bg-gray-200 dark:bg-gray-700 px-3 py-1.5 rounded-md">
+                        <TimerIcon className="h-5 w-5" />
+                        <span className="font-mono font-bold text-lg">{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}</span>
+                    </div>
                 </div>
             </div>
        </div>
@@ -368,13 +452,23 @@ export default function TestTaker({ testId }: TestTakerProps) {
        <div className="grid grid-cols-12 gap-4">
             <div className="col-span-9">
                 {sections.length > 0 && (
-                    <Tabs value={currentSectionId || sections[0]?.id || ''} onValueChange={setCurrentSectionId} className="mb-4">
+                    <Tabs value={currentSectionId || sections[0]?.id || ''} onValueChange={handleSectionChange} className="mb-4">
                         <TabsList className="grid w-full gap-2" style={{ gridTemplateColumns: `repeat(${Math.min(sections.length, 5)}, minmax(0, 1fr))` }}>
-                            {sections.map((section) => (
-                                <TabsTrigger key={section.id} value={section.id} className="text-xs sm:text-sm">
+                            {sections.map((section) => {
+                                const isSubmitted = submittedSections.has(section.id);
+                                const isLocked = isSubmitted;
+                                return (
+                                  <TabsTrigger 
+                                    key={section.id} 
+                                    value={section.id} 
+                                    className={`text-xs sm:text-sm relative ${isLocked ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    disabled={isLocked}
+                                  >
                                     {section.name}
-                                </TabsTrigger>
-                            ))}
+                                    {isSubmitted && <span className="ml-1 text-green-600 dark:text-green-400">✓</span>}
+                                  </TabsTrigger>
+                                );
+                            })}
                         </TabsList>
                     </Tabs>
                 )}
@@ -434,10 +528,22 @@ export default function TestTaker({ testId }: TestTakerProps) {
                         Clear Response
                      </Button>
                    </div>
-                   <Button onClick={handleSaveAndNext} className="bg-orange-500 hover:bg-orange-600">
-                      Save & Next
-                      <ChevronsRight className="ml-2 h-4 w-4" />
-                   </Button>
+                   <div className="flex gap-2">
+                     {sections.length > 0 ? (
+                       <Button 
+                         onClick={handleSubmitSection} 
+                         className="bg-green-600 hover:bg-green-700"
+                       >
+                         Submit Section
+                         <ChevronsRight className="ml-2 h-4 w-4" />
+                       </Button>
+                     ) : (
+                       <Button onClick={handleSaveAndNext} className="bg-orange-500 hover:bg-orange-600">
+                         Save & Next
+                         <ChevronsRight className="ml-2 h-4 w-4" />
+                       </Button>
+                     )}
+                   </div>
                 </div>
             </div>
 
