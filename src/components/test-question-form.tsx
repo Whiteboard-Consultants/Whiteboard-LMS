@@ -81,20 +81,6 @@ export function TestQuestionForm({ testId, existingQuestion, onSuccess, currentQ
     
     // Debug: Log sections received and existing question data
     React.useEffect(() => {
-        console.log('🎯 TestQuestionForm received sections:', sections);
-        console.log('🎯 Sections count:', sections.length);
-        console.log('🎯 TestQuestionForm existingQuestion:', existingQuestion);
-        console.log('🎯 TestQuestionForm existingQuestion.sectionId:', existingQuestion?.sectionId);
-        console.log('🎯 TestQuestionForm isEditMode:', isEditMode);
-        if (existingQuestion) {
-            console.log('🎯 Existing question text:', existingQuestion.text);
-            console.log('🎯 Existing question type:', existingQuestion.type);
-            console.log('🎯 Existing question options:', existingQuestion.options);
-            console.log('🎯 Existing question sectionId:', existingQuestion.sectionId);
-        }
-    }, [sections, existingQuestion, isEditMode]);
-
-    const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             type: existingQuestion?.type || 'mcq',
@@ -111,9 +97,6 @@ export function TestQuestionForm({ testId, existingQuestion, onSuccess, currentQ
 
     // Log form default values
     React.useEffect(() => {
-        console.log('📋 Form defaultValues text:', form.getValues('text'));
-        console.log('📋 Form watch text:', form.watch('text'));
-    }, [form]);
 
     React.useEffect(() => {
         const type = form.watch('type');
