@@ -73,7 +73,7 @@ function SortableQuestionItem({ question, sectionName, onEdit, onDelete }: Sorta
                     {question.negativeMarks ? <Badge variant="outline">-{question.negativeMarks}</Badge> : null}
                 </div>
                 <div 
-                    className="font-medium text-sm prose prose-sm max-w-none"
+                    className="font-medium text-sm [&_p]:mb-2 [&_strong]:font-bold [&_em]:italic [&_ul]:list-disc [&_ol]:list-decimal [&_li]:ml-4"
                     dangerouslySetInnerHTML={{ __html: question.text }}
                 />
                 {question.type === 'mcq' && question.options && (
