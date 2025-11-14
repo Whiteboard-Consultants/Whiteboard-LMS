@@ -26,6 +26,7 @@ import {
 import { submitTest } from '@/app/student/assessment-actions';
 import { useBeforeunload } from 'react-beforeunload';
 import { cn } from '@/lib/utils';
+import { RichTextRenderer } from '@/components/rich-text-renderer';
 
 type AnswerStatus = 'not-visited' | 'not-answered' | 'answered' | 'marked' | 'answered-and-marked';
 
@@ -305,7 +306,7 @@ export default function TestTaker({ testId }: TestTakerProps) {
                     <CardContent className="p-6">
                         <p className="text-sm font-semibold mb-2">Question {currentQuestionIndex + 1}</p>
                         <div className="prose dark:prose-invert max-w-none mb-6">
-                           <p>{currentQuestion.text}</p>
+                           <RichTextRenderer content={currentQuestion.text} />
                         </div>
                         <RadioGroup
                             value={answers[currentQuestionIndex]?.optionIndex?.toString() ?? ''}
