@@ -128,6 +128,8 @@ export function TestQuestionForm({ testId, existingQuestion, onSuccess, currentQ
     };
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
+        console.log('📝 Submitting question with text:', values.text);
+        console.log('📝 Text includes HTML:', values.text.includes('<') && values.text.includes('>'));
         const questionData: Omit<TestQuestion, 'id' | 'testId'> & { sectionId?: string | null, passageId?: string | null } = {
             type: values.type,
             text: values.text,
