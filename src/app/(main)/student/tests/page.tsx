@@ -336,15 +336,19 @@ function TestGrid({ tests, loading, showProgress = false }: TestGridProps) {
                   <CardTitle className="text-lg">{test.title}</CardTitle>
                   {test.description && (
                     <div className="mt-2">
-                      {test.description.includes('✓') ? (
+                      {(test.description.includes('✓') || test.description.includes('✅')) ? (
                         // If description contains checkmarks, format as bullet list
                         <ul className="text-sm text-muted-foreground space-y-1 list-none">
-                          {test.description.split('✓').filter(Boolean).map((item, idx) => (
-                            <li key={idx} className="flex items-start gap-2">
-                              <span className="text-green-600 flex-shrink-0 mt-0.5">✓</span>
-                              <span className="line-clamp-1">{item.trim()}</span>
-                            </li>
-                          ))}
+                          {test.description.split(/✓|✅/).filter(Boolean).map((item, idx) => {
+                            const trimmed = item.trim();
+                            if (!trimmed) return null;
+                            return (
+                              <li key={idx} className="flex items-start gap-2">
+                                <span className="text-green-600 flex-shrink-0 mt-0.5">✓</span>
+                                <span className="line-clamp-2">{trimmed}</span>
+                              </li>
+                            );
+                          })}
                         </ul>
                       ) : (
                         <CardDescription className="line-clamp-3">
