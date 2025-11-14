@@ -233,7 +233,39 @@ export default function InstructorTestsPage() {
                                     By: {instructors.get(test.instructorId) || 'Unknown Instructor'}
                                 </p>
                             )}
-                          {test.description && <div className="text-sm text-muted-foreground pt-2">{test.description}</div>}
+                          {test.description && (
+                            <div className="pt-2">
+                              {(() => {
+                                const hasCheckmarks = test.description.includes('✓') || test.description.includes('✅');
+                                return hasCheckmarks;
+                              })() ? (
+                                // If description contains checkmarks, extract and format as bullet list
+                                <ul className="text-xs text-muted-foreground space-y-1.5 list-none">
+                                  {(() => {
+                                    // Split by checkmarks with various whitespace patterns
+                                    const lines = test.description.split(/\n\s*✅|✅/).filter(Boolean);
+                                    
+                                    return lines
+                                      .map((item) => {
+                                        // Get the first line and clean it
+                                        const firstLine = item.split('\n')[0].trim();
+                                        return firstLine;
+                                      })
+                                      .filter((item) => item && item.length > 5 && !item.includes('Total Questions') && !item.includes('Key Features') && !item.includes('Marks'))
+                                      .slice(0, 4)
+                                      .map((item, idx) => (
+                                        <li key={idx} className="flex items-start gap-2">
+                                          <span className="text-green-600 flex-shrink-0 mt-0.5 text-sm font-bold">✓</span>
+                                          <span className="leading-snug">{item}</span>
+                                        </li>
+                                      ));
+                                  })()}
+                                </ul>
+                              ) : (
+                                <div className="text-sm text-muted-foreground">{test.description}</div>
+                              )}
+                            </div>
+                          )}
                       </CardHeader>
                       <CardContent className="flex-grow space-y-4">
                           <div className="flex items-center justify-around text-center text-sm text-muted-foreground">

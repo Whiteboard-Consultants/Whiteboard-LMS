@@ -336,15 +336,7 @@ function TestGrid({ tests, loading, showProgress = false }: TestGridProps) {
                   <CardTitle className="text-lg">{test.title}</CardTitle>
                   {test.description && (
                     <div className="mt-2">
-                      {(() => {
-                        const hasCheckmarks = test.description.includes('✓') || test.description.includes('✅');
-                        // Debug log
-                        if (test.title === 'Aptitude Test for MBA Batch') {
-                          console.log('Test description includes checkmarks:', hasCheckmarks);
-                          console.log('Description starts with:', test.description.substring(0, 100));
-                        }
-                        return hasCheckmarks;
-                      })() ? (
+                      {(test.description.includes('✓') || test.description.includes('✅')) ? (
                         // If description contains checkmarks, extract and format as bullet list
                         <ul className="text-xs text-muted-foreground space-y-1.5 list-none">
                           {(() => {
