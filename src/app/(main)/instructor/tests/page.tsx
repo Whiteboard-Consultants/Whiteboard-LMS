@@ -75,7 +75,7 @@ export default function InstructorTestsPage() {
         const testIds = (testsData || []).map(test => test.id);
         const { data: questionCounts, error: questionCountError } = await supabase
           .from('test_questions')
-          .select('test_id')
+          .select('id, test_id')
           .in('test_id', testIds);
 
         if (questionCountError) {
@@ -84,6 +84,7 @@ export default function InstructorTestsPage() {
 
         console.log('Test IDs:', testIds);
         console.log('Question counts raw data:', questionCounts);
+        console.log('Question count error:', questionCountError);
 
         // Count questions per test
         const questionCountMap = new Map();

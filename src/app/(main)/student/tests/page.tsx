@@ -72,7 +72,7 @@ export default function StudentTestsPage() {
       // Fetch question counts for all tests
       const { data: questionCounts, error: questionCountError } = await supabase
         .from('test_questions')
-        .select('test_id')
+        .select('id, test_id')
         .in('test_id', (testsData || []).map(test => test.id));
 
       if (questionCountError) {
