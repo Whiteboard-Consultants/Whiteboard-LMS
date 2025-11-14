@@ -337,17 +337,17 @@ function TestGrid({ tests, loading, showProgress = false }: TestGridProps) {
                   {test.description && (
                     <div className="mt-2">
                       {(test.description.includes('✓') || test.description.includes('✅')) ? (
-                        // If description contains checkmarks, format as bullet list
-                        <ul className="text-sm text-muted-foreground space-y-2 list-none max-h-32 overflow-hidden">
+                        // If description contains checkmarks, extract and format as bullet list
+                        <ul className="text-xs text-muted-foreground space-y-1.5 list-none">
                           {test.description
-                            .split(/✓|✅/)
+                            .split(/\n\n✅\s*|\n\n✓\s*/)
                             .map((item) => item.trim())
-                            .filter((item) => item && item.length > 2)
-                            .slice(0, 4)
+                            .filter((item) => item && item.length > 5 && !item.includes('Total Questions') && !item.includes('Key Features'))
+                            .slice(0, 5)
                             .map((item, idx) => (
                               <li key={idx} className="flex items-start gap-2">
-                                <span className="text-green-600 flex-shrink-0 mt-0.5 text-base">✓</span>
-                                <span className="text-xs leading-tight">{item}</span>
+                                <span className="text-green-600 flex-shrink-0 mt-0.5 text-sm font-bold">✓</span>
+                                <span className="leading-snug">{item.split('\n')[0]}</span>
                               </li>
                             ))}
                         </ul>
