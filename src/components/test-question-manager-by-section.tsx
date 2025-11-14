@@ -72,17 +72,20 @@ function SortableQuestionItem({ question, sectionName, onEdit, onDelete }: Sorta
                     <Badge variant="outline">{question.marks} marks</Badge>
                     {question.negativeMarks ? <Badge variant="outline">-{question.negativeMarks}</Badge> : null}
                 </div>
-                <div 
-                    className="font-medium text-sm"
-                    dangerouslySetInnerHTML={{ __html: question.text }}
-                    style={{
-                        display: 'block'
-                    } as React.CSSProperties}
-                />
                 {(() => {
-                    console.log('Question text content:', question.text);
-                    console.log('Contains HTML:', question.text.includes('<') && question.text.includes('>'));
-                    return null;
+                    const isHTML = question.text.includes('<') && question.text.includes('>');
+                    console.log('Question:', question.text.substring(0, 50), '| Is HTML:', isHTML);
+                    return isHTML ? (
+                        <div 
+                            className="font-medium text-sm"
+                            dangerouslySetInnerHTML={{ __html: question.text }}
+                            style={{
+                                display: 'block'
+                            } as React.CSSProperties}
+                        />
+                    ) : (
+                        <p className="font-medium text-sm">{question.text}</p>
+                    );
                 })()}
                 <style jsx>{`
                     div {
