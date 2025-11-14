@@ -188,8 +188,12 @@ export default function TestTaker({ testId }: TestTakerProps) {
         // Build section durations map
         const durations = new Map<string, number>();
         sectionsData.forEach((s: any) => {
-          // Use section duration if available, otherwise default to 1200 seconds (20 mins)
-          durations.set(s.id, s.duration || 1200);
+          // Section duration is stored in minutes, convert to seconds
+          // If duration is less than 100, assume it's in minutes
+          const durationInSeconds = (s.duration && s.duration < 100) 
+            ? s.duration * 60 
+            : (s.duration || 1200);
+          durations.set(s.id, durationInSeconds);
         });
         setSectionDurations(durations);
         
