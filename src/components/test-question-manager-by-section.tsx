@@ -74,7 +74,6 @@ function SortableQuestionItem({ question, sectionName, onEdit, onDelete }: Sorta
                 </div>
                 {(() => {
                     const isHTML = question.text.includes('<') && question.text.includes('>');
-                    console.log('Question:', question.text.substring(0, 50), '| Is HTML:', isHTML);
                     return isHTML ? (
                         <div 
                             className="font-medium text-sm"
@@ -84,7 +83,7 @@ function SortableQuestionItem({ question, sectionName, onEdit, onDelete }: Sorta
                             } as React.CSSProperties}
                         />
                     ) : (
-                        <p className="font-medium text-sm">{question.text}</p>
+                        <p className="font-medium text-sm whitespace-pre-wrap">{question.text}</p>
                     );
                 })()}
                 <style jsx>{`
