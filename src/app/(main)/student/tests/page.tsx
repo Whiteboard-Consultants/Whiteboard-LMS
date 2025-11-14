@@ -336,20 +336,36 @@ function TestGrid({ tests, loading, showProgress = false }: TestGridProps) {
                   <CardTitle className="text-lg">{test.title}</CardTitle>
                   {test.description && (
                     <div className="mt-2">
-                      {(test.description.includes('✓') || test.description.includes('✅')) ? (
+                      {(() => {
+                        const hasCheckmarks = test.description.includes('✓') || test.description.includes('✅');
+                        // Debug log
+                        if (test.title === 'Aptitude Test for MBA Batch') {
+                          console.log('Test description includes checkmarks:', hasCheckmarks);
+                          console.log('Description starts with:', test.description.substring(0, 100));
+                        }
+                        return hasCheckmarks;
+                      })() ? (
                         // If description contains checkmarks, extract and format as bullet list
                         <ul className="text-xs text-muted-foreground space-y-1.5 list-none">
-                          {test.description
-                            .split(/\n\n✅\s*|\n\n✓\s*/)
-                            .map((item) => item.trim())
-                            .filter((item) => item && item.length > 5 && !item.includes('Total Questions') && !item.includes('Key Features'))
-                            .slice(0, 5)
-                            .map((item, idx) => (
-                              <li key={idx} className="flex items-start gap-2">
-                                <span className="text-green-600 flex-shrink-0 mt-0.5 text-sm font-bold">✓</span>
-                                <span className="leading-snug">{item.split('\n')[0]}</span>
-                              </li>
-                            ))}
+                          {(() => {
+                            // Split by checkmarks with various whitespace patterns
+                            const lines = test.description.split(/\n\s*✅|✅/).filter(Boolean);
+                            
+                            return lines
+                              .map((item) => {
+                                // Get the first line and clean it
+                                const firstLine = item.split('\n')[0].trim();
+                                return firstLine;
+                              })
+                              .filter((item) => item && item.length > 5 && !item.includes('Total Questions') && !item.includes('Key Features') && !item.includes('Marks'))
+                              .slice(0, 5)
+                              .map((item, idx) => (
+                                <li key={idx} className="flex items-start gap-2">
+                                  <span className="text-green-600 flex-shrink-0 mt-0.5 text-sm font-bold">✓</span>
+                                  <span className="leading-snug">{item}</span>
+                                </li>
+                              ));
+                          })()}
                         </ul>
                       ) : (
                         <CardDescription className="line-clamp-3">
