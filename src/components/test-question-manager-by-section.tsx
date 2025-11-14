@@ -73,9 +73,41 @@ function SortableQuestionItem({ question, sectionName, onEdit, onDelete }: Sorta
                     {question.negativeMarks ? <Badge variant="outline">-{question.negativeMarks}</Badge> : null}
                 </div>
                 <div 
-                    className="font-medium text-sm [&_p]:mb-2 [&_strong]:font-bold [&_em]:italic [&_ul]:list-disc [&_ol]:list-decimal [&_li]:ml-4"
+                    className="font-medium text-sm"
                     dangerouslySetInnerHTML={{ __html: question.text }}
+                    style={{
+                        display: 'block'
+                    } as React.CSSProperties}
                 />
+                <style jsx>{`
+                    div {
+                        --tw-prose-body: currentColor;
+                    }
+                    div p {
+                        margin-bottom: 0.5rem;
+                        display: block;
+                    }
+                    div strong {
+                        font-weight: bold;
+                    }
+                    div em {
+                        font-style: italic;
+                    }
+                    div ul {
+                        list-style-type: disc;
+                        margin-left: 1.5rem;
+                    }
+                    div ol {
+                        list-style-type: decimal;
+                        margin-left: 1.5rem;
+                    }
+                    div li {
+                        margin-left: 0.5rem;
+                    }
+                    div h1 { font-size: 1.875rem; font-weight: bold; }
+                    div h2 { font-size: 1.5rem; font-weight: bold; }
+                    div h3 { font-size: 1.25rem; font-weight: bold; }
+                `}</style>
                 {question.type === 'mcq' && question.options && (
                     <p className="text-xs text-muted-foreground mt-1">{question.options.length} options</p>
                 )}
