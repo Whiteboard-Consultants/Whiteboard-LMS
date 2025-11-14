@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, TimerIcon, Book, Bookmark, RotateCcw, XSquare, ChevronsRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -33,6 +34,7 @@ type AnswerStatus = 'not-visited' | 'not-answered' | 'answered' | 'marked' | 'an
 
 interface Answer {
     optionIndex: number | null;
+    textAnswer?: string;
     status: AnswerStatus;
 }
 
@@ -245,10 +247,22 @@ export default function TestTaker({ testId }: TestTakerProps) {
     });
   };
 
+  const handleTextAnswerChange = (text: string) => {
+    setAnswers(prev => {
+        const newAnswers = [...prev];
+        newAnswers[currentQuestionIndex].textAnswer = text;
+        if (newAnswers[currentQuestionIndex].status !== 'answered-and-marked') {
+            newAnswers[currentQuestionIndex].status = 'answered';
+        }
+        return newAnswers;
+    });
+  };
+
   const handleClearResponse = () => {
     setAnswers(prev => {
         const newAnswers = [...prev];
         newAnswers[currentQuestionIndex].optionIndex = null;
+        newAnswers[currentQuestionIndex].textAnswer = '';
         newAnswers[currentQuestionIndex].status = 'not-answered';
         return newAnswers;
     });
@@ -380,18 +394,33 @@ export default function TestTaker({ testId }: TestTakerProps) {
                         <div className="prose dark:prose-invert max-w-none mb-6">
                            <RichTextRenderer content={currentQuestion.text} />
                         </div>
-                        <RadioGroup
-                            value={answers[currentQuestionIndex]?.optionIndex?.toString() ?? ''}
-                            onValueChange={handleAnswerChange}
-                            className="space-y-4"
-                        >
-                             {currentQuestion.options.map((option, index) => (
-                                <Label key={index} className="flex items-start gap-3 p-3 border rounded-md cursor-pointer hover:bg-muted has-[:checked]:bg-blue-50 has-[:checked]:border-blue-500 dark:has-[:checked]:bg-blue-900/20">
-                                    <RadioGroupItem value={index.toString()} />
-                                    <span className="flex-1">{option}</span>
-                                </Label>
-                            ))}
-                        </RadioGroup>
+                        
+                        {currentQuestion.options && currentQuestion.options.length > 0 ? (
+                            // MCQ Question
+                            <RadioGroup
+                                value={answers[currentQuestionIndex]?.optionIndex?.toString() ?? ''}
+                                onValueChange={handleAnswerChange}
+                                className="space-y-4"
+                            >
+                                 {currentQuestion.options.map((option, index) => (
+                                    <Label key={index} className="flex items-start gap-3 p-3 border rounded-md cursor-pointer hover:bg-muted has-[:checked]:bg-blue-50 has-[:checked]:border-blue-500 dark:has-[:checked]:bg-blue-900/20">
+                                        <RadioGroupItem value={index.toString()} />
+                                        <span className="flex-1">{option}</span>
+                                    </Label>
+                                ))}
+                            </RadioGroup>
+                        ) : (
+                            // Descriptive Question
+                            <div>
+                                <label className="block text-sm font-medium mb-2">Your Answer</label>
+                                <Textarea
+                                    value={answers[currentQuestionIndex]?.textAnswer || ''}
+                                    onChange={(e) => handleTextAnswerChange(e.target.value)}
+                                    placeholder="Type your answer here..."
+                                    className="min-h-[200px] p-3 border rounded-md"
+                                />
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
                 <div className="flex justify-between items-center mt-4">
