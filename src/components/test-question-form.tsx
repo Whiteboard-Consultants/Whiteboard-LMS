@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { addTestQuestion, updateTestQuestion } from "@/app/instructor/tests/actions";
 import { TestQuestion, QuestionType } from "@/types";
 import { Textarea } from "./ui/textarea";
-import { RichTextFormField } from "./rich-text-form-field";
+import { RichTextEditor } from "./rich-text-editor";
 
 const formSchema = z.object({
   type: z.enum(['mcq', 'descriptive'] as const, {
@@ -290,10 +290,11 @@ export function TestQuestionForm({ testId, existingQuestion, onSuccess, currentQ
                             <FormItem>
                                 <FormLabel>Question Text</FormLabel>
                                 <FormControl>
-                                    <RichTextFormField 
-                                        value={field.value}
+                                    <RichTextEditor 
+                                        content={field.value}
                                         onChange={field.onChange}
                                         placeholder="Enter your question here with formatting..."
+                                        height="300px"
                                     />
                                 </FormControl>
                                 <FormDescription>
@@ -373,12 +374,13 @@ export function TestQuestionForm({ testId, existingQuestion, onSuccess, currentQ
                             <FormItem>
                                 <FormLabel>{questionType === 'mcq' ? 'Solution/Explanation' : 'Model Answer'}</FormLabel>
                                 <FormControl>
-                                    <RichTextFormField 
-                                        value={field.value || ''}
+                                    <RichTextEditor 
+                                        content={field.value || ''}
                                         onChange={field.onChange}
                                         placeholder={questionType === 'descriptive' 
                                             ? 'Provide the ideal/expected answer for this question...' 
                                             : 'Explain why this is the correct answer...'}
+                                        height="300px"
                                     />
                                 </FormControl>
                                 <FormDescription>
