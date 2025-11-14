@@ -371,7 +371,7 @@ export default function TestTaker({ testId }: TestTakerProps) {
                                 <h3 className="text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300">
                                     {passages[currentQuestion.passageId].title || 'Passage'}
                                 </h3>
-                                <div className="prose dark:prose-invert max-w-none text-sm">
+                                <div className="passage-content prose dark:prose-invert max-w-none text-sm prose-p:my-1 prose-p:leading-relaxed">
                                     <RichTextRenderer content={passages[currentQuestion.passageId].content || ''} />
                                 </div>
                             </div>
