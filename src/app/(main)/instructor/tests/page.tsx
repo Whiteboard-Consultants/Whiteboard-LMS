@@ -82,17 +82,12 @@ export default function InstructorTestsPage() {
           console.error("Error fetching question counts:", questionCountError);
         }
 
-        console.log('Test IDs:', testIds);
-        console.log('Question counts raw data:', questionCounts);
-        console.log('Question count error:', questionCountError);
-
         // Count questions per test
         const questionCountMap = new Map();
         (questionCounts || []).forEach(q => {
           const currentCount = questionCountMap.get(q.test_id) || 0;
           questionCountMap.set(q.test_id, currentCount + 1);
         });
-        console.log('Question count map:', Object.fromEntries(questionCountMap));
 
         // Map database fields to frontend format
         const mappedTests = (testsData || []).map(test => ({
