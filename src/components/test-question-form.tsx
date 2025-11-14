@@ -79,8 +79,7 @@ export function TestQuestionForm({ testId, existingQuestion, onSuccess, currentQ
         existingQuestion?.type || 'mcq'
     );
     
-    // Debug: Log sections received and existing question data
-    React.useEffect(() => {
+    const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             type: existingQuestion?.type || 'mcq',
@@ -94,9 +93,6 @@ export function TestQuestionForm({ testId, existingQuestion, onSuccess, currentQ
             passageId: existingQuestion?.passageId || null,
         }
     });
-
-    // Log form default values
-    React.useEffect(() => {
 
     React.useEffect(() => {
         const type = form.watch('type');
