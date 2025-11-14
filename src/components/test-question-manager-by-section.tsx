@@ -79,6 +79,11 @@ function SortableQuestionItem({ question, sectionName, onEdit, onDelete }: Sorta
                         display: 'block'
                     } as React.CSSProperties}
                 />
+                {(() => {
+                    console.log('Question text content:', question.text);
+                    console.log('Contains HTML:', question.text.includes('<') && question.text.includes('>'));
+                    return null;
+                })()}
                 <style jsx>{`
                     div {
                         --tw-prose-body: currentColor;
