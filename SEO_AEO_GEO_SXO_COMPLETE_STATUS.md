@@ -243,7 +243,22 @@
 - Scholarship opportunities
 - Success stories from that country
 
-#### 6. Blog Content Calendar (8-12 articles)
+#### 6. Google My Business ✅ ALREADY SET UP
+**Status**: Active for whiteboardconsultant.com
+**Already includes**:
+- ✅ Business profile established
+- ✅ Ready for migration when domain switches
+- ✅ Service areas defined
+- ✅ Contact information verified
+
+**Action needed on domain migration**:
+- Update profile URL to new production domain
+- Re-verify business when domain switches
+- Sync all local SEO data
+
+**Current Impact**: Local search visibility for Kolkata queries
+
+#### 7. Blog Content Calendar (8-12 articles)
 **Topics to cover** (for AEO ranking):
 1. "How to prepare for IELTS in 3 months" (how-to)
 2. "IELTS vs TOEFL: Complete Comparison" (comparison)
@@ -345,10 +360,10 @@
 
 ### Week 2-3 (Nov 24 - Dec 1)
 - ✅ FAQ page (COMPLETE - skip)
-- [ ] Set up Google My Business (2 hours)
+- ✅ GMB (ALREADY SET UP - skip)
 - [ ] Add image sitemap (1 hour)
 - [ ] Internal linking audit (1 hour)
-- **Total**: 4 hours | **Expected Impact**: +10-12% traffic
+- **Total**: 2 hours | **Expected Impact**: +8-10% traffic
 
 ### Week 4 (Dec 1-8)
 - [ ] Publish 2 blog posts (4 hours)
@@ -370,7 +385,7 @@
 | Timeframe | Status | Expected Impact |
 |-----------|--------|-----------------|
 | Week 1 | Breadcrumb + Course Schema | +5-8% traffic |
-| Week 2-3 | ✅ FAQ Complete + GMB Setup | +10-12% traffic |
+| Week 2-3 | ✅ FAQ + GMB Complete | +8-10% traffic |
 | Week 4 | Service Pages + Blog | +8-10% traffic |
 | Month 2 | 4-6 Blog Posts | +15-20% traffic |
 | Month 3 | 12 Blog Posts Total | +25-35% traffic |
@@ -422,15 +437,16 @@
 
 ### What's Excellent (8.5/10+)
 ✅ Technical SEO foundation  
-✅ Geographic SEO setup  
+✅ Geographic SEO setup with GMB configured  
 ✅ Page speed optimization  
 ✅ Mobile responsiveness  
-✅ Google Analytics integration
+✅ Google Analytics integration  
+✅ FAQ page complete with schema  
+✅ Google My Business established
 
 ### What Needs Work (7-8/10)
 ⚠️ Breadcrumb schema (missing)  
 ⚠️ Full Article schema (needs enhancement)  
-✅ FAQ optimization (COMPLETE - 23 FAQs with schema)  
 ⚠️ Content depth (more blog articles needed)  
 ⚠️ Video optimization (not started)
 
@@ -454,6 +470,12 @@
    - Enhance course schema
    - Add article schema to blog
    - ✅ FAQ page already optimized (no action needed)
+   - ✅ GMB already configured (no action needed)
+
+**Domain Migration Note**: When switching to whiteboardconsultant.com:
+- Update GMB profile URL
+- Re-verify business ownership
+- Update all local SEO data to match production domain
 
 **Expected result**: +8-10% traffic improvement within 2-4 weeks
 
