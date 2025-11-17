@@ -9,6 +9,7 @@ import Link from "next/link";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Metadata } from "next";
 import { Card, CardContent } from "@/components/ui/card";
+import { RichTextRenderer } from "@/components/rich-text-renderer";
 
 // Disable static generation during migration
 export const dynamic = 'force-dynamic';
@@ -94,7 +95,9 @@ export default async function CoursePage({ params }: CoursePageProps) {
                         <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
                             <div className="order-2 md:order-1">
                                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold font-headline mb-4">{course.title}</h1>
-                                <p className="text-lg text-muted-foreground mb-6">{course.description}</p>
+                                <div className="prose dark:prose-invert max-w-none text-lg text-muted-foreground mb-6">
+                                    <RichTextRenderer content={course.description} />
+                                </div>
                                 <div className="flex items-center mb-6">
                                     <div className="flex items-center gap-1 text-amber-500">
                                         <span className="font-bold text-lg">{course.rating?.toFixed(1) || 'N/A'}</span>
@@ -133,10 +136,9 @@ export default async function CoursePage({ params }: CoursePageProps) {
                                             What you will learn
                                         </AccordionTrigger>
                                         <AccordionContent>
-                                            <div 
-                                                className="prose max-w-none text-muted-foreground"
-                                                dangerouslySetInnerHTML={{ __html: course.programOutcome }}
-                                            />
+                                            <div className="prose dark:prose-invert max-w-none text-muted-foreground">
+                                                <RichTextRenderer content={course.programOutcome} />
+                                            </div>
                                         </AccordionContent>
                                     </AccordionItem>
                                 </Accordion>
@@ -149,10 +151,9 @@ export default async function CoursePage({ params }: CoursePageProps) {
                                             Course Content
                                         </AccordionTrigger>
                                         <AccordionContent>
-                                            <div 
-                                                className="prose max-w-none text-muted-foreground"
-                                                dangerouslySetInnerHTML={{ __html: course.courseStructure }}
-                                            />
+                                            <div className="prose dark:prose-invert max-w-none text-muted-foreground">
+                                                <RichTextRenderer content={course.courseStructure} />
+                                            </div>
                                         </AccordionContent>
                                     </AccordionItem>
                                 </Accordion>
@@ -165,14 +166,10 @@ export default async function CoursePage({ params }: CoursePageProps) {
                                             Frequently Asked Questions
                                         </AccordionTrigger>
                                         <AccordionContent>
-                                            <div 
-                                                className="prose max-w-none text-muted-foreground"
-                                                dangerouslySetInnerHTML={{ __html: course.faqs }}
-                                            />
+                                            <div className="prose dark:prose-invert max-w-none text-muted-foreground">
+                                                <RichTextRenderer content={course.faqs} />
+                                            </div>
                                         </AccordionContent>
-                                    </AccordionItem>
-                                </Accordion>
-                            )}
                         </div>
 
                         <div className="lg:col-span-1">
