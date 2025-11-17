@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, BookOpen, Users, Star, Percent, User as UserIcon, Award, TrendingUp, Target } from "lucide-react";
+import { ArrowLeft, BookOpen, Users, Star, Percent, User as UserIcon, Award, TrendingUp, Target, DollarSign } from "lucide-react";
 
 import { supabase } from "@/lib/supabase";
 import { PageHeader } from "@/components/page-header";
@@ -224,7 +224,7 @@ export default function InstructorReportsPage() {
       />
 
       {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-4 mb-6">
+      <div className="grid gap-4 md:grid-cols-5 mb-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Instructors</CardTitle>
@@ -269,6 +269,18 @@ export default function InstructorReportsPage() {
               {reports.length > 0 
                 ? Math.round(reports.reduce((sum, report) => sum + report.completionRate, 0) / reports.length)
                 : 0}%
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Platform Revenue</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              ₹{reports.reduce((sum, report) => sum + report.totalRevenue, 0).toLocaleString()}
             </div>
           </CardContent>
         </Card>
@@ -317,6 +329,12 @@ export default function InstructorReportsPage() {
                           <span>{report.activeStudents} Active</span>
                       </div>
                     </div>
+                    <div className="border-t pt-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">Revenue</span>
+                        <span className="font-semibold">₹{report.totalRevenue.toLocaleString()}</span>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
@@ -341,6 +359,7 @@ export default function InstructorReportsPage() {
               <TableHead>Rating</TableHead>
               <TableHead>Completion</TableHead>
               <TableHead>Active Students</TableHead>
+              <TableHead>Revenue</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -377,11 +396,12 @@ export default function InstructorReportsPage() {
                     </span>
                   </TableCell>
                   <TableCell>{report.activeStudents}</TableCell>
+                  <TableCell className="font-semibold">₹{report.totalRevenue.toLocaleString()}</TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
+                <TableCell colSpan={7} className="h-24 text-center">
                   No instructors found to generate reports for.
                 </TableCell>
               </TableRow>
