@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { Download, Users, Star, DollarSign, Loader2, User as UserIcon, ArrowLeft, BookOpen, TrendingUp, Calendar, Award, BarChart3 } from "lucide-react";
+import { Download, Users, Star, DollarSign, Loader2, User as UserIcon, ArrowLeft, BookOpen, TrendingUp, Calendar, Award, BarChart3, Ticket } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 
@@ -75,6 +75,14 @@ interface TopCourse {
   instructor_name: string;
 }
 
+interface CouponAnalytics {
+  coupon_code: string | null;
+  usage_count: number;
+  total_discount_value: number;
+  courses_used_in: string[];
+  unique_students: number;
+}
+
 type RevenueTimePeriod = 'current_month' | 'last_3_months' | 'last_6_months' | 'last_1_year' | 'last_2_years';
 
 export default function AdminReportsPage() {
@@ -102,6 +110,8 @@ export default function AdminReportsPage() {
   const [selectedTimePeriod, setSelectedTimePeriod] = useState<RevenueTimePeriod>('current_month');
   const [engagementRate, setEngagementRate] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [couponAnalytics, setCouponAnalytics] = useState<CouponAnalytics[]>([]);
+  const [couponLoading, setCouponLoading] = useState(false);
   const { toast } = useToast();
 
   const getDateFilter = (period: RevenueTimePeriod) => {
@@ -127,6 +137,108 @@ export default function AdminReportsPage() {
     }
     
     return startDate.toISOString();
+  };
+
+  const fetchCouponAnalytics = async (coursesData: CourseData[]) => {
+    setCouponLoading(true);
+    try {
+      // Fetch all enrollments with coupon codes
+      const { data: enrollmentsData, error: enrollmentsError } = await supabase
+        .from('enrollments')
+        .select('coupon_code, course_id, user_id, course_price');
+
+      if (enrollmentsError) {
+        console.error('Error fetching coupon data:', enrollmentsError);
+        return;
+      }
+
+      // Filter enrollments that have coupon codes
+      const couponEnrollments = (enrollmentsData || []).filter(e => e.coupon_code);
+
+      if (couponEnrollments.length === 0) {
+        setCouponAnalytics([]);
+        return;
+      }
+
+      // Fetch coupon details
+      const couponCodes = Array.from(new Set(couponEnrollments.map(e => e.coupon_code).filter(Boolean)));
+      const { data: couponsData, error: couponsError } = await supabase
+        .from('coupons')
+        .select('code, type, value')
+        .in('code', couponCodes);
+
+      if (couponsError) {
+        console.error('Error fetching coupon details:', couponsError);
+        return;
+      }
+
+      // Create coupon map for quick lookup
+      const couponMap = new Map(
+        (couponsData || []).map(c => [c.code, { type: c.type, value: c.value }])
+      );
+
+      // Group by coupon code and calculate analytics
+      const couponGrouped = new Map<string | null, {
+        usage_count: number;
+        total_discount_value: number;
+        courses_set: Set<string>;
+        users_set: Set<string>;
+      }>();
+
+      couponEnrollments.forEach(enrollment => {
+        const couponCode = enrollment.coupon_code;
+        const coursePrice = enrollment.course_price || 0;
+        const couponDetails = couponMap.get(couponCode);
+
+        let discountValue = 0;
+        if (couponDetails) {
+          if (couponDetails.type === 'percentage') {
+            discountValue = (coursePrice * couponDetails.value) / 100;
+          } else {
+            discountValue = couponDetails.value;
+          }
+        }
+
+        const existing = couponGrouped.get(couponCode) || {
+          usage_count: 0,
+          total_discount_value: 0,
+          courses_set: new Set<string>(),
+          users_set: new Set<string>()
+        };
+
+        existing.usage_count += 1;
+        existing.total_discount_value += discountValue;
+        existing.courses_set.add(enrollment.course_id);
+        existing.users_set.add(enrollment.user_id);
+
+        couponGrouped.set(couponCode, existing);
+      });
+
+      // Convert to array format and get course titles
+      const analytics: CouponAnalytics[] = Array.from(couponGrouped.entries()).map(([code, data]) => {
+        const courseIds = Array.from(data.courses_set);
+        const coursesTitles = courseIds
+          .map(id => coursesData.find(c => c.id === id)?.title)
+          .filter(Boolean) as string[];
+
+        return {
+          coupon_code: code,
+          usage_count: data.usage_count,
+          total_discount_value: Math.round(data.total_discount_value * 100) / 100,
+          courses_used_in: coursesTitles,
+          unique_students: data.users_set.size
+        };
+      });
+
+      // Sort by usage count (descending)
+      analytics.sort((a, b) => b.usage_count - a.usage_count);
+
+      setCouponAnalytics(analytics);
+    } catch (err) {
+      console.error('Error calculating coupon analytics:', err);
+    } finally {
+      setCouponLoading(false);
+    }
   };
 
   const calculateRevenueData = (enrollments: any[], courses: CourseData[], period: RevenueTimePeriod) => {
@@ -340,6 +452,9 @@ export default function AdminReportsPage() {
             totalRevenue,
             completionRate
           });
+
+          // Fetch coupon analytics
+          await fetchCouponAnalytics(processedCourses);
         }
 
       } catch (err) {
@@ -828,6 +943,181 @@ export default function AdminReportsPage() {
                 </Table>
                 </div>
             </div>
+        </div>
+
+        {/* Coupon Analytics Section */}
+        <div className="bg-muted p-6 rounded-lg">
+          <div className="mb-6">
+            <div>
+              <h3 className="text-xl font-bold tracking-tight">Coupon Analytics</h3>
+              <p className="text-sm text-muted-foreground">Track coupon usage, discount values, and course performance.</p>
+            </div>
+          </div>
+
+          {/* Coupon Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Active Coupons Used</CardTitle>
+                <Ticket className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{couponAnalytics.length}</div>
+                <p className="text-xs text-muted-foreground">
+                  Unique coupon codes with usage
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Coupon Usage</CardTitle>
+                <Users className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {couponAnalytics.reduce((sum, c) => sum + c.usage_count, 0)}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Total times coupons were used
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Discount Value</CardTitle>
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  ₹{couponAnalytics.reduce((sum, c) => sum + c.total_discount_value, 0).toLocaleString()}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Total value of discounts given
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Coupon Details Table */}
+          <div className="mt-6">
+            <h4 className="text-lg font-semibold mb-4">Coupon Usage Details</h4>
+            <div className="rounded-lg border bg-background">
+              {couponLoading ? (
+                <div className="flex items-center justify-center h-64">
+                  <div className="flex flex-col items-center gap-2">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">Loading coupon analytics...</p>
+                  </div>
+                </div>
+              ) : couponAnalytics.length > 0 ? (
+                <>
+                  {/* Desktop View */}
+                  <div className="hidden md:block overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Coupon Code</TableHead>
+                          <TableHead>Usage Count</TableHead>
+                          <TableHead>Unique Students</TableHead>
+                          <TableHead>Courses Used In</TableHead>
+                          <TableHead>Total Discount Value</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {couponAnalytics.map((coupon) => (
+                          <TableRow key={coupon.coupon_code}>
+                            <TableCell className="font-medium">
+                              <Badge variant="secondary">{coupon.coupon_code || 'No Coupon'}</Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline">{coupon.usage_count}</Badge>
+                            </TableCell>
+                            <TableCell>{coupon.unique_students}</TableCell>
+                            <TableCell>
+                              <div className="flex flex-wrap gap-1">
+                                {coupon.courses_used_in.length > 0 ? (
+                                  coupon.courses_used_in.slice(0, 2).map((course, idx) => (
+                                    <Badge key={idx} variant="secondary" className="text-xs">
+                                      {course.substring(0, 20)}...
+                                    </Badge>
+                                  ))
+                                ) : (
+                                  <span className="text-sm text-muted-foreground">No courses</span>
+                                )}
+                                {coupon.courses_used_in.length > 2 && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    +{coupon.courses_used_in.length - 2} more
+                                  </Badge>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell className="font-semibold">₹{coupon.total_discount_value.toLocaleString()}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+
+                  {/* Mobile View */}
+                  <div className="md:hidden">
+                    <div className="space-y-4 p-4">
+                      {couponAnalytics.map((coupon) => (
+                        <Card key={coupon.coupon_code}>
+                          <CardContent className="p-4 space-y-3">
+                            <div>
+                              <p className="text-xs text-muted-foreground mb-1">Coupon Code</p>
+                              <Badge variant="secondary">{coupon.coupon_code || 'No Coupon'}</Badge>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <p className="text-xs text-muted-foreground mb-1">Usage Count</p>
+                                <p className="text-lg font-semibold">{coupon.usage_count}</p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-muted-foreground mb-1">Unique Students</p>
+                                <p className="text-lg font-semibold">{coupon.unique_students}</p>
+                              </div>
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground mb-2">Courses Used In</p>
+                              <div className="flex flex-wrap gap-1">
+                                {coupon.courses_used_in.length > 0 ? (
+                                  coupon.courses_used_in.slice(0, 2).map((course, idx) => (
+                                    <Badge key={idx} variant="secondary" className="text-xs">
+                                      {course.substring(0, 15)}...
+                                    </Badge>
+                                  ))
+                                ) : (
+                                  <span className="text-xs text-muted-foreground">No courses</span>
+                                )}
+                                {coupon.courses_used_in.length > 2 && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    +{coupon.courses_used_in.length - 2}
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                            <div className="border-t pt-3">
+                              <p className="text-xs text-muted-foreground mb-1">Total Discount Value</p>
+                              <p className="text-xl font-bold">₹{coupon.total_discount_value.toLocaleString()}</p>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-64">
+                  <Ticket className="h-12 w-12 text-muted-foreground mb-3" />
+                  <p className="text-lg font-medium">No Coupon Usage Found</p>
+                  <p className="text-sm text-muted-foreground text-center mt-1">
+                    Coupons haven't been used yet, or no enrollment data is available.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
