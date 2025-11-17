@@ -170,7 +170,9 @@ export default async function CoursePage({ params }: CoursePageProps) {
                                                 <RichTextRenderer content={course.faqs} />
                                             </div>
                                         </AccordionContent>
-                        </div>
+                                    </AccordionItem>
+                                </Accordion>
+                            )}
 
                         <div className="lg:col-span-1">
                             <Card className="sticky top-24 shadow-lg">
