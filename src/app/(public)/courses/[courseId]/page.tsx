@@ -173,6 +173,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
                                     </AccordionItem>
                                 </Accordion>
                             )}
+                        </div>
 
                         <div className="lg:col-span-1">
                             <Card className="sticky top-24 shadow-lg">
@@ -227,6 +228,10 @@ export default async function CoursePage({ params }: CoursePageProps) {
                         <CourseList category={[course.category]} excludeIds={[course.id]} />
                     </div>
                 </div>
+            </div>
+            </div>
+            </div>
+            </div>
             </div>
         </>
     );
