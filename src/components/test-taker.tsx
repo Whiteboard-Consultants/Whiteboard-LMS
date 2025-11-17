@@ -261,6 +261,13 @@ export default function TestTaker({ testId }: TestTakerProps) {
       setCurrentSectionId(nextSection.id);
       setSectionTimeLeft(sectionDurations.get(nextSection.id) || 1200);
       
+      // Reset question index to first question of next section
+      const nextSectionQuestions = questions.filter(q => q.sectionId === nextSection.id);
+      if (nextSectionQuestions.length > 0) {
+        const firstQuestionIndex = questions.findIndex(q => q.id === nextSectionQuestions[0].id);
+        setCurrentQuestionIndex(firstQuestionIndex);
+      }
+      
       toast({
         title: "Section Submitted",
         description: `Moving to ${nextSection.name}`,
@@ -272,23 +279,47 @@ export default function TestTaker({ testId }: TestTakerProps) {
     }
   };
 
-  // Handle section change - prevent revisiting submitted sections
+  // Handle section change - prevent revisiting submitted sections and accessing future sections
   const handleSectionChange = (sectionId: string) => {
     const currentIndex = sections.findIndex(s => s.id === currentSectionId);
     const newIndex = sections.findIndex(s => s.id === sectionId);
     
-    // Only allow moving to current or forward sections, not backward to submitted sections
-    if (newIndex <= currentIndex || !submittedSections.has(sectionId)) {
-      setCurrentSectionId(sectionId);
-      setSectionTimeLeft(sectionDurations.get(sectionId) || 1200);
-    } else {
+    // Cannot go back to previous sections
+    if (newIndex < currentIndex) {
       toast({
         variant: 'destructive',
-        title: 'Section Locked',
+        title: 'Cannot Go Back',
+        description: 'You cannot go back to a previous section once submitted.',
+        duration: 2000
+      });
+      return;
+    }
+    
+    // Cannot skip sections - must submit current section first
+    if (newIndex > currentIndex && !submittedSections.has(currentSectionId)) {
+      toast({
+        variant: 'destructive',
+        title: 'Section Not Submitted',
+        description: 'You must submit the current section before moving to the next one.',
+        duration: 2000
+      });
+      return;
+    }
+    
+    // Cannot revisit already submitted sections
+    if (submittedSections.has(sectionId) && sectionId !== currentSectionId) {
+      toast({
+        variant: 'destructive',
+        title: 'Section Already Submitted',
         description: 'You cannot revisit a section after submitting it.',
         duration: 2000
       });
+      return;
     }
+    
+    // All checks passed, allow section change
+    setCurrentSectionId(sectionId);
+    setSectionTimeLeft(sectionDurations.get(sectionId) || 1200);
   };
 
 
@@ -304,6 +335,20 @@ export default function TestTaker({ testId }: TestTakerProps) {
   
   const handleQuestionChange = (newIndex: number) => {
     if (newIndex >= 0 && newIndex < questions.length) {
+        // For sections: only allow changing to questions within current section
+        if (sections.length > 0 && currentSectionId) {
+          const targetQuestion = questions[newIndex];
+          if (targetQuestion.sectionId !== currentSectionId) {
+            toast({
+              variant: 'destructive',
+              title: 'Cannot Access Question',
+              description: 'You can only access questions from the current section.',
+              duration: 2000
+            });
+            return;
+          }
+        }
+        
         const currentAnswer = answers[newIndex];
         if (currentAnswer && currentAnswer.status === 'not-visited') {
             updateAnswerStatus(newIndex, 'not-answered');
@@ -459,17 +504,28 @@ export default function TestTaker({ testId }: TestTakerProps) {
                     <Tabs value={currentSectionId || sections[0]?.id || ''} onValueChange={handleSectionChange} className="mb-4">
                         <TabsList className="grid w-full gap-2" style={{ gridTemplateColumns: `repeat(${Math.min(sections.length, 5)}, minmax(0, 1fr))` }}>
                             {sections.map((section) => {
+                                const sectionIndex = sections.findIndex(s => s.id === section.id);
+                                const currentIndex = sections.findIndex(s => s.id === currentSectionId);
                                 const isSubmitted = submittedSections.has(section.id);
-                                const isLocked = isSubmitted;
+                                const isLocked = sectionIndex > currentIndex && !submittedSections.has(currentSectionId);
+                                
                                 return (
                                   <TabsTrigger 
                                     key={section.id} 
                                     value={section.id} 
-                                    className={`text-xs sm:text-sm relative ${isLocked ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    className={`text-xs sm:text-sm relative transition-all ${
+                                      isLocked 
+                                        ? 'opacity-40 cursor-not-allowed' 
+                                        : isSubmitted 
+                                        ? 'opacity-60' 
+                                        : ''
+                                    }`}
                                     disabled={isLocked}
+                                    title={isLocked ? 'Submit current section first' : isSubmitted ? 'Section completed' : 'Current section'}
                                   >
                                     {section.name}
-                                    {isSubmitted && <span className="ml-1 text-green-600 dark:text-green-400">✓</span>}
+                                    {isSubmitted && <span className="ml-1 text-green-600 dark:text-green-400 font-bold">✓</span>}
+                                    {isLocked && <span className="ml-1 text-red-600 dark:text-red-400 font-bold">🔒</span>}
                                   </TabsTrigger>
                                 );
                             })}
@@ -478,6 +534,16 @@ export default function TestTaker({ testId }: TestTakerProps) {
                 )}
                 <Card className="min-h-[60vh]">
                     <CardContent className="p-6">
+                        {sections.length > 0 && (
+                          <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
+                            <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">
+                              Section Progress: {submittedSections.size + 1} of {sections.length} - {sections.find(s => s.id === currentSectionId)?.name}
+                            </p>
+                            <p className="text-xs text-blue-800 dark:text-blue-200 mt-1">
+                              You must submit this section before accessing the next one.
+                            </p>
+                          </div>
+                        )}
                         {currentQuestion.passageId && passages[currentQuestion.passageId] && (
                             <div className="mb-8 p-4 bg-gray-50 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700">
                                 <h3 className="text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300">
