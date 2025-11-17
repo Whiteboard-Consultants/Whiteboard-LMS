@@ -8,6 +8,8 @@ import { CartProvider } from '@/hooks/use-cart';
 import Script from 'next/script';
 import { ThemeProvider } from "@/components/theme-provider";
 import { WebVitalsTracker, PerformanceOptimizations, WebsiteSearchSchema } from '@/components/seo-optimizations';
+import { GoogleAnalyticsComponent } from '@/components/google-analytics';
+import { MetaPixelInit } from '@/components/meta-pixel';
 import '@/lib/auth-fix'; // Auto-handle auth token issues
 import '@/lib/suppress-auth-errors'; // Suppress expected Supabase auth errors
 import type { Metadata } from 'next';
@@ -238,6 +240,12 @@ export default function RootLayout({
                     
                     {/* Web Vitals tracking for SXO */}
                     <WebVitalsTracker />
+                    
+                    {/* Google Analytics */}
+                    <GoogleAnalyticsComponent />
+                    
+                    {/* Meta Pixel */}
+                    <MetaPixelInit />
                 </CartProvider>
             </AuthProvider>
             <Script src="https://checkout.razorpay.com/v1/checkout.js" />
