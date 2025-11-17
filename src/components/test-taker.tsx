@@ -29,6 +29,7 @@ import { submitTest } from '@/app/student/assessment-actions';
 import { useBeforeunload } from 'react-beforeunload';
 import { cn } from '@/lib/utils';
 import { RichTextRenderer } from '@/components/rich-text-renderer';
+import { TestCalculator } from '@/components/test-calculator';
 
 type AnswerStatus = 'not-visited' | 'not-answered' | 'answered' | 'marked' | 'answered-and-marked';
 
@@ -673,6 +674,7 @@ export default function TestTaker({ testId }: TestTakerProps) {
                                 </div>
                             </div>
                         </Card>
+                        <TestCalculator />
                     </CardContent>
                 </Card>
             </div>
