@@ -229,9 +229,6 @@ export default async function CoursePage({ params }: CoursePageProps) {
                     </div>
                 </div>
             </div>
-            </div>
-            </div>
-            </div>
         </>
     );
 }
