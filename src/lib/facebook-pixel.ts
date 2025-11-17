@@ -123,8 +123,8 @@ function hashPhone(phone: string): string {
 }
 
 // Initialize Meta Pixel
-export function initMetaPixel() {
-  if (typeof window !== 'undefined' && !window.fbq) {
+export function initMetaPixel(pixelId: string) {
+  if (typeof window !== 'undefined' && !window.fbq && pixelId) {
     // Load Meta Pixel Script
     const script = document.createElement('script');
     script.innerHTML = `
@@ -136,14 +136,14 @@ export function initMetaPixel() {
       t.src=v;s=b.getElementsByTagName(e)[0];
       s.parentNode.insertBefore(t,s)}(window, document,'script',
       'https://connect.facebook.net/en_US/fbevents.js');
-      fbq('init', '${process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID}');
+      fbq('init', '${pixelId}');
       fbq('track', 'PageView');
     `;
     document.head.appendChild(script);
 
     // Fallback image pixel
     const noscript = document.createElement('noscript');
-    noscript.innerHTML = `<img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=${process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID}&ev=PageView&noscript=1" />`;
+    noscript.innerHTML = `<img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1" />`;
     document.head.appendChild(noscript);
   }
 }

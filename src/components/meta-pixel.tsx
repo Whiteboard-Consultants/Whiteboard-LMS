@@ -4,21 +4,17 @@ import { useEffect } from 'react';
 import { initMetaPixel } from '@/lib/facebook-pixel';
 
 export function MetaPixelInit() {
-  const pixelId = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
-
   useEffect(() => {
+    const pixelId = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
+    
     if (!pixelId) {
       console.warn('NEXT_PUBLIC_FACEBOOK_PIXEL_ID is not configured');
       return;
     }
 
-    // Initialize Meta Pixel
-    initMetaPixel();
-  }, [pixelId]);
-
-  if (!pixelId) {
-    return null;
-  }
+    // Initialize Meta Pixel with pixel ID
+    initMetaPixel(pixelId);
+  }, []);
 
   return null;
 }
