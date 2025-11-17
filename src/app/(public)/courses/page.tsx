@@ -6,6 +6,9 @@ import CoursesPageClient from '@/components/course-page-client';
 import { CourseCategory, Course } from '@/types';
 import type { Metadata } from 'next';
 
+// Cache courses list for 30 minutes - Improves TTFB
+export const revalidate = 1800;
+
 export const metadata: Metadata = {
     title: 'Test Prep & Career Courses in Kolkata | Whiteboard Consultants',
     description: 'Expert IELTS, TOEFL, GMAT, GRE, SAT prep courses + career development programs in Kolkata. Achieve your academic goals with our proven coaching methods.',

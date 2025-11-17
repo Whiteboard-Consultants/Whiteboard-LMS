@@ -3,6 +3,9 @@ import type { Metadata } from 'next';
 import { getWhyChooseUsData, WhyChooseUsData } from "@/lib/content";
 import HomePageClient from "@/components/home-page-client";
 
+// Cache homepage for 1 hour - Improves TTFB significantly
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: 'Whiteboard Consultants | Best Study Abroad & Test Prep in Kolkata',
   description: 'Expert study abroad & test prep consultant in Kolkata. IELTS, TOEFL, GMAT coaching + college admissions. 1000+ success stories. Start your global journey today.',

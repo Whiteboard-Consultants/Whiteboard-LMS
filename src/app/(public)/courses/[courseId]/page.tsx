@@ -11,8 +11,8 @@ import { Metadata } from "next";
 import { Card, CardContent } from "@/components/ui/card";
 import { RichTextRenderer } from "@/components/rich-text-renderer";
 
-// Disable static generation during migration
-export const dynamic = 'force-dynamic';
+// Cache course details for 1 hour - Improves TTFB significantly
+export const revalidate = 3600;
 
 type CoursePageProps = {
     params: Promise<{

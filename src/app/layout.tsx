@@ -19,12 +19,14 @@ const fontHeadline = PT_Sans({
   subsets: ['latin'],
   weight: ['400', '700'],
   variable: '--font-headline',
+  display: 'swap', // Display system font while custom font loads - improves FCP
 });
 
 const fontBody = Poppins({
   subsets: ['latin'],
   weight: ['400', '700', '900'],
   variable: '--font-body',
+  display: 'swap', // Display system font while custom font loads - improves FCP
 });
 
 
