@@ -231,7 +231,7 @@ export function UowApplyForm() {
           </CardContent>
           <CardFooter className="flex-col items-start gap-4">
             <p className="text-xs text-muted-foreground">
-                Whiteboard Consultants and The University of Wollongong, GIFT City, India may send you marketing material from time to time. You can opt-out (unsubscribe) at any time. Your information is collected in line with our <Link href="#" className="underline">privacy policy</Link>.
+                Whiteboard Consultants and The University of Wollongong, GIFT City, India may send you marketing material from time to time. You can opt-out (unsubscribe) at any time. Your information is collected in line with our <Link href="/privacy" className="underline">privacy policy</Link>.
             </p>
             <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto bg-red-600 hover:bg-red-700">
               {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Submit"}
