@@ -10,6 +10,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { WebVitalsTracker, PerformanceOptimizations, WebsiteSearchSchema } from '@/components/seo-optimizations';
 import { GoogleAnalyticsComponent } from '@/components/google-analytics';
 import { MetaPixelInit } from '@/components/meta-pixel';
+import { CookieConsentBanner } from '@/components/cookie-consent-banner';
 import '@/lib/auth-fix'; // Auto-handle auth token issues
 import '@/lib/suppress-auth-errors'; // Suppress expected Supabase auth errors
 import type { Metadata } from 'next';
@@ -239,6 +240,9 @@ export default function RootLayout({
                     {children}
                     <Toaster />
                     <Sonner theme="system" position="top-right" />
+                    
+                    {/* Cookie Consent Banner */}
+                    <CookieConsentBanner />
                     
                     {/* Web Vitals tracking for SXO */}
                     <WebVitalsTracker />
