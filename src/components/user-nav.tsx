@@ -65,8 +65,16 @@ export function UserNav() {
       // Step 3: Use Next.js router with transition for smooth navigation
       console.log('🔄 Navigating to home page...');
       startTransition(() => {
+        console.log('🔄 Inside transition - calling router.push("/")');
         router.push('/');
+        console.log('✅ router.push("/") called');
       });
+      
+      // Additional timeout-based fallback redirect if transition doesn't complete
+      setTimeout(() => {
+        console.log('⏱️ Timeout fallback: Forcing navigation to home');
+        window.location.href = '/';
+      }, 2000);
       
     } catch (error) {
       console.error('❌ Logout process failed:', error);
