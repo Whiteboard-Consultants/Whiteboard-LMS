@@ -79,23 +79,42 @@ export default async function PostPage({ params }: PostPageProps) {
     const jsonLd = {
         "@context": "https://schema.org",
         "@type": "BlogPosting",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": `https://www.whiteboardconsultant.com/blog/${post.slug}`
+        },
         "headline": post.title,
         "description": post.excerpt,
-        "image": post.imageUrl,
+        "image": {
+            "@type": "ImageObject",
+            "url": post.imageUrl,
+            "width": 1200,
+            "height": 630,
+            "caption": post.featuredImageAlt || post.title
+        },
         "author": {
             "@type": "Person",
-            "name": post.author.name
+            "name": post.author.name,
+            "url": "https://www.whiteboardconsultant.com"
         },
         "publisher": {
             "@type": "Organization",
             "name": "Whiteboard Consultants",
+            "url": "https://www.whiteboardconsultant.com",
             "logo": {
                 "@type": "ImageObject",
-                "url": "https://whiteboard-consultants-mock.com/logo.png"
+                "url": "https://www.whiteboardconsultant.com/logo.png",
+                "width": 250,
+                "height": 60
             }
         },
         "datePublished": createdDate?.toISOString() || new Date().toISOString(),
-        "dateModified": updatedDate?.toISOString() || new Date().toISOString()
+        "dateModified": updatedDate?.toISOString() || new Date().toISOString(),
+        "articleBody": post.content,
+        "keywords": post.category,
+        "wordCount": post.content ? post.content.split(/\s+/).length : 0,
+        "articleSection": post.category,
+        "inLanguage": "en-US"
     };
 
     const breadcrumbSchema = {
