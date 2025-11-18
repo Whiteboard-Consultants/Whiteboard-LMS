@@ -9,6 +9,7 @@ import { Metadata } from "next";
 import { convertToDate } from "@/lib/date-utils";
 import { format } from "date-fns";
 import { parseSlugFromUrl, generateSlug } from "@/lib/slug-utils";
+import { Breadcrumb } from "@/components/breadcrumb";
 
 
 type PostPageProps = {
@@ -97,15 +98,50 @@ export default async function PostPage({ params }: PostPageProps) {
         "dateModified": updatedDate?.toISOString() || new Date().toISOString()
     };
 
+    const breadcrumbSchema = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://www.whiteboardconsultant.com"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Blog",
+                "item": "https://www.whiteboardconsultant.com/blog"
+            },
+            {
+                "@type": "ListItem",
+                "position": 3,
+                "name": post.title,
+                "item": `https://www.whiteboardconsultant.com/blog/${post.slug}`
+            }
+        ]
+    };
+
     return (
         <>
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+            />
             <div className="bg-background text-foreground">
                 <article>
                     <header className="relative py-24 md:py-40 bg-slate-900 text-white overflow-hidden">
+                        <div className="container mx-auto px-4 relative z-10 mb-8">
+                            <Breadcrumb items={[
+                                { name: 'Blog', href: '/blog' },
+                                { name: post.title, href: `/blog/${post.slug}` }
+                            ]} />
+                        </div>
                         <div className="absolute inset-0 z-0">
                             {post.imageUrl && post.imageUrl.trim() !== '' ? (
                                 <>

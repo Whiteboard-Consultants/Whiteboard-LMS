@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { getPosts } from "@/lib/supabase-data";
 import { format } from "date-fns";
 import { convertToDate } from "@/lib/date-utils";
+import { Breadcrumb } from "@/components/breadcrumb";
 
 export const metadata: Metadata = {
   title: "Education Blog | Study Abroad, Test Prep & Career Tips | Whiteboard Consultants",
@@ -50,21 +51,47 @@ export default async function BlogPage() {
     }
   };
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://www.whiteboardconsultant.com"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Blog",
+        "item": "https://www.whiteboardconsultant.com/blog"
+      }
+    ]
+  };
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
       <div className="bg-background dark:bg-black">
       <section className="bg-slate-100 dark:bg-slate-dark py-16 sm:py-24">
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl font-headline">
-              Whiteboard Consultants Blog
-            </h1>
-            <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
-              The latest articles, news, and insights from our team on study abroad, test preparation, and career development.
-            </p>
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Breadcrumb items={[{ name: 'Blog', href: '/blog' }]} />
+            <div className="text-center mt-8">
+                <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl font-headline">
+                  Whiteboard Consultants Blog
+                </h1>
+                <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
+                  The latest articles, news, and insights from our team on study abroad, test preparation, and career development.
+                </p>
+            </div>
         </div>
       </section>
 

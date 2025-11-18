@@ -10,6 +10,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Metadata } from "next";
 import { Card, CardContent } from "@/components/ui/card";
 import { RichTextRenderer } from "@/components/rich-text-renderer";
+import { Breadcrumb } from "@/components/breadcrumb";
 
 // Cache course details for 1 hour - Improves TTFB significantly
 export const revalidate = 3600;
@@ -83,15 +84,48 @@ export default async function CoursePage({ params }: CoursePageProps) {
         } : undefined,
     };
 
+    const breadcrumbSchema = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://www.whiteboardconsultant.com"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Courses",
+                "item": "https://www.whiteboardconsultant.com/courses"
+            },
+            {
+                "@type": "ListItem",
+                "position": 3,
+                "name": course.title,
+                "item": `https://www.whiteboardconsultant.com/courses/${course.id}`
+            }
+        ]
+    };
+
     return (
         <>
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+            />
             <div className="bg-background text-foreground">
                 <div className="w-full bg-slate-100 dark:bg-slate-dark">
                     <div className="container mx-auto px-4 py-12 md:py-20">
+                        <Breadcrumb items={[
+                            { name: 'Courses', href: '/courses' },
+                            { name: course.title, href: `/courses/${course.id}` }
+                        ]} />
                         <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
                             <div className="order-2 md:order-1">
                                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold font-headline mb-4">{course.title}</h1>
