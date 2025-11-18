@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useContext, createContext, ReactNode, useCallback, useMemo } from "react";
+import { useState, useEffect, useContext, createContext, ReactNode, useCallback, useMemo, useRef } from "react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import type { User } from "@/types";
@@ -37,14 +37,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<Error | null>(null);
   const [isClient, setIsClient] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
+  const isMountedRef = useRef(true);
 
   // Set isClient flag after hydration
   useEffect(() => {
-    // Use a small delay to reduce flickering during hydration
-    const timer = setTimeout(() => {
-      setIsClient(true);
-    }, 0);
-    return () => clearTimeout(timer);
+    // Minimal delay - just enough to mark hydration complete
+    // This prevents hydration mismatches without causing visible flickering
+    setIsClient(true);
+    
+    // Cleanup to mark component as unmounted
+    return () => {
+      isMountedRef.current = false;
+    };
   }, []);
 
   // Helper function to clear auth storage
@@ -298,6 +302,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // IMPORTANT: Avoid calling signOut() inside this listener as it can create infinite loops
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        // Only update state if the component is still mounted
+        if (!isMountedRef.current) {
+          console.debug("Auth state change detected but component is unmounted, skipping update");
+          return;
+        }
+        
         console.log("Auth state change event:", event);
         
         try {
@@ -305,10 +315,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           if (event === 'SIGNED_OUT') {
             // User explicitly signed out or session expired
             console.log("SIGNED_OUT event received, clearing user data...");
-            setUser(null);
-            setUserData(null);
-            setAccessToken(null);
-            setLoading(false);
+            if (isMountedRef.current) {
+              setUser(null);
+              setUserData(null);
+              setAccessToken(null);
+              setLoading(false);
+            }
             return;
           }
           
@@ -319,35 +331,46 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               setAccessToken(session.access_token || null);
               await fetchUserData(session.user);
             } else {
-              setUser(null);
-              setUserData(null);
-              setAccessToken(null);
+              if (isMountedRef.current) {
+                setUser(null);
+                setUserData(null);
+                setAccessToken(null);
+              }
             }
-            setLoading(false);
+            if (isMountedRef.current) {
+              setLoading(false);
+            }
             return;
           }
           
           // For other events, just update the session if it exists
-          setUser(session?.user ?? null);
-          setAccessToken(session?.access_token || null);
-          if (session?.user) {
-            await fetchUserData(session.user);
-          } else {
-            setUserData(null);
+          if (isMountedRef.current) {
+            setUser(session?.user ?? null);
+            setAccessToken(session?.access_token || null);
+            if (session?.user) {
+              await fetchUserData(session.user);
+            } else {
+              setUserData(null);
+            }
+            setLoading(false);
           }
-          setLoading(false);
         } catch (error) {
           console.error("Error during auth state change:", error);
           // On error, only clear state - don't call signOut() to avoid loops
-          setUser(null);
-          setUserData(null);
-          setAccessToken(null);
-          setLoading(false);
+          if (isMountedRef.current) {
+            setUser(null);
+            setUserData(null);
+            setAccessToken(null);
+            setLoading(false);
+          }
         }
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMountedRef.current = false;
+      subscription.unsubscribe();
+    };
   }, [fetchUserData, isTokenExpired, clearAuthStorage]);
 
   // Set up real-time subscription for user data changes
