@@ -4,6 +4,7 @@
 
 import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
+import { useState, useTransition } from "react";
 import {
   Avatar,
   AvatarFallback,
@@ -32,8 +33,13 @@ export function UserNav() {
   const { clearCart } = useCart();
   const { isMobile } = useSidebar();
   const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isPending, startTransition] = useTransition();
   
   const handleLogout = async () => {
+    if (isLoggingOut || isPending) return; // Prevent double-click
+    
+    setIsLoggingOut(true);
     try {
       console.log('🔄 Starting logout process...');
       
@@ -52,21 +58,24 @@ export function UserNav() {
       
       if (result.error) {
         console.error('❌ Logout error:', result.error);
-        // Don't throw - continue with navigation to ensure user gets logged out
       } else {
         console.log('✅ Authentication sign out successful');
       }
       
-      // Step 3: Navigate to home page - use window.location for immediate effect
+      // Step 3: Use Next.js router with transition for smooth navigation
       console.log('🔄 Navigating to home page...');
-      window.location.href = '/';
+      startTransition(() => {
+        router.push('/');
+      });
       
     } catch (error) {
       console.error('❌ Logout process failed:', error);
-      
-      // Force navigation even on complete failure to ensure user experience
-      console.log('🔄 Force navigating to home page...');
-      window.location.href = '/';
+      // Even on error, redirect home
+      startTransition(() => {
+        router.push('/');
+      });
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 
@@ -160,9 +169,9 @@ export function UserNav() {
                     Settings
                 </Link>
             </Button>
-            <Button variant="ghost" onClick={handleLogout} className="justify-start text-destructive hover:bg-destructive/10 hover:text-destructive dark:text-red-400 dark:hover:text-red-400">
+            <Button variant="ghost" onClick={handleLogout} disabled={isLoggingOut || isPending} className="justify-start text-destructive hover:bg-destructive/10 hover:text-destructive dark:text-red-400 dark:hover:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed">
                 <LogOut className="mr-2 h-5 w-5" />
-                Log out
+                {isLoggingOut || isPending ? 'Logging out...' : 'Log out'}
             </Button>
         </div>
     )
@@ -200,9 +209,9 @@ export function UserNav() {
             </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive dark:text-red-400 dark:focus:bg-red-800/30 dark:focus:text-red-400">
+            <DropdownMenuItem onClick={handleLogout} disabled={isLoggingOut || isPending} className="text-destructive focus:text-destructive dark:text-red-400 dark:focus:bg-red-800/30 dark:focus:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed">
             <LogOut className="mr-2 h-4 w-4" />
-            Log out
+            {isLoggingOut || isPending ? 'Logging out...' : 'Log out'}
             </DropdownMenuItem>
         </DropdownMenuContent>
         </DropdownMenu>
