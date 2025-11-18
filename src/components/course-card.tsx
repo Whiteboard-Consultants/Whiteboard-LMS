@@ -150,7 +150,7 @@ export function CourseCard({ course, context = 'listing' }: CourseCardProps) {
               />
             ))}
           </div>
-          <span className="text-sm text-muted-foreground">({course.studentCount})</span>
+          <span className="text-sm text-muted-foreground">({course.ratingCount || 0})</span>
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
             {course.duration && (

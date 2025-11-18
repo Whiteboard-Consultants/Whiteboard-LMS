@@ -137,7 +137,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
                                         <span className="font-bold text-lg">{course.rating?.toFixed(1) || 'N/A'}</span>
                                         <Star className="h-5 w-5 fill-current" />
                                     </div>
-                                    <span className="text-muted-foreground ml-2">({course.studentCount} ratings)</span>
+                                    <span className="text-muted-foreground ml-2">({course.ratingCount || 0} ratings)</span>
                                     <span className="text-muted-foreground ml-4 flex items-center gap-1.5">
                                         <Users className="h-5 w-5" /> {course.studentCount} students
                                     </span>
