@@ -8,7 +8,8 @@ export function MetaPixelInit() {
     const pixelId = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
     
     if (!pixelId) {
-      console.warn('NEXT_PUBLIC_FACEBOOK_PIXEL_ID is not configured');
+      // Silently skip initialization if pixel ID is not configured
+      // This is expected in development or if env var is not set
       return;
     }
 
