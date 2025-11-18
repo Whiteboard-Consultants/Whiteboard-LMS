@@ -136,6 +136,16 @@ export default function CoursesPageClient({ categories, initialCategory, childre
             
             <section className="w-full py-12 md:py-24 bg-muted dark:bg-slate-dark">
                 <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    {/* Refund Policy Guarantee Banner */}
+                    <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-8 text-center">
+                        <p className="text-sm text-blue-900 dark:text-blue-100">
+                            <strong>30-Day Money-Back Guarantee:</strong> If you're not satisfied with any course, we'll refund your full payment within 14 days of enrollment. 
+                            <Link href="/refund-policy" className="text-blue-600 dark:text-blue-400 hover:underline ml-1">
+                                Learn more about our refund policy
+                            </Link>
+                        </p>
+                    </div>
+
                     <CourseCategoryFilter
                         categories={categories}
                         selectedCategory={selectedCategory}

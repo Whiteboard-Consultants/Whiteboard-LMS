@@ -208,7 +208,9 @@ export default async function CoursePage({ params }: CoursePageProps) {
                                             <Button size="lg" variant="outline" className="w-full">Buy Now</Button>
                                         </>
                                     )}
-                                    <div className="text-xs text-center text-muted-foreground mt-2">30-Day Money-Back Guarantee</div>
+                                    <div className="text-xs text-center text-muted-foreground mt-2">
+                                        30-Day Money-Back Guarantee • <Link href="/refund-policy" className="hover:underline text-blue-600 dark:text-blue-400">See refund details</Link>
+                                    </div>
 
                                     <div className="mt-6 space-y-3 text-sm">
                                         <h3 className="font-bold text-md">This course includes:</h3>
