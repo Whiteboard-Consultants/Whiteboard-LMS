@@ -37,7 +37,7 @@ export default function RefundPolicyPage() {
         <div className="mb-12">
           <h1 className="text-4xl font-bold tracking-tight mb-4">Refund Policy</h1>
           <p className="text-lg text-muted-foreground">
-            <strong>Effective Date:</strong> [Insert Date]
+            <strong>Effective Date:</strong> November 18, 2025
           </p>
         </div>
 
