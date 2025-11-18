@@ -577,7 +577,7 @@ export default function AdminReportsPage() {
 
 
   return (
-    <div>
+    <div className="p-4 md:p-6">
         <div className="mb-4">
             <Button asChild variant="outline" size="sm">
                 <Link href="/admin/dashboard">
@@ -593,14 +593,14 @@ export default function AdminReportsPage() {
       
       <div className="space-y-8">
         {/* Revenue Analytics Section */}
-        <div className="bg-muted p-6 rounded-lg">
+        <div className="bg-muted p-4 md:p-6 rounded-lg">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
-            <div>
+            <div className="flex-1">
               <h3 className="text-xl font-bold tracking-tight">Revenue Analytics</h3>
               <p className="text-sm text-muted-foreground">Track platform revenue and course sales performance.</p>
             </div>
             <Select onValueChange={(value: RevenueTimePeriod) => setSelectedTimePeriod(value)} value={selectedTimePeriod}>
-              <SelectTrigger className="w-[200px]">
+              <SelectTrigger className="w-full md:w-[200px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -702,13 +702,13 @@ export default function AdminReportsPage() {
             </div>
           </div>
         </div>
-        <div className="bg-muted p-6 rounded-lg">
+        <div className="bg-muted p-4 md:p-6 rounded-lg">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
-                <div>
+                <div className="flex-1">
                     <h3 className="text-xl font-bold tracking-tight">Course Data Export</h3>
                     <p className="text-sm text-muted-foreground">Download a CSV file of all courses on the platform.</p>
                 </div>
-                <Button variant="outline" onClick={handleExportCourses} disabled={courses.length === 0}>
+                <Button variant="outline" onClick={handleExportCourses} disabled={courses.length === 0} className="w-full md:w-auto">
                     <Download className="mr-2 h-4 w-4" />
                     Export Courses CSV
                 </Button>
@@ -803,15 +803,15 @@ export default function AdminReportsPage() {
               </div>
         </div>
 
-        <div className="bg-muted p-6 rounded-lg">
+        <div className="bg-muted p-4 md:p-6 rounded-lg">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
-                <div>
+                <div className="flex-1">
                     <h3 className="text-xl font-bold tracking-tight">Student Enrollment Data</h3>
                     <p className="text-sm text-muted-foreground">Filter student enrollments by course and export the data.</p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="w-full md:w-auto flex flex-col md:flex-row items-stretch md:items-center gap-2">
                     <Select onValueChange={setSelectedCourseId} value={selectedCourseId}>
-                        <SelectTrigger className="w-[280px]">
+                        <SelectTrigger className="w-full md:w-[280px]">
                             <SelectValue placeholder="Select an option..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -824,6 +824,7 @@ export default function AdminReportsPage() {
                     <Button 
                     onClick={handleExportStudents} 
                     disabled={!selectedCourseId || isExportingStudents}
+                    className="w-full md:w-auto"
                     >
                         {isExportingStudents ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
                         Export Students CSV
@@ -946,7 +947,7 @@ export default function AdminReportsPage() {
         </div>
 
         {/* Coupon Analytics Section */}
-        <div className="bg-muted p-6 rounded-lg">
+        <div className="bg-muted p-4 md:p-6 rounded-lg">
           <div className="mb-6">
             <div>
               <h3 className="text-xl font-bold tracking-tight">Coupon Analytics</h3>
@@ -1001,7 +1002,7 @@ export default function AdminReportsPage() {
           {/* Coupon Details Table */}
           <div className="mt-6">
             <h4 className="text-lg font-semibold mb-4">Coupon Usage Details</h4>
-            <div className="rounded-lg border bg-background">
+            <div className="rounded-lg border bg-background overflow-x-auto">
               {couponLoading ? (
                 <div className="flex items-center justify-center h-64">
                   <div className="flex flex-col items-center gap-2">
@@ -1012,7 +1013,7 @@ export default function AdminReportsPage() {
               ) : couponAnalytics.length > 0 ? (
                 <>
                   {/* Desktop View */}
-                  <div className="hidden md:block overflow-x-auto">
+                  <div className="hidden md:block">
                     <Table>
                       <TableHeader>
                         <TableRow>
