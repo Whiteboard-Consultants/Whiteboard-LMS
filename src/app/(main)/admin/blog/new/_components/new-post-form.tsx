@@ -30,8 +30,8 @@ export function NewPostForm() {
         userId: userData.id
       });
       
-      // Ensure all values are properly serialized
-      const formData = {
+      // Ensure all values are properly serialized and combine into a single object
+      const postData = {
         title: String(values.title),
         slug: String(values.slug),
         excerpt: String(values.excerpt || ''),
@@ -40,15 +40,13 @@ export function NewPostForm() {
         category: String(values.category),
         tags: String(values.tags),
         featured: Boolean(values.featured),
-        authorName: String(values.authorName)
+        authorName: String(values.authorName),
+        authorId: String(userData.id),
       };
       
-      console.log("[Client] Calling createPost with formData:", formData);
+      console.log("[Client] Calling createPost with combined data");
       
-      const result = await createPost(formData, {
-        id: String(userData.id),
-        name: String(userData.name)
-      });
+      const result = await createPost(postData);
       
       console.log("[Client] Got result:", result);
       setIsSubmitting(false);

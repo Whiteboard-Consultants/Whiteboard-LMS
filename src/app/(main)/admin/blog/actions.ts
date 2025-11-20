@@ -23,18 +23,33 @@ const postFormSchema = z.object({
 
 type PostFormData = z.infer<typeof postFormSchema>;
 
-interface CreatePostData extends PostFormData {
-  author: {
-    id: string;
-    name: string;
-  };
+interface CreatePostInput extends PostFormData {
+  authorId: string;
+  authorName: string;
 }
 
-
-
-export async function createPost(formData: PostFormData, authorData: { id: string; name: string }) {
+export async function createPost(data: CreatePostInput) {
   try {
-    console.log("[Server Action] createPost called with:", { title: formData.title, slug: formData.slug, authorId: authorData.id });
+    console.log("[Server Action] createPost called with:", { title: data.title, slug: data.slug, authorId: data.authorId });
+    
+    // Extract form data and author info
+    const formData = {
+      title: data.title,
+      slug: data.slug,
+      excerpt: data.excerpt,
+      content: data.content,
+      imageUrl: data.imageUrl,
+      category: data.category,
+      tags: data.tags,
+      featured: data.featured,
+      authorName: data.authorName,
+    };
+    
+    const authorData = {
+      id: data.authorId,
+      name: data.authorName,
+    };
+    
     // Validate form data
     const validatedData = postFormSchema.parse(formData);
     console.log("[Server Action] Form data validated successfully");
