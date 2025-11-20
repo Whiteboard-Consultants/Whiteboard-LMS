@@ -441,14 +441,8 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
 
   useEffect(() => {
     if (editor && content) {
-      // Parse HTML content using DOMParser to properly handle tables and other elements
-      const doc = new DOMParser().parseFromString(content, 'text/html');
-      
-      // Convert the parsed DOM to TipTap format
-      editor.chain().focus().clearContent().insertContentAt(0, {
-        type: 'doc',
-        content: editor.schema.nodeFromDOMStrict(doc.body).toJSON().content,
-      }).run();
+      // Simply set the content - TipTap will parse it automatically
+      editor.commands.setContent(content);
     }
   }, [editor]);
 
