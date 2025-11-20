@@ -57,12 +57,17 @@ export function WebVitalsTracker() {
     }
 
     // Dynamic import of web-vitals library
-    import('web-vitals').then(({ onCLS, onFCP, onFID, onLCP, onTTFB }) => {
+    // Note: onFID (First Input Delay) was deprecated and removed in newer versions
+    // Use onINP (Interaction to Next Paint) instead for interaction latency
+    import('web-vitals').then(({ onCLS, onFCP, onLCP, onTTFB, onINP }) => {
       onCLS(trackWebVital)
       onFCP(trackWebVital)  
-      onFID(trackWebVital)
+      if (onINP) onINP(trackWebVital) // onINP replaces onFID
       onLCP(trackWebVital)
       onTTFB(trackWebVital)
+    }).catch(() => {
+      // Silently fail if web-vitals is not available
+      console.debug('web-vitals library not available')
     })
   }, [])
 
