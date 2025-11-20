@@ -6,12 +6,8 @@ import { useEditor, EditorContent, Editor, ReactNodeViewRenderer, NodeViewWrappe
 import StarterKit from '@tiptap/starter-kit';
 import { TextStyle } from '@tiptap/extension-text-style';
 import BaseImage from '@tiptap/extension-image';
-import { Table } from '@tiptap/extension-table';
-import { TableRow } from '@tiptap/extension-table-row';
-import { TableHeader } from '@tiptap/extension-table-header';
-import { TableCell } from '@tiptap/extension-table-cell';
 import {
-  Bold, Italic, Strikethrough, Heading1, Heading2, Heading3, Pilcrow, List, ListOrdered, Quote, Minus, Undo, Redo, ImageIcon, Loader2, ChevronDown, Grid3x3, Trash2
+  Bold, Italic, Strikethrough, Heading1, Heading2, Heading3, Pilcrow, List, ListOrdered, Quote, Minus, Undo, Redo, ImageIcon, Loader2, ChevronDown
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
@@ -377,32 +373,6 @@ const EditorToolbar = ({ editor }: { editor: Editor | null }) => {
        <div className="h-6 border-l border-input mx-2"></div>
       <button
         type="button"
-        onClick={() => 
-          editor
-            .chain()
-            .focus()
-            .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
-            .run()
-        }
-        className="p-2 rounded-lg hover:bg-accent"
-        aria-label="Insert Table"
-        title="Insert a 3x3 table"
-      >
-        <Grid3x3 className="h-4 w-4" />
-      </button>
-      <button
-        type="button"
-        onClick={() => editor.chain().focus().deleteTable().run()}
-        disabled={!editor.can().deleteTable()}
-        className="p-2 rounded-lg hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
-        aria-label="Delete Table"
-        title="Delete the current table"
-      >
-        <Trash2 className="h-4 w-4" />
-      </button>
-      <div className="h-6 border-l border-input mx-2"></div>
-      <button
-        type="button"
         onClick={() => editor.chain().focus().undo().run()}
         disabled={!editor.can().chain().focus().undo().run()}
         className="p-2 rounded-lg hover:bg-accent"
@@ -450,16 +420,6 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
       }),
       TextStyle,
       ConfiguredImage,
-      Table.configure({
-        resizable: true,
-        handleWidth: 4,
-        cellMinWidth: 50,
-        lastColumnResizable: true,
-        allowTableNodeSelection: false,
-      }),
-      TableRow,
-      TableHeader,
-      TableCell,
     ],
     content: content,
     onUpdate: ({ editor }) => {
