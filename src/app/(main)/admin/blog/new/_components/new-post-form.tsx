@@ -22,18 +22,26 @@ export function NewPostForm() {
     }
 
     setIsSubmitting(true);
-    const result = await createPost(values, {
-      id: userData.id,
-      name: userData.name
-    });
-    setIsSubmitting(false);
+    try {
+      console.log("Submitting blog post with values:", { title: values.title, slug: values.slug, contentLength: values.content?.length });
+      const result = await createPost(values, {
+        id: userData.id,
+        name: userData.name
+      });
+      setIsSubmitting(false);
 
-    if (result.success) {
-      toast({ title: "Success", description: "Post created successfully." });
-      router.push("/admin/blog");
-    } else {
-      console.error("Create post result:", result);
-      toast({ variant: "destructive", title: "Error", description: result.error || "Failed to create post." });
+      console.log("Create post result:", result);
+      if (result.success) {
+        toast({ title: "Success", description: "Post created successfully." });
+        router.push("/admin/blog");
+      } else {
+        toast({ variant: "destructive", title: "Error", description: result.error || "Failed to create post." });
+      }
+    } catch (error) {
+      setIsSubmitting(false);
+      console.error("Error submitting blog post:", error);
+      const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred while saving the post.";
+      toast({ variant: "destructive", title: "Error", description: errorMessage });
     }
   };
 

@@ -34,8 +34,10 @@ interface CreatePostData extends PostFormData {
 
 export async function createPost(formData: PostFormData, authorData: { id: string; name: string }) {
   try {
+    console.log("[Server Action] createPost called with:", { title: formData.title, slug: formData.slug, authorId: authorData.id });
     // Validate form data
     const validatedData = postFormSchema.parse(formData);
+    console.log("[Server Action] Form data validated successfully");
     
     // Convert tags string to array
     const tagsArray = validatedData.tags
@@ -92,11 +94,13 @@ export async function createPost(formData: PostFormData, authorData: { id: strin
       .select()
       .single();
 
+    console.log("[Server Action] Insert result - error:", error, "data exists:", !!data);
     if (error) {
-      console.error("Error creating post:", error);
-      return { success: false, error: 'Failed to create post. Please try again.' };
+      console.error("[Server Action] Error creating post:", error);
+      return { success: false, error: `Failed to create post: ${error.message}` };
     }
 
+    console.log("[Server Action] Post created successfully, revalidating paths");
     revalidatePath('/admin/blog');
     revalidatePath('/blog');
     
