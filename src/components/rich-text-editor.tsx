@@ -6,7 +6,6 @@ import { useEditor, EditorContent, Editor, ReactNodeViewRenderer, NodeViewWrappe
 import StarterKit from '@tiptap/starter-kit';
 import { TextStyle } from '@tiptap/extension-text-style';
 import BaseImage from '@tiptap/extension-image';
-import Html from '@tiptap/extension-html';
 import Table from '@tiptap/extension-table';
 import TableRow from '@tiptap/extension-table-row';
 import TableHeader from '@tiptap/extension-table-header';
@@ -451,7 +450,6 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
       }),
       TextStyle,
       ConfiguredImage,
-      Html,
       Table.configure({
         resizable: true,
         handleWidth: 4,
@@ -482,8 +480,9 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
   });
 
   useEffect(() => {
-    if (editor && content !== undefined && editor.getHTML() !== content) {
-      editor.commands.setContent(content, { emitUpdate: false });
+    if (editor && content !== undefined) {
+      // Parse HTML content properly for tables and other elements
+      editor.commands.setContent(content, { parseOptions: { preserveWhitespace: false } });
     }
   }, [content, editor]);
 
