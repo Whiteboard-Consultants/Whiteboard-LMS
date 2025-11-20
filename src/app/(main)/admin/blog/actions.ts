@@ -76,8 +76,7 @@ export async function createPost(formData: PostFormData, authorData: { id: strin
       featured: validatedData.featured,
       published: true, // for the existing 'published' boolean field
       tags: tagsArray,
-      // Set featured image or null if empty
-      featured_image: validatedData.imageUrl?.trim() || null,
+      // Set featured image URL or null if empty
       featured_image_url: validatedData.imageUrl?.trim() || null,
       author_id: authorData.id,
       author_name: validatedData.authorName, // Use the form-provided author name
@@ -158,8 +157,7 @@ export async function updatePost(postId: string, formData: PostFormData, authorD
       featured: validatedData.featured,
       published: validatedData.featured, // update published status based on featured for now
       tags: tagsArray,
-      // Set featured image or null if empty (allows deletion)
-      featured_image: validatedData.imageUrl?.trim() || null,
+      // Set featured image URL or null if empty (allows deletion)
       featured_image_url: validatedData.imageUrl?.trim() || null,
       author_name: validatedData.authorName, // Update with form-provided author name
       read_time_minutes: readTimeMinutes,
