@@ -441,8 +441,68 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
 
   useEffect(() => {
     if (editor && content) {
-      // Simply set the content - TipTap will parse it automatically
-      editor.commands.setContent(content);
+      // Create a temporary container and parse the HTML
+      const tempContainer = document.createElement('div');
+      tempContainer.innerHTML = content;
+      
+      // Convert DOM to JSON that TipTap understands
+      const convertNode = (node: Node): any => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          return {
+            type: 'text',
+            text: node.textContent || ''
+          };
+        }
+        
+        const element = node as Element;
+        const tagName = element.tagName.toLowerCase();
+        
+        const typeMap: { [key: string]: string } = {
+          'h1': 'heading', 'h2': 'heading', 'h3': 'heading',
+          'p': 'paragraph', 'ul': 'bulletList', 'ol': 'orderedList',
+          'li': 'listItem', 'strong': 'bold', 'b': 'bold',
+          'em': 'italic', 'i': 'italic', 's': 'strike', 'strike': 'strike',
+          'blockquote': 'blockquote', 'code': 'codeBlock', 'pre': 'codeBlock',
+          'hr': 'horizontalRule', 'table': 'table', 'thead': 'tableHead',
+          'tbody': 'tableBody', 'tr': 'tableRow', 'th': 'tableHeader',
+          'td': 'tableCell'
+        };
+        
+        const type = typeMap[tagName] || tagName;
+        const attrs: any = {};
+        
+        if (tagName === 'h1' || tagName === 'h2' || tagName === 'h3') {
+          attrs.level = parseInt(tagName[1]);
+        }
+        
+        const children: any[] = [];
+        node.childNodes.forEach(child => {
+          const converted = convertNode(child);
+          if (converted && (converted.type !== 'text' || converted.text.trim() !== '')) {
+            children.push(converted);
+          }
+        });
+        
+        return {
+          type,
+          ...(Object.keys(attrs).length > 0 && { attrs }),
+          ...(children.length > 0 && { content: children })
+        };
+      };
+      
+      try {
+        const content = tempContainer.childNodes
+          .map(node => convertNode(node))
+          .filter(node => node);
+        
+        editor.commands.setContent({
+          type: 'doc',
+          content
+        });
+      } catch (error) {
+        console.error('Error parsing HTML:', error);
+        editor.commands.setContent(content);
+      }
     }
   }, [editor]);
 
