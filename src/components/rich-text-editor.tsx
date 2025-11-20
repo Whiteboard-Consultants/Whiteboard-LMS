@@ -10,7 +10,6 @@ import Table from '@tiptap/extension-table';
 import TableRow from '@tiptap/extension-table-row';
 import TableHeader from '@tiptap/extension-table-header';
 import TableCell from '@tiptap/extension-table-cell';
-import Html from '@tiptap/extension-html';
 import {
   Bold, Italic, Strikethrough, Heading1, Heading2, Heading3, Pilcrow, List, ListOrdered, Quote, Minus, Undo, Redo, ImageIcon, Loader2, ChevronDown, Grid3x3, Trash2
 } from 'lucide-react';
@@ -451,7 +450,6 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
       }),
       TextStyle,
       ConfiguredImage,
-      Html,
       Table.configure({
         resizable: true,
         handleWidth: 4,
@@ -483,8 +481,14 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
 
   useEffect(() => {
     if (editor && content) {
-      // Force the editor to treat content as HTML and parse it
-      editor.commands.setContent(content);
+      // Parse HTML content using DOMParser to properly handle tables and other elements
+      const doc = new DOMParser().parseFromString(content, 'text/html');
+      
+      // Convert the parsed DOM to TipTap format
+      editor.chain().focus().clearContent().insertContentAt(0, {
+        type: 'doc',
+        content: editor.schema.nodeFromDOMStrict(doc.body).toJSON().content,
+      }).run();
     }
   }, [editor]);
 
