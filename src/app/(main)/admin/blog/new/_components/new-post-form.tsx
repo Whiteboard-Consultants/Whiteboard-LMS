@@ -23,14 +23,36 @@ export function NewPostForm() {
 
     setIsSubmitting(true);
     try {
-      console.log("Submitting blog post with values:", { title: values.title, slug: values.slug, contentLength: values.content?.length });
-      const result = await createPost(values, {
-        id: userData.id,
-        name: userData.name
+      console.log("[Client] Submitting blog post with values:", { 
+        title: values.title, 
+        slug: values.slug, 
+        contentLength: values.content?.length,
+        userId: userData.id
       });
+      
+      // Ensure all values are properly serialized
+      const formData = {
+        title: String(values.title),
+        slug: String(values.slug),
+        excerpt: String(values.excerpt || ''),
+        content: String(values.content),
+        imageUrl: String(values.imageUrl || ''),
+        category: String(values.category),
+        tags: String(values.tags),
+        featured: Boolean(values.featured),
+        authorName: String(values.authorName)
+      };
+      
+      console.log("[Client] Calling createPost with formData:", formData);
+      
+      const result = await createPost(formData, {
+        id: String(userData.id),
+        name: String(userData.name)
+      });
+      
+      console.log("[Client] Got result:", result);
       setIsSubmitting(false);
 
-      console.log("Create post result:", result);
       if (result.success) {
         toast({ title: "Success", description: "Post created successfully." });
         router.push("/admin/blog");
@@ -39,7 +61,7 @@ export function NewPostForm() {
       }
     } catch (error) {
       setIsSubmitting(false);
-      console.error("Error submitting blog post:", error);
+      console.error("[Client] Error submitting blog post:", error);
       const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred while saving the post.";
       toast({ variant: "destructive", title: "Error", description: errorMessage });
     }
