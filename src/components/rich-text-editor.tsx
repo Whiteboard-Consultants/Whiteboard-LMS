@@ -491,7 +491,7 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
       };
       
       try {
-        const content = tempContainer.childNodes
+        const content = Array.from(tempContainer.childNodes)
           .map(node => convertNode(node))
           .filter(node => node);
         
