@@ -63,7 +63,7 @@ export async function createPost(data: CreatePostInput) {
     const db = supabaseAdmin || supabase;
     
     // Check if slug already exists
-    const { data: existingPost, error: checkError } = await db
+    const { data: existingPostData, error: checkError } = await db
       .from('posts')
       .select('id')
       .eq('slug', validatedData.slug)
@@ -73,7 +73,7 @@ export async function createPost(data: CreatePostInput) {
       throw checkError;
     }
     
-    if (existingPost) {
+    if (existingPostData) {
       return { success: false, error: 'A post with this slug already exists. Please choose a different slug.' };
     }
     
@@ -102,13 +102,13 @@ export async function createPost(data: CreatePostInput) {
     };
     
     // Insert the post (using existing table schema)
-    const { data: insertedPost, error } = await db
+    const { data: postData, error } = await db
       .from('posts')
       .insert(insertData)
       .select()
       .single();
 
-    console.log("[Server Action] Insert result - error:", error, "data exists:", !!insertedPost);
+    console.log("[Server Action] Insert result - error:", error, "data exists:", !!postData);
     if (error) {
       console.error("[Server Action] Error creating post:", error);
       return { success: false, error: `Failed to create post: ${error.message}` };
@@ -118,7 +118,7 @@ export async function createPost(data: CreatePostInput) {
     revalidatePath('/admin/blog');
     revalidatePath('/blog');
     
-    return { success: true, data: insertedPost };
+    return { success: true, data: postData };
     
   } catch (error) {
     console.error("Error in createPost:", error);
