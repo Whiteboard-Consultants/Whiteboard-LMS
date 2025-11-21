@@ -6,8 +6,9 @@ import { useEditor, EditorContent, Editor, ReactNodeViewRenderer, NodeViewWrappe
 import StarterKit from '@tiptap/starter-kit';
 import { TextStyle } from '@tiptap/extension-text-style';
 import BaseImage from '@tiptap/extension-image';
+import { Table, TableRow, TableHeader, TableCell } from '@tiptap/extension-table';
 import {
-  Bold, Italic, Strikethrough, Heading1, Heading2, Heading3, Pilcrow, List, ListOrdered, Quote, Minus, Undo, Redo, ImageIcon, Loader2, ChevronDown
+  Bold, Italic, Strikethrough, Heading1, Heading2, Heading3, Pilcrow, List, ListOrdered, Quote, Minus, Undo, Redo, ImageIcon, Loader2, ChevronDown, Grid3x3
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
@@ -370,6 +371,111 @@ const EditorToolbar = ({ editor }: { editor: Editor | null }) => {
        >
         <Minus className="h-4 w-4" />
       </button>
+      <button 
+        type="button"
+        onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()} 
+        className="p-2 rounded-lg hover:bg-accent"
+        aria-label="Insert Table"
+       >
+        <Grid3x3 className="h-4 w-4" />
+      </button>
+      
+      {/* Table Controls - Show when in a table */}
+      {editor.isActive('table') && (
+        <div className="flex items-center gap-1 px-2">
+          <div className="h-6 border-l border-input mx-1"></div>
+          <span className="text-xs text-muted-foreground px-1">Table:</span>
+          
+          {/* Column Width Control */}
+          <input
+            type="number"
+            min="30"
+            max="500"
+            defaultValue="100"
+            placeholder="Width"
+            className="w-14 px-2 py-1 border border-input rounded text-xs"
+            onBlur={(e) => {
+              const width = e.currentTarget.value;
+              if (width) {
+                editor.chain().focus().setCellAttributes({ colwidth: [parseInt(width)] }).run();
+              }
+            }}
+            title="Set column width (pixels)"
+          />
+          
+          {/* Background Color for Cells */}
+          <input
+            type="color"
+            defaultValue="#ffffff"
+            className="w-8 h-8 border border-input rounded cursor-pointer"
+            onChange={(e) => {
+              editor.chain().focus().setCellAttributes({ backgroundColor: e.currentTarget.value }).run();
+            }}
+            title="Cell background color"
+          />
+          
+          {/* Border Color */}
+          <input
+            type="color"
+            defaultValue="#cccccc"
+            className="w-8 h-8 border border-input rounded cursor-pointer"
+            onChange={(e) => {
+              editor.chain().focus().setCellAttributes({ borderColor: e.currentTarget.value }).run();
+            }}
+            title="Border color"
+          />
+          
+          {/* Add Row */}
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().addRowAfter().run()}
+            className="p-2 rounded-lg hover:bg-accent text-xs"
+            title="Add row below"
+          >
+            +Row
+          </button>
+          
+          {/* Add Column */}
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().addColAfter().run()}
+            className="p-2 rounded-lg hover:bg-accent text-xs"
+            title="Add column to the right"
+          >
+            +Col
+          </button>
+          
+          {/* Delete Row */}
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().deleteRow().run()}
+            className="p-2 rounded-lg hover:bg-accent text-xs"
+            title="Delete current row"
+          >
+            -Row
+          </button>
+          
+          {/* Delete Column */}
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().deleteColumn().run()}
+            className="p-2 rounded-lg hover:bg-accent text-xs"
+            title="Delete current column"
+          >
+            -Col
+          </button>
+          
+          {/* Delete Table */}
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().deleteTable().run()}
+            className="p-2 rounded-lg hover:bg-red-100 text-xs text-red-600"
+            title="Delete entire table"
+          >
+            Delete Table
+          </button>
+        </div>
+      )}
        <div className="h-6 border-l border-input mx-2"></div>
       <button
         type="button"
@@ -417,11 +523,22 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
         heading: {
           levels: [1, 2, 3],
         },
+        table: false, // Disable table in StarterKit, we'll use our own
       }),
       TextStyle,
       ConfiguredImage,
+      Table.configure({
+        resizable: true,
+        handleWidth: 5,
+        cellMinWidth: 50,
+        lastColumnResizable: true,
+        allowTableNodeSelection: false,
+      }),
+      TableRow,
+      TableHeader,
+      TableCell,
     ],
-    content: '', // Start with empty content, let useEffect handle HTML parsing
+    content: content || '', // Initialize with content prop
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
       console.log('[RichTextEditor] Content updated, length:', html.length);
@@ -429,194 +546,54 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
         onChange(html);
       }
     },
-    onPaste: (view, event) => {
-      console.log('[RichTextEditor] Paste event detected');
-      // Let TipTap handle the paste
-      return false;
-    },
     editorProps: {
       attributes: {
-        class: 'prose dark:prose-invert prose-sm max-w-full m-5 focus:outline-none min-h-[150px]',
-        style: `
-          line-height: 1.6;
-          --tw-prose-headings: var(--tw-prose-body);
-          --tw-prose-h1: 32px;
-          --tw-prose-h2: 24px;
-          --tw-prose-h3: 20px;
-        `,
+        class: 'prose dark:prose-invert prose-sm max-w-full m-5 focus:outline-none min-h-[150px] w-full',
+      },
+      handlePaste: (view, event) => {
+        console.log('[RichTextEditor] Paste event detected');
+        
+        // Try to get HTML first, then plain text
+        const html = event.clipboardData?.getData('text/html');
+        const text = event.clipboardData?.getData('text/plain');
+        
+        if (html) {
+          console.log('[RichTextEditor] Pasting HTML content, length:', html.length);
+          // Let the editor handle HTML paste
+          return false;
+        } else if (text) {
+          console.log('[RichTextEditor] Pasting plain text, length:', text.length);
+          return false;
+        }
+        
+        return false;
       },
     },
   });
 
   useEffect(() => {
-    if (editor && content && content.trim()) {
-      console.log('[RichTextEditor] Parsing HTML content, length:', content.length);
+    if (!editor) return;
+
+    if (content && content.trim()) {
+      console.log('[RichTextEditor] Setting content, length:', content.length);
       try {
-        // Wrap the HTML fragments in proper document structure for TipTap parsing
-        const wrappedHtml = `<div>${content}</div>`;
+        // Parse HTML content - detect if it looks like HTML
+        const isHtml = /<[^>]+>/g.test(content);
+        console.log('[RichTextEditor] Content is HTML:', isHtml);
         
-        // Create a temporary DOM element to parse the HTML
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(wrappedHtml, 'text/html');
-        const container = doc.body.firstChild as HTMLElement;
-        
-        // Convert DOM nodes to TipTap JSON format
-        const domToJSON = (node: Node): any => {
-          // Handle text nodes
-          if (node.nodeType === Node.TEXT_NODE) {
-            const text = node.textContent || '';
-            if (text.trim()) {
-              return { type: 'text', text };
-            }
-            return null;
-          }
-          
-          // Handle element nodes
-          if (node.nodeType === Node.ELEMENT_NODE) {
-            const element = node as Element;
-            const tag = element.tagName.toLowerCase();
-            
-            // Map HTML tags to TipTap node types
-            let nodeType = tag;
-            const attrs: Record<string, any> = {};
-            
-            switch (tag) {
-              case 'h1':
-              case 'h2':
-              case 'h3':
-                nodeType = 'heading';
-                attrs.level = parseInt(tag[1]);
-                break;
-              case 'p':
-                nodeType = 'paragraph';
-                break;
-              case 'ul':
-                nodeType = 'bulletList';
-                break;
-              case 'ol':
-                nodeType = 'orderedList';
-                break;
-              case 'li':
-                nodeType = 'listItem';
-                break;
-              case 'blockquote':
-                nodeType = 'blockquote';
-                break;
-              case 'strong':
-              case 'b':
-                nodeType = 'text';
-                attrs.bold = true;
-                break;
-              case 'em':
-              case 'i':
-                nodeType = 'text';
-                attrs.italic = true;
-                break;
-              case 's':
-              case 'strike':
-              case 'del':
-                nodeType = 'text';
-                attrs.strike = true;
-                break;
-              case 'code':
-              case 'pre':
-                nodeType = 'codeBlock';
-                break;
-              case 'hr':
-                nodeType = 'horizontalRule';
-                break;
-              case 'table':
-                nodeType = 'table';
-                break;
-              case 'thead':
-                nodeType = 'tableHead';
-                break;
-              case 'tbody':
-                nodeType = 'tableBody';
-                break;
-              case 'tr':
-                nodeType = 'tableRow';
-                break;
-              case 'th':
-                nodeType = 'tableHeader';
-                break;
-              case 'td':
-                nodeType = 'tableCell';
-                break;
-              case 'br':
-                nodeType = 'hardBreak';
-                break;
-            }
-            
-            // Process child nodes
-            const content: any[] = [];
-            let hasTextContent = false;
-            
-            node.childNodes.forEach(child => {
-              const converted = domToJSON(child);
-              if (converted) {
-                content.push(converted);
-                hasTextContent = true;
-              }
-            });
-            
-            // For text-based nodes (strong, em, etc.), extract text and apply marks
-            if (['strong', 'b', 'em', 'i', 's', 'strike', 'del'].includes(tag)) {
-              const textContent = element.textContent || '';
-              if (textContent) {
-                const marks: any[] = [];
-                if (['strong', 'b'].includes(tag)) marks.push({ type: 'bold' });
-                if (['em', 'i'].includes(tag)) marks.push({ type: 'italic' });
-                if (['s', 'strike', 'del'].includes(tag)) marks.push({ type: 'strike' });
-                
-                return {
-                  type: 'text',
-                  text: textContent,
-                  marks: marks.length > 0 ? marks : undefined
-                };
-              }
-              return null;
-            }
-            
-            return {
-              type: nodeType,
-              ...(Object.keys(attrs).length > 0 && { attrs }),
-              ...(content.length > 0 && { content })
-            };
-          }
-          
-          return null;
-        };
-        
-        // Parse all top-level nodes
-        const nodes: any[] = [];
-        if (container) {
-          container.childNodes.forEach(child => {
-            const node = domToJSON(child);
-            if (node) {
-              nodes.push(node);
-            }
-          });
-        }
-        
-        console.log('[RichTextEditor] Parsed nodes:', nodes.length);
-        
-        // Set the content with proper document structure
-        if (nodes.length > 0) {
-          editor.commands.setContent({
-            type: 'doc',
-            content: nodes
-          });
-        }
-      } catch (error) {
-        console.error('[RichTextEditor] Error parsing HTML:', error);
-        // Fallback: try raw setContent
-        try {
+        if (isHtml) {
+          // For HTML content, use parseHtml to properly parse it
           editor.commands.setContent(content);
-        } catch (fallbackError) {
-          console.error('[RichTextEditor] Fallback also failed:', fallbackError);
+        } else {
+          // For plain text, set as text
+          editor.commands.setContent(content, false);
         }
+        console.log('[RichTextEditor] Content set successfully');
+      } catch (error) {
+        console.error('[RichTextEditor] Error setting content:', error);
       }
+    } else {
+      editor.commands.clearContent();
     }
   }, [editor, content]);
 
@@ -647,23 +624,56 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
             margin-top: 0.25rem;
             margin-bottom: 0.25rem;
           }
+          /* Table Styling */
           .prose-custom :where(table):not(:where([class~="not-prose"] *)) {
             width: 100%;
             border-collapse: collapse;
             margin: 1rem 0;
+            border: 2px solid #333;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
           }
           .prose-custom :where(th):not(:where([class~="not-prose"] *)),
           .prose-custom :where(td):not(:where([class~="not-prose"] *)) {
-            border: 1px solid #ddd;
+            border: 1px solid #999;
             padding: 0.75rem;
             text-align: left;
+            word-wrap: break-word;
+            transition: background-color 0.2s ease;
           }
+          /* Header row styling */
           .prose-custom :where(th):not(:where([class~="not-prose"] *)) {
-            background-color: #f3f4f6;
-            font-weight: 600;
+            background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+            font-weight: 700;
+            color: #1f2937;
+            text-transform: none;
+            letter-spacing: 0.5px;
+          }
+          /* Alternating row colors */
+          .prose-custom :where(tr):nth-child(odd):not(:where([class~="not-prose"] *)) {
+            background-color: #ffffff;
           }
           .prose-custom :where(tr):nth-child(even):not(:where([class~="not-prose"] *)) {
-            background-color: #f9fafb;
+            background-color: #f3f4f6;
+          }
+          /* Hover effect on rows */
+          .prose-custom :where(tr):hover:not(:where([class~="not-prose"] *)) {
+            background-color: #e0f2fe;
+            box-shadow: inset 0 0 0 1px #0ea5e9;
+          }
+          /* Selected cell styling */
+          .prose-custom .selectedCell {
+            background-color: #bfdbfe !important;
+            box-shadow: inset 0 0 0 2px #3b82f6;
+          }
+          /* Cell focus state */
+          .prose-custom :where(td):focus:not(:where([class~="not-prose"] *)),
+          .prose-custom :where(th):focus:not(:where([class~="not-prose"] *)) {
+            outline: 2px solid #3b82f6;
+            outline-offset: -2px;
+          }
+          /* Colgroup for column width control */
+          .prose-custom :where(col):not(:where([class~="not-prose"] *)) {
+            width: auto;
           }
         `}</style>
         <EditorContent editor={editor} />
