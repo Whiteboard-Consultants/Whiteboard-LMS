@@ -93,7 +93,7 @@ export async function createPost(data: CreatePostInput) {
       tags: tagsArray,
       // Set featured image URL or null if empty
       featured_image_url: validatedData.imageUrl?.trim() || null,
-      author_id: authorData.id,
+      author_id: data.authorId,
       author_name: validatedData.authorName, // Use the form-provided author name
       read_time_minutes: readTimeMinutes,
       published_at: new Date().toISOString(),
@@ -102,13 +102,13 @@ export async function createPost(data: CreatePostInput) {
     };
     
     // Insert the post (using existing table schema)
-    const { data, error } = await db
+    const { data: insertedPost, error } = await db
       .from('posts')
       .insert(insertData)
       .select()
       .single();
 
-    console.log("[Server Action] Insert result - error:", error, "data exists:", !!data);
+    console.log("[Server Action] Insert result - error:", error, "data exists:", !!insertedPost);
     if (error) {
       console.error("[Server Action] Error creating post:", error);
       return { success: false, error: `Failed to create post: ${error.message}` };
@@ -118,7 +118,7 @@ export async function createPost(data: CreatePostInput) {
     revalidatePath('/admin/blog');
     revalidatePath('/blog');
     
-    return { success: true, data };
+    return { success: true, data: insertedPost };
     
   } catch (error) {
     console.error("Error in createPost:", error);
