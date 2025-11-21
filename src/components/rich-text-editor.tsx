@@ -421,7 +421,7 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
       TextStyle,
       ConfiguredImage,
     ],
-    content: content,
+    content: '', // Start with empty content, let useEffect handle HTML parsing
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
@@ -441,6 +441,7 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
 
   useEffect(() => {
     if (editor && content) {
+      console.log('[RichTextEditor] Parsing HTML content, length:', content.length);
       // Create a temporary container and parse the HTML
       const tempContainer = document.createElement('div');
       tempContainer.innerHTML = content;
@@ -491,20 +492,23 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
       };
       
       try {
-        const content = Array.from(tempContainer.childNodes)
+        const parsedContent = Array.from(tempContainer.childNodes)
           .map(node => convertNode(node))
           .filter(node => node);
         
+        console.log('[RichTextEditor] Parsed content nodes:', parsedContent.length);
+        
         editor.commands.setContent({
           type: 'doc',
-          content
+          content: parsedContent
         });
       } catch (error) {
         console.error('Error parsing HTML:', error);
+        // Fallback: set as plain text
         editor.commands.setContent(content);
       }
     }
-  }, [editor]);
+  }, [editor, content]);
 
   return (
     <div className="border border-input rounded-lg" onFocus={() => editor?.commands.focus()} tabIndex={0} >
