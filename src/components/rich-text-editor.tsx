@@ -423,7 +423,16 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
     ],
     content: '', // Start with empty content, let useEffect handle HTML parsing
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
+      const html = editor.getHTML();
+      console.log('[RichTextEditor] Content updated, length:', html.length);
+      if (onChange) {
+        onChange(html);
+      }
+    },
+    onPaste: (view, event) => {
+      console.log('[RichTextEditor] Paste event detected');
+      // Let TipTap handle the paste
+      return false;
     },
     editorProps: {
       attributes: {
@@ -612,17 +621,7 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
   }, [editor, content]);
 
   return (
-    <div className="border border-input rounded-lg" onFocus={() => editor?.commands.focus()} tabIndex={0} >
-      <input
-        ref={hiddenInputRef}
-        type="text"
-        value={content || ''}
-        className="sr-only" 
-        aria-hidden="true"
-        tabIndex={-1}
-        {...props}
-        onChange={() => {}}
-      />
+    <div className="border border-input rounded-lg overflow-hidden">
       <EditorToolbar editor={editor} />
       <div className="prose-custom">
         <style>{`
