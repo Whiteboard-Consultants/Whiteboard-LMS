@@ -440,14 +440,173 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
   });
 
   useEffect(() => {
-    if (editor && content) {
-      console.log('[RichTextEditor] Setting HTML content via TipTap parser, length:', content.length);
+    if (editor && content && content.trim()) {
+      console.log('[RichTextEditor] Parsing HTML content, length:', content.length);
       try {
-        // Use TipTap's built-in HTML parser
-        editor.commands.setContent(content, false);
-        console.log('[RichTextEditor] Content set successfully');
+        // Wrap the HTML fragments in proper document structure for TipTap parsing
+        const wrappedHtml = `<div>${content}</div>`;
+        
+        // Create a temporary DOM element to parse the HTML
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(wrappedHtml, 'text/html');
+        const container = doc.body.firstChild as HTMLElement;
+        
+        // Convert DOM nodes to TipTap JSON format
+        const domToJSON = (node: Node): any => {
+          // Handle text nodes
+          if (node.nodeType === Node.TEXT_NODE) {
+            const text = node.textContent || '';
+            if (text.trim()) {
+              return { type: 'text', text };
+            }
+            return null;
+          }
+          
+          // Handle element nodes
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            const element = node as Element;
+            const tag = element.tagName.toLowerCase();
+            
+            // Map HTML tags to TipTap node types
+            let nodeType = tag;
+            const attrs: Record<string, any> = {};
+            
+            switch (tag) {
+              case 'h1':
+              case 'h2':
+              case 'h3':
+                nodeType = 'heading';
+                attrs.level = parseInt(tag[1]);
+                break;
+              case 'p':
+                nodeType = 'paragraph';
+                break;
+              case 'ul':
+                nodeType = 'bulletList';
+                break;
+              case 'ol':
+                nodeType = 'orderedList';
+                break;
+              case 'li':
+                nodeType = 'listItem';
+                break;
+              case 'blockquote':
+                nodeType = 'blockquote';
+                break;
+              case 'strong':
+              case 'b':
+                nodeType = 'text';
+                attrs.bold = true;
+                break;
+              case 'em':
+              case 'i':
+                nodeType = 'text';
+                attrs.italic = true;
+                break;
+              case 's':
+              case 'strike':
+              case 'del':
+                nodeType = 'text';
+                attrs.strike = true;
+                break;
+              case 'code':
+              case 'pre':
+                nodeType = 'codeBlock';
+                break;
+              case 'hr':
+                nodeType = 'horizontalRule';
+                break;
+              case 'table':
+                nodeType = 'table';
+                break;
+              case 'thead':
+                nodeType = 'tableHead';
+                break;
+              case 'tbody':
+                nodeType = 'tableBody';
+                break;
+              case 'tr':
+                nodeType = 'tableRow';
+                break;
+              case 'th':
+                nodeType = 'tableHeader';
+                break;
+              case 'td':
+                nodeType = 'tableCell';
+                break;
+              case 'br':
+                nodeType = 'hardBreak';
+                break;
+            }
+            
+            // Process child nodes
+            const content: any[] = [];
+            let hasTextContent = false;
+            
+            node.childNodes.forEach(child => {
+              const converted = domToJSON(child);
+              if (converted) {
+                content.push(converted);
+                hasTextContent = true;
+              }
+            });
+            
+            // For text-based nodes (strong, em, etc.), extract text and apply marks
+            if (['strong', 'b', 'em', 'i', 's', 'strike', 'del'].includes(tag)) {
+              const textContent = element.textContent || '';
+              if (textContent) {
+                const marks: any[] = [];
+                if (['strong', 'b'].includes(tag)) marks.push({ type: 'bold' });
+                if (['em', 'i'].includes(tag)) marks.push({ type: 'italic' });
+                if (['s', 'strike', 'del'].includes(tag)) marks.push({ type: 'strike' });
+                
+                return {
+                  type: 'text',
+                  text: textContent,
+                  marks: marks.length > 0 ? marks : undefined
+                };
+              }
+              return null;
+            }
+            
+            return {
+              type: nodeType,
+              ...(Object.keys(attrs).length > 0 && { attrs }),
+              ...(content.length > 0 && { content })
+            };
+          }
+          
+          return null;
+        };
+        
+        // Parse all top-level nodes
+        const nodes: any[] = [];
+        if (container) {
+          container.childNodes.forEach(child => {
+            const node = domToJSON(child);
+            if (node) {
+              nodes.push(node);
+            }
+          });
+        }
+        
+        console.log('[RichTextEditor] Parsed nodes:', nodes.length);
+        
+        // Set the content with proper document structure
+        if (nodes.length > 0) {
+          editor.commands.setContent({
+            type: 'doc',
+            content: nodes
+          });
+        }
       } catch (error) {
-        console.error('Error setting HTML content:', error);
+        console.error('[RichTextEditor] Error parsing HTML:', error);
+        // Fallback: try raw setContent
+        try {
+          editor.commands.setContent(content);
+        } catch (fallbackError) {
+          console.error('[RichTextEditor] Fallback also failed:', fallbackError);
+        }
       }
     }
   }, [editor, content]);
