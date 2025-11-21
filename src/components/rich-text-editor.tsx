@@ -386,45 +386,6 @@ const EditorToolbar = ({ editor }: { editor: Editor | null }) => {
           <div className="h-6 border-l border-input mx-1"></div>
           <span className="text-xs text-muted-foreground px-1">Table:</span>
           
-          {/* Column Width Control */}
-          <input
-            type="number"
-            min="30"
-            max="500"
-            defaultValue="100"
-            placeholder="Width"
-            className="w-14 px-2 py-1 border border-input rounded text-xs"
-            onBlur={(e) => {
-              const width = e.currentTarget.value;
-              if (width) {
-                editor.chain().focus().setCellAttributes({ colwidth: [parseInt(width)] }).run();
-              }
-            }}
-            title="Set column width (pixels)"
-          />
-          
-          {/* Background Color for Cells */}
-          <input
-            type="color"
-            defaultValue="#ffffff"
-            className="w-8 h-8 border border-input rounded cursor-pointer"
-            onChange={(e) => {
-              editor.chain().focus().setCellAttributes({ backgroundColor: e.currentTarget.value }).run();
-            }}
-            title="Cell background color"
-          />
-          
-          {/* Border Color */}
-          <input
-            type="color"
-            defaultValue="#cccccc"
-            className="w-8 h-8 border border-input rounded cursor-pointer"
-            onChange={(e) => {
-              editor.chain().focus().setCellAttributes({ borderColor: e.currentTarget.value }).run();
-            }}
-            title="Border color"
-          />
-          
           {/* Add Row */}
           <button
             type="button"
@@ -629,47 +590,49 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
             width: 100%;
             border-collapse: collapse;
             margin: 1rem 0;
-            border: 2px solid #333;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 3px solid #1f2937;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
           }
           .prose-custom :where(th):not(:where([class~="not-prose"] *)),
           .prose-custom :where(td):not(:where([class~="not-prose"] *)) {
-            border: 1px solid #999;
-            padding: 0.75rem;
+            border: 2px solid #374151;
+            padding: 1rem;
             text-align: left;
             word-wrap: break-word;
             transition: background-color 0.2s ease;
+            font-size: 0.95rem;
           }
           /* Header row styling */
           .prose-custom :where(th):not(:where([class~="not-prose"] *)) {
-            background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
-            font-weight: 700;
-            color: #1f2937;
+            background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+            font-weight: 800;
+            color: #ffffff;
             text-transform: none;
             letter-spacing: 0.5px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
           }
           /* Alternating row colors */
           .prose-custom :where(tr):nth-child(odd):not(:where([class~="not-prose"] *)) {
             background-color: #ffffff;
           }
           .prose-custom :where(tr):nth-child(even):not(:where([class~="not-prose"] *)) {
-            background-color: #f3f4f6;
+            background-color: #e8ecf1;
           }
           /* Hover effect on rows */
           .prose-custom :where(tr):hover:not(:where([class~="not-prose"] *)) {
-            background-color: #e0f2fe;
-            box-shadow: inset 0 0 0 1px #0ea5e9;
+            background-color: #d4e5f7 !important;
+            box-shadow: inset 0 0 0 2px #2563eb;
           }
           /* Selected cell styling */
           .prose-custom .selectedCell {
-            background-color: #bfdbfe !important;
-            box-shadow: inset 0 0 0 2px #3b82f6;
+            background-color: #93c5fd !important;
+            box-shadow: inset 0 0 0 3px #1e40af;
           }
           /* Cell focus state */
           .prose-custom :where(td):focus:not(:where([class~="not-prose"] *)),
           .prose-custom :where(th):focus:not(:where([class~="not-prose"] *)) {
-            outline: 2px solid #3b82f6;
-            outline-offset: -2px;
+            outline: 3px solid #2563eb;
+            outline-offset: -3px;
           }
           /* Colgroup for column width control */
           .prose-custom :where(col):not(:where([class~="not-prose"] *)) {
