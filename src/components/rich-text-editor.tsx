@@ -593,10 +593,14 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
             border: 3px solid #000000 !important;
             box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
             background-color: #ffffff !important;
+            overflow-x: auto !important;
+            display: block !important;
           }
           .prose-custom :where(tbody):not(:where([class~="not-prose"] *)),
           .prose-custom :where(thead):not(:where([class~="not-prose"] *)) {
             border: 1px solid #000000 !important;
+            display: table !important;
+            width: 100% !important;
           }
           .prose-custom :where(th):not(:where([class~="not-prose"] *)),
           .prose-custom :where(td):not(:where([class~="not-prose"] *)) {
@@ -648,6 +652,73 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
           /* Colgroup for column width control */
           .prose-custom :where(col):not(:where([class~="not-prose"] *)) {
             width: auto !important;
+          }
+          
+          /* MOBILE RESPONSIVENESS - Tables */
+          @media (max-width: 768px) {
+            .prose-custom :where(table):not(:where([class~="not-prose"] *)) {
+              margin: 1rem -1rem !important;
+              border: 2px solid #000000 !important;
+              font-size: 0.875rem !important;
+            }
+            .prose-custom :where(th):not(:where([class~="not-prose"] *)),
+            .prose-custom :where(td):not(:where([class~="not-prose"] *)) {
+              border: 1px solid #333333 !important;
+              padding: 0.75rem !important;
+              font-size: 0.875rem !important;
+            }
+            .prose-custom :where(th):not(:where([class~="not-prose"] *)) {
+              font-weight: 700 !important;
+              font-size: 0.8rem !important;
+            }
+          }
+          
+          /* EXTRA SMALL DEVICES - Stacked view */
+          @media (max-width: 640px) {
+            .prose-custom :where(table):not(:where([class~="not-prose"] *)) {
+              display: block !important;
+              border: none !important;
+              box-shadow: none !important;
+              margin: 1rem 0 !important;
+            }
+            .prose-custom :where(thead):not(:where([class~="not-prose"] *)) {
+              display: none !important;
+            }
+            .prose-custom :where(tbody):not(:where([class~="not-prose"] *)) {
+              display: block !important;
+              border: none !important;
+            }
+            .prose-custom :where(tr):not(:where([class~="not-prose"] *)) {
+              display: block !important;
+              margin-bottom: 1rem !important;
+              border: 2px solid #000000 !important;
+              background-color: #ffffff !important;
+            }
+            .prose-custom :where(tbody tr:nth-child(even)):not(:where([class~="not-prose"] *)) {
+              background-color: #ffffff !important;
+            }
+            .prose-custom :where(td):not(:where([class~="not-prose"] *)) {
+              display: block !important;
+              text-align: right !important;
+              padding: 0.75rem !important;
+              border: 1px solid #ddd !important;
+              position: relative !important;
+              padding-left: 50% !important;
+            }
+            .prose-custom :where(td):before {
+              content: attr(data-label) !important;
+              position: absolute !important;
+              left: 0 !important;
+              width: 50% !important;
+              padding-left: 0.75rem !important;
+              font-weight: 700 !important;
+              background-color: #f3f4f6 !important;
+              text-align: left !important;
+            }
+            .prose-custom :where(tr):hover:not(:where([class~="not-prose"] *)) {
+              background-color: #ffffff !important;
+              box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+            }
           }
         `}</style>
         <EditorContent editor={editor} />
