@@ -612,15 +612,15 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
             font-size: 0.95rem !important;
             vertical-align: middle !important;
           }
-          /* Header row styling - DARK */
+          /* Header row styling - BLUE */
           .prose-custom :where(th):not(:where([class~="not-prose"] *)) {
-            background: linear-gradient(135deg, #1f2937 0%, #111827 100%) !important;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
             font-weight: 800 !important;
             color: #ffffff !important;
             text-transform: none !important;
             letter-spacing: 0.5px !important;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
-            border-bottom: 3px solid #000000 !important;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+            border-bottom: 3px solid #1e40af !important;
           }
           /* First row after header - add stronger border */
           .prose-custom :where(tbody tr:first-child td):not(:where([class~="not-prose"] *)) {
