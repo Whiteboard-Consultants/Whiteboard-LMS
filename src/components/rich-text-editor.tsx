@@ -587,56 +587,67 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
           }
           /* Table Styling */
           .prose-custom :where(table):not(:where([class~="not-prose"] *)) {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1rem 0;
-            border: 3px solid #1f2937;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            width: 100% !important;
+            border-collapse: collapse !important;
+            margin: 1rem 0 !important;
+            border: 3px solid #000000 !important;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+            background-color: #ffffff !important;
+          }
+          .prose-custom :where(tbody):not(:where([class~="not-prose"] *)),
+          .prose-custom :where(thead):not(:where([class~="not-prose"] *)) {
+            border: 1px solid #000000 !important;
           }
           .prose-custom :where(th):not(:where([class~="not-prose"] *)),
           .prose-custom :where(td):not(:where([class~="not-prose"] *)) {
-            border: 2px solid #374151;
-            padding: 1rem;
-            text-align: left;
-            word-wrap: break-word;
-            transition: background-color 0.2s ease;
-            font-size: 0.95rem;
+            border: 2px solid #333333 !important;
+            padding: 1rem !important;
+            text-align: left !important;
+            word-wrap: break-word !important;
+            transition: background-color 0.2s ease !important;
+            font-size: 0.95rem !important;
+            vertical-align: middle !important;
           }
-          /* Header row styling */
+          /* Header row styling - DARK */
           .prose-custom :where(th):not(:where([class~="not-prose"] *)) {
-            background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
-            font-weight: 800;
-            color: #ffffff;
-            text-transform: none;
-            letter-spacing: 0.5px;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%) !important;
+            font-weight: 800 !important;
+            color: #ffffff !important;
+            text-transform: none !important;
+            letter-spacing: 0.5px !important;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+            border-bottom: 3px solid #000000 !important;
           }
-          /* Alternating row colors */
-          .prose-custom :where(tr):nth-child(odd):not(:where([class~="not-prose"] *)) {
-            background-color: #ffffff;
+          /* First row after header - add stronger border */
+          .prose-custom :where(tbody tr:first-child td):not(:where([class~="not-prose"] *)) {
+            border-top: 2px solid #333333 !important;
           }
-          .prose-custom :where(tr):nth-child(even):not(:where([class~="not-prose"] *)) {
-            background-color: #e8ecf1;
+          /* Alternating row colors - STRONG CONTRAST */
+          .prose-custom :where(tbody tr:nth-child(odd)):not(:where([class~="not-prose"] *)) {
+            background-color: #ffffff !important;
+          }
+          .prose-custom :where(tbody tr:nth-child(even)):not(:where([class~="not-prose"] *)) {
+            background-color: #d1e7f7 !important;
           }
           /* Hover effect on rows */
           .prose-custom :where(tr):hover:not(:where([class~="not-prose"] *)) {
-            background-color: #d4e5f7 !important;
-            box-shadow: inset 0 0 0 2px #2563eb;
+            background-color: #bfdbfe !important;
+            box-shadow: inset 0 0 0 2px #1e40af !important;
           }
           /* Selected cell styling */
           .prose-custom .selectedCell {
-            background-color: #93c5fd !important;
-            box-shadow: inset 0 0 0 3px #1e40af;
+            background-color: #7dd3fc !important;
+            box-shadow: inset 0 0 0 3px #0369a1 !important;
           }
           /* Cell focus state */
           .prose-custom :where(td):focus:not(:where([class~="not-prose"] *)),
           .prose-custom :where(th):focus:not(:where([class~="not-prose"] *)) {
-            outline: 3px solid #2563eb;
-            outline-offset: -3px;
+            outline: 3px solid #1e40af !important;
+            outline-offset: -3px !important;
           }
           /* Colgroup for column width control */
           .prose-custom :where(col):not(:where([class~="not-prose"] *)) {
-            width: auto;
+            width: auto !important;
           }
         `}</style>
         <EditorContent editor={editor} />
