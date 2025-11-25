@@ -248,7 +248,7 @@ export async function getUserWeakAreas(userId: string, courseId: string) {
           existing.scores.push(area.score);
           existing.timesIdentified += 1;
           existing.avgScore = Math.round(
-            existing.scores.reduce((a, b) => a + b, 0) / existing.scores.length
+            existing.scores.reduce((a: number, b: number) => a + b, 0) / existing.scores.length
           );
         });
       }
