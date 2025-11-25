@@ -150,9 +150,9 @@ export default function TestTaker({ testId }: TestTakerProps) {
       setQuestions(questions);
 
       // Load passages if any question has a passage_id
-      const passageIds = [...new Set(questions
+      const passageIds = Array.from(new Set(questions
         .map((q: TestQuestion) => q.passageId)
-        .filter((id): id is string => !!id))];
+        .filter((id): id is string => !!id)));
       
       if (passageIds.length > 0) {
         const { data: passagesData, error: passagesError } = await supabase
@@ -297,7 +297,7 @@ export default function TestTaker({ testId }: TestTakerProps) {
     }
     
     // Cannot skip sections - must submit current section first
-    if (newIndex > currentIndex && !submittedSections.has(currentSectionId)) {
+    if (currentSectionId && newIndex > currentIndex && !submittedSections.has(currentSectionId)) {
       toast({
         variant: 'destructive',
         title: 'Section Not Submitted',
@@ -503,12 +503,12 @@ export default function TestTaker({ testId }: TestTakerProps) {
             <div className="col-span-9">
                 {sections.length > 0 && (
                     <Tabs value={currentSectionId || sections[0]?.id || ''} onValueChange={handleSectionChange} className="mb-4">
-                        <TabsList className="grid w-full gap-2" style={{ gridTemplateColumns: `repeat(${Math.min(sections.length, 5)}, minmax(0, 1fr))` }}>
+                        <TabsList className="flex w-full gap-2 flex-wrap h-auto">
                             {sections.map((section) => {
                                 const sectionIndex = sections.findIndex(s => s.id === section.id);
-                                const currentIndex = sections.findIndex(s => s.id === currentSectionId);
+                                const currentIndex = currentSectionId ? sections.findIndex(s => s.id === currentSectionId) : -1;
                                 const isSubmitted = submittedSections.has(section.id);
-                                const isLocked = sectionIndex > currentIndex && !submittedSections.has(currentSectionId);
+                                const isLocked = currentSectionId && sectionIndex > currentIndex && !submittedSections.has(currentSectionId);
                                 
                                 return (
                                   <TabsTrigger 
