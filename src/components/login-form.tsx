@@ -10,6 +10,7 @@ import { signInWithEmail, signInWithGoogle } from "@/lib/supabase-auth";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useSearchParams } from 'next/navigation';
+import { startTransition } from 'react';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -106,32 +107,43 @@ export function LoginForm({ router }: LoginFormProps) {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
+      console.log('📝 Form submitted with:', values.email);
       clearCart();
+      console.log('🔐 Calling signInWithEmail...');
       const { data, error, userData } = await signInWithEmail(values.email, values.password);
       
+      console.log('✅ signInWithEmail returned:', { hasData: !!data, hasError: !!error, hasUserData: !!userData });
+      
       if (error) {
+        console.error('❌ Sign in error:', error.message);
         throw error;
       }
 
-      if (!userData) {
-        throw new Error('User data not found');
-      }
+      // If we have userData, use it to determine role
+      // Otherwise, default to student
+      let role = userData?.role || 'student'; // Default to student if no role found
+      console.log('👤 Determined role:', role);
+
+      // Small delay to ensure Supabase client is ready
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       toast({
         title: "Login Successful",
         description: "Welcome back! Redirecting...",
       });
 
-      // Redirect based on role
-      const role = userData.role;
-      if (role === 'admin') {
-        router.push("/admin/dashboard");
-      } else if (role === 'instructor') {
-        router.push("/instructor/dashboard");
-      } else {
-        router.push("/student/dashboard");
-      }
+      console.log('🚀 Redirecting to dashboard...');
+      // Redirect based on role - use startTransition for proper navigation
+      const path = role === 'admin' ? '/admin/dashboard' 
+                 : role === 'instructor' ? '/instructor/dashboard'
+                 : '/student/dashboard';
+      
+      console.log('→ Going to', path);
+      startTransition(() => {
+        router.push(path);
+      });
     } catch (error: unknown) {
+      console.error('💥 Catch block error:', error);
       let errorMessage = "An unknown error occurred. Please try again.";
       if (error instanceof Error) {
         errorMessage = error.message;

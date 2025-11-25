@@ -84,105 +84,75 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  const fetchUserData = useCallback(async (supabaseUser: any) => {
+  const fetchUserData = useCallback(async (supabaseUser: any, skipRetry?: boolean, accessToken?: string) => {
     if (supabaseUser) {
       try {
-        // Try to fetch existing user data with retry logic for new registrations
-        let userData = null;
-        let attempts = 0;
-        const maxAttempts = 3;
-        
-        while (attempts < maxAttempts && !userData) {
-          // First, get the user data from the users table
-          const { data: userRecord, error: userError } = await supabase
-            .from('users')
-            .select('*')
-            .eq('id', supabaseUser.id)
-            .single();
-
-          if (userError) {
-            if (userError.code === 'PGRST116') {
-              // User not found - might be because trigger hasn't completed yet for new registrations
-              console.log(`User not found in database (attempt ${attempts + 1}/${maxAttempts}), waiting for trigger...`);
-              
-              if (attempts < maxAttempts - 1) {
-                // Wait and retry for new registrations
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                attempts++;
-                continue;
-              } else {
-                // After max attempts, the user probably doesn't exist due to a trigger failure
-                console.error("User not found after max attempts. This might indicate a registration issue.");
-                setError(new Error("User profile not found. Please try logging out and logging back in, or contact support."));
-                setUserData(null);
-                return;
-              }
-            } else {
-              // Other database errors
-              console.error("Error fetching user data:", userError);
-              console.error("Error details:", JSON.stringify(userError, null, 2));
-              console.error("User ID:", supabaseUser.id);
-              console.error("User email:", supabaseUser.email);
-              setError(new Error(userError.message || "Failed to fetch user data"));
-              setUserData(null);
-              return;
-            }
-          } else {
-            // User found, now try to get their profile data if they're a student
-            let profileData = null;
-            if (userRecord.role === 'student') {
-              const { data: profile, error: profileError } = await supabase
-                .from('student_profiles')
-                .select('*')
-                .eq('user_id', supabaseUser.id)
-                .single();
-              
-              if (profileError && profileError.code !== 'PGRST116') {
-                // Log error but don't fail - profile might not exist yet
-                console.log('Student profile not found or error:', profileError.message);
-              } else if (profile) {
-                profileData = profile;
-              }
-            }
-
-            // Merge user data with profile data
-            userData = {
-              ...userRecord,
-              // If profile exists, add the profile fields to the user object
-              ...(profileData && {
-                education: profileData.education,
-                passingYear: profileData.passing_year,
-                improvementAreas: profileData.improvement_areas,
-                careerPlan: profileData.career_plan,
-                isProfileComplete: profileData.is_profile_complete,
-                needsInterviewSupport: profileData.needs_interview_support,
-              })
-            };
-          }
-          
-          attempts++;
-        }
-
-        if (userData) {
-          setUserData(userData);
-          setError(null);
-        }
-      } catch (err) {
-        console.error("Error fetching user data:", err);
-        
-        // Check if this might be an auth-related error
-        const errorMessage = err instanceof Error ? err.message : String(err);
-        if (errorMessage.includes('JWT') || errorMessage.includes('expired') || errorMessage.includes('invalid')) {
-          console.log("Detected auth error in user data fetch, checking session...");
-          
+        // Use provided token or try to get from session
+        let token = accessToken;
+        if (!token) {
           const { data: { session } } = await supabase.auth.getSession();
-          if (!session || isTokenExpired(session)) {
-            console.log("Session is expired, clearing storage and signing out...");
+          token = session?.access_token;
+        }
+        
+        if (!token) {
+          console.log('❌ No access token available for fetching user data');
+          setUserData(null);
+          return;
+        }
+
+        console.log(`📥 fetchUserData called for user ${supabaseUser.id}, using API endpoint`);
+
+        // Fetch user data via API endpoint (bypasses RLS issues)
+        const response = await fetch('/api/user/profile', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        console.log(`📋 API response status:`, response.status);
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('❌ API error:', errorData);
+          
+          if (response.status === 401) {
+            console.log("Auth token invalid or expired, signing out...");
             clearAuthStorage();
             await supabase.auth.signOut();
             return;
           }
+
+          if (response.status === 404) {
+            // User not found - for new registrations, retry a few times
+            if (skipRetry) {
+              console.log('User not found (skipping retries for login flow)');
+              setUserData(null);
+              return;
+            }
+
+            console.log('User not found in database, retrying...');
+            await new Promise(resolve => setTimeout(resolve, 500));
+            // Retry by calling this function again
+            return fetchUserData(supabaseUser, skipRetry);
+          }
+
+          throw new Error(errorData.error || 'Failed to fetch user data');
         }
+
+        const { userData } = await response.json();
+
+        if (userData) {
+          console.log(`✅ userData loaded successfully:`, { id: userData.id, role: userData.role, name: userData.name });
+          setUserData(userData);
+          setError(null);
+        } else {
+          console.log(`❌ userData is null in response`);
+          setUserData(null);
+        }
+      } catch (err) {
+        console.error("❌ Error fetching user data:", err);
         
         setError(err as Error);
         setUserData(null);
@@ -190,7 +160,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } else {
       setUserData(null);
     }
-  }, [isTokenExpired, clearAuthStorage]);
+  }, [clearAuthStorage]);
 
   const refreshUserData = useCallback(async () => {
     if (user) {
@@ -329,7 +299,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             if (session?.user) {
               setUser(session.user);
               setAccessToken(session.access_token || null);
-              await fetchUserData(session.user);
+              // Pass the access token directly to avoid timing issues with setSession()
+              await fetchUserData(session.user, true, session.access_token || undefined);
             } else {
               if (isMountedRef.current) {
                 setUser(null);
@@ -348,7 +319,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setUser(session?.user ?? null);
             setAccessToken(session?.access_token || null);
             if (session?.user) {
-              await fetchUserData(session.user);
+              // Skip retries for auth state changes, pass token directly
+              await fetchUserData(session.user, true, session.access_token || undefined);
             } else {
               setUserData(null);
             }

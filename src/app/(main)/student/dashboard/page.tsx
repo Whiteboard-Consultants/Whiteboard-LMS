@@ -26,19 +26,44 @@ export default function StudentDashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (authLoading) return;
+    console.log('🎯 Student Dashboard - authLoading:', authLoading, 'user:', user?.email, 'userData:', userData);
+    
+    if (authLoading) {
+      console.log('⏳ Auth still loading, waiting...');
+      return;
+    }
+    
+    // CRITICAL: Wait for userData to be available before checking role
+    if (user && !userData) {
+      console.log('⏳ User loaded but userData not ready yet, waiting for next update...');
+      return;
+    }
+    
+    // Redirect if user is not a student
+    if (user && userData?.role && userData.role !== 'student') {
+        console.log('🔄 User role is', userData.role, ', redirecting to correct dashboard...');
+        if (userData.role === 'instructor') {
+            router.push('/instructor/dashboard');
+        } else if (userData.role === 'admin') {
+            router.push('/admin/dashboard');
+        }
+        return;
+    }
     
     if (user && userData?.role === 'student' && !userData.isProfileComplete) {
+        console.log('⚠️ Profile incomplete, redirecting to complete-profile');
         router.push('/student/complete-profile');
         return;
     }
     
     if (user && userData?.status === 'suspended') {
+        console.log('⚠️ Account suspended, redirecting to login');
         router.push('/login');
         return;
     }
     
     if (!user) {
+        console.log('❌ No user, clearing courses');
         setLoading(false);
         setEnrolledCourses([]);
         return;

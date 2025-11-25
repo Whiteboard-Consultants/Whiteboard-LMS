@@ -18,7 +18,15 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: true
+    detectSessionInUrl: true,
+    storage: typeof window !== 'undefined' ? window.localStorage : null,
+    storageKey: 'sb-auth-token',
+    flowType: 'pkce'
+  },
+  global: {
+    headers: {
+      'Content-Type': 'application/json',
+    }
   }
 });
 
@@ -27,6 +35,11 @@ export const supabaseAdmin = supabaseServiceKey ? createClient(supabaseUrl, supa
   auth: {
     autoRefreshToken: false,
     persistSession: false
+  },
+  global: {
+    headers: {
+      'Content-Type': 'application/json',
+    }
   }
 }) : null;
 

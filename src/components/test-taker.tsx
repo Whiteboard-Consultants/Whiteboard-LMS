@@ -555,7 +555,15 @@ export default function TestTaker({ testId }: TestTakerProps) {
                                 </div>
                             </div>
                         )}
-                        <p className="text-sm font-semibold mb-2">Question {currentQuestionIndex + 1}</p>
+                        <p className="text-sm font-semibold mb-2">
+                          <span>Question {currentQuestionIndex + 1}</span>
+                          <span className="ml-4 font-medium">
+                            <span className="text-green-700 dark:text-green-400">+{currentQuestion.marks} marks</span>
+                            {currentQuestion.negativeMarks ? (
+                              <span className="ml-2 text-red-700 dark:text-red-400">-{currentQuestion.negativeMarks}</span>
+                            ) : null}
+                          </span>
+                        </p>
                         <div className="prose dark:prose-invert max-w-none mb-6">
                            <RichTextRenderer content={currentQuestion.text} />
                         </div>

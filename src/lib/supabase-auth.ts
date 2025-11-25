@@ -81,75 +81,85 @@ export async function signUpWithEmail(email: string, password: string, userData:
 // Sign in with email and password
 export async function signInWithEmail(email: string, password: string) {
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    console.log('🔐 Starting sign in for:', email);
+    
+    // Use API proxy to bypass CORS issues with Supabase auth
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    
+    try {
+      console.log('📡 Sending request to /api/auth/signin');
+      const response = await fetch('/api/auth/signin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+        credentials: 'include',
+        signal: controller.signal,
+      });
 
-    if (error) {
-      console.error('Auth sign in error:', error);
+      clearTimeout(timeout);
+      console.log('📦 Response received, status:', response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('❌ API error:', errorData);
+        throw new Error(errorData.error || 'Sign in failed');
+      }
+
+      console.log('✅ Response OK, parsing JSON...');
+      const responseData = await response.json();
+      console.log('📄 Response data keys:', Object.keys(responseData));
       
-      // Provide more specific error messages
-      if (error.message === 'Invalid login credentials') {
-        throw new Error('Invalid email or password. Please check your credentials and try again. If you registered recently, make sure you\'ve confirmed your email address.');
-      } else if (error.message.includes('Email not confirmed')) {
-        throw new Error('Please check your email and click the confirmation link before signing in.');
-      } else if (error.message.includes('Too many requests')) {
-        throw new Error('Too many login attempts. Please wait a few minutes before trying again.');
-      } else {
-        throw new Error(`Sign in failed: ${error.message}`);
-      }
-    }
+      const { session, user } = responseData;
+      console.log('👤 User:', user?.email, 'Session exists:', !!session);
 
-    if (!data.user) {
-      throw new Error('Sign in failed - no user returned');
-    }
-
-    console.log('Auth sign in successful for:', data.user.email);
-
-    // Get user data from database
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', data.user.id)
-      .single();
-
-    if (userError) {
-      console.error('Error fetching user profile:', userError);
-      // Don't fail the login if we can't fetch the profile - the trigger might need time
-      console.log('User profile might still be creating via trigger...');
-      
-      // Return successful auth but without user data
-      return { data, error: null, userData: null };
-    }
-
-    // Check user status if we have user data
-    if (userData) {
-      if (userData.status === 'pending') {
-        await supabase.auth.signOut();
-        throw new Error('Your account is pending approval. You\'ll be notified via email once approved.');
+      if (!session || !user) {
+        console.error('❌ Missing session or user:', { hasSession: !!session, hasUser: !!user });
+        throw new Error('Sign in failed - no session returned');
       }
 
-      if (userData.status === 'suspended') {
-        await supabase.auth.signOut();
-        throw new Error('Your account has been suspended. Please contact support for more information.');
-      }
+      console.log('🔑 Setting session in Supabase client (non-blocking)...');
+      // Set the session in Supabase client - don't wait for it to complete
+      // Just fire and forget, the listener will handle it
+      supabase.auth.setSession(session).then(() => {
+        console.log('✅ setSession completed');
+      }).catch((err) => {
+        console.error('⚠️ setSession error (non-blocking):', err);
+      });
 
-      if (userData.status === 'deleted') {
-        await supabase.auth.signOut();
-        throw new Error('Your account has been deactivated. Please contact support for more information.');
-      }
+      console.log('✅ Auth sign in successful for:', user.email);
 
-      // Update last login
-      await supabase
-        .from('users')
-        .update({ updated_at: new Date().toISOString() })
-        .eq('id', data.user.id);
+      // Return immediately - don't fetch user data here
+      // The auth hook's SIGNED_IN event will fetch the correct role
+      // We default to student for initial redirect
+      return { data: { user, session }, error: null, userData: null };
+    } catch (timeoutError) {
+      clearTimeout(timeout);
+      if (timeoutError instanceof Error && timeoutError.name === 'AbortError') {
+        console.error('⏱️ Request timeout');
+        throw new Error('Login request timed out. Please check your connection and try again.');
+      }
+      throw timeoutError;
     }
-
-    return { data, error: null, userData };
   } catch (error) {
-    console.error('Sign in error:', error);
+    console.error('❌ Sign in error:', error);
+    
+    // Provide more specific error messages
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    if (errorMessage === 'Invalid login credentials') {
+      return { 
+        data: null, 
+        error: new Error('Invalid email or password. Please check your credentials and try again.'), 
+        userData: null 
+      };
+    } else if (errorMessage.includes('Email not confirmed')) {
+      return { 
+        data: null, 
+        error: new Error('Please check your email and click the confirmation link before signing in.'), 
+        userData: null 
+      };
+    }
+    
     return { data: null, error, userData: null };
   }
 }

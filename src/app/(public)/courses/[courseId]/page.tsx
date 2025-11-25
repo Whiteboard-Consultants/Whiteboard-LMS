@@ -11,6 +11,7 @@ import { Metadata } from "next";
 import { Card, CardContent } from "@/components/ui/card";
 import { RichTextRenderer } from "@/components/rich-text-renderer";
 import { Breadcrumb } from "@/components/breadcrumb";
+import { CoursePurchaseCard } from "@/components/course-purchase-card";
 
 // Cache course details for 1 hour - Improves TTFB significantly
 export const revalidate = 3600;
@@ -210,50 +211,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
                         </div>
 
                         <div className="lg:col-span-1">
-                            <Card className="sticky top-24 shadow-lg">
-                                <CardContent className="p-6">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className="text-3xl font-bold text-primary dark:text-white flex items-center gap-1">
-                                            {course.type === 'paid' ? (
-                                                <>
-                                                <IndianRupee className="h-7 w-7" />
-                                                {course.price}
-                                                </>
-                                            ) : (
-                                                'Free'
-                                            )}
-                                        </div>
-                                        {course.originalPrice && course.type === 'paid' && (
-                                            <span className="text-lg text-muted-foreground line-through"><IndianRupee className="inline h-4 w-4"/>{course.originalPrice}</span>
-                                        )}
-                                    </div>
-                                    {course.type === 'free' ? (
-                                        <Button size="lg" className="w-full mb-2" asChild>
-                                            <Link href="/auth/register">
-                                                Enroll Now - Free
-                                            </Link>
-                                        </Button>
-                                    ) : (
-                                        <>
-                                            <Button size="lg" className="w-full mb-2">
-                                                <ShoppingCart className="mr-2 h-5 w-5" />
-                                                Add to Cart
-                                            </Button>
-                                            <Button size="lg" variant="outline" className="w-full">Buy Now</Button>
-                                        </>
-                                    )}
-                                    <div className="text-xs text-center text-muted-foreground mt-2">
-                                        30-Day Money-Back Guarantee • <Link href="/refund-policy" className="hover:underline text-blue-600 dark:text-blue-400">See refund details</Link>
-                                    </div>
-
-                                    <div className="mt-6 space-y-3 text-sm">
-                                        <h3 className="font-bold text-md">This course includes:</h3>
-                                        {course.duration && <div className="flex items-center gap-2 text-muted-foreground"><Clock className="h-4 w-4" /> <span>{course.duration} on-demand video</span></div>}
-                                        {course.hasPracticeTests && <div className="flex items-center gap-2 text-muted-foreground"><Award className="h-4 w-4" /> <span>Practice tests</span></div>}
-                                        <div className="flex items-center gap-2 text-muted-foreground"><Award className="h-4 w-4" /> <span>Certificate of completion</span></div>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                            <CoursePurchaseCard course={course} />
                         </div>
                     </div>
                 </div>

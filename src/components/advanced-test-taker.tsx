@@ -227,6 +227,12 @@ export function AdvancedTestTaker({
               <CardTitle className="text-xl">{test.title}</CardTitle>
               <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
                 <span>Question {currentQuestionIndex + 1} of {questions.length}</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-green-700 dark:text-green-400">+{currentQuestion.marks} marks</span>
+                  {currentQuestion.negativeMarks ? (
+                    <span className="font-medium text-red-700 dark:text-red-400">-{currentQuestion.negativeMarks}</span>
+                  ) : null}
+                </div>
                 {showTimer && (
                   <div className={cn(
                     "flex items-center gap-1 font-mono",

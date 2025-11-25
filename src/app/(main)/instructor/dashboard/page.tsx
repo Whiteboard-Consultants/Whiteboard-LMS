@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { PlusCircle, Lightbulb, Edit, Users, BookOpen, StarIcon, DollarSign } from "lucide-react";
 import { subDays } from 'date-fns';
 
@@ -28,6 +29,7 @@ import { RevenueCard } from "@/components/revenue-card";
 
 export default function InstructorDashboardPage() {
   const { user, userData, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [newEnrollments, setNewEnrollments] = useState(0);
@@ -37,6 +39,24 @@ export default function InstructorDashboardPage() {
     if (authLoading) {
       setLoading(true);
       return;
+    }
+
+    // CRITICAL: Wait for userData to be available before checking role
+    if (user && !userData) {
+      console.log('⏳ User loaded but userData not ready yet, waiting for next update...');
+      setLoading(true);
+      return;
+    }
+
+    // Redirect if user is not an instructor
+    if (user && userData?.role && userData.role !== 'instructor') {
+        console.log('🔄 User role is', userData.role, ', redirecting to correct dashboard...');
+        if (userData.role === 'student') {
+            router.push('/student/dashboard');
+        } else if (userData.role === 'admin') {
+            router.push('/admin/dashboard');
+        }
+        return;
     }
 
     if (!user) {

@@ -18,14 +18,14 @@ function isRazorpayError(error: unknown): error is { error: { description: strin
 
 
 export async function POST(request: Request) {
-  // Hardcoding keys as a temporary solution for this environment.
-  // In a production environment, these should come from process.env.
-  const keyId = "rzp_test_z6HEooldB7tRcd";
-  const keySecret = "l1FrFqoJGnZy9sjkBsetEriY";
+  // Read keys from environment variables
+  const keyId = process.env.RAZORPAY_KEY_ID;
+  const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
   if (!keyId || !keySecret) {
-    console.error('Server configuration error: Razorpay keys not found.');
-    return NextResponse.json({ error: 'Server configuration error: Razorpay keys not found.' }, { status: 500 });
+    console.error('Server configuration error: Razorpay keys not found in environment variables.');
+    console.error('Missing:', { keyId: !keyId ? 'RAZORPAY_KEY_ID' : '', keySecret: !keySecret ? 'RAZORPAY_KEY_SECRET' : '' });
+    return NextResponse.json({ error: 'Server configuration error: Razorpay keys not found in environment variables.' }, { status: 500 });
   }
 
   const razorpay = new Razorpay({
@@ -82,12 +82,16 @@ export async function POST(request: Request) {
       receipt: `receipt_order_${new Date().getTime()}`,
     };
 
+    console.log('Creating Razorpay order with options:', options);
+    console.log('Razorpay Key ID being used:', keyId?.substring(0, 10) + '...');
+    
     const order = await razorpay.orders.create(options);
 
     return NextResponse.json({ order, keyId }, { status: 200 });
 
   } catch (error: unknown) {
     console.error('SERVER ERROR CREATING RAZORPAY ORDER:', error);
+    console.error('Full error object:', JSON.stringify(error, null, 2));
     
     if (isRazorpayError(error)) {
       return NextResponse.json({ error: `Razorpay API Error: ${error.error.description}` }, { status: 500 });
