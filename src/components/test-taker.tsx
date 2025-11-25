@@ -508,7 +508,7 @@ export default function TestTaker({ testId }: TestTakerProps) {
                                 const sectionIndex = sections.findIndex(s => s.id === section.id);
                                 const currentIndex = currentSectionId ? sections.findIndex(s => s.id === currentSectionId) : -1;
                                 const isSubmitted = submittedSections.has(section.id);
-                                const isLocked = currentSectionId && sectionIndex > currentIndex && !submittedSections.has(currentSectionId);
+                                const isLocked = !!(currentSectionId && sectionIndex > currentIndex && !submittedSections.has(currentSectionId));
                                 
                                 return (
                                   <TabsTrigger 
