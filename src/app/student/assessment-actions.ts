@@ -2,6 +2,11 @@
 
 import { revalidatePath } from 'next/cache';
 import { supabase, supabaseAdmin } from '@/lib/supabase';
+import {
+  calculateSectionPerformance,
+  generateImprovementSuggestions,
+  saveImprovementSuggestions
+} from '@/app/student/improvement-suggestions-actions';
 
 interface SubmitTestParams {
   testId: string;
@@ -66,6 +71,38 @@ export async function submitTest({
       return { success: false, error: 'Enrollment not found.' };
     }
 
+    // Get test sections and questions for improvement suggestions analysis
+    const { data: testSections, error: sectionsError } = await supabase
+      .from('test_sections')
+      .select('*')
+      .eq('test_id', testId)
+      .order('order_number');
+
+    const { data: testQuestions, error: questionsError } = await supabase
+      .from('test_questions')
+      .select('*')
+      .eq('test_id', testId)
+      .order('order_number');
+
+    // Calculate section performance for improvement suggestions
+    let sectionPerformance: any[] = [];
+    let improvementSuggestions: any[] = [];
+
+    if (!sectionsError && testSections && testQuestions && testSections.length > 0) {
+      sectionPerformance = calculateSectionPerformance(
+        testQuestions,
+        answerDetails,
+        testSections
+      );
+
+      // Generate improvement suggestions based on section performance
+      improvementSuggestions = generateImprovementSuggestions(
+        sectionPerformance,
+        percentage,
+        test.certificate_minimum_score ?? 70
+      );
+    }
+
     // Create test attempt record
     const attemptData = {
       id: crypto.randomUUID(),
@@ -78,9 +115,12 @@ export async function submitTest({
       score: correctAnswers,
       total_questions: totalQuestions,
       percentage: percentage,
-      passed: percentage >= 80, // Using the new 80% threshold
+      passed: percentage >= 70, // Using the new 70% threshold
       submitted_at: new Date().toISOString(),
-      time_taken: null // Can be calculated if needed
+      time_taken: null, // Can be calculated if needed
+      section_scores: sectionPerformance.length > 0 ? sectionPerformance : null,
+      weak_areas: improvementSuggestions.filter(s => s.severity !== 'low').map(s => ({ area: s.area, score: s.performanceScore, severity: s.severity })) || null,
+      improvement_suggestions: improvementSuggestions.length > 0 ? improvementSuggestions : null
     };
 
     const { data: testAttempt, error: attemptError } = await supabase
@@ -104,9 +144,9 @@ export async function submitTest({
       enrollmentUpdate.progress = 100;
       enrollmentUpdate.completed = true;
 
-      // Set certificate eligibility based on new 80% threshold
+      // Set certificate eligibility based on new 70% threshold
       if (test.courses?.has_certificate) {
-        enrollmentUpdate.certificate_status = percentage >= 80 ? 'eligible' : 'not_eligible';
+        enrollmentUpdate.certificate_status = percentage >= 70 ? 'eligible' : 'not_eligible';
       }
     }
 
@@ -121,7 +161,7 @@ export async function submitTest({
     }
 
     // Update course statistics if needed
-    if (test.is_final_assessment && percentage >= 80) {
+    if (test.is_final_assessment && percentage >= 70) {
       // Increment course completion count
       const { error: courseUpdateError } = await supabase
         .from('courses')
@@ -145,8 +185,9 @@ export async function submitTest({
       success: true, 
       attemptId: testAttempt.id,
       percentage,
-      passed: percentage >= 80,
-      certificateEligible: test.courses?.has_certificate && percentage >= 80
+      passed: percentage >= 70,
+      certificateEligible: test.courses?.has_certificate && percentage >= 70,
+      improvementSuggestions: improvementSuggestions.length > 0 ? improvementSuggestions : null
     };
 
   } catch (error) {
@@ -311,7 +352,9 @@ export async function getTestAttemptForResults(attemptId: string) {
         tests (
           id,
           title,
-          course_title
+          course_title,
+          has_certification,
+          certificate_minimum_score
         )
       `)
       .eq('id', attemptId)
@@ -353,6 +396,9 @@ export async function getTestAttemptForResults(attemptId: string) {
       console.log('Reconstructed questions:', finalQuestionsArray);
     }
 
+    // Calculate percentage
+    const percentage = attempt.total_questions > 0 ? Math.round((attempt.score / attempt.total_questions) * 100) : 0;
+
     // Transform the data to match the QuizAttemptData interface
     const transformedAttempt = {
       id: attempt.id,
@@ -376,7 +422,13 @@ export async function getTestAttemptForResults(attemptId: string) {
       courses: {
         id: attempt.course_id,
         title: attempt.tests?.course_title || ''
-      }
+      },
+      // Improvement suggestions data
+      percentage: percentage,
+      certificateEligible: attempt.tests?.has_certification && percentage >= (attempt.tests?.certificate_minimum_score ?? 70),
+      improvementSuggestions: attempt.improvement_suggestions || [],
+      sectionScores: attempt.section_scores || [],
+      weakAreas: attempt.weak_areas || []
     };
 
     return transformedAttempt;

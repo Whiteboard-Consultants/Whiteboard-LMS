@@ -4,7 +4,7 @@
 -- Add certification columns to tests table
 ALTER TABLE tests 
 ADD COLUMN IF NOT EXISTS has_certification BOOLEAN DEFAULT false,
-ADD COLUMN IF NOT EXISTS certificate_minimum_score INTEGER DEFAULT 80 CHECK (certificate_minimum_score >= 0 AND certificate_minimum_score <= 100);
+ADD COLUMN IF NOT EXISTS certificate_minimum_score INTEGER DEFAULT 70 CHECK (certificate_minimum_score >= 0 AND certificate_minimum_score <= 100);
 
 -- Create index for querying tests with certification
 CREATE INDEX IF NOT EXISTS idx_tests_has_certification ON tests(has_certification);

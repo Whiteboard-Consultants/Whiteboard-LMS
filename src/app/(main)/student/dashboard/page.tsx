@@ -18,12 +18,14 @@ import { useRouter } from "next/navigation";
 import { AnnouncementBanner } from "@/components/announcement-banner";
 import { StudentNotificationCenter } from "@/components/student-notification-center";
 import { RecommendedCourses } from "@/components/recommended-courses";
+import { CompactImprovementSuggestions } from "@/components/improvement-suggestions";
 
 export default function StudentDashboardPage() {
   const { user, userData, loading: authLoading } = useAuth();
   const router = useRouter();
   const [enrolledCourses, setEnrolledCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
+  const [latestTestAttempt, setLatestTestAttempt] = useState<any>(null);
 
   useEffect(() => {
     console.log('🎯 Student Dashboard - authLoading:', authLoading, 'user:', user?.email, 'userData:', userData);
@@ -169,6 +171,27 @@ export default function StudentDashboardPage() {
 
     fetchEnrolledCourses();
 
+    // Fetch latest test attempt with improvement suggestions
+    const fetchLatestTestAttempt = async () => {
+      try {
+        const { data: attempts, error } = await supabase
+          .from('test_attempts')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('submitted_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (!error && attempts) {
+          setLatestTestAttempt(attempts);
+        }
+      } catch (err) {
+        console.error('Error fetching latest test attempt:', err);
+      }
+    };
+
+    fetchLatestTestAttempt();
+
     // Set up real-time subscription for enrollments
     const channel = supabase
       .channel(`user_${user.id}_enrollments`)
@@ -221,6 +244,19 @@ export default function StudentDashboardPage() {
 
       <StudentNotificationCenter />
       <AnnouncementBanner />
+      
+      {/* Improvement Suggestions Widget */}
+      {latestTestAttempt?.improvement_suggestions && latestTestAttempt.improvement_suggestions.length > 0 && (
+        <div className="mb-8">
+          <h3 className="text-lg font-semibold mb-4">📚 Areas to Focus On</h3>
+          <CompactImprovementSuggestions 
+            suggestions={latestTestAttempt.improvement_suggestions}
+          />
+          <Link href={`/student/quiz-results/${latestTestAttempt.id}`} className="mt-3 inline-block">
+            <Button variant="outline" size="sm">View Full Improvement Plan</Button>
+          </Link>
+        </div>
+      )}
       
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
         <StatCard

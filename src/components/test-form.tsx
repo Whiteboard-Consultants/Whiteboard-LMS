@@ -44,7 +44,7 @@ const formSchema = z.object({
   courseId: z.string().optional(),
   instructorId: z.string().optional(),
   hasCertification: z.boolean().default(false),
-  certificateMinimumScore: z.coerce.number().int().min(0).max(100).default(80),
+  certificateMinimumScore: z.coerce.number().int().min(0).max(100).default(70),
 });
 
 interface TestFormProps {

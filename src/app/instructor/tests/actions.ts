@@ -60,7 +60,7 @@ export async function createTest(testData: any) {
                 allow_review: testData.allowReview ?? true,
                 question_count: 0,
                 has_certification: testData.hasCertification ?? false,
-                certificate_minimum_score: testData.certificateMinimumScore ?? 80
+                certificate_minimum_score: testData.certificateMinimumScore ?? 70
             })
             .select()
             .single();
