@@ -262,6 +262,8 @@ export interface Test {
     maxAttempts?: number; // max attempts allowed per student
     showResults: boolean; // whether to show results immediately after completion
     allowReview: boolean; // whether to allow review of answers after completion
+    hasCertification?: boolean; // whether this test provides a certificate
+    certificateMinimumScore?: number; // minimum score required for certificate (0-100)
 }
 
 export type AnswerStatus = 'not-visited' | 'not-answered' | 'answered' | 'marked' | 'answered-and-marked';

@@ -58,7 +58,9 @@ export async function createTest(testData: any) {
                 max_attempts: testData.maxAttempts || null,
                 show_results: testData.showResults ?? true,
                 allow_review: testData.allowReview ?? true,
-                question_count: 0
+                question_count: 0,
+                has_certification: testData.hasCertification ?? false,
+                certificate_minimum_score: testData.certificateMinimumScore ?? 80
             })
             .select()
             .single();
@@ -133,6 +135,8 @@ export async function updateTest(testId: string, testData: any) {
         if (testData.maxAttempts !== undefined) updateData.max_attempts = testData.maxAttempts;
         if (testData.showResults !== undefined) updateData.show_results = testData.showResults;
         if (testData.allowReview !== undefined) updateData.allow_review = testData.allowReview;
+        if (testData.hasCertification !== undefined) updateData.has_certification = testData.hasCertification;
+        if (testData.certificateMinimumScore !== undefined) updateData.certificate_minimum_score = testData.certificateMinimumScore;
 
         const { error } = await db
             .from('tests')

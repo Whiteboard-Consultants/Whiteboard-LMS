@@ -43,6 +43,8 @@ const formSchema = z.object({
   type: z.enum(["practice", "final", "assessment", "quiz"]),
   courseId: z.string().optional(),
   instructorId: z.string().optional(),
+  hasCertification: z.boolean().default(false),
+  certificateMinimumScore: z.coerce.number().int().min(0).max(100).default(80),
 });
 
 interface TestFormProps {
@@ -331,6 +333,71 @@ export function TestForm({ initialData }: TestFormProps) {
                 )
               }
             />
+
+            {/* Certification Section */}
+            <div className="border-t pt-6">
+              <h3 className="text-lg font-semibold mb-4">Certification Settings</h3>
+              <FormField
+                control={form.control}
+                name="hasCertification"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 space-y-0">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">Enable Certification</FormLabel>
+                      <FormDescription>
+                        Allow students to earn a certificate upon passing this test
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-sm font-medium ${field.value ? 'text-green-600' : 'text-gray-600'}`}>
+                          {field.value ? 'Yes' : 'No'}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => field.onChange(!field.value)}
+                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                            field.value ? 'bg-green-600' : 'bg-gray-300'
+                          }`}
+                        >
+                          <span
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                              field.value ? 'translate-x-6' : 'translate-x-1'
+                            }`}
+                          />
+                        </button>
+                      </div>
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              {/* Show minimum score field only if certification is enabled */}
+              {form.watch('hasCertification') && (
+                <FormField
+                  control={form.control}
+                  name="certificateMinimumScore"
+                  render={({ field }) => (
+                    <FormItem className="mt-4">
+                      <FormLabel>Minimum Score for Certificate (%)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          min="0" 
+                          max="100" 
+                          placeholder="80"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Students must score at least this percentage to be eligible for a certificate (0-100%)
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+            </div>
           </CardContent>
           <CardFooter className="justify-end">
             <Button type="submit" disabled={isSubmitting || (isEditMode && !form.formState.isDirty)}>
