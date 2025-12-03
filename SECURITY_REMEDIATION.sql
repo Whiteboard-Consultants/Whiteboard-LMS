@@ -58,11 +58,13 @@ COMMENT ON TABLE public.users IS 'RLS enabled for security';
 -- The faq_management_view is exposing auth.users to anonymous users and has
 -- SECURITY DEFINER which is a security risk
 
--- Step 1: Drop the problematic view
+-- Step 1: Drop the problematic view and any dependent views
 DROP VIEW IF EXISTS public.faq_management_view CASCADE;
+DROP VIEW IF EXISTS public.published_faqs_view CASCADE;
 
--- Step 2: Recreate the view WITHOUT SECURITY DEFINER
-CREATE VIEW public.faq_management_view AS
+-- Step 2: Recreate faq_management_view WITHOUT SECURITY DEFINER
+-- Note: Explicitly using SECURITY INVOKER (the default, but making it explicit)
+CREATE VIEW public.faq_management_view WITH (SECURITY_INVOKER) AS
 SELECT 
   f.id,
   f.question,
@@ -76,17 +78,15 @@ FROM public.faqs f
 WHERE f.is_published = true;
 
 COMMENT ON VIEW public.faq_management_view IS 
-'Published FAQ management view - SECURITY INVOKER (default) for proper RLS enforcement';
+'Published FAQ management view - SECURITY INVOKER for proper RLS enforcement';
 
 -- ============================================================================
 -- PART 3: FIX PUBLISHED FAQS VIEW - REMOVE SECURITY DEFINER
 -- ============================================================================
 
--- Drop existing view with SECURITY DEFINER
-DROP VIEW IF EXISTS public.published_faqs_view CASCADE;
-
--- Recreate without SECURITY DEFINER
-CREATE VIEW public.published_faqs_view AS
+-- Recreate published_faqs_view WITHOUT SECURITY DEFINER
+-- Note: Explicitly using SECURITY INVOKER (the default, but making it explicit)
+CREATE VIEW public.published_faqs_view WITH (SECURITY_INVOKER) AS
 SELECT 
   id,
   question,
@@ -98,7 +98,7 @@ FROM public.faqs
 WHERE is_published = true;
 
 COMMENT ON VIEW public.published_faqs_view IS 
-'Published FAQs view - SECURITY INVOKER (default) for proper RLS enforcement';
+'Published FAQs view - SECURITY INVOKER for proper RLS enforcement';
 
 -- ============================================================================
 -- PART 4: VERIFY RLS POLICIES AND ADD MISSING ONES
