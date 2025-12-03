@@ -19,14 +19,11 @@ DROP POLICY IF EXISTS "Everyone can view active announcements" ON public.announc
 DROP POLICY IF EXISTS "Admins can manage all announcements" ON public.announcements;
 DROP POLICY IF EXISTS "Admin can manage announcements" ON public.announcements;
 
--- Recreate with safe policies
--- Policy: Everyone can view active announcements
+-- ANNOUNCEMENTS TABLE: Public read, admin writes through service role
+DROP POLICY IF EXISTS "Everyone can view active announcements" ON public.announcements;
+
 CREATE POLICY "Everyone can view active announcements" ON public.announcements
     FOR SELECT USING (is_active = true);
-
--- Policy: Only service role (admin client) can create/update/delete via direct admin access
--- Regular users cannot manage announcements through RLS - must use admin client
--- This is enforced through application logic, not RLS
 
 -- Enable RLS on carts table
 ALTER TABLE public.carts ENABLE ROW LEVEL SECURITY;
@@ -110,6 +107,18 @@ CREATE POLICY "Public can view instructor profiles" ON public.users
 GRANT SELECT ON public.users TO authenticated;
 GRANT UPDATE ON public.users TO authenticated;
 GRANT INSERT ON public.users TO authenticated;
+
+-- Grant permissions to service_role (admin/backend operations)
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.users TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.announcements TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.carts TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.courses TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.enrollments TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.lessons TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.test_questions TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.test_sections TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.tests TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.test_attempts TO service_role;
 
 -- Grant permissions on other tables
 GRANT SELECT ON public.announcements TO authenticated;
