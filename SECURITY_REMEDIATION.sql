@@ -189,6 +189,7 @@ CREATE POLICY "Anyone can view tests" ON public.tests
 -- TEST_ATTEMPTS: Users see their own attempts
 DROP POLICY IF EXISTS "Users can view their own attempts" ON public.test_attempts;
 DROP POLICY IF EXISTS "Users can create attempts" ON public.test_attempts;
+DROP POLICY IF EXISTS "Users can create test attempts" ON public.test_attempts;
 CREATE POLICY "Users can view their own attempts" ON public.test_attempts
     FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can create test attempts" ON public.test_attempts
