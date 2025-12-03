@@ -152,13 +152,13 @@ WHERE schemaname = 'public' AND tablename IN
 ORDER BY tablename;
 
 -- 2. Verify views don't have SECURITY DEFINER:
-SELECT schemaname, viewname, view_definition
+SELECT table_schema, table_name, view_definition
 FROM information_schema.views
-WHERE schemaname = 'public' AND viewname IN 
+WHERE table_schema = 'public' AND table_name IN 
   ('faq_management_view', 'published_faqs_view');
 
 -- 3. Verify RLS policies exist:
-SELECT tablename, policyname, permissive, qual, with_check
+SELECT schemaname, tablename, policyname, permissive, qual, with_check
 FROM pg_policies
 WHERE schemaname = 'public'
 ORDER BY tablename, policyname;
