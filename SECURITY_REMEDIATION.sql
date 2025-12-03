@@ -19,11 +19,12 @@ DROP POLICY IF EXISTS "Everyone can view active announcements" ON public.announc
 DROP POLICY IF EXISTS "Admins can manage all announcements" ON public.announcements;
 DROP POLICY IF EXISTS "Admin can manage announcements" ON public.announcements;
 
--- ANNOUNCEMENTS TABLE: Public read, admin writes through service role
+-- ANNOUNCEMENTS TABLE: Everyone can read, admins write via service role
 DROP POLICY IF EXISTS "Everyone can view active announcements" ON public.announcements;
 
-CREATE POLICY "Everyone can view active announcements" ON public.announcements
-    FOR SELECT USING (is_active = true);
+-- Simple permissive policy: anyone can view all announcements (no column checks needed)
+CREATE POLICY "Everyone can view announcements" ON public.announcements
+    FOR SELECT USING (true);
 
 -- Enable RLS on carts table
 ALTER TABLE public.carts ENABLE ROW LEVEL SECURITY;
