@@ -4,9 +4,16 @@
 
 import { revalidatePath } from 'next/cache';
 import { v4 as uuidv4 } from 'uuid';
+import { createClient } from '@supabase/supabase-js';
 
-import { createServerSupabaseClient } from '@/lib/supabase-server';
 import type { Lesson } from '@/types';
+
+function getAdminClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+    process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+  );
+}
 
 export async function createLesson(lessonData: Partial<Omit<Lesson, 'id' | 'createdAt' | 'order'>>, currentLessonCount: number) {
     console.log('🚀 CREATE LESSON ACTION CALLED');
@@ -19,8 +26,8 @@ export async function createLesson(lessonData: Partial<Omit<Lesson, 'id' | 'crea
     }
 
     try {
-        // Get Supabase client
-        const supabase = await createServerSupabaseClient();
+        // Get admin client (service_role) to bypass RLS
+        const supabase = getAdminClient();
         console.log('✅ Supabase client created for lesson creation');
         
         // Generate lesson ID
@@ -101,7 +108,7 @@ export async function updateLesson(lessonId: string, courseId: string, data: Par
     }
 
     try {
-        const supabase = await createServerSupabaseClient();
+        const supabase = getAdminClient();
         
         // Prepare update data for Supabase schema
         const updateData: any = {};
@@ -157,7 +164,7 @@ export async function deleteLesson(lessonId: string, courseId: string, assetUrl?
     }
 
     try {
-        const supabase = await createServerSupabaseClient();
+        const supabase = getAdminClient();
         
         // Check if lesson exists
         const { data: lesson, error: lessonError } = await supabase
@@ -253,7 +260,7 @@ export async function updateLessonOrder(items: { id: string; order: number }[], 
     console.log('Items to update:', items.length, 'Course ID:', courseId);
     
     try {
-        const supabase = await createServerSupabaseClient();
+        const supabase = getAdminClient();
         
         // Update each lesson's order - Supabase doesn't have batch operations like Firebase
         // but we can use Promise.all for concurrent updates

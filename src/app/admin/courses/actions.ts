@@ -2,15 +2,18 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { createClient } from '@supabase/supabase-js';
 
 // TODO: Migrate to Supabase course functionality
 export async function deleteCourse(courseId: string, imageUrl: string) {
   try {
     console.log('🗑️ Starting course deletion process for:', courseId);
     
-    // Dynamically import Supabase client
-    const { createServerSupabaseClient } = await import('@/lib/supabase-server');
-    const supabase = await createServerSupabaseClient();
+    // Use admin client (service_role) to bypass RLS
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+      process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+    );
     
     // First, delete all enrollments associated with the course
     console.log('🎓 Deleting enrollments...');
