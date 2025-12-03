@@ -2,7 +2,7 @@
 'use server';
 
 import { revalidatePath } from "next/cache";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@supabase/supabase-js";
 import type { Announcement } from "@/types";
 
 export async function createAnnouncement(data: Omit<Announcement, 'id' | 'createdAt'>) {
@@ -19,7 +19,13 @@ export async function createAnnouncement(data: Omit<Announcement, 'id' | 'create
     };
     
     try {
-        const { error } = await supabase
+        // Use admin client (service_role) to bypass RLS for announcements insertion
+        const supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+            process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+        );
+
+        const { error } = await supabaseAdmin
             .from('announcements')
             .insert({
                 title: data.title,
@@ -49,7 +55,13 @@ export async function deleteAnnouncement(id: string) {
         return { success: false, error: 'Announcement ID is required.' };
     }
     try {
-        const { error } = await supabase
+        // Use admin client (service_role) to bypass RLS for announcements deletion
+        const supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+            process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+        );
+
+        const { error } = await supabaseAdmin
             .from('announcements')
             .delete()
             .eq('id', id);
