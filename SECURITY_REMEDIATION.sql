@@ -99,8 +99,37 @@ CREATE POLICY "Users can create own profile" ON public.users
 CREATE POLICY "Public can view instructor profiles" ON public.users
     FOR SELECT USING (role = 'instructor');
 
--- Policy 5: Service role (admin operations) use supabase admin client which bypasses RLS
--- No need to create a policy for this - admin client uses service_role which bypasses RLS
+-- Policy 5: Anonymous/unauthenticated can view instructor profiles
+CREATE POLICY "Anyone can view instructor profiles" ON public.users
+    FOR SELECT USING (role = 'instructor');
+
+-- ============================================================================
+-- GRANT PERMISSIONS TO AUTHENTICATED USERS
+-- ============================================================================
+
+-- Grant SELECT on users table to authenticated users (for their own profile and instructor profiles)
+GRANT SELECT ON public.users TO authenticated;
+GRANT UPDATE ON public.users TO authenticated;
+GRANT INSERT ON public.users TO authenticated;
+
+-- Grant permissions on other tables
+GRANT SELECT ON public.announcements TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.carts TO authenticated;
+GRANT SELECT ON public.courses TO authenticated;
+GRANT SELECT, INSERT ON public.enrollments TO authenticated;
+GRANT SELECT ON public.lessons TO authenticated;
+GRANT SELECT ON public.test_questions TO authenticated;
+GRANT SELECT ON public.test_sections TO authenticated;
+GRANT SELECT ON public.tests TO authenticated;
+GRANT SELECT, INSERT, UPDATE ON public.test_attempts TO authenticated;
+
+-- Grant to anon role for public access
+GRANT SELECT ON public.courses TO anon;
+GRANT SELECT ON public.lessons TO anon;
+GRANT SELECT ON public.tests TO anon;
+GRANT SELECT ON public.test_questions TO anon;
+GRANT SELECT ON public.test_sections TO anon;
+GRANT SELECT ON public.announcements TO anon;
 
 -- ============================================================================
 -- FIX POLICIES ON OTHER TABLES (Remove user table references)
