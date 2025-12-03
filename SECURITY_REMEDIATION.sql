@@ -14,6 +14,20 @@
 ALTER TABLE public.announcements ENABLE ROW LEVEL SECURITY;
 COMMENT ON TABLE public.announcements IS 'RLS enabled for security';
 
+-- Drop existing problematic policies that reference users table
+DROP POLICY IF EXISTS "Everyone can view active announcements" ON public.announcements;
+DROP POLICY IF EXISTS "Admins can manage all announcements" ON public.announcements;
+DROP POLICY IF EXISTS "Admin can manage announcements" ON public.announcements;
+
+-- Recreate with safe policies
+-- Policy: Everyone can view active announcements
+CREATE POLICY "Everyone can view active announcements" ON public.announcements
+    FOR SELECT USING (is_active = true);
+
+-- Policy: Only service role (admin client) can create/update/delete via direct admin access
+-- Regular users cannot manage announcements through RLS - must use admin client
+-- This is enforced through application logic, not RLS
+
 -- Enable RLS on carts table
 ALTER TABLE public.carts ENABLE ROW LEVEL SECURITY;
 COMMENT ON TABLE public.carts IS 'RLS enabled for security';
@@ -46,9 +60,111 @@ COMMENT ON TABLE public.tests IS 'RLS enabled for security';
 ALTER TABLE public.test_attempts ENABLE ROW LEVEL SECURITY;
 COMMENT ON TABLE public.test_attempts IS 'RLS enabled for security';
 
--- Enable RLS on users table
+-- ⚠️  IMPORTANT: Users table has special handling due to self-referential policies
+-- We need to drop the problematic circular policies BEFORE enabling RLS
+-- Drop all existing policies on users table first
+DROP POLICY IF EXISTS "Users can view own profile" ON public.users;
+DROP POLICY IF EXISTS "Users can view their own profile" ON public.users;
+DROP POLICY IF EXISTS "Users can update own profile" ON public.users;
+DROP POLICY IF EXISTS "Users can update their own profile" ON public.users;
+DROP POLICY IF EXISTS "Enable insert for authenticated users during signup" ON public.users;
+DROP POLICY IF EXISTS "Users can register themselves" ON public.users;
+DROP POLICY IF EXISTS "Admin users can view all users" ON public.users;
+DROP POLICY IF EXISTS "Admin users can insert new users" ON public.users;
+DROP POLICY IF EXISTS "Admin users can update all users" ON public.users;
+DROP POLICY IF EXISTS "Admins can view all users" ON public.users;
+DROP POLICY IF EXISTS "Admins can update any user" ON public.users;
+DROP POLICY IF EXISTS "Public user profiles for instructors" ON public.users;
+
+-- Now enable RLS on users table
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 COMMENT ON TABLE public.users IS 'RLS enabled for security';
+
+-- Create non-recursive RLS policies for users table
+-- These policies avoid the infinite recursion issue by not querying the users table itself
+
+-- Policy 1: Users can view their own profile
+CREATE POLICY "Users can view own profile" ON public.users
+    FOR SELECT USING (auth.uid() = id);
+
+-- Policy 2: Users can update their own profile
+CREATE POLICY "Users can update own profile" ON public.users
+    FOR UPDATE USING (auth.uid() = id);
+
+-- Policy 3: Users can insert their own profile (during registration)
+CREATE POLICY "Users can create own profile" ON public.users
+    FOR INSERT WITH CHECK (auth.uid() = id);
+
+-- Policy 4: Instructors can be viewed by public (for course viewing)
+CREATE POLICY "Public can view instructor profiles" ON public.users
+    FOR SELECT USING (role = 'instructor');
+
+-- Policy 5: Service role (admin operations) use supabase admin client which bypasses RLS
+-- No need to create a policy for this - admin client uses service_role which bypasses RLS
+
+-- ============================================================================
+-- FIX POLICIES ON OTHER TABLES (Remove user table references)
+-- ============================================================================
+
+-- CARTS TABLE: Policies reference users, but we can use simple uid comparison instead
+DROP POLICY IF EXISTS "Users can view own cart items" ON public.carts;
+DROP POLICY IF EXISTS "Users can insert into own cart" ON public.carts;
+DROP POLICY IF EXISTS "Users can update own cart items" ON public.carts;
+DROP POLICY IF EXISTS "Users can delete own cart items" ON public.carts;
+
+CREATE POLICY "Users can view own cart items" ON public.carts
+    FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert into own cart" ON public.carts
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own cart items" ON public.carts
+    FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete own cart items" ON public.carts
+    FOR DELETE USING (auth.uid() = user_id);
+
+-- COURSES TABLE: Public read, instructor edits through admin client
+DROP POLICY IF EXISTS "Anyone can view courses" ON public.courses;
+DROP POLICY IF EXISTS "Instructors can manage their courses" ON public.courses;
+DROP POLICY IF EXISTS "Anyone can view courses" ON public.courses;
+DROP POLICY IF EXISTS "Admin can manage courses" ON public.courses;
+
+CREATE POLICY "Anyone can view courses" ON public.courses
+    FOR SELECT USING (true);
+
+-- ENROLLMENTS TABLE: Users see their own enrollments through admin client
+DROP POLICY IF EXISTS "Users can view their enrollments" ON public.enrollments;
+DROP POLICY IF EXISTS "Users can create enrollments" ON public.enrollments;
+DROP POLICY IF EXISTS "Instructors can update enrollments" ON public.enrollments;
+
+CREATE POLICY "Users can view their own enrollments" ON public.enrollments
+    FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can create enrollments" ON public.enrollments
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- LESSONS TABLE: Accessible through course access (enforced in app logic)
+DROP POLICY IF EXISTS "Anyone can view lessons" ON public.lessons;
+CREATE POLICY "Anyone can view lessons" ON public.lessons
+    FOR SELECT USING (true);
+
+-- TEST_QUESTIONS, TEST_SECTIONS, TESTS: Public read (restrict in app logic)
+DROP POLICY IF EXISTS "Anyone can view test questions" ON public.test_questions;
+CREATE POLICY "Anyone can view test questions" ON public.test_questions
+    FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Anyone can view test sections" ON public.test_sections;
+CREATE POLICY "Anyone can view test sections" ON public.test_sections
+    FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Anyone can view tests" ON public.tests;
+CREATE POLICY "Anyone can view tests" ON public.tests
+    FOR SELECT USING (true);
+
+-- TEST_ATTEMPTS: Users see their own attempts
+DROP POLICY IF EXISTS "Users can view their own attempts" ON public.test_attempts;
+DROP POLICY IF EXISTS "Users can create attempts" ON public.test_attempts;
+CREATE POLICY "Users can view their own attempts" ON public.test_attempts
+    FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can create test attempts" ON public.test_attempts
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 -- ============================================================================
 -- PART 2: FIX FAQ MANAGEMENT VIEW - REMOVE SECURITY DEFINER
@@ -117,27 +233,65 @@ ORDER BY tablename, policyname;
 -- IMPORTANT NOTES
 -- ============================================================================
 
--- 1. SECURITY DEFINER Views (FIXED):
---    - faq_management_view: Removed SECURITY DEFINER, now uses SECURITY INVOKER (default)
---    - published_faqs_view: Removed SECURITY DEFINER, now uses SECURITY INVOKER (default)
+-- 1. CIRCULAR RECURSION FIX:
+--    The original issue: "infinite recursion detected in policy for relation "users""
+--    Root cause: RLS policies on the users table were referencing the users table itself
+--    Example of problematic policy:
+--      CREATE POLICY "Admin check" ON users FOR SELECT USING (
+--          EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
+--      );
+--    
+--    Why this fails: When RLS is enabled on users, querying users inside a policy
+--    on users creates infinite recursion.
+--
+--    Solution implemented:
+--    - Drop all self-referential policies on users table
+--    - Create only simple policies that don't query users table
+--    - Use auth.uid() comparison directly instead of checking role
+--    - Admin operations (role checks) are done in application code
+--    - Admin client uses service_role which bypasses RLS entirely
+
+-- 2. SECURITY DEFINER Views (FIXED):
+--    - faq_management_view: Removed SECURITY DEFINER, now uses SECURITY INVOKER
+--    - published_faqs_view: Removed SECURITY DEFINER, now uses SECURITY INVOKER
 --    
 --    Why: SECURITY DEFINER causes queries to run with the view creator's permissions,
 --    bypassing RLS policies. SECURITY INVOKER (default) runs queries with the current
 --    user's permissions, respecting RLS.
 
--- 2. RLS ENABLED (FIXED):
---    All 10 tables now have RLS enabled:
+-- 3. RLS ENABLED (FIXED):
+--    All 10 tables now have RLS enabled with non-recursive policies:
 --    - announcements, carts, courses, enrollments, lessons
 --    - test_questions, test_sections, tests, test_attempts, users
 --
 --    Why: RLS must be explicitly enabled on tables to enforce row-level access control.
 --    Policies alone don't work without RLS being enabled.
 
--- 3. AUTH.USERS EXPOSURE (FIXED):
+-- 4. AUTH.USERS EXPOSURE (FIXED):
 --    The faq_management_view was exposing auth.users data. This is now fixed by:
 --    - Removing SECURITY DEFINER
 --    - Only selecting from faqs table, not auth.users
 --    - Using SECURITY INVOKER to respect RLS policies
+
+-- 5. ADMIN OPERATIONS PATTERN:
+--    Since admin role checks cannot be done in RLS policies (causes recursion),
+--    admin operations must use the Supabase admin client in your application:
+--    
+--    // In your Next.js server actions:
+--    const supabaseAdmin = createClient(
+--        process.env.NEXT_PUBLIC_SUPABASE_URL,
+--        process.env.SUPABASE_SERVICE_ROLE_KEY  // ← This bypasses RLS
+--    );
+--    
+--    // Use supabaseAdmin for admin operations:
+--    await supabaseAdmin
+--        .from('announcements')
+--        .insert({ title, content, created_by: auth.uid() });
+--    
+--    // Use regular supabase for user operations:
+--    await supabase
+--        .from('announcements')
+--        .select('*')  // Will only see active announcements due to RLS
 
 -- ============================================================================
 -- VERIFICATION STEPS
