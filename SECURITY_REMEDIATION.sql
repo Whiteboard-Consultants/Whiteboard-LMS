@@ -75,6 +75,9 @@ DROP POLICY IF EXISTS "Admin users can update all users" ON public.users;
 DROP POLICY IF EXISTS "Admins can view all users" ON public.users;
 DROP POLICY IF EXISTS "Admins can update any user" ON public.users;
 DROP POLICY IF EXISTS "Public user profiles for instructors" ON public.users;
+DROP POLICY IF EXISTS "Users can create own profile" ON public.users;
+DROP POLICY IF EXISTS "Public can view instructor profiles" ON public.users;
+DROP POLICY IF EXISTS "Anyone can view instructor profiles" ON public.users;
 
 -- Now enable RLS on users table
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
@@ -97,10 +100,6 @@ CREATE POLICY "Users can create own profile" ON public.users
 
 -- Policy 4: Instructors can be viewed by public (for course viewing)
 CREATE POLICY "Public can view instructor profiles" ON public.users
-    FOR SELECT USING (role = 'instructor');
-
--- Policy 5: Anonymous/unauthenticated can view instructor profiles
-CREATE POLICY "Anyone can view instructor profiles" ON public.users
     FOR SELECT USING (role = 'instructor');
 
 -- ============================================================================
@@ -153,7 +152,6 @@ CREATE POLICY "Users can delete own cart items" ON public.carts
 -- COURSES TABLE: Public read, instructor edits through admin client
 DROP POLICY IF EXISTS "Anyone can view courses" ON public.courses;
 DROP POLICY IF EXISTS "Instructors can manage their courses" ON public.courses;
-DROP POLICY IF EXISTS "Anyone can view courses" ON public.courses;
 DROP POLICY IF EXISTS "Admin can manage courses" ON public.courses;
 
 CREATE POLICY "Anyone can view courses" ON public.courses
@@ -163,6 +161,7 @@ CREATE POLICY "Anyone can view courses" ON public.courses
 DROP POLICY IF EXISTS "Users can view their enrollments" ON public.enrollments;
 DROP POLICY IF EXISTS "Users can create enrollments" ON public.enrollments;
 DROP POLICY IF EXISTS "Instructors can update enrollments" ON public.enrollments;
+DROP POLICY IF EXISTS "Users can view their own enrollments" ON public.enrollments;
 
 CREATE POLICY "Users can view their own enrollments" ON public.enrollments
     FOR SELECT USING (auth.uid() = user_id);
