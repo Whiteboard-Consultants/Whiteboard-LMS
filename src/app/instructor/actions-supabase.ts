@@ -62,6 +62,7 @@ export async function createCourse(formData: FormData) {
     
     // Use admin client to bypass RLS for instructor operations
     const db = supabaseAdmin || supabase;
+    console.log('Using client:', supabaseAdmin ? '✅ supabaseAdmin (service_role)' : '⚠️ supabase (authenticated)');
     
     // Verify user is authenticated (userId provided by client)
     if (!userId) {
