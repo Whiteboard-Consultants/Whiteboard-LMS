@@ -65,9 +65,9 @@ DROP VIEW IF EXISTS public.faq_management_view CASCADE;
 CREATE VIEW public.faq_management_view AS
 SELECT 
   f.id,
-  f.title,
-  f.content,
-  f.category,
+  f.question,
+  f.answer,
+  f.category_id,
   f.is_published,
   f.created_at,
   f.updated_at,
@@ -89,9 +89,9 @@ DROP VIEW IF EXISTS public.published_faqs_view CASCADE;
 CREATE VIEW public.published_faqs_view AS
 SELECT 
   id,
-  title,
-  content,
-  category,
+  question,
+  answer,
+  category_id,
   created_at,
   updated_at
 FROM public.faqs
