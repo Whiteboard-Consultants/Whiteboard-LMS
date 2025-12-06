@@ -37,7 +37,7 @@ export function RichTextRenderer({ content, className }: RichTextRendererProps) 
     ],
     editorProps: {
         attributes: {
-            class: 'prose dark:prose-invert !prose-base !max-w-none focus:outline-none w-full break-words prose-p:leading-relaxed prose-p:my-1 prose-headings:my-3 prose-ul:my-2 prose-ol:my-2 prose-li:my-1 prose-p:text-base prose-p:max-w-none',
+            class: 'prose dark:prose-invert !prose-base !max-w-none focus:outline-none w-full break-words prose-p:leading-7 prose-p:my-4 prose-headings:my-6 prose-headings:font-bold prose-ul:my-4 prose-ol:my-4 prose-li:my-2 prose-li:text-base prose-p:text-base prose-p:max-w-none prose-strong:font-semibold prose-code:bg-slate-100 prose-code:dark:bg-slate-800 prose-code:px-2 prose-code:py-1 prose-code:rounded',
         },
     },
     immediatelyRender: false,
