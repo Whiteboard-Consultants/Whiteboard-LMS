@@ -4,10 +4,6 @@ import path from 'path';
 
 const nextConfig: NextConfig = {
   /* config options here */
-  eslint: {
-    // Allow building even if ESLint reports problems. Fix lint issues separately.
-    ignoreDuringBuilds: true,
-  },
   typescript: {
     // Allow building even if TypeScript reports errors. Fix types separately.
     ignoreBuildErrors: true,
@@ -29,6 +25,9 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   generateEtags: true,
+  
+  // Next.js 16 - Use Turbopack (default) instead of webpack
+  turbopack: {},
   
   // Security and performance headers
   async headers() {
@@ -96,11 +95,6 @@ const nextConfig: NextConfig = {
     ]
   },
   
-  // Webpack configuration (Firebase aliases removed after migration to Supabase)
-  webpack: (config, { isServer }) => {
-    // No Firebase aliases needed
-    return config;
-  },
   images: {
     // SEO-optimized image configuration
     formats: ['image/webp', 'image/avif'],
