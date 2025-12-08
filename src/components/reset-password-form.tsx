@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
 export function ResetPasswordForm() {
@@ -14,7 +14,6 @@ export function ResetPasswordForm() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const supabase = createClientComponentClient();
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
