@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,32 @@ export function ResetPasswordForm() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(true);
+  const [sessionValid, setSessionValid] = useState(false);
+
+  // Check if the user has a valid recovery session from the URL token
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session) {
+          setSessionValid(true);
+          console.log('✅ Valid recovery session found');
+        } else {
+          console.warn('⚠️ No valid recovery session');
+          toast.error('Invalid or expired reset link. Please request a new password reset.');
+          setTimeout(() => router.push('/forgot-password'), 2000);
+        }
+      } catch (error) {
+        console.error('Session check error:', error);
+      } finally {
+        setIsVerifying(false);
+      }
+    };
+
+    checkSession();
+  }, [router]);
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,7 +102,7 @@ export function ResetPasswordForm() {
             placeholder="Enter new password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            disabled={isLoading}
+            disabled={isLoading || isVerifying}
             className="pr-10"
             minLength={8}
             required
@@ -85,7 +111,7 @@ export function ResetPasswordForm() {
             type="button"
             onClick={() => setShowPassword(!showPassword)}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-            disabled={isLoading}
+            disabled={isLoading || isVerifying}
           >
             {showPassword ? '🙈' : '👁️'}
           </button>
@@ -105,7 +131,7 @@ export function ResetPasswordForm() {
           placeholder="Confirm new password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          disabled={isLoading}
+          disabled={isLoading || isVerifying}
           minLength={8}
           required
         />
@@ -114,10 +140,16 @@ export function ResetPasswordForm() {
       <Button
         type="submit"
         className="w-full"
-        disabled={isLoading}
+        disabled={isLoading || isVerifying || !sessionValid}
       >
-        {isLoading ? 'Resetting...' : 'Reset Password'}
+        {isVerifying ? 'Verifying reset link...' : isLoading ? 'Resetting...' : 'Reset Password'}
       </Button>
+
+      {isVerifying && (
+        <p className="text-sm text-center text-gray-600 dark:text-gray-400">
+          Verifying your reset link...
+        </p>
+      )}
     </form>
   );
 }
