@@ -35,17 +35,11 @@ export function ResetPasswordForm() {
           throw new Error(msg);
         }
 
-        // Check if callback was successful
-        const step = searchParams.get('step');
-        if (step === 'reset') {
-          console.log('✅ Callback successful, proceeding to password reset');
-          setHasValidSession(true);
-          setError(null);
-          setIsVerifying(false);
-          return;
-        }
+        // Give Supabase a moment to process the recovery token and establish session
+        // Recovery tokens are processed automatically by Supabase when the URL is accessed
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
-        // Otherwise check for an active recovery session
+        // Check for an active recovery session (Supabase should have set this)
         console.log('🔍 Checking for active session...');
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
@@ -62,8 +56,8 @@ export function ResetPasswordForm() {
           return;
         }
 
-        // No session and no callback success = invalid/expired link
-        console.error('❌ No valid session found');
+        // No session = invalid or expired recovery link
+        console.error('❌ No valid session found after waiting');
         throw new Error('Your password reset link is invalid or has expired. Please request a new one.');
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : 'An error occurred';
@@ -77,9 +71,7 @@ export function ResetPasswordForm() {
       }
     };
 
-    // Small delay to let Supabase process the token
-    const timer = setTimeout(verifySession, 300);
-    return () => clearTimeout(timer);
+    verifySession();
   }, [router, searchParams]);
 
   const handleResetPassword = async (e: React.FormEvent) => {
