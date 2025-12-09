@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, Loader2, BookOpen, Trash2, MoreVertical, Calendar, AlertCircle, PlayCircle, User, ArrowLeft, Plus } from "lucide-react";
+import { CheckCircle, XCircle, Loader2, BookOpen, Trash2, MoreVertical, Calendar, AlertCircle, PlayCircle, User, ArrowLeft, Plus, Key } from "lucide-react";
 import type { User as UserType, Enrollment, Course } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -267,6 +267,35 @@ export default function AdminUsersPage() {
     setUpdatingId(null);
   };
 
+  const handleResetPassword = async (userId: string) => {
+    setUpdatingId(userId);
+    try {
+      const user = users.find(u => u.id === userId);
+      if (!user) throw new Error('User not found');
+      
+      // Send password reset email using admin API
+      const { error } = await supabase.auth.admin.generateLink({
+        type: 'recovery',
+        email: user.email,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Password reset email sent to ${user.email}`
+      });
+    } catch (error) {
+      console.error('Error sending reset email:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to send password reset email"
+      });
+    }
+    setUpdatingId(null);
+  };
+
   const handleManageEnrollments = async (user: UserType) => {
     try {
       const { data: enrollmentsData, error } = await supabase
@@ -448,6 +477,9 @@ export default function AdminUsersPage() {
                    <BookOpen className="mr-2 h-4 w-4" /> Manage Enrollments
                </DropdownMenuItem>
                 <DropdownMenuSeparator />
+               <DropdownMenuItem onClick={() => handleResetPassword(user.id)} className="text-blue-600 focus:text-blue-700 focus:bg-blue-100">
+                   <Key className="mr-2 h-4 w-4" /> Send Password Reset
+               </DropdownMenuItem>
                 {user.status === 'suspended' ? (
                      <DropdownMenuItem onClick={() => handleReinstate(user.id)} className="text-green-600 focus:text-green-700 focus:bg-green-100">
                         <PlayCircle className="mr-2 h-4 w-4" /> Reinstate User
