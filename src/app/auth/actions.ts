@@ -1,4 +1,3 @@
-
 'use server';
 
 import { supabase } from '@/lib/supabase';
@@ -6,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 export async function sendPasswordReset(email: string) {
   try {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/reset-password`,
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
     });
     
     if (error) {

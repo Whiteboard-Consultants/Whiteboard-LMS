@@ -292,7 +292,7 @@ export async function changePassword(newPassword: string) {
 export async function resetPassword(email: string) {
   try {
     const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`
+      redirectTo: `${window.location.origin}/auth/callback`
     });
 
     if (error) {
