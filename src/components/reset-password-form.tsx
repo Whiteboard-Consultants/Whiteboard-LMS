@@ -1,138 +1,140 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/lib/supabase';
-import { resetPasswordWithCode, resetPasswordWithSession } from '@/app/(auth)/reset-password/actions';
-import { usePasswordResetDebug } from '@/hooks/use-password-reset-debug';
 import { toast } from 'sonner';
 
 export function ResetPasswordForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  usePasswordResetDebug(); // Debug logging
+  
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isVerifying, setIsVerifying] = useState(true);
-  const [sessionValid, setSessionValid] = useState(false);
-  const [userEmail, setUserEmail] = useState('');
-  const [recoveryCode, setRecoveryCode] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [hasValidSession, setHasValidSession] = useState(false);
 
-  // Check if the user has a valid recovery session or code
+  // Verify we have a valid recovery session
   useEffect(() => {
-    const checkSession = async () => {
+    const verifySession = async () => {
       try {
-        console.log('🔍 Checking for recovery code or session...');
+        console.log('🔍 Verifying recovery session...');
         
-        // First check if we have a code in the URL (from callback route)
-        const code = searchParams.get('code');
-        if (code) {
-          console.log('✅ Recovery code found in URL');
-          setRecoveryCode(code);
-          setSessionValid(true);
-          // For recovery links, we don't know the email until they submit
-          setUserEmail('');
-          setIsVerifying(false);
-          return;
-        }
-        
-        // Otherwise check for an active recovery session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
           console.error('❌ Session error:', sessionError);
-          throw sessionError;
+          throw new Error('Failed to verify session');
         }
-        
-        if (session) {
-          console.log('✅ Valid session found for user:', session.user.email);
-          setUserEmail(session.user.email || '');
-          setSessionValid(true);
-          setIsVerifying(false);
-          return;
+
+        if (session?.user) {
+          console.log('✅ Valid recovery session found for:', session.user.email);
+          setHasValidSession(true);
+          setError(null);
+        } else {
+          console.error('❌ No valid session found');
+          throw new Error('Your password reset link is invalid or has expired. Please request a new one.');
         }
-        
-        // Check URL for error parameters
-        const error = searchParams.get('error');
-        if (error) {
-          throw new Error(`Auth error: ${error}`);
-        }
-        
-        throw new Error('No active session or recovery code. Please request a new password reset.');
-      } catch (error) {
-        console.error('❌ Session/code check error:', error);
-        toast.error(`Invalid or expired reset link. Please request a new password reset.`);
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : 'An error occurred';
+        console.error('❌ Verification error:', errorMsg);
+        setError(errorMsg);
+        toast.error(errorMsg);
+        // Redirect after error
         setTimeout(() => router.push('/forgot-password'), 2000);
       } finally {
         setIsVerifying(false);
       }
     };
 
-    checkSession();
-  }, [router, searchParams]);
+    // Small delay to let Supabase process the token
+    const timer = setTimeout(verifySession, 300);
+    return () => clearTimeout(timer);
+  }, [router]);
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
-    // Validate passwords
-    if (!password || !confirmPassword) {
-      toast.error('Please enter your password');
-      setIsLoading(false);
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      toast.error('Passwords do not match');
-      setIsLoading(false);
-      return;
-    }
-
-    if (password.length < 8) {
-      toast.error('Password must be at least 8 characters');
-      setIsLoading(false);
-      return;
-    }
+    setError(null);
 
     try {
-      let result;
-      
-      // If we have a recovery code from URL, use it to reset password
-      if (recoveryCode) {
-        console.log('🔄 Resetting password using recovery code...');
-        console.log('Recovery code:', recoveryCode.substring(0, 10) + '...');
-        result = await resetPasswordWithCode(password, recoveryCode);
-      } else {
-        // Otherwise use the active session
-        console.log('🔄 Resetting password using active session...');
-        result = await resetPasswordWithSession(password);
+      // Validation
+      if (!password || !confirmPassword) {
+        throw new Error('Please enter your password');
       }
 
-      if (!result.success) {
-        toast.error(result.message || 'Failed to reset password');
-        return;
+      if (password !== confirmPassword) {
+        throw new Error('Passwords do not match');
       }
 
+      if (password.length < 8) {
+        throw new Error('Password must be at least 8 characters');
+      }
+
+      console.log('🔐 Updating password with recovery session...');
+
+      // Update password using the authenticated session from the recovery link
+      const { error: updateError } = await supabase.auth.updateUser({
+        password
+      });
+
+      if (updateError) {
+        console.error('❌ Password update error:', updateError);
+        throw new Error(updateError.message || 'Failed to reset password');
+      }
+
+      console.log('✅ Password reset successfully');
       toast.success('Password reset successfully!');
+
+      // Sign out and redirect to login
+      await supabase.auth.signOut();
       
-      // Redirect to login after a short delay
       setTimeout(() => {
-        router.push('/login');
+        router.push('/login?reset=success');
       }, 1500);
-    } catch (error) {
-      console.error('Reset password error:', error);
-      const errorMsg = error instanceof Error ? error.message : 'An error occurred while resetting your password';
-      console.error('Detailed error:', errorMsg);
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'An error occurred';
+      console.error('Reset error:', errorMsg);
+      setError(errorMsg);
       toast.error(errorMsg);
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Show loading while verifying
+  if (isVerifying) {
+    return (
+      <div className="text-center py-8">
+        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <p className="mt-4 text-gray-600 dark:text-gray-400">Verifying your reset link...</p>
+      </div>
+    );
+  }
+
+  // Show error if no valid session
+  if (!hasValidSession) {
+    return (
+      <div className="rounded-lg bg-red-50 dark:bg-red-900/20 p-4 border border-red-200 dark:border-red-800">
+        <p className="text-sm text-red-800 dark:text-red-200">
+          {error || 'Your password reset link is invalid or has expired.'}
+        </p>
+        <Button 
+          onClick={() => router.push('/forgot-password')}
+          className="w-full mt-4"
+          variant="outline"
+        >
+          Request New Reset Link
+        </Button>
+      </div>
+    );
+  }
+
+  // Reset password form
   return (
     <form onSubmit={handleResetPassword} className="space-y-4">
       <div className="space-y-2">
@@ -143,26 +145,20 @@ export function ResetPasswordForm() {
           <Input
             id="password"
             type={showPassword ? 'text' : 'password'}
-            placeholder="Enter new password"
+            placeholder="At least 8 characters"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            disabled={isLoading || isVerifying}
+            disabled={isLoading}
             className="pr-10"
-            minLength={8}
-            required
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-            disabled={isLoading || isVerifying}
           >
-            {showPassword ? '🙈' : '👁️'}
+            {showPassword ? '👁️' : '👁️‍🗨️'}
           </button>
         </div>
-        <p className="text-xs text-gray-500 dark:text-gray-400">
-          Must be at least 8 characters
-        </p>
       </div>
 
       <div className="space-y-2">
@@ -172,28 +168,26 @@ export function ResetPasswordForm() {
         <Input
           id="confirmPassword"
           type={showPassword ? 'text' : 'password'}
-          placeholder="Confirm new password"
+          placeholder="Re-enter password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          disabled={isLoading || isVerifying}
-          minLength={8}
-          required
+          disabled={isLoading}
         />
       </div>
 
+      {error && (
+        <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-3">
+          <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+        </div>
+      )}
+
       <Button
         type="submit"
+        disabled={isLoading}
         className="w-full"
-        disabled={isLoading || isVerifying || !sessionValid}
       >
-        {isVerifying ? 'Verifying reset link...' : isLoading ? 'Resetting...' : 'Reset Password'}
+        {isLoading ? 'Resetting...' : 'Reset Password'}
       </Button>
-
-      {isVerifying && (
-        <p className="text-sm text-center text-gray-600 dark:text-gray-400">
-          Verifying your reset link...
-        </p>
-      )}
     </form>
   );
 }
