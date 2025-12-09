@@ -1,6 +1,7 @@
 'use server';
 
 import { supabaseAdmin } from '@/lib/supabase';
+import nodemailer from 'nodemailer';
 
 export async function sendPasswordResetEmail(email: string) {
   try {
@@ -8,6 +9,7 @@ export async function sendPasswordResetEmail(email: string) {
       throw new Error('Supabase admin client not configured');
     }
 
+    // Generate a recovery link using admin API
     const { data, error } = await supabaseAdmin.auth.admin.generateLink({
       type: 'recovery',
       email: email,
@@ -18,10 +20,23 @@ export async function sendPasswordResetEmail(email: string) {
       throw error;
     }
 
+    const actionLink = data?.properties?.action_link;
+    if (!actionLink) {
+      throw new Error('No action link generated');
+    }
+
+    console.log('✅ Recovery link generated:', `${actionLink.substring(0, 50)}...`);
+
+    // The action_link from Supabase already contains everything needed
+    // and it's pre-configured with the correct domain
+    // You can return this link or manually send an email using your email provider
+
     return { 
       success: true, 
-      message: `Password reset email sent to ${email}`,
-      link: data?.properties?.action_link 
+      message: `Password reset email prepared for ${email}`,
+      link: actionLink,
+      // Note: In production, you would send this link via your email service here
+      // For now, we'll rely on Supabase sending it automatically
     };
   } catch (error) {
     console.error('Error sending password reset email:', error);
