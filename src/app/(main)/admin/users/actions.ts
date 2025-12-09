@@ -13,6 +13,8 @@ export async function sendPasswordResetEmail(email: string) {
     const { data, error } = await supabaseAdmin.auth.admin.generateLink({
       type: 'recovery',
       email: email,
+      // Redirect to your callback route instead of default Supabase endpoint
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
     });
 
     if (error) {
@@ -26,6 +28,7 @@ export async function sendPasswordResetEmail(email: string) {
     }
 
     console.log('✅ Recovery link generated:', `${actionLink.substring(0, 50)}...`);
+    console.log('🔗 Full recovery link:', actionLink);
 
     // The action_link from Supabase already contains everything needed
     // and it's pre-configured with the correct domain
