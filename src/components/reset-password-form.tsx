@@ -1,14 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/lib/supabase';
+import { resetPasswordWithCode, resetPasswordWithSession } from '@/app/(auth)/reset-password/actions';
 import { toast } from 'sonner';
 
 export function ResetPasswordForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -16,14 +18,27 @@ export function ResetPasswordForm() {
   const [isVerifying, setIsVerifying] = useState(true);
   const [sessionValid, setSessionValid] = useState(false);
   const [userEmail, setUserEmail] = useState('');
+  const [recoveryCode, setRecoveryCode] = useState('');
 
-  // Check if the user has a valid recovery session
+  // Check if the user has a valid recovery session or code
   useEffect(() => {
     const checkSession = async () => {
       try {
-        console.log('🔍 Checking for recovery session...');
+        console.log('🔍 Checking for recovery code or session...');
         
-        // The auth callback route should have already exchanged the code for a session
+        // First check if we have a code in the URL (from callback route)
+        const code = searchParams.get('code');
+        if (code) {
+          console.log('✅ Recovery code found in URL');
+          setRecoveryCode(code);
+          setSessionValid(true);
+          // For recovery links, we don't know the email until they submit
+          setUserEmail('');
+          setIsVerifying(false);
+          return;
+        }
+        
+        // Otherwise check for an active recovery session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
@@ -35,20 +50,19 @@ export function ResetPasswordForm() {
           console.log('✅ Valid session found for user:', session.user.email);
           setUserEmail(session.user.email || '');
           setSessionValid(true);
-        } else {
-          // Check URL for error parameters
-          const params = new URLSearchParams(window.location.search);
-          const error = params.get('error');
-          
-          if (error) {
-            throw new Error(`Auth error: ${error}`);
-          }
-          
-          throw new Error('No active session. Please request a new password reset.');
+          setIsVerifying(false);
+          return;
         }
+        
+        // Check URL for error parameters
+        const error = searchParams.get('error');
+        if (error) {
+          throw new Error(`Auth error: ${error}`);
+        }
+        
+        throw new Error('No active session or recovery code. Please request a new password reset.');
       } catch (error) {
-        console.error('❌ Session check error:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error('❌ Session/code check error:', error);
         toast.error(`Invalid or expired reset link. Please request a new password reset.`);
         setTimeout(() => router.push('/forgot-password'), 2000);
       } finally {
@@ -57,7 +71,7 @@ export function ResetPasswordForm() {
     };
 
     checkSession();
-  }, [router]);
+  }, [router, searchParams]);
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,14 +97,20 @@ export function ResetPasswordForm() {
     }
 
     try {
-      // Update the user's password
-      const { error } = await supabase.auth.updateUser({
-        password: password,
-      });
+      let result;
+      
+      // If we have a recovery code from URL, use it to reset password
+      if (recoveryCode) {
+        console.log('🔄 Resetting password using recovery code...');
+        result = await resetPasswordWithCode(password, recoveryCode);
+      } else {
+        // Otherwise use the active session
+        console.log('🔄 Resetting password using active session...');
+        result = await resetPasswordWithSession(password);
+      }
 
-      if (error) {
-        console.error('Password reset error:', error);
-        toast.error(error.message || 'Failed to reset password');
+      if (!result.success) {
+        toast.error(result.message || 'Failed to reset password');
         return;
       }
 
@@ -102,7 +122,9 @@ export function ResetPasswordForm() {
       }, 1500);
     } catch (error) {
       console.error('Reset password error:', error);
-      toast.error('An error occurred while resetting your password');
+      toast.error(
+        error instanceof Error ? error.message : 'An error occurred while resetting your password'
+      );
     } finally {
       setIsLoading(false);
     }

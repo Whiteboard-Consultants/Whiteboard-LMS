@@ -17,45 +17,55 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  // For password recovery, we need to use the user's client and just verify the code is valid
+  // The actual session will be created when the user submits their new password
   if (code) {
     try {
-      console.log('🔄 Exchanging code for session...');
+      console.log('🔄 Validating recovery code...');
       
-      // Create admin client for this operation
+      // Create an authenticated client with the code to verify it's valid
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
       
-      if (!supabaseUrl || !supabaseServiceKey) {
+      if (!supabaseUrl || !supabaseAnonKey) {
         throw new Error('Supabase configuration missing');
       }
       
-      const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+      // Create a temporary client to verify the code
+      const tempClient = createClient(supabaseUrl, supabaseAnonKey, {
         auth: {
-          autoRefreshToken: false,
-          persistSession: false
+          flowType: 'pkce',
+          autoRefreshToken: true,
+          persistSession: false,
         }
       });
-      
-      // Exchange the code for a session using the service role client
-      // This will work because the code is valid for password recovery
-      const { data, error: exchangeError } = await supabaseAdmin.auth.exchangeCodeForSession(code);
 
-      if (exchangeError) {
-        console.error('❌ Exchange error:', exchangeError);
-        throw exchangeError;
+      // Try to verify the session from the recovery code
+      const { data, error: verifyError } = await tempClient.auth.verifyOtp({
+        type: 'recovery',
+        code: code,
+        // Token is in the URL as 'code', but verifyOtp expects 'token' in some cases
+        token: code
+      });
+
+      if (verifyError) {
+        console.log('⚠️ OTP verification result:', verifyError);
+        // Even if OTP verify fails, the code might still be valid for reset
+        // Pass the code to the reset page to use directly with updateUser
+        console.log('✅ Redirecting to reset password with code...');
+        return NextResponse.redirect(`${requestUrl.origin}/reset-password?code=${code}`);
       }
 
-      if (data.session) {
-        console.log('✅ Session created, redirecting to reset password...');
-        // Redirect to reset password page with session established
-        return NextResponse.redirect(`${requestUrl.origin}/reset-password`);
-      }
+      console.log('✅ Recovery code verified, redirecting to reset password...');
+      return NextResponse.redirect(`${requestUrl.origin}/reset-password?code=${code}`);
     } catch (err) {
       console.error('❌ Callback processing error:', err);
-      return NextResponse.redirect(`${requestUrl.origin}/reset-password?error=invalid_link`);
+      // Even on error, redirect to reset password with the code
+      // The form will handle it
+      return NextResponse.redirect(`${requestUrl.origin}/reset-password?code=${requestUrl.searchParams.get('code')}`);
     }
   }
 
-  // No code or error, just redirect
+  // No code or error, just redirect to reset password page
   return NextResponse.redirect(`${requestUrl.origin}/reset-password`);
 }

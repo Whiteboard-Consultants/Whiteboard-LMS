@@ -35,9 +35,22 @@ export async function setTemporaryPassword(email: string, tempPassword: string =
       throw new Error('Supabase admin client not configured');
     }
 
+    // First find the user ID by email
+    const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers();
+    
+    if (listError) {
+      console.error('Error listing users:', listError);
+      throw listError;
+    }
+
+    const user = users?.find(u => u.email === email);
+    if (!user) {
+      throw new Error(`User with email ${email} not found`);
+    }
+
     // Update the user's password in Supabase Auth
     const { data, error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
-      (await supabaseAdmin.auth.admin.listUsers()).data?.users?.find(u => u.email === email)?.id || '',
+      user.id,
       {
         password: tempPassword,
       }
@@ -46,17 +59,6 @@ export async function setTemporaryPassword(email: string, tempPassword: string =
     if (updateError) {
       console.error('Error updating password:', updateError);
       throw updateError;
-    }
-
-    // Mark password as not yet changed by user (clear the password_changed_at timestamp)
-    const { error: dbError } = await supabaseAdmin
-      .from('users')
-      .update({ password_changed_at: null })
-      .eq('email', email);
-
-    if (dbError) {
-      console.error('Error updating password_changed_at:', dbError);
-      // Don't throw here as the password was already updated
     }
 
     return { 
