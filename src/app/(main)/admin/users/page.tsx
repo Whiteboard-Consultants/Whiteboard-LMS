@@ -277,6 +277,27 @@ export default function AdminUsersPage() {
       // Send password reset email using server action
       const result = await sendPasswordResetEmail(user.email);
 
+      // Show the recovery link for testing (until email is configured)
+      if (result.link) {
+        const copyLink = async () => {
+          await navigator.clipboard.writeText(result.link);
+          toast({
+            title: "Link Copied!",
+            description: "Recovery link copied to clipboard. Paste in browser to test."
+          });
+        };
+        
+        // Show dialog with link
+        const shouldCopy = window.confirm(
+          `Recovery link generated!\n\n${result.link}\n\n` +
+          `Click OK to copy to clipboard, or Cancel to close.`
+        );
+        
+        if (shouldCopy) {
+          await copyLink();
+        }
+      }
+
       toast({
         title: "Success",
         description: result.message
