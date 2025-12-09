@@ -6,16 +6,16 @@ export async function resetPasswordWithCode(password: string, code: string) {
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    if (!supabaseUrl || !supabaseAnonKey || !supabaseServiceKey) {
+    if (!supabaseUrl || !supabaseAnonKey) {
       throw new Error('Supabase configuration missing');
     }
 
     console.log('🔐 Processing recovery code for password reset...');
+    console.log('Code:', code.substring(0, 10) + '...');
     
-    // First, use the anon key client to verify the OTP (recovery code)
-    const anonClient = createClient(supabaseUrl, supabaseAnonKey, {
+    // Create a client with implicit flow for password recovery
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         flowType: 'implicit',
         autoRefreshToken: false,
@@ -23,56 +23,32 @@ export async function resetPasswordWithCode(password: string, code: string) {
       }
     });
 
-    console.log('🔄 Verifying recovery code as OTP...');
-    const { data: otpData, error: otpError } = await anonClient.auth.verifyOtp({
-      type: 'recovery',
-      token: code
-    });
+    console.log('🔄 Attempting to exchange recovery code for session...');
+    
+    // Exchange the code for a session
+    // Recovery codes from password reset emails are meant to be used this way
+    const { data: sessionData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
-    if (otpError) {
-      console.error('❌ OTP verification failed:', otpError);
-      // Try alternative: exchange it directly
-      console.log('🔄 Attempting direct code exchange...');
-      const { data: sessionData, error: exchangeError } = await anonClient.auth.exchangeCodeForSession(code);
-      
-      if (exchangeError) {
-        console.error('❌ Code exchange also failed:', exchangeError);
-        throw new Error(`Invalid or expired recovery code: ${otpError.message}`);
-      }
-
-      if (!sessionData.session) {
-        throw new Error('Failed to create session from recovery code');
-      }
-
-      // Update password with the authenticated user
-      console.log('✅ Session created via exchange, updating password...');
-      const { error: updateError } = await anonClient.auth.updateUser({
-        password
-      });
-
-      if (updateError) {
-        console.error('❌ Password update error:', updateError);
-        throw updateError;
-      }
-
-      console.log('✅ Password reset successfully');
-      return { success: true, message: 'Password reset successfully' };
+    if (exchangeError) {
+      console.error('❌ Code exchange error:', exchangeError);
+      throw new Error(`Invalid or expired recovery code: ${exchangeError.message}`);
     }
 
-    if (!otpData.session) {
-      throw new Error('Failed to create session from OTP');
+    if (!sessionData.session) {
+      throw new Error('Failed to create session from recovery code');
     }
 
-    console.log('✅ OTP verified, session created. Updating password...');
+    console.log('✅ Session created from recovery code, updating password...');
+    console.log('User ID:', sessionData.session.user.id);
 
-    // Now update the password with the verified session
-    const { error: updateError } = await anonClient.auth.updateUser({
+    // Now update the password with the authenticated session
+    const { error: updateError } = await supabase.auth.updateUser({
       password
     });
 
     if (updateError) {
       console.error('❌ Password update error:', updateError);
-      throw updateError;
+      throw new Error(`Failed to update password: ${updateError.message}`);
     }
 
     console.log('✅ Password reset successfully');
@@ -103,13 +79,13 @@ export async function resetPasswordWithSession(password: string) {
 
     console.log('🔐 Updating password with active session...');
     
-    const { data, error } = await supabase.auth.updateUser({
+    const { error } = await supabase.auth.updateUser({
       password
     });
 
     if (error) {
       console.error('❌ Password update error:', error);
-      throw error;
+      throw new Error(`Failed to update password: ${error.message}`);
     }
 
     console.log('✅ Password reset successfully');
