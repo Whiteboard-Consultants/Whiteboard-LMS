@@ -22,8 +22,17 @@ export function ResetPasswordForm() {
       try {
         console.log('🔍 Checking for recovery session...');
         
-        // Get the recovery code from URL parameters
+        // Check for error parameters in URL
         const params = new URLSearchParams(window.location.search);
+        const errorCode = params.get('error_code');
+        const errorDescription = params.get('error_description');
+        
+        if (errorCode) {
+          console.error('❌ URL contains error:', { errorCode, errorDescription });
+          throw new Error(`${errorDescription || errorCode}`);
+        }
+        
+        // Get the recovery code from URL parameters
         const code = params.get('code');
         
         console.log('📍 Recovery code from URL:', code ? '✅ Found' : '❌ Not found');
@@ -57,8 +66,9 @@ export function ResetPasswordForm() {
         }
       } catch (error) {
         console.error('Session check error:', error);
-        toast.error('Invalid or expired reset link. Please request a new password reset.');
-        setTimeout(() => router.push('/forgot-password'), 2000);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        toast.error(`Invalid or expired reset link (${errorMessage}). Please request a new password reset.`);
+        setTimeout(() => router.push('/forgot-password'), 3000);
       } finally {
         setIsVerifying(false);
       }
