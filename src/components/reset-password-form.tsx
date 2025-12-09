@@ -25,40 +25,69 @@ export function ResetPasswordForm() {
       try {
         console.log('🔍 Checking for recovery session...');
         
-        // Check for error from callback route
+        // Check URL params
         const callbackError = searchParams.get('error');
-        const errorMessage = searchParams.get('message');
+        const recoveryCode = searchParams.get('code');
+        
+        console.log('📋 URL params:', { error: callbackError, code: recoveryCode ? '✅' : '❌' });
         
         if (callbackError) {
-          console.error('❌ Callback returned error:', callbackError);
-          const msg = errorMessage ? decodeURIComponent(errorMessage) : `Auth error: ${callbackError}`;
-          throw new Error(msg);
+          console.error('❌ Callback error:', callbackError);
+          throw new Error(`Auth error: ${callbackError}`);
         }
 
-        // Give Supabase a moment to process the recovery token and establish session
-        // Recovery tokens are processed automatically by Supabase when the URL is accessed
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // If we have a recovery code, we need to use it
+        if (recoveryCode) {
+          console.log('🔐 Recovery code found:', recoveryCode.substring(0, 20) + '...');
+          console.log('⏳ Using verifyOtp to process recovery code...');
+          
+          // Use verifyOtp with the recovery code
+          // Recovery codes work as one-time passwords
+          const { data, error } = await supabase.auth.verifyOtp({
+            email: '',  // Recovery codes don't need email
+            token: recoveryCode,
+            type: 'recovery',
+          });
 
-        // Check for an active recovery session (Supabase should have set this)
-        console.log('🔍 Checking for active session...');
+          if (error) {
+            console.error('❌ Recovery code verification failed:', error);
+            throw new Error(`Recovery verification failed: ${error.message}`);
+          }
+
+          if (data.session?.user) {
+            console.log('✅ Recovery code verified! Session established for:', data.session.user.email);
+            setHasValidSession(true);
+            setError(null);
+            setIsVerifying(false);
+            return;
+          }
+
+          console.error('❌ OTP verified but no session');
+          throw new Error('Recovery verification failed: no session created');
+        }
+
+        // No recovery code - check for existing session
+        console.log('🔍 Checking for existing session...');
+        await new Promise(resolve => setTimeout(resolve, 300));
+
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
-          console.error('❌ Session check error:', sessionError);
-          throw new Error('Failed to verify session');
+          console.error('❌ Session error:', sessionError);
+          throw new Error('Failed to check session');
         }
 
         if (session?.user) {
-          console.log('✅ Valid session found for user:', session.user.email);
+          console.log('✅ Active session found! User:', session.user.email);
           setHasValidSession(true);
           setError(null);
           setIsVerifying(false);
           return;
         }
 
-        // No session = invalid or expired recovery link
-        console.error('❌ No valid session found after waiting');
-        throw new Error('Your password reset link is invalid or has expired. Please request a new one.');
+        // No recovery code and no session
+        console.error('❌ No recovery code and no active session');
+        throw new Error('No active password reset session. Please request a password reset email.');
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : 'An error occurred';
         console.error('❌ Verification error:', errorMsg);
