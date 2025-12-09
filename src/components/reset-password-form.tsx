@@ -25,8 +25,11 @@ export function ResetPasswordForm() {
       try {
         console.log('🔍 Reset form loaded - checking for active session...');
         
-        // Check URL params for errors from callback
+        // Check URL params for error/success from callback
         const callbackError = searchParams.get('error');
+        const successParam = searchParams.get('success');
+        
+        console.log('📋 URL params:', { error: callbackError, success: successParam });
         
         if (callbackError) {
           console.error('❌ Callback error:', callbackError);
@@ -41,8 +44,10 @@ export function ResetPasswordForm() {
           throw new Error(errorMessage);
         }
 
-        // Check for existing session (should be set by callback route)
-        console.log('🔍 Checking for authenticated session...');
+        // Wait a moment for Supabase client to process the session from callback
+        console.log('⏳ Checking for authenticated session...');
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {

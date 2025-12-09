@@ -44,30 +44,29 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // For recovery links, verify the code on the server first
-    console.log('🔐 Verifying recovery token on server-side...');
-    const { data, error } = await supabase.auth.verifyOtp({
-      token_hash: code,  // From URL params
-      type: 'recovery'   // Email auto-detected from token
-    });
+    // Recovery links work via exchangeCodeForSession - this is the PKCE recovery flow
+    console.log('🔐 Exchanging recovery code for session...');
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (error) {
-      console.error('❌ Server-side recovery verification failed:', error);
+      console.error('❌ Recovery code exchange failed:', error);
       return NextResponse.redirect(
         `${requestUrl.origin}/reset-password?error=invalid_recovery_link`
       );
     }
 
     if (data.session?.user) {
-      console.log('✅ Recovery token verified on server! Session established for:', data.session.user.email);
-      // Session is now set in cookies, redirect to reset form
+      console.log('✅ Recovery code exchanged successfully! Session established for:', data.session.user.email);
+      // Set the session in a cookie
       const response = NextResponse.redirect(
-        `${requestUrl.origin}/reset-password`
+        `${requestUrl.origin}/reset-password?success=authenticated`
       );
+      
+      // The session is already set in the Supabase client, which persists it
       return response;
     }
 
-    console.error('❌ Recovery verification succeeded but no session created');
+    console.error('❌ Code exchange succeeded but no session created');
     return NextResponse.redirect(
       `${requestUrl.origin}/reset-password?error=session_failed`
     );
