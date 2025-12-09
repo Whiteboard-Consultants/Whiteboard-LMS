@@ -10,81 +10,98 @@ export async function GET(request: NextRequest) {
   console.log('🔐 Auth callback received:', { 
     code: code ? `${code.substring(0, 10)}...` : '❌', 
     error,
+    errorDescription,
     origin: requestUrl.origin
   });
 
   if (error) {
-    console.error('❌ Auth error:', { error, errorDescription });
-    // Redirect to reset password page with error
+    console.error('❌ Auth error from Supabase:', { error, errorDescription });
     return NextResponse.redirect(
-      `${requestUrl.origin}/reset-password?error=${error}`
+      `${requestUrl.origin}/reset-password?error=${error}&desc=${encodeURIComponent(errorDescription || '')}`
     );
   }
 
   if (!code) {
-    console.warn('⚠️ No code provided');
+    console.warn('⚠️ No code provided in URL');
     return NextResponse.redirect(`${requestUrl.origin}/reset-password?error=no_code`);
   }
 
   try {
     console.log('🔄 Exchanging recovery code for session...');
     
-    // Create Supabase client
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
     if (!supabaseUrl || !supabaseAnonKey) {
-      throw new Error('Supabase configuration missing');
+      throw new Error('Supabase credentials missing');
     }
 
-    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      auth: {
-        flowType: 'implicit',
-        autoRefreshToken: false,
-        persistSession: false,
-      }
-    });
+    // Create client with default auth settings
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-    // Exchange the code for a session
-    const { data: { session }, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+    console.log('🔄 Calling exchangeCodeForSession with code:', code.substring(0, 20) + '...');
+
+    // Exchange code for session - this is the key operation
+    const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
     if (exchangeError) {
-      console.error('❌ Code exchange failed:', exchangeError);
-      throw exchangeError;
+      console.error('❌ Code exchange failed:', {
+        message: exchangeError.message,
+        code: exchangeError.code,
+      });
+      
+      return NextResponse.redirect(
+        `${requestUrl.origin}/reset-password?error=invalid_code&message=${encodeURIComponent(
+          exchangeError.message || 'Failed to exchange recovery code'
+        )}`
+      );
     }
 
-    if (!session) {
-      console.error('❌ No session created from code');
-      throw new Error('Failed to create session');
+    if (!data.session) {
+      console.error('❌ No session returned from exchange');
+      return NextResponse.redirect(
+        `${requestUrl.origin}/reset-password?error=no_session`
+      );
     }
 
-    console.log('✅ Session created for user:', session.user.email);
+    const session = data.session;
+    console.log('✅ Code exchange successful!');
+    console.log('User:', session.user.email);
+    console.log('Access token available:', !!session.access_token);
 
-    // Create response that redirects to reset password page
-    const response = NextResponse.redirect(`${requestUrl.origin}/reset-password?reset=true`);
+    // Create response and redirect to reset password page
+    const response = NextResponse.redirect(`${requestUrl.origin}/reset-password?step=reset`);
+
+    // Set authentication cookies
+    // The cookie names are standardized by Supabase
+    const projectRef = 'lqezaljvpiycbeakndby'; // Extract from your SUPABASE_URL
     
-    // Set the session in cookies so the client can access it
-    const { data: { session: newSession } } = await supabase.auth.getSession();
-    if (newSession) {
-      response.cookies.set('sb-access-token', newSession.access_token, {
+    response.cookies.set(`sb-${projectRef}-auth-token`, session.access_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 365,
+      path: '/',
+    });
+
+    // Set refresh token if available
+    if (session.refresh_token) {
+      response.cookies.set(`sb-${projectRef}-auth-token-code-verifier`, session.refresh_token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        maxAge: 60 * 60 * 24 // 1 day
-      });
-      response.cookies.set('sb-refresh-token', newSession.refresh_token || '', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 60 * 60 * 24 * 7 // 1 week
+        maxAge: 60 * 60 * 24 * 365,
+        path: '/',
       });
     }
 
+    console.log('✅ Session cookies set, redirecting to reset page');
     return response;
   } catch (err) {
     console.error('❌ Callback error:', err);
+    const errorMsg = err instanceof Error ? err.message : 'Unknown error occurred';
     return NextResponse.redirect(
-      `${requestUrl.origin}/reset-password?error=exchange_failed`
+      `${requestUrl.origin}/reset-password?error=callback_error&message=${encodeURIComponent(errorMsg)}`
     );
   }
 }

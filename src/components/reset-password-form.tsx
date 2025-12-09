@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/lib/supabase';
@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 
 export function ResetPasswordForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -22,29 +23,54 @@ export function ResetPasswordForm() {
   useEffect(() => {
     const verifySession = async () => {
       try {
-        console.log('🔍 Verifying recovery session...');
+        console.log('🔍 Checking for recovery session...');
         
+        // Check for error from callback route
+        const callbackError = searchParams.get('error');
+        const errorMessage = searchParams.get('message');
+        
+        if (callbackError) {
+          console.error('❌ Callback returned error:', callbackError);
+          const msg = errorMessage ? decodeURIComponent(errorMessage) : `Auth error: ${callbackError}`;
+          throw new Error(msg);
+        }
+
+        // Check if callback was successful
+        const step = searchParams.get('step');
+        if (step === 'reset') {
+          console.log('✅ Callback successful, proceeding to password reset');
+          setHasValidSession(true);
+          setError(null);
+          setIsVerifying(false);
+          return;
+        }
+
+        // Otherwise check for an active recovery session
+        console.log('🔍 Checking for active session...');
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
-          console.error('❌ Session error:', sessionError);
+          console.error('❌ Session check error:', sessionError);
           throw new Error('Failed to verify session');
         }
 
         if (session?.user) {
-          console.log('✅ Valid recovery session found for:', session.user.email);
+          console.log('✅ Valid session found for user:', session.user.email);
           setHasValidSession(true);
           setError(null);
-        } else {
-          console.error('❌ No valid session found');
-          throw new Error('Your password reset link is invalid or has expired. Please request a new one.');
+          setIsVerifying(false);
+          return;
         }
+
+        // No session and no callback success = invalid/expired link
+        console.error('❌ No valid session found');
+        throw new Error('Your password reset link is invalid or has expired. Please request a new one.');
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : 'An error occurred';
         console.error('❌ Verification error:', errorMsg);
         setError(errorMsg);
         toast.error(errorMsg);
-        // Redirect after error
+        // Redirect after delay
         setTimeout(() => router.push('/forgot-password'), 2000);
       } finally {
         setIsVerifying(false);
@@ -54,7 +80,7 @@ export function ResetPasswordForm() {
     // Small delay to let Supabase process the token
     const timer = setTimeout(verifySession, 300);
     return () => clearTimeout(timer);
-  }, [router]);
+  }, [router, searchParams]);
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
