@@ -17,7 +17,6 @@ export type User = {
   phone?: string;
   lastLogin?: TimestampType;
   createdAt?: TimestampType;
-  password_changed_at?: TimestampType; // Track when password was last changed
   ratingCount?: number;
   totalRating?: number;
   averageRating?: number;
