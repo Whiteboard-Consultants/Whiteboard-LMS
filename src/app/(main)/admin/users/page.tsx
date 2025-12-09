@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { supabase } from "@/lib/supabase";
+import { sendPasswordResetEmail } from './actions';
 import { PageHeader } from "@/components/page-header";
 import { convertToDate } from "@/lib/date-utils";
 import {
@@ -273,24 +274,19 @@ export default function AdminUsersPage() {
       const user = users.find(u => u.id === userId);
       if (!user) throw new Error('User not found');
       
-      // Send password reset email using admin API
-      const { error } = await supabase.auth.admin.generateLink({
-        type: 'recovery',
-        email: user.email,
-      });
-
-      if (error) throw error;
+      // Send password reset email using server action
+      const result = await sendPasswordResetEmail(user.email);
 
       toast({
         title: "Success",
-        description: `Password reset email sent to ${user.email}`
+        description: result.message
       });
     } catch (error) {
       console.error('Error sending reset email:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to send password reset email"
+        description: error instanceof Error ? error.message : "Failed to send password reset email"
       });
     }
     setUpdatingId(null);
