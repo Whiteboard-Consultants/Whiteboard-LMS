@@ -22,35 +22,37 @@ export function ResetPasswordForm() {
       try {
         console.log('🔍 Checking for recovery session...');
         
-        // Wait a moment for Supabase to process the recovery token from URL
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Get the recovery code from URL parameters
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get('code');
         
-        // Get the current session - Supabase automatically processes the recovery token from URL
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        console.log('📍 Recovery code from URL:', code ? '✅ Found' : '❌ Not found');
         
-        if (sessionError) {
-          console.error('Session error:', sessionError);
-          throw sessionError;
-        }
-        
-        if (session) {
-          console.log('✅ Valid recovery session found for user:', session.user.email);
-          setSessionValid(true);
-        } else {
-          console.warn('⚠️ No valid session found, checking for recovery token in URL');
-          // Check the URL for recovery token
-          const hash = window.location.hash;
-          const search = window.location.search;
-          const fullUrl = `${hash}${search}`;
+        if (code) {
+          // Exchange the recovery code for a session
+          console.log('🔄 Exchanging recovery code for session...');
+          const { data, error } = await supabase.auth.exchangeCodeForSession(code);
           
-          console.log('📍 URL:', fullUrl);
+          if (error) {
+            console.error('❌ Code exchange error:', error);
+            throw error;
+          }
           
-          if (hash.includes('type=recovery') || search.includes('code=')) {
-            console.log('✅ Recovery token found in URL');
-            // The token exists - Supabase will use it when we call updateUser()
+          if (data.session) {
+            console.log('✅ Session created successfully for user:', data.session.user.email);
             setSessionValid(true);
           } else {
-            throw new Error('No recovery token found in URL');
+            throw new Error('No session created after code exchange');
+          }
+        } else {
+          // No code in URL - check if there's already a valid session
+          const { data: { session } } = await supabase.auth.getSession();
+          
+          if (session) {
+            console.log('✅ Valid session already exists');
+            setSessionValid(true);
+          } else {
+            throw new Error('No recovery code in URL and no active session');
           }
         }
       } catch (error) {
