@@ -6,17 +6,25 @@ If users are getting the error "Invalid or expired reset link", it's likely due 
 
 ## Solution: Configure Redirect URLs in Supabase Dashboard
 
+**Your domains:**
+- Local: `http://localhost:3000`
+- Production: `https://whiteboard-lms.vercel.app`
+
 1. **Go to Supabase Dashboard** → Your Project → Authentication → URL Configuration
 
 2. **Add these URLs to "Redirect URLs":**
-   - `http://localhost:3000/auth/callback` (for local development)
-   - `http://localhost:3000` (fallback)
-   - `https://your-production-domain.com/auth/callback` (for production)
-   - `https://your-production-domain.com` (fallback)
+   ```
+   http://localhost:3000/auth/callback
+   http://localhost:3000
+   https://whiteboard-lms.vercel.app/auth/callback
+   https://whiteboard-lms.vercel.app
+   ```
 
 3. **Also set "Site URL"** to:
-   - Local: `http://localhost:3000`
-   - Production: `https://your-production-domain.com`
+   - For local development: `http://localhost:3000`
+   - For production (Vercel): `https://whiteboard-lms.vercel.app`
+
+⚠️ **Important:** Supabase validates the redirect URL. If it's not in this list, you'll get "invalid_link" error.
 
 ## How Password Reset Works
 
