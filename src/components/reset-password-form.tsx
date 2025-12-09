@@ -102,6 +102,7 @@ export function ResetPasswordForm() {
       // If we have a recovery code from URL, use it to reset password
       if (recoveryCode) {
         console.log('🔄 Resetting password using recovery code...');
+        console.log('Recovery code:', recoveryCode.substring(0, 10) + '...');
         result = await resetPasswordWithCode(password, recoveryCode);
       } else {
         // Otherwise use the active session
@@ -122,9 +123,9 @@ export function ResetPasswordForm() {
       }, 1500);
     } catch (error) {
       console.error('Reset password error:', error);
-      toast.error(
-        error instanceof Error ? error.message : 'An error occurred while resetting your password'
-      );
+      const errorMsg = error instanceof Error ? error.message : 'An error occurred while resetting your password';
+      console.error('Detailed error:', errorMsg);
+      toast.error(errorMsg);
     } finally {
       setIsLoading(false);
     }
