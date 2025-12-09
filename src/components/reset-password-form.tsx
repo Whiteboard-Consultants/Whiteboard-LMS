@@ -32,14 +32,35 @@ export function ResetPasswordForm() {
           throw new Error(`${errorDescription || errorCode}`);
         }
         
-        // Get the recovery code from URL parameters
+        // Get the recovery code and type from URL parameters
         const code = params.get('code');
+        const type = params.get('type');
         
-        console.log('📍 Recovery code from URL:', code ? '✅ Found' : '❌ Not found');
+        console.log('📍 URL params:', { code: code ? '✅ Found' : '❌ Not found', type });
         
-        if (code) {
-          // Exchange the recovery code for a session
-          console.log('🔄 Exchanging recovery code for session...');
+        if (code && type === 'recovery') {
+          // Use verifyOtp for password reset recovery flows
+          console.log('🔄 Verifying OTP code for password reset...');
+          const { data, error } = await supabase.auth.verifyOtp({
+            email: '',  // Email not needed for recovery type
+            token: code,
+            type: 'recovery',
+          });
+          
+          if (error) {
+            console.error('❌ OTP verification error:', error);
+            throw error;
+          }
+          
+          if (data.session) {
+            console.log('✅ Session created successfully for user:', data.session.user.email);
+            setSessionValid(true);
+          } else {
+            throw new Error('No session created after OTP verification');
+          }
+        } else if (code) {
+          // Try exchangeCodeForSession as fallback for other code types
+          console.log('🔄 Exchanging code for session...');
           const { data, error } = await supabase.auth.exchangeCodeForSession(code);
           
           if (error) {
@@ -48,7 +69,7 @@ export function ResetPasswordForm() {
           }
           
           if (data.session) {
-            console.log('✅ Session created successfully for user:', data.session.user.email);
+            console.log('✅ Session created successfully');
             setSessionValid(true);
           } else {
             throw new Error('No session created after code exchange');
