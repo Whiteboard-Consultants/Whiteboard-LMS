@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { supabase } from "@/lib/supabase";
-import { sendPasswordResetEmail } from './actions';
+import { sendPasswordResetEmail, setTemporaryPassword } from './actions';
 import { PageHeader } from "@/components/page-header";
 import { convertToDate } from "@/lib/date-utils";
 import {
@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, Loader2, BookOpen, Trash2, MoreVertical, Calendar, AlertCircle, PlayCircle, User, ArrowLeft, Plus, Key } from "lucide-react";
+import { CheckCircle, XCircle, Loader2, BookOpen, Trash2, MoreVertical, Calendar, AlertCircle, PlayCircle, User, ArrowLeft, Plus, Key, Shield } from "lucide-react";
 import type { User as UserType, Enrollment, Course } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -292,6 +292,35 @@ export default function AdminUsersPage() {
     setUpdatingId(null);
   };
 
+  const handleSetTemporaryPassword = async (userId: string) => {
+    setUpdatingId(userId);
+    try {
+      const user = users.find(u => u.id === userId);
+      if (!user) throw new Error('User not found');
+      
+      // Set temporary password using server action
+      const result = await setTemporaryPassword(user.email);
+
+      toast({
+        title: "Success",
+        description: `Temporary password: ${result.tempPassword}`,
+        duration: 10000, // Show longer for users to copy
+      });
+
+      // Show modal with copyable password
+      setSelectedUser({ ...user, enrollments: [] });
+      setIsEnrollmentModalOpen(true);
+    } catch (error) {
+      console.error('Error setting temporary password:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to set temporary password"
+      });
+    }
+    setUpdatingId(null);
+  };
+
   const handleManageEnrollments = async (user: UserType) => {
     try {
       const { data: enrollmentsData, error } = await supabase
@@ -474,7 +503,10 @@ export default function AdminUsersPage() {
                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                <DropdownMenuItem onClick={() => handleResetPassword(user.id)} className="text-blue-600 focus:text-blue-700 focus:bg-blue-100">
-                   <Key className="mr-2 h-4 w-4" /> Send Password Reset
+                   <Key className="mr-2 h-4 w-4" /> Send Password Reset Email
+               </DropdownMenuItem>
+               <DropdownMenuItem onClick={() => handleSetTemporaryPassword(user.id)} className="text-purple-600 focus:text-purple-700 focus:bg-purple-100">
+                   <Shield className="mr-2 h-4 w-4" /> Set Temporary Password
                </DropdownMenuItem>
                 {user.status === 'suspended' ? (
                      <DropdownMenuItem onClick={() => handleReinstate(user.id)} className="text-green-600 focus:text-green-700 focus:bg-green-100">
