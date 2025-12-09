@@ -20,18 +20,43 @@ export function ResetPasswordForm() {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        console.log('🔍 Checking for recovery session...');
+        
+        // Wait a moment for Supabase to process the recovery token from URL
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Get the current session - Supabase automatically processes the recovery token from URL
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error('Session error:', sessionError);
+          throw sessionError;
+        }
         
         if (session) {
+          console.log('✅ Valid recovery session found for user:', session.user.email);
           setSessionValid(true);
-          console.log('✅ Valid recovery session found');
         } else {
-          console.warn('⚠️ No valid recovery session');
-          toast.error('Invalid or expired reset link. Please request a new password reset.');
-          setTimeout(() => router.push('/forgot-password'), 2000);
+          console.warn('⚠️ No valid session found, checking for recovery token in URL');
+          // Check the URL for recovery token
+          const hash = window.location.hash;
+          const search = window.location.search;
+          const fullUrl = `${hash}${search}`;
+          
+          console.log('📍 URL:', fullUrl);
+          
+          if (hash.includes('type=recovery') || search.includes('code=')) {
+            console.log('✅ Recovery token found in URL');
+            // The token exists - Supabase will use it when we call updateUser()
+            setSessionValid(true);
+          } else {
+            throw new Error('No recovery token found in URL');
+          }
         }
       } catch (error) {
         console.error('Session check error:', error);
+        toast.error('Invalid or expired reset link. Please request a new password reset.');
+        setTimeout(() => router.push('/forgot-password'), 2000);
       } finally {
         setIsVerifying(false);
       }
