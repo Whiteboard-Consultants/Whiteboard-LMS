@@ -15,81 +15,42 @@ export function ResetPasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isVerifying, setIsVerifying] = useState(true);
   const [sessionValid, setSessionValid] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
 
-  // Check if the user has a valid recovery session from the URL token
+  // Check if the user has a valid recovery session
   useEffect(() => {
     const checkSession = async () => {
       try {
         console.log('🔍 Checking for recovery session...');
         
-        // Check for error parameters in URL
-        const params = new URLSearchParams(window.location.search);
-        const errorCode = params.get('error_code');
-        const errorDescription = params.get('error_description');
+        // The auth callback route should have already exchanged the code for a session
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
-        if (errorCode) {
-          console.error('❌ URL contains error:', { errorCode, errorDescription });
-          throw new Error(`${errorDescription || errorCode}`);
+        if (sessionError) {
+          console.error('❌ Session error:', sessionError);
+          throw sessionError;
         }
         
-        // Get the recovery code and type from URL parameters
-        const code = params.get('code');
-        const type = params.get('type');
-        
-        console.log('📍 URL params:', { code: code ? '✅ Found' : '❌ Not found', type });
-        
-        if (code && type === 'recovery') {
-          // Use verifyOtp for password reset recovery flows
-          console.log('🔄 Verifying OTP code for password reset...');
-          const { data, error } = await supabase.auth.verifyOtp({
-            email: '',  // Email not needed for recovery type
-            token: code,
-            type: 'recovery',
-          });
-          
-          if (error) {
-            console.error('❌ OTP verification error:', error);
-            throw error;
-          }
-          
-          if (data.session) {
-            console.log('✅ Session created successfully for user:', data.session.user.email);
-            setSessionValid(true);
-          } else {
-            throw new Error('No session created after OTP verification');
-          }
-        } else if (code) {
-          // Try exchangeCodeForSession as fallback for other code types
-          console.log('🔄 Exchanging code for session...');
-          const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-          
-          if (error) {
-            console.error('❌ Code exchange error:', error);
-            throw error;
-          }
-          
-          if (data.session) {
-            console.log('✅ Session created successfully');
-            setSessionValid(true);
-          } else {
-            throw new Error('No session created after code exchange');
-          }
+        if (session) {
+          console.log('✅ Valid session found for user:', session.user.email);
+          setUserEmail(session.user.email || '');
+          setSessionValid(true);
         } else {
-          // No code in URL - check if there's already a valid session
-          const { data: { session } } = await supabase.auth.getSession();
+          // Check URL for error parameters
+          const params = new URLSearchParams(window.location.search);
+          const error = params.get('error');
           
-          if (session) {
-            console.log('✅ Valid session already exists');
-            setSessionValid(true);
-          } else {
-            throw new Error('No recovery code in URL and no active session');
+          if (error) {
+            throw new Error(`Auth error: ${error}`);
           }
+          
+          throw new Error('No active session. Please request a new password reset.');
         }
       } catch (error) {
-        console.error('Session check error:', error);
+        console.error('❌ Session check error:', error);
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        toast.error(`Invalid or expired reset link (${errorMessage}). Please request a new password reset.`);
-        setTimeout(() => router.push('/forgot-password'), 3000);
+        toast.error(`Invalid or expired reset link. Please request a new password reset.`);
+        setTimeout(() => router.push('/forgot-password'), 2000);
       } finally {
         setIsVerifying(false);
       }

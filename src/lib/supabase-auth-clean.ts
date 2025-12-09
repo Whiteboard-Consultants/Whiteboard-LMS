@@ -213,7 +213,7 @@ export async function changePassword(newPassword: string) {
 // Reset password
 export async function resetPassword(email: string) {
   try {
-    const { data, error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` });
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/auth/callback?next=/reset-password` });
     if (error) throw error;
     return { data, error: null };
   } catch (error) {
