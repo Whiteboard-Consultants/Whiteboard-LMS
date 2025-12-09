@@ -5,32 +5,40 @@ import { createClient } from '@supabase/supabase-js';
 export async function resetPasswordWithCode(password: string, code: string) {
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    if (!supabaseUrl || !supabaseAnonKey) {
+    if (!supabaseUrl || !supabaseServiceKey) {
       throw new Error('Supabase configuration missing');
     }
 
-    // Create a client and use the recovery code
-    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    // Use the service role client to handle the recovery code
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
-        flowType: 'pkce',
-        autoRefreshToken: true,
+        autoRefreshToken: false,
         persistSession: false,
       }
     });
 
-    // First, verify the code is valid
-    console.log('🔐 Verifying recovery code...');
+    console.log('🔐 Exchanging recovery code for session...');
     
-    // Update password with the code as the auth token
-    const { data, error } = await supabase.auth.updateUser(
-      { password },
-      {
-        headers: {
-          Authorization: `Bearer ${code}`
-        }
-      }
+    // Exchange the code for a session first
+    const { data: sessionData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+
+    if (exchangeError) {
+      console.error('❌ Code exchange error:', exchangeError);
+      throw exchangeError;
+    }
+
+    if (!sessionData.session) {
+      throw new Error('Failed to create session from recovery code');
+    }
+
+    console.log('✅ Session created, updating password...');
+
+    // Now use the session to update the password
+    const { data, error } = await supabase.auth.admin.updateUserById(
+      sessionData.session.user.id,
+      { password }
     );
 
     if (error) {
