@@ -9,13 +9,17 @@ export async function sendPasswordResetEmail(email: string) {
       throw new Error('Supabase admin client not configured');
     }
 
-    // Generate a recovery link using admin API
-    const { data, error } = await supabaseAdmin.auth.admin.generateLink({
+    // Determine the redirect URL based on environment
+    // For local development, we don't use a custom redirectTo since Supabase
+    // will redirect to https://localhost:3000 which won't work
+    // Instead, we'll extract the token from the Supabase verify URL
+    const generateLinkOptions: any = {
       type: 'recovery',
       email: email,
-      // Redirect to your callback route instead of default Supabase endpoint
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
-    });
+    };
+
+    // Generate a recovery link using admin API
+    const { data, error } = await supabaseAdmin.auth.admin.generateLink(generateLinkOptions);
 
     if (error) {
       console.error('Error generating recovery link:', error);
@@ -30,9 +34,8 @@ export async function sendPasswordResetEmail(email: string) {
     console.log('✅ Recovery link generated:', `${actionLink.substring(0, 50)}...`);
     console.log('🔗 Full recovery link:', actionLink);
 
-    // The action_link from Supabase already contains everything needed
-    // and it's pre-configured with the correct domain
-    // You can return this link or manually send an email using your email provider
+    // The action_link from Supabase contains token, type, and redirect_to parameters
+    // Our callback route will handle extracting the token and redirecting appropriately
 
     return { 
       success: true, 
