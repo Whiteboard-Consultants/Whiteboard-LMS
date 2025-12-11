@@ -203,20 +203,22 @@ NEXT_PUBLIC_SITE_URL=https://your-production-domain.com
 NEXT_PUBLIC_APP_URL=https://your-production-domain.com
 
 # Razorpay (Keys - LIVE)
-RAZORPAY_KEY_ID=rzp_live_RWVMrjSAANx4Lp
-RAZORPAY_KEY_SECRET=BpMFLsVFQfQ6NpC4gKdHaF6H
+# Set in Vercel environment variables only - DO NOT commit actual keys
+RAZORPAY_KEY_ID=your_razorpay_live_key_id
+RAZORPAY_KEY_SECRET=your_razorpay_live_key_secret
 
 # SMTP2GO (Email)
 SMTP_HOST=mail.smtp2go.com
 SMTP_PORT=2525
-SMTP_USER=whiteboardconsultant.com
-SMTP_PASSWORD=FtMk3K8ZMbbkJonF
+SMTP_USER=your_smtp2go_username
+SMTP_PASSWORD=your_smtp2go_password
 SMTP_FROM_EMAIL=info@whiteboardconsultant.com
 ADMIN_EMAIL=info@whiteboardconsultant.com
 SMTP_SECURE=false
 
 # Gemini API
-GEMINI_API_KEY=AIzaSyDYYhgXfA786bcghVon1UPpXikNcskB6SU
+# Set in Vercel environment variables only - DO NOT commit actual keys
+GEMINI_API_KEY=your_gemini_api_key
 
 # Next.js
 NODE_ENV=production
