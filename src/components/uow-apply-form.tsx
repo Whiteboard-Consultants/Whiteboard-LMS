@@ -33,7 +33,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Link from "next/link";
-import { saveContactSubmission } from "@/app/contact/actions";
+import { saveContactSubmission } from "@/app/(public)/contact/actions";
 
 const formSchema = z.object({
   firstName: z.string().min(1, "First Name is required."),

@@ -14,7 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { saveContactSubmission } from "@/app/contact/actions";
+import { saveContactSubmission } from "@/app/(public)/contact/actions";
 
 const formSchema = z.object({
   firstName: z.string().min(1, "First Name is required."),
