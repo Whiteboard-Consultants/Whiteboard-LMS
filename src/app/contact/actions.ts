@@ -88,7 +88,7 @@ export async function saveContactSubmission(formData: ContactFormData) {
       return { success: false, error: 'Submission may not have been saved properly. Please try again.' };
     }
     
-    console.log('Contact submission saved successfully:', data.id);
+    console.log('✅ Contact submission saved successfully:', data.id);
     
     // Send email notifications (don't block the response if emails fail)
     const emailData: ContactSubmissionData = {
@@ -102,23 +102,30 @@ export async function saveContactSubmission(formData: ContactFormData) {
     };
 
     // Send notifications asynchronously (don't await to avoid blocking the response)
+    // This ensures the user gets immediate feedback even if email service is slow
     Promise.all([
       sendAdminNotification(emailData),
       sendAutoReply(emailData)
     ]).then(([adminSent, autoReplySent]) => {
-      console.log(`✅ Contact submission ${data.id} saved successfully`);
-      console.log('📧 Email notifications:', { 
-        adminNotification: adminSent ? '✅ sent' : '❌ failed (check SMTP config)',
-        autoReply: autoReplySent ? '✅ sent' : '❌ failed (check SMTP config)'
-      });
+      console.log(`📧 Contact submission ${data.id} - Email status:`);
+      console.log(`   Admin notification: ${adminSent ? '✅ sent' : '❌ failed'}`);
+      console.log(`   Auto-reply: ${autoReplySent ? '✅ sent' : '❌ failed'}`);
       
       if (!adminSent || !autoReplySent) {
-        console.log('💡 To enable email notifications, add SMTP configuration to .env.local:');
-        console.log('   SMTP_USER, SMTP_PASSWORD, ADMIN_EMAIL');
-        console.log('   See .env.email.example for full configuration');
+        console.log('⚠️  Email service issue detected. Checking configuration:');
+        console.log(`   EMAIL_SERVICE=${process.env.EMAIL_SERVICE}`);
+        console.log(`   Gmail OAuth2 configured: ${process.env.GMAIL_CLIENT_ID ? '✅' : '❌'}`);
+        console.log(`   SMTP2GO configured: ${process.env.SMTP_USER ? '✅' : '❌'}`);
+        console.log(`   Admin email: ${process.env.ADMIN_EMAIL}`);
       }
     }).catch((error) => {
       console.error('❌ Error sending email notifications:', error);
+      console.error('Email service error details:', {
+        message: error instanceof Error ? error.message : String(error),
+        service: process.env.EMAIL_SERVICE,
+        hasGmailOAuth2: !!process.env.GMAIL_CLIENT_ID,
+        hasSMTP2GO: !!process.env.SMTP_USER,
+      });
     });
     
     return { success: true };
