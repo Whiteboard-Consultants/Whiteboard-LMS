@@ -11,9 +11,9 @@
 ## ✅ What's Been Completed
 
 ### 1. ✅ OAuth2 Credentials Created
-- **Client ID:** `270610995591-44ljhomjib3d8j3qm0ccmatkc92obgq0.apps.googleusercontent.com`
-- **Client Secret:** `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`
-- **Refresh Token Generated:** `1//0gTQ7HFQtdPhgCgYIARAAGBASNwF-L9IrunEGW_KZDum8dc0WDtIOcQfDcGMqFnKgEbrwb9W0yy1yZ4h83Yp2dTAKZ73rfrdgvdk`
+- **Client ID:** Configured in `.env.local`
+- **Client Secret:** Configured in `.env.local`
+- **Refresh Token Generated:** Configured in `.env.local` (secure)
 - **Scopes:** `https://www.googleapis.com/auth/gmail.send`
 
 ### 2. ✅ Environment Configuration
