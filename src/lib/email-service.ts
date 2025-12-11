@@ -253,10 +253,8 @@ export async function sendAutoReply(submission: ContactSubmissionData): Promise<
 
     const subject = `Thank you for contacting Whiteboard Consultants - ${submission.inquiryType}`;
     
-    // Use production URL for logo in emails (since localhost won't work when sent)
-    const logoUrl = process.env.NODE_ENV === 'production' 
-      ? `https://whiteboard-lms.vercel.app/logo.png`
-      : `${process.env.NEXT_PUBLIC_SITE_URL}/logo.png`;
+    // Always use production URL for logo in emails (localhost won't work for email images)
+    const logoUrl = `https://whiteboard-lms.vercel.app/logo.png`;
     
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
