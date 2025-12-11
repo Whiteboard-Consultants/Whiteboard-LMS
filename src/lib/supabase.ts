@@ -21,7 +21,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: true,
     storage: typeof window !== 'undefined' ? window.localStorage : null,
     storageKey: 'sb-auth-token',
-    flowType: 'pkce'
+    flowType: 'implicit'  // Changed from 'pkce' - password recovery uses implicit flow
   },
   global: {
     headers: {

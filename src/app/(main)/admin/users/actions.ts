@@ -9,17 +9,11 @@ export async function sendPasswordResetEmail(email: string) {
       throw new Error('Supabase admin client not configured');
     }
 
-    // Determine the redirect URL based on environment
-    // For local development, we don't use a custom redirectTo since Supabase
-    // will redirect to https://localhost:3000 which won't work
-    // Instead, we'll extract the token from the Supabase verify URL
-    const generateLinkOptions: any = {
+    // Generate a recovery link using admin API
+    const { data, error } = await supabaseAdmin.auth.admin.generateLink({
       type: 'recovery',
       email: email,
-    };
-
-    // Generate a recovery link using admin API
-    const { data, error } = await supabaseAdmin.auth.admin.generateLink(generateLinkOptions);
+    });
 
     if (error) {
       console.error('Error generating recovery link:', error);
@@ -34,15 +28,27 @@ export async function sendPasswordResetEmail(email: string) {
     console.log('✅ Recovery link generated:', `${actionLink.substring(0, 50)}...`);
     console.log('🔗 Full recovery link:', actionLink);
 
-    // The action_link from Supabase contains token, type, and redirect_to parameters
-    // Our callback route will handle extracting the token and redirecting appropriately
+    // Extract the token from the Supabase URL
+    // Supabase link format: https://...supabase.co/auth/v1/verify?token=XXX&type=recovery&redirect_to=...
+    const supabaseUrl = new URL(actionLink);
+    const token = supabaseUrl.searchParams.get('token');
+    
+    if (!token) {
+      throw new Error('No token extracted from recovery link');
+    }
+
+    // Create our own recovery link that points to our callback with just the token
+    const appUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    const customRecoveryLink = `${appUrl}/auth/callback?token=${token}&type=recovery`;
+    
+    console.log('🔗 Custom recovery link (for testing):', customRecoveryLink);
 
     return { 
       success: true, 
       message: `Password reset email prepared for ${email}`,
-      link: actionLink,
+      link: customRecoveryLink,  // Return our custom link instead of Supabase's
       // Note: In production, you would send this link via your email service here
-      // For now, we'll rely on Supabase sending it automatically
+      // For now, we'll use this custom link for testing
     };
   } catch (error) {
     console.error('Error sending password reset email:', error);

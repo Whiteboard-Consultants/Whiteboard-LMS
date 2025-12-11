@@ -7,31 +7,77 @@
  * The refresh token automatically handles token expiration and renewal.
  */
 
-/**
- * Email Service with SMTP2GO SMTP Authentication
- * 
- * This module handles email sending using SMTP2GO's reliable SMTP service.
- * No OAuth2 complexity - just simple, reliable SMTP.
- */
-
 import nodemailer from 'nodemailer';
+import { google } from 'googleapis';
 
 /**
- * Create a Nodemailer transporter with SMTP2GO credentials
+ * Create a Nodemailer transporter with Gmail OAuth2
  */
 export async function createEmailTransport() {
   try {
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT || '2525'),
-      secure: process.env.SMTP_SECURE === 'true',
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASSWORD,
-      },
-    });
+    const emailService = process.env.EMAIL_SERVICE || 'gmail-oauth2';
+    
+    console.log(`\n${'='.repeat(70)}`);
+    console.log(`📧 EMAIL SERVICE INITIALIZATION`);
+    console.log(`${'='.repeat(70)}`);
+    console.log(`🔍 Current EMAIL_SERVICE setting: "${emailService}"`);
+    
+    // Use Gmail OAuth2
+    if (emailService === 'gmail-oauth2' || !process.env.SMTP_HOST) {
+      console.log(`✅ Using: GMAIL OAUTH2 (Secure OAuth2 Authentication)`);
+      console.log(`📮 From Address: ${process.env.GMAIL_USER}`);
+      console.log(`🔐 Authentication Method: OAuth2 with Refresh Token`);
+      
+      if (!process.env.GMAIL_REFRESH_TOKEN) {
+        throw new Error('GMAIL_REFRESH_TOKEN is not configured in environment variables');
+      }
 
-    return transporter;
+      const oauth2Client = new google.auth.OAuth2(
+        process.env.GMAIL_CLIENT_ID,
+        process.env.GMAIL_CLIENT_SECRET,
+        'http://localhost:3000/api/auth/callback'
+      );
+
+      oauth2Client.setCredentials({
+        refresh_token: process.env.GMAIL_REFRESH_TOKEN,
+      });
+
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          type: 'OAuth2',
+          user: process.env.GMAIL_USER,
+          clientId: process.env.GMAIL_CLIENT_ID,
+          clientSecret: process.env.GMAIL_CLIENT_SECRET,
+          refreshToken: process.env.GMAIL_REFRESH_TOKEN,
+        },
+      });
+
+      console.log(`✨ OAuth2 transporter created successfully`);
+      console.log(`${'='.repeat(70)}\n`);
+      
+      return transporter;
+    } else {
+      // Fallback to SMTP2GO
+      console.log(`⚠️  Using: SMTP2GO (Legacy SMTP - Not recommended)`);
+      console.log(`📮 From Address: ${process.env.SMTP_FROM_EMAIL}`);
+      console.log(`🔐 Authentication Method: Basic SMTP Username/Password`);
+      
+      const transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: parseInt(process.env.SMTP_PORT || '2525'),
+        secure: process.env.SMTP_SECURE === 'true',
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASSWORD,
+        },
+      });
+
+      console.log(`⚠️  SMTP2GO transporter created (fallback mode)`);
+      console.log(`${'='.repeat(70)}\n`);
+      
+      return transporter;
+    }
   } catch (error) {
     console.error('❌ Failed to create email transporter:', error);
     throw new Error(`Email transporter error: ${error instanceof Error ? error.message : 'Unknown error'}`);

@@ -1,6 +1,11 @@
 'use server';
 
 import { createClient } from '@supabase/supabase-js';
+import crypto from 'crypto';
+
+function hashCode(code: string): string {
+  return crypto.createHash('sha256').update(code).digest('base64');
+}
 
 export async function resetPasswordWithCode(password: string, code: string) {
   try {
@@ -12,63 +17,34 @@ export async function resetPasswordWithCode(password: string, code: string) {
     }
 
     console.log('🔐 Attempting password reset with recovery code...');
-    console.log('Code length:', code.length);
+    console.log('Original code length:', code.length);
     
-    // Create a client with implicit flow
+    // Create a client for verifying the recovery token
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
-        flowType: 'implicit',
-        autoRefreshToken: false,
-        persistSession: false,
+        autoRefreshToken: true,
+        persistSession: true,
       }
     });
 
-    console.log('🔄 Step 1: Exchanging code for session...');
+    console.log('🔄 Step 1: Hashing recovery code...');
+    // Hash the code as Supabase expects
+    const hashedCode = hashCode(code);
+    console.log('Hashed code length:', hashedCode.length);
     
-    // Try to exchange the code for a session
-    const { data: sessionData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+    // Verify the recovery code using verifyOtp
+    const { data: verifyData, error: verifyError } = await supabase.auth.verifyOtp({
+      token_hash: hashedCode,
+      type: 'recovery'
+    });
 
-    if (exchangeError) {
-      console.error('❌ Exchange failed:', exchangeError);
-      
-      // If exchange fails, try an alternative approach:
-      // Use the code directly with resetPasswordForEmail
-      console.log('🔄 Step 2: Trying alternative method...');
-      
-      // The code might be a hashed token, try using verifyOtp with email-less approach
-      // This is a workaround for the recovery code issue
-      console.log('⚠️ Code exchange failed, attempting direct password update...');
-      
-      // If we have a recovery code, we can attempt to use it by creating
-      // a special client that treats it as a valid token
-      const recoveryClient = createClient(supabaseUrl, supabaseAnonKey, {
-        auth: {
-          flowType: 'pkce',
-          autoRefreshToken: false,
-          persistSession: false,
-        },
-        global: {
-          headers: {
-            // Try passing the code as authorization
-            'Authorization': `Bearer ${code}`
-          }
-        }
-      });
-
-      const { error: updateError } = await recoveryClient.auth.updateUser({
-        password
-      });
-
-      if (updateError) {
-        console.error('❌ Direct update also failed:', updateError);
-        throw new Error(`Invalid recovery code: ${exchangeError.message}`);
-      }
-
-      console.log('✅ Password updated via direct method');
-      return { success: true, message: 'Password reset successfully' };
+    if (verifyError) {
+      console.error('❌ Recovery code verification failed:', verifyError);
+      throw new Error(`Invalid recovery code: ${verifyError.message}`);
     }
 
-    if (!sessionData.session) {
+    if (!verifyData.session) {
+      console.error('❌ No session created from recovery code');
       throw new Error('Failed to create session from recovery code');
     }
 
@@ -88,9 +64,8 @@ export async function resetPasswordWithCode(password: string, code: string) {
     return { success: true, message: 'Password reset successfully' };
   } catch (error) {
     console.error('Error resetting password:', error);
-    throw new Error(
-      error instanceof Error ? error.message : 'Failed to reset password'
-    );
+    const message = error instanceof Error ? error.message : 'Failed to reset password';
+    return { success: false, message };
   }
 }
 
@@ -106,7 +81,7 @@ export async function resetPasswordWithSession(password: string) {
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         autoRefreshToken: true,
-        persistSession: false,
+        persistSession: true,
       }
     });
 
@@ -125,8 +100,7 @@ export async function resetPasswordWithSession(password: string) {
     return { success: true, message: 'Password reset successfully' };
   } catch (error) {
     console.error('Error resetting password:', error);
-    throw new Error(
-      error instanceof Error ? error.message : 'Failed to reset password'
-    );
+    const message = error instanceof Error ? error.message : 'Failed to reset password';
+    return { success: false, message };
   }
 }

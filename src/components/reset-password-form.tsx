@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/lib/supabase';
@@ -9,7 +9,6 @@ import { toast } from 'sonner';
 
 export function ResetPasswordForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -18,68 +17,89 @@ export function ResetPasswordForm() {
   const [isVerifying, setIsVerifying] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasValidSession, setHasValidSession] = useState(false);
+  const [sessionUser, setSessionUser] = useState<string | null>(null);
 
-  // Verify we have a valid recovery session
   useEffect(() => {
-    const verifySession = async () => {
-      try {
-        console.log('🔍 Reset form loaded - checking for active session...');
-        
-        // Check URL params for error/success from callback
-        const callbackError = searchParams.get('error');
-        const successParam = searchParams.get('success');
-        
-        console.log('📋 URL params:', { error: callbackError, success: successParam });
-        
-        if (callbackError) {
-          console.error('❌ Callback error:', callbackError);
-          let errorMessage = 'Authentication error. ';
-          if (callbackError === 'invalid_recovery_link') {
-            errorMessage += 'Your password reset link is invalid or has expired.';
-          } else if (callbackError === 'session_failed') {
-            errorMessage += 'Failed to establish session. Please try again.';
-          } else {
-            errorMessage += 'Please request a new password reset email.';
-          }
-          throw new Error(errorMessage);
-        }
+    console.log('🔍 Reset password form mounted');
+    console.log('📋 Full URL:', typeof window !== 'undefined' ? window.location.href : 'server-side');
+    console.log('📋 Hash:', typeof window !== 'undefined' ? window.location.hash : 'server-side');
 
-        // Wait a moment for Supabase client to process the session from callback
-        console.log('⏳ Checking for authenticated session...');
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) {
-          console.error('❌ Session error:', sessionError);
-          throw new Error('Failed to check session');
-        }
+    // Check for tokens in hash
+    if (typeof window !== 'undefined' && window.location.hash) {
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      console.log('📋 Hash params:', {
+        access_token: hashParams.get('access_token') ? hashParams.get('access_token')!.substring(0, 20) + '...' : 'none',
+        refresh_token: hashParams.get('refresh_token') ? hashParams.get('refresh_token')!.substring(0, 20) + '...' : 'none',
+        type: hashParams.get('type')
+      });
+    }
 
-        if (session?.user) {
-          console.log('✅ Active session found! User:', session.user.email);
-          setHasValidSession(true);
-          setError(null);
-          setIsVerifying(false);
-          return;
-        }
+    let isMounted = true;
+    let sessionCheckCount = 0;
+    const maxChecks = 5; // Check for 5 seconds
 
-        // No session found - recovery link wasn't processed or has expired
-        console.error('❌ No active session found');
-        throw new Error('No active password reset session. Please request a password reset email.');
-      } catch (err) {
-        const errorMsg = err instanceof Error ? err.message : 'An error occurred';
-        console.error('❌ Verification error:', errorMsg);
-        setError(errorMsg);
-        toast.error(errorMsg);
-        // Redirect after delay
-        setTimeout(() => router.push('/forgot-password'), 2000);
-      } finally {
+    // Function to check for session
+    const checkForSession = async () => {
+      sessionCheckCount++;
+      console.log(`🔍 Session check #${sessionCheckCount}`);
+
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (!isMounted) return;
+
+      if (sessionError) {
+        console.error('❌ Session error:', sessionError);
+        setError('Failed to verify reset link.');
+        setIsVerifying(false);
+        return;
+      }
+
+      if (session?.user) {
+        console.log('✅ Session found:', session.user.email);
+        setSessionUser(session.user.email);
+        setHasValidSession(true);
+        setError(null);
+        setIsVerifying(false);
+        return;
+      }
+
+      console.log(`⏳ No session yet, attempt ${sessionCheckCount}/${maxChecks}`);
+
+      // Keep checking if we haven't reached max attempts
+      if (sessionCheckCount < maxChecks) {
+        setTimeout(checkForSession, 1000);
+      } else {
+        console.error('❌ No session after maximum attempts');
+        setError('Your password reset link is invalid or has expired. Please request a new one.');
         setIsVerifying(false);
       }
     };
 
-    verifySession();
-  }, [router, searchParams]);
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (!isMounted) return;
+        
+        console.log('🔄 Auth state change:', event, session?.user?.email || 'no user');
+
+        if (session?.user) {
+          console.log('✅ Session from auth change:', session.user.email);
+          setSessionUser(session.user.email);
+          setHasValidSession(true);
+          setError(null);
+          setIsVerifying(false);
+        }
+      }
+    );
+
+    // Start checking for session
+    checkForSession();
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,7 +107,6 @@ export function ResetPasswordForm() {
     setError(null);
 
     try {
-      // Validation
       if (!password || !confirmPassword) {
         throw new Error('Please enter your password');
       }
@@ -100,12 +119,18 @@ export function ResetPasswordForm() {
         throw new Error('Password must be at least 8 characters');
       }
 
-      console.log('🔐 Updating password with recovery session...');
+      console.log('🔐 Updating password...');
 
-      // Update password using the authenticated session from the recovery link
-      const { error: updateError } = await supabase.auth.updateUser({
-        password
-      });
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session?.user) {
+        console.error('❌ No authenticated session');
+        throw new Error('Session expired. Please use the reset link from your email again.');
+      }
+
+      console.log('📧 Updating password for:', session.user.email);
+
+      const { error: updateError } = await supabase.auth.updateUser({ password });
 
       if (updateError) {
         console.error('❌ Password update error:', updateError);
@@ -115,7 +140,6 @@ export function ResetPasswordForm() {
       console.log('✅ Password reset successfully');
       toast.success('Password reset successfully!');
 
-      // Sign out and redirect to login
       await supabase.auth.signOut();
       
       setTimeout(() => {
@@ -131,7 +155,6 @@ export function ResetPasswordForm() {
     }
   };
 
-  // Show loading while verifying
   if (isVerifying) {
     return (
       <div className="text-center py-8">
@@ -141,20 +164,22 @@ export function ResetPasswordForm() {
     );
   }
 
-  // Show error if no valid session
   if (!hasValidSession) {
     return (
-      <div className="rounded-lg bg-red-50 dark:bg-red-900/20 p-4 border border-red-200 dark:border-red-800">
-        <p className="text-sm text-red-800 dark:text-red-200">
-          {error || 'Your password reset link is invalid or has expired.'}
-        </p>
-        <Button 
-          onClick={() => router.push('/forgot-password')}
-          className="w-full mt-4"
-          variant="outline"
-        >
-          Request New Reset Link
-        </Button>
+      <div className="max-w-md mx-auto">
+        <div className="rounded-lg bg-red-50 dark:bg-red-900/20 p-6 border border-red-200 dark:border-red-800">
+          <h2 className="text-lg font-semibold text-red-900 dark:text-red-100 mb-2">Link Expired</h2>
+          <p className="text-sm text-red-800 dark:text-red-200 mb-4">
+            {error || 'Your password reset link is invalid or has expired.'}
+          </p>
+          <Button 
+            onClick={() => router.push('/forgot-password')}
+            className="w-full"
+            variant="default"
+          >
+            Request New Reset Link
+          </Button>
+        </div>
       </div>
     );
   }
