@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
         console.log(`📄 File: ${fileName}`);
         console.log(`👤 User: ${name} (${email})`);
 
-        // Send email notifications (don't block the response if emails fail)
+        // Send email notifications
         const emailData: ResumeSubmissionData = {
             id: submissionData.id,
             name: name.trim(),
@@ -103,22 +103,27 @@ export async function POST(req: NextRequest) {
             submittedAt: new Date().toISOString()
         };
 
-        // Send notifications asynchronously (don't await to avoid blocking the response)
-        Promise.all([
-            sendResumeAdminNotification(emailData),
-            sendResumeConfirmation(emailData)
-        ]).then(([adminSent, confirmationSent]) => {
+        // Send notifications and wait for them to complete
+        try {
+            const [adminSent, confirmationSent] = await Promise.all([
+                sendResumeAdminNotification(emailData),
+                sendResumeConfirmation(emailData)
+            ]);
+
             console.log(`📧 Resume submission ${submissionData.id} notifications:`, { 
-                adminNotification: adminSent ? '✅ sent' : '❌ failed (check SMTP config)',
-                userConfirmation: confirmationSent ? '✅ sent' : '❌ failed (check SMTP config)'
+                adminNotification: adminSent ? '✅ sent' : '❌ failed',
+                userConfirmation: confirmationSent ? '✅ sent' : '❌ failed'
             });
             
             if (!adminSent || !confirmationSent) {
-                console.log('💡 To enable email notifications, ensure SMTP configuration is complete in .env.local');
+                console.log('⚠️  Email service issue detected. Checking configuration:');
+                console.log(`   Gmail App Password configured: ${process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD ? '✅' : '❌'}`);
+                console.log(`   SMTP2GO configured: ${process.env.SMTP_USER && process.env.SMTP_PASSWORD ? '✅' : '❌'}`);
+                console.log(`   Admin email: ${process.env.ADMIN_EMAIL}`);
             }
-        }).catch((error) => {
-            console.error('❌ Error sending resume email notifications:', error);
-        });
+        } catch (emailError) {
+            console.error('❌ Error sending resume email notifications:', emailError);
+        }
 
         return NextResponse.json({
             success: true,

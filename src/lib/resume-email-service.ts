@@ -1,16 +1,32 @@
 import nodemailer from 'nodemailer';
 
-// Email configuration - reuse the existing transporter setup
+// Email configuration - support both SMTP2GO and Gmail App Password
 const createTransporter = () => {
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: process.env.SMTP_SECURE === 'true',
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASSWORD,
-    },
-  });
+  // Try SMTP2GO first
+  if (process.env.SMTP_USER && process.env.SMTP_PASSWORD) {
+    return nodemailer.createTransport({
+      host: process.env.SMTP_HOST || 'mail.smtp2go.com',
+      port: parseInt(process.env.SMTP_PORT || '2525'),
+      secure: process.env.SMTP_SECURE === 'true',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASSWORD,
+      },
+    });
+  }
+  
+  // Fallback to Gmail App Password
+  if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
+    return nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASSWORD.replace(/\s+/g, ''),
+      },
+    });
+  }
+  
+  throw new Error('No email service configured (SMTP2GO or Gmail App Password required)');
 };
 
 export interface ResumeSubmissionData {
@@ -27,8 +43,16 @@ export interface ResumeSubmissionData {
 export async function sendResumeAdminNotification(submission: ResumeSubmissionData): Promise<boolean> {
   try {
     // Check if email configuration is available
-    if (!process.env.SMTP_USER || !process.env.SMTP_PASSWORD || !process.env.ADMIN_EMAIL) {
-      console.warn('Email configuration missing. Skipping resume admin notification.');
+    const hasSMTP2GO = process.env.SMTP_USER && process.env.SMTP_PASSWORD;
+    const hasGmailAppPassword = process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD;
+    
+    if (!process.env.ADMIN_EMAIL) {
+      console.warn('Admin email not configured. Skipping resume admin notification.');
+      return false;
+    }
+    
+    if (!hasSMTP2GO && !hasGmailAppPassword) {
+      console.warn('No email service configured (SMTP2GO or Gmail App Password). Skipping resume admin notification.');
       return false;
     }
 
@@ -36,7 +60,7 @@ export async function sendResumeAdminNotification(submission: ResumeSubmissionDa
     await transporter.verify();
 
     const adminEmail = process.env.ADMIN_EMAIL;
-    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER;
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || process.env.GMAIL_USER;
 
     // Format file size
     const formatFileSize = (bytes: number) => {
@@ -141,13 +165,16 @@ Submission ID: ${submission.id}
 export async function sendResumeConfirmation(submission: ResumeSubmissionData): Promise<boolean> {
   try {
     // Check if email configuration is available
-    if (!process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
-      console.warn('Email configuration missing. Skipping resume confirmation.');
+    const hasSMTP2GO = process.env.SMTP_USER && process.env.SMTP_PASSWORD;
+    const hasGmailAppPassword = process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD;
+    
+    if (!hasSMTP2GO && !hasGmailAppPassword) {
+      console.warn('No email service configured (SMTP2GO or Gmail App Password). Skipping resume confirmation.');
       return false;
     }
 
     const transporter = createTransporter();
-    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER;
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || process.env.GMAIL_USER;
 
     const subject = `Resume Received - Free Evaluation in Progress`;
     
