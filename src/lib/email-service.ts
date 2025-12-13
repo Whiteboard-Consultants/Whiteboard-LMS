@@ -176,7 +176,7 @@ export async function sendAdminNotification(submission: ContactSubmissionData): 
     const transporter = await createTransporter();
 
     const adminEmail = process.env.ADMIN_EMAIL;
-    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER;
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || process.env.GMAIL_USER;
 
     // Create email content
     const subject = `New Contact Form Submission - ${submission.inquiryType}`;
@@ -268,7 +268,7 @@ export async function sendAutoReply(submission: ContactSubmissionData): Promise<
     }
 
     const transporter = await createTransporter();
-    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER;
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || process.env.GMAIL_USER;
 
     const subject = `Thank you for contacting Whiteboard Consultants - ${submission.inquiryType}`;
     
