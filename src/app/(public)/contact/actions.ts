@@ -90,7 +90,7 @@ export async function saveContactSubmission(formData: ContactFormData) {
     
     console.log('✅ Contact submission saved successfully:', data.id);
     
-    // Send email notifications (don't block the response if emails fail)
+    // Send email notifications
     const emailData: ContactSubmissionData = {
       firstName: formData.firstName.trim(),
       lastName: formData.lastName.trim(),
@@ -101,12 +101,13 @@ export async function saveContactSubmission(formData: ContactFormData) {
       submittedAt: submissionData.submitted_at,
     };
 
-    // Send notifications asynchronously (don't await to avoid blocking the response)
-    // This ensures the user gets immediate feedback even if email service is slow
-    Promise.all([
-      sendAdminNotification(emailData),
-      sendAutoReply(emailData)
-    ]).then(([adminSent, autoReplySent]) => {
+    // Send notifications and wait for them to complete
+    try {
+      const [adminSent, autoReplySent] = await Promise.all([
+        sendAdminNotification(emailData),
+        sendAutoReply(emailData)
+      ]);
+
       console.log(`📧 Contact submission ${data.id} - Email status:`);
       console.log(`   Admin notification: ${adminSent ? '✅ sent' : '❌ failed'}`);
       console.log(`   Auto-reply: ${autoReplySent ? '✅ sent' : '❌ failed'}`);
@@ -116,17 +117,19 @@ export async function saveContactSubmission(formData: ContactFormData) {
         console.log(`   EMAIL_SERVICE=${process.env.EMAIL_SERVICE}`);
         console.log(`   Gmail OAuth2 configured: ${process.env.GMAIL_CLIENT_ID ? '✅' : '❌'}`);
         console.log(`   SMTP2GO configured: ${process.env.SMTP_USER ? '✅' : '❌'}`);
+        console.log(`   Gmail App Password configured: ${process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD ? '✅' : '❌'}`);
         console.log(`   Admin email: ${process.env.ADMIN_EMAIL}`);
       }
-    }).catch((error) => {
-      console.error('❌ Error sending email notifications:', error);
+    } catch (emailError) {
+      console.error('❌ Error sending email notifications:', emailError);
       console.error('Email service error details:', {
-        message: error instanceof Error ? error.message : String(error),
+        message: emailError instanceof Error ? emailError.message : String(emailError),
         service: process.env.EMAIL_SERVICE,
         hasGmailOAuth2: !!process.env.GMAIL_CLIENT_ID,
+        hasGmailAppPassword: !!(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD),
         hasSMTP2GO: !!process.env.SMTP_USER,
       });
-    });
+    }
     
     return { success: true };
   } catch (error) {
