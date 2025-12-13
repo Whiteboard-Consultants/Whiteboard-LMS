@@ -105,7 +105,7 @@ const createTransporter = async () => {
     try {
       const accessToken = await getGmailAccessToken();
       if (accessToken) {
-        console.log('Using Gmail OAuth2 as fallback email service');
+        console.log('Using Gmail OAuth2 as email service');
         return nodemailer.createTransport({
           host: 'smtp.gmail.com',
           port: 465,
@@ -121,11 +121,28 @@ const createTransporter = async () => {
         });
       }
     } catch (error) {
-      console.error('Gmail OAuth2 also unavailable:', error);
+      console.warn('Gmail OAuth2 unavailable:', error.message);
+      // Continue to next fallback
     }
   }
 
-  throw new Error('No email service configured (neither SMTP2GO nor Gmail OAuth2)');
+  // Fallback to Gmail App Password if configured
+  if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
+    try {
+      console.log('Using Gmail App Password as email service');
+      return nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.GMAIL_USER,
+          pass: process.env.GMAIL_APP_PASSWORD.replace(/\s+/g, ''), // Remove spaces from password
+        },
+      });
+    } catch (error) {
+      console.error('Gmail App Password also unavailable:', error);
+    }
+  }
+
+  throw new Error('No email service configured (SMTP2GO, Gmail OAuth2, or Gmail App Password required)');
 };
 
 export interface ContactSubmissionData {
@@ -146,11 +163,12 @@ export async function sendAdminNotification(submission: ContactSubmissionData): 
       return false;
     }
 
-    // Check for either Gmail OAuth2 or SMTP2GO
+    // Check for either Gmail OAuth2, Gmail App Password, or SMTP2GO
     const hasGmailOAuth2 = process.env.GMAIL_CLIENT_ID && process.env.GMAIL_REFRESH_TOKEN;
+    const hasGmailAppPassword = process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD;
     const hasSMTP2GO = process.env.SMTP_USER && process.env.SMTP_PASSWORD;
 
-    if (!hasGmailOAuth2 && !hasSMTP2GO) {
+    if (!hasGmailOAuth2 && !hasGmailAppPassword && !hasSMTP2GO) {
       console.warn('No email service configured. Skipping admin notification.');
       return false;
     }
@@ -242,8 +260,9 @@ export async function sendAutoReply(submission: ContactSubmissionData): Promise<
     // Check if email configuration is available
     const hasGmailOAuth2 = process.env.GMAIL_CLIENT_ID && process.env.GMAIL_REFRESH_TOKEN;
     const hasSMTP2GO = process.env.SMTP_USER && process.env.SMTP_PASSWORD;
+    const hasGmailAppPassword = process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD;
 
-    if (!hasGmailOAuth2 && !hasSMTP2GO) {
+    if (!hasGmailOAuth2 && !hasSMTP2GO && !hasGmailAppPassword) {
       console.warn('No email service configured. Skipping auto-reply.');
       return false;
     }
