@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
-import { BookMarked, LayoutDashboard, BarChart3, Users, Lightbulb, UserCheck, UserSquare, Megaphone, Award, FileText, Ticket, Rss, Package, ClipboardList, Mail } from "lucide-react";
+import { BookMarked, LayoutDashboard, BarChart3, Users, Lightbulb, UserCheck, UserSquare, Megaphone, Award, FileText, Ticket, Rss, Package, ClipboardList, Mail, Zap } from "lucide-react";
 import { Skeleton } from "./ui/skeleton";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
 
@@ -146,6 +146,7 @@ export function SidebarNav() {
         ],
       student: [
           { href: "/student/dashboard", label: "My Dashboard", icon: LayoutDashboard },
+          { href: "/student/skills", label: "My Skills", icon: Zap },
           { href: "/student/tests", label: "Tests", icon: FileText },
           { href: "/student/certificates", label: "My Certificates", icon: Award },
       ],
