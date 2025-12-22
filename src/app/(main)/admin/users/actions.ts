@@ -98,3 +98,85 @@ export async function setTemporaryPassword(email: string, tempPassword: string =
     throw new Error(`Failed to set temporary password: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
+
+export async function fetchUserEnrollments(userId: string) {
+  try {
+    if (!supabaseAdmin) {
+      throw new Error('Supabase admin client not configured');
+    }
+
+    console.log('🔍 [SERVER ACTION] Fetching enrollments for user:', userId);
+
+    const { data: enrollmentsData, error } = await supabaseAdmin
+      .from('enrollments')
+      .select(`
+        *,
+        courses:course_id(title)
+      `)
+      .eq('user_id', userId);
+
+    console.log('📊 [SERVER ACTION] Query error:', error);
+    console.log('📊 [SERVER ACTION] Enrollments data:', enrollmentsData);
+    console.log('📊 [SERVER ACTION] Enrollments count:', enrollmentsData?.length || 0);
+
+    if (error) {
+      throw error;
+    }
+
+    return {
+      success: true,
+      enrollments: enrollmentsData || []
+    };
+  } catch (error) {
+    console.error('❌ [SERVER ACTION] Error fetching enrollments:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch enrollments',
+      enrollments: []
+    };
+  }
+}
+
+export async function deleteUserEnrollment(enrollmentId: string) {
+  try {
+    if (!supabaseAdmin) {
+      throw new Error('Supabase admin client not configured');
+    }
+
+    console.log('🗑️ [SERVER ACTION] Deleting enrollment:', enrollmentId);
+
+    // First get the enrollment to verify it exists and get course_id
+    const { data: enrollment, error: fetchError } = await supabaseAdmin
+      .from('enrollments')
+      .select('id, course_id, user_id')
+      .eq('id', enrollmentId)
+      .single();
+
+    if (fetchError || !enrollment) {
+      throw new Error('Enrollment not found');
+    }
+
+    // Delete the enrollment
+    const { error: deleteError } = await supabaseAdmin
+      .from('enrollments')
+      .delete()
+      .eq('id', enrollmentId);
+
+    if (deleteError) {
+      throw deleteError;
+    }
+
+    console.log('✅ [SERVER ACTION] Enrollment deleted successfully');
+
+    return {
+      success: true,
+      message: 'Course access revoked successfully'
+    };
+  } catch (error) {
+    console.error('❌ [SERVER ACTION] Error deleting enrollment:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to delete enrollment'
+    };
+  }
+}

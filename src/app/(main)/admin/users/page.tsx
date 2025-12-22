@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { supabase } from "@/lib/supabase";
-import { sendPasswordResetEmail, setTemporaryPassword } from './actions';
+import { sendPasswordResetEmail, setTemporaryPassword, fetchUserEnrollments, deleteUserEnrollment } from './actions';
 import { PageHeader } from "@/components/page-header";
 import { convertToDate } from "@/lib/date-utils";
 import {
@@ -344,26 +344,28 @@ export default function AdminUsersPage() {
 
   const handleManageEnrollments = async (user: UserType) => {
     try {
-      const { data: enrollmentsData, error } = await supabase
-        .from('enrollments')
-        .select(`
-          *,
-          courses!inner(title)
-        `)
-        .eq('user_id', user.id);
+      console.log('🔍 [CLIENT] Fetching enrollments for user:', user.id);
+      
+      const result = await fetchUserEnrollments(user.id);
 
-      if (error) throw error;
+      console.log('📊 [CLIENT] Server action result:', result);
 
-      const detailedEnrollments = (enrollmentsData || []).map(enrollment => ({
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+
+      const detailedEnrollments = (result.enrollments || []).map((enrollment: any) => ({
         ...enrollment,
-        courseTitle: enrollment.courses?.title || 'Unknown Course',
+        courseTitle: enrollment.courses?.title || enrollment.course_title || 'Unknown Course',
         status: enrollment.status as 'pending' | 'approved'
       }));
+
+      console.log('✅ [CLIENT] Detailed enrollments mapped:', detailedEnrollments);
 
       setSelectedUser({ ...user, enrollments: detailedEnrollments });
       setIsEnrollmentModalOpen(true);
     } catch (error) {
-      console.error('Error fetching enrollments:', error);
+      console.error('❌ [CLIENT] Error fetching enrollments:', error);
       toast({
         variant: "destructive",
         title: "Error",
@@ -380,21 +382,22 @@ export default function AdminUsersPage() {
   const handleRevokeAccess = async (enrollmentId: string) => {
     setIsDeleting(enrollmentId);
     try {
-      const { error } = await supabase
-        .from('enrollments')
-        .delete()
-        .eq('id', enrollmentId);
+      console.log('🔍 [CLIENT] Revoking access for enrollment:', enrollmentId);
+      
+      const result = await deleteUserEnrollment(enrollmentId);
 
-      if (error) throw error;
+      if (!result.success) {
+        throw new Error(result.error);
+      }
 
-      toast({ title: "Success", description: "Course access revoked successfully" });
+      toast({ title: "Success", description: result.message });
       
       if (selectedUser) {
         const updatedEnrollments = selectedUser.enrollments.filter(e => e.id !== enrollmentId);
         setSelectedUser({ ...selectedUser, enrollments: updatedEnrollments });
       }
     } catch (error) {
-      console.error('Error revoking access:', error);
+      console.error('❌ [CLIENT] Error revoking access:', error);
       toast({
         variant: "destructive",
         title: "Error",

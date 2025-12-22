@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { supabaseAdmin } from '@/lib/supabase';
+import { sendEnrollmentWelcomeEmail } from '@/lib/email-oauth2';
 import type { Enrollment } from '@/types';
 
 export async function enrollInFreeCourse(
@@ -60,7 +61,7 @@ export async function enrollInFreeCourse(
     // Get user (student) details
     const { data: student, error: studentError } = await supabaseAdmin
       .from('users')
-      .select('name')
+      .select('name, email')
       .eq('id', userId)
       .single();
 
@@ -69,7 +70,7 @@ export async function enrollInFreeCourse(
       return { success: false, error: 'Student not found.' };
     }
 
-    console.log('✅ Student details fetched:', { name: student.name });
+    console.log('✅ Student details fetched:', { name: student.name, email: student.email });
 
     // Get instructor details
     const { data: instructor, error: instructorError } = await supabaseAdmin
@@ -135,6 +136,38 @@ export async function enrollInFreeCourse(
     revalidatePath('/student/dashboard');
     revalidatePath('/courses');
     revalidatePath(`/courses/${courseId}`);
+
+    // Fetch full course details for email
+    const { data: fullCourse, error: fullCourseError } = await supabaseAdmin
+      .from('courses')
+      .select('title, program_outcome, course_structure, duration, category')
+      .eq('id', courseId)
+      .single();
+
+    // Send enrollment welcome email (non-blocking)
+    if (!fullCourseError && fullCourse && student.email) {
+      console.log('📧 Sending enrollment welcome email...');
+      const emailResult = await sendEnrollmentWelcomeEmail(
+        student.email,
+        student.name,
+        course.title,
+        fullCourse.program_outcome || '',
+        fullCourse.course_structure || '',
+        fullCourse.duration || 'Self-paced',
+        instructor.name,
+        fullCourse.category || 'General',
+        courseId,
+        undefined, // coursePrice
+        false // isPaid
+      );
+
+      if (!emailResult.success) {
+        console.warn('⚠️  Failed to send enrollment welcome email:', emailResult.error);
+        // Log for admin review but don't fail the enrollment
+      }
+    } else {
+      console.warn('⚠️  Could not send enrollment email - missing course details or email');
+    }
 
     // Convert to camelCase for consistency
     const enrollmentResult: Enrollment = {
@@ -213,7 +246,7 @@ export async function enrollInPaidCourses(
     // Get student details
     const { data: student, error: studentError } = await supabaseAdmin
       .from('users')
-      .select('name')
+      .select('name, email')
       .eq('id', userId)
       .single();
 
@@ -300,6 +333,56 @@ export async function enrollInPaidCourses(
     courseIds.forEach(courseId => {
       revalidatePath(`/courses/${courseId}`);
     });
+
+    // Fetch user email for sending welcome emails
+    const { data: userWithEmail, error: userEmailError } = await supabaseAdmin
+      .from('users')
+      .select('email')
+      .eq('id', userId)
+      .single();
+
+    const userEmail = userWithEmail?.email;
+
+    // Send enrollment welcome emails for each course (non-blocking)
+    if (userEmail) {
+      console.log('📧 Sending enrollment welcome emails for all courses...');
+      for (const item of items) {
+        try {
+          // Fetch full course details
+          const { data: courseDetails, error: courseDetailsError } = await supabaseAdmin
+            .from('courses')
+            .select('title, program_outcome, course_structure, duration, category, price, type')
+            .eq('id', item.courseId)
+            .single();
+
+          if (!courseDetailsError && courseDetails) {
+            const emailResult = await sendEnrollmentWelcomeEmail(
+              userEmail,
+              student.name,
+              courseDetails.title,
+              courseDetails.program_outcome || '',
+              courseDetails.course_structure || '',
+              courseDetails.duration || 'Self-paced',
+              instructorMap[item.instructorId] || 'Unknown',
+              courseDetails.category || 'General',
+              item.courseId,
+              courseDetails.price || item.price,
+              courseDetails.type === 'paid'
+            );
+
+            if (!emailResult.success) {
+              console.warn(`⚠️  Failed to send enrollment email for course ${courseDetails.title}:`, emailResult.error);
+              // Log for admin review but don't fail the enrollment
+            }
+          }
+        } catch (emailError) {
+          console.warn(`⚠️  Error sending email for course ${item.courseId}:`, emailError);
+          // Continue with other courses even if one email fails
+        }
+      }
+    } else {
+      console.warn('⚠️  Could not send enrollment emails - user email not found');
+    }
 
     // Convert to camelCase for consistency
     console.log('✅ Paid enrollments created successfully:', enrollments?.length);
