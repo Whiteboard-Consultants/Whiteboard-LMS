@@ -75,7 +75,7 @@ export async function getUserSkillsByCategory(userId: string) {
 
     const grouped: { [key: string]: any[] } = {};
 
-    data?.forEach(item => {
+    data?.forEach((item: any) => {
       const category = item.skills?.category || 'Uncategorized';
       if (!grouped[category]) {
         grouped[category] = [];
@@ -148,15 +148,15 @@ export async function calculateSkillGaps(userId: string) {
 
         return {
           skillId: goal.skill_id,
-          skillName: userSkill.skills?.name || 'Unknown Skill',
-          category: userSkill.skills?.category || 'Uncategorized',
+          skillName: (userSkill.skills as any)?.name || 'Unknown Skill',
+          category: (userSkill.skills as any)?.category || 'Uncategorized',
           currentLevel: userSkill.mastery_percentage,
           targetLevel: targetLevel,
           gap: Math.max(0, targetLevel - userSkill.mastery_percentage),
           deadline: goal.deadline,
         };
       })
-      .filter(Boolean) || [];
+      .filter((g: any): g is any => g !== null) || [];
 
     const totalGaps = gaps.length;
     const averageGap = totalGaps > 0 ? gaps.reduce((acc, g) => acc + g.gap, 0) / totalGaps : 0;

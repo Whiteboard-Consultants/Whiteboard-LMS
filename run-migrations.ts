@@ -38,23 +38,23 @@ async function runMigration(filePath: string): Promise<boolean> {
     
     for (const statement of statements) {
       try {
-        const { data, error } = await supabase.rpc('exec', {
-          sql: statement
-        }).catch(async (e) => {
+        let result: any = { data: null, error: null };
+        try {
+          result = await supabase.rpc('exec', {
+            sql: statement
+          });
+        } catch (e: any) {
           // Fallback: try executing via direct SQL if rpc doesn't work
-          return await (supabase as any).from('_migrations').select('*').then(() => ({
+          result = {
             data: null,
-            error: null
-          })).catch((err: any) => ({
-            data: null,
-            error: err
-          }));
-        });
+            error: e
+          };
+        }
         
-        if (!error) {
+        if (!result.error) {
           successCount++;
         }
-      } catch (err) {
+      } catch (err: any) {
         // Continue with next statement even if one fails
         console.log(`   ⚠️  Statement execution (may be normal for some statements)`);
       }

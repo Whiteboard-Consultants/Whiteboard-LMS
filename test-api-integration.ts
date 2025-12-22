@@ -6,9 +6,9 @@
  * Run with: npx ts-node test-api-integration.ts
  */
 
-const BASE_URL = 'http://localhost:3000';
+const INTEGRATION_TEST_BASE_URL = 'http://localhost:3000';
 
-interface TestResult {
+interface IntegrationTestResult {
   name: string;
   status: 'PASS' | 'FAIL';
   message: string;
@@ -16,9 +16,9 @@ interface TestResult {
   responseData?: any;
 }
 
-const results: TestResult[] = [];
+const integrationResults: IntegrationTestResult[] = [];
 
-async function testEndpoint(
+async function testIntegrationEndpoint(
   name: string,
   method: string,
   path: string,
@@ -26,7 +26,7 @@ async function testEndpoint(
   body?: any
 ): Promise<void> {
   try {
-    const url = `${BASE_URL}${path}`;
+    const url = `${INTEGRATION_TEST_BASE_URL}${path}`;
     const options: RequestInit = {
       method,
       headers: {
@@ -42,7 +42,7 @@ async function testEndpoint(
     const data = await response.json().catch(() => ({}));
 
     if (response.status === expectedStatus) {
-      results.push({
+      integrationResults.push({
         name,
         status: 'PASS',
         message: `✅ ${response.status} ${response.statusText}`,
@@ -51,7 +51,7 @@ async function testEndpoint(
       });
       console.log(`✅ ${name} (${response.status})`);
     } else {
-      results.push({
+      integrationResults.push({
         name,
         status: 'FAIL',
         message: `Expected ${expectedStatus}, got ${response.status}`,
@@ -63,7 +63,7 @@ async function testEndpoint(
       );
     }
   } catch (error: any) {
-    results.push({
+    integrationResults.push({
       name,
       status: 'FAIL',
       message: error.message
@@ -72,14 +72,14 @@ async function testEndpoint(
   }
 }
 
-async function runTests() {
+async function runIntegrationTests() {
   console.log('\n🧪 Backend API Integration Tests\n');
   console.log('='.repeat(60));
 
   // ===== API HEALTH CHECKS =====
   console.log('\n🏥 Health Checks\n');
 
-  await testEndpoint(
+  await testIntegrationEndpoint(
     'Server is running',
     'GET',
     '/',
@@ -89,7 +89,7 @@ async function runTests() {
   // ===== SKILLS API =====
   console.log('\n🎯 Skills API Tests\n');
 
-  await testEndpoint(
+  await testIntegrationEndpoint(
     'Skills endpoint exists',
     'GET',
     '/api/skills',
@@ -99,7 +99,7 @@ async function runTests() {
   // ===== BADGES API =====
   console.log('\n🏆 Badges API Tests\n');
 
-  await testEndpoint(
+  await testIntegrationEndpoint(
     'Badges endpoint exists',
     'GET',
     '/api/badges',
@@ -109,7 +109,7 @@ async function runTests() {
   // ===== LESSONS API =====
   console.log('\n📚 Lessons API Tests\n');
 
-  await testEndpoint(
+  await testIntegrationEndpoint(
     'Lessons endpoint exists',
     'GET',
     '/api/lessons',
@@ -120,7 +120,7 @@ async function runTests() {
   console.log('\n👤 User Profile API Tests\n');
 
   // This will fail without auth but let's check the endpoint exists
-  await testEndpoint(
+  await testIntegrationEndpoint(
     'User profile endpoint exists',
     'GET',
     '/api/user/profile',
@@ -130,7 +130,7 @@ async function runTests() {
   // ===== DATABASE SETUP CHECK =====
   console.log('\n🔧 Database Setup Tests\n');
 
-  await testEndpoint(
+  await testIntegrationEndpoint(
     'Database setup check endpoint',
     'GET',
     '/api/check-database-setup',
@@ -141,16 +141,16 @@ async function runTests() {
   console.log('\n' + '='.repeat(60));
   console.log('\n📊 Test Summary\n');
 
-  const passed = results.filter(r => r.status === 'PASS').length;
-  const failed = results.filter(r => r.status === 'FAIL').length;
+  const passed = integrationResults.filter(r => r.status === 'PASS').length;
+  const failed = integrationResults.filter(r => r.status === 'FAIL').length;
 
   console.log(`✅ Passed:  ${passed}`);
   console.log(`❌ Failed:  ${failed}`);
-  console.log(`📈 Total:   ${results.length}\n`);
+  console.log(`📈 Total:   ${integrationResults.length}\n`);
 
   if (failed > 0) {
     console.log('Failed Tests:');
-    results
+    integrationResults
       .filter(r => r.status === 'FAIL')
       .forEach(r => {
         console.log(`\n  ❌ ${r.name}`);
@@ -161,7 +161,7 @@ async function runTests() {
   console.log('\n' + '='.repeat(60));
   console.log('\n📝 Detailed Results:\n');
 
-  results.forEach(r => {
+  integrationResults.forEach(r => {
     console.log(`${r.status === 'PASS' ? '✅' : '❌'} ${r.name}`);
     console.log(`   Status: ${r.statusCode || 'N/A'}`);
     console.log(`   Message: ${r.message}`);
@@ -174,7 +174,7 @@ async function runTests() {
   process.exit(failed > 0 ? 1 : 0);
 }
 
-runTests().catch(error => {
+runIntegrationTests().catch(error => {
   console.error('Test suite failed:', error);
   process.exit(1);
 });

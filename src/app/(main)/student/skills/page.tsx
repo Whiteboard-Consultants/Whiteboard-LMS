@@ -39,6 +39,16 @@ interface LearningGoal {
   is_active: boolean;
 }
 
+interface SkillGap {
+  skillName: string;
+  category: string;
+  currentLevel: number;
+  targetLevel: number;
+  gap: number;
+  importance: 'high' | 'medium' | 'low';
+  relatedCourses: { id: string; title: string }[];
+}
+
 export default function SkillsDashboardPage() {
   const [skills, setSkills] = useState<Skill[]>([]);
   const [goals, setGoals] = useState<LearningGoal[]>([]);
@@ -133,7 +143,7 @@ export default function SkillsDashboardPage() {
   });
 
   // Calculate gaps for goal-based analysis
-  const gaps = goals
+  const gapObjects = goals
     .filter(g => g.is_active)
     .map(goal => {
       const skill = skills.find(s => s.id === goal.skill_id);
@@ -146,7 +156,7 @@ export default function SkillsDashboardPage() {
         skill.proficiency_level
       );
 
-      return {
+      const gap: SkillGap = {
         skillName: skill.name,
         category: skill.category,
         currentLevel: skill.mastery_percentage,
@@ -155,8 +165,11 @@ export default function SkillsDashboardPage() {
         importance: currentLevel === 0 ? 'high' : currentLevel === 1 ? 'medium' : 'low',
         relatedCourses: [],
       };
+      return gap;
     })
-    .filter(Boolean);
+    .filter((g): g is SkillGap => g !== null);
+
+  const gaps = gapObjects;
 
   const totalGaps = gaps.length;
   const averageGap = totalGaps > 0 ? Math.round(gaps.reduce((acc, g) => acc + g.gap, 0) / totalGaps) : 0;

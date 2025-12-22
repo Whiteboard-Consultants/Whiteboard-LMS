@@ -338,7 +338,7 @@ export async function updateCourseCertificate(courseId: string, formData: FormDa
         const errorMessage = error instanceof Error ? error.message : 'Failed to update certificate.';
         return { success: false, error: errorMessage };
     }
-}}
+}
 
 
 export async function deleteCourseThumbnail(courseId: string, imageUrl: string) {
@@ -364,7 +364,7 @@ export async function deleteCourseThumbnail(courseId: string, imageUrl: string) 
   } catch (error: unknown) {
     return { success: false, error: "Failed to delete thumbnail." };
   }
-}}
+}
 
 export async function deleteCourseCertificate(courseId: string, certificateUrl: string) {
   if (!courseId || !certificateUrl) {
@@ -390,4 +390,4 @@ export async function deleteCourseCertificate(courseId: string, certificateUrl: 
     console.error('Error deleting certificate:', error);
     return { success: false, error: 'Failed to delete certificate.' };
   }
-}}
+}

@@ -19,13 +19,15 @@ if (!supabaseUrl || !supabaseKey) {
 }
 
 async function executeSql(sql: string): Promise<any> {
+  const headers: HeadersInit = {
+    'apikey': supabaseKey || '',
+    'Authorization': `Bearer ${supabaseKey}`,
+    'Content-Type': 'application/json',
+  };
+
   const response = await fetch(`${supabaseUrl}/rest/v1/rpc/exec_sql`, {
     method: 'POST',
-    headers: {
-      'apikey': supabaseKey,
-      'Authorization': `Bearer ${supabaseKey}`,
-      'Content-Type': 'application/json',
-    },
+    headers,
     body: JSON.stringify({ sql })
   });
 

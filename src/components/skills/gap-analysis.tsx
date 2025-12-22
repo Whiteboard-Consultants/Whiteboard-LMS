@@ -21,6 +21,32 @@ interface GapAnalysisProps {
   recommendedFocusAreas: string[];
 }
 
+const getImportanceColor = (importance: string) => {
+  switch (importance) {
+    case 'high':
+      return 'bg-red-100 text-red-800';
+    case 'medium':
+      return 'bg-yellow-100 text-yellow-800';
+    case 'low':
+      return 'bg-green-100 text-green-800';
+    default:
+      return 'bg-gray-100 text-gray-800';
+  }
+};
+
+const getImportanceIcon = (importance: string) => {
+  switch (importance) {
+    case 'high':
+      return '🔴';
+    case 'medium':
+      return '🟡';
+    case 'low':
+      return '🟢';
+    default:
+      return '';
+  }
+};
+
 export function GapAnalysis({
   gaps,
   totalGaps,
@@ -30,32 +56,6 @@ export function GapAnalysis({
   const criticalGaps = gaps.filter(g => g.gap >= 40);
   const moderateGaps = gaps.filter(g => g.gap >= 20 && g.gap < 40);
   const minorGaps = gaps.filter(g => g.gap < 20);
-
-  const getImportanceColor = (importance: string) => {
-    switch (importance) {
-      case 'high':
-        return 'bg-red-100 text-red-800';
-      case 'medium':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'low':
-        return 'bg-green-100 text-green-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getImportanceIcon = (importance: string) => {
-    switch (importance) {
-      case 'high':
-        return '🔴';
-      case 'medium':
-        return '🟡';
-      case 'low':
-        return '🟢';
-      default:
-        return '';
-    }
-  };
 
   return (
     <div className="space-y-6">
