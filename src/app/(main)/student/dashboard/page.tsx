@@ -106,7 +106,10 @@ export default function StudentDashboardPage() {
         // Fetch course details for enrolled courses
         const { data: courses, error: coursesError } = await supabase
           .from('courses')
-          .select('*')
+          .select(`
+            *,
+            instructor_details:instructor_id(id, name, email)
+          `)
           .in('id', enrolledCourseIds);
         console.log('Supabase courses:', courses, coursesError);
 
@@ -136,7 +139,7 @@ export default function StudentDashboardPage() {
             finalAssessmentId: course.final_assessment_id,
             instructor: {
               id: course.instructor_id,
-              name: course.instructor_name || 'Unknown Instructor'
+              name: (course.instructor_details as any)?.name || course.instructor_name || 'Unknown Instructor'
             },
             // Enrollment-specific fields
             progress: enrollmentData?.progress || 0,
