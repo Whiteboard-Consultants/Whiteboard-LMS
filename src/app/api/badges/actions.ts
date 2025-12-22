@@ -6,8 +6,29 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
-import { auth } from '@clerk/nextjs/server';
+import { headers } from 'next/headers';
 import type { UserBadge, AwardBadgeRequest, AwardPointsRequest } from '@/types/badges';
+
+// Get user ID from Authorization header
+const getUserIdFromHeaders = async () => {
+  const headersList = await headers();
+  const authHeader = headersList.get('Authorization');
+  if (!authHeader?.startsWith('Bearer ')) return null;
+  
+  const token = authHeader.slice(7);
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+    );
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    if (error || !user) return null;
+    return user.id;
+  } catch (error) {
+    console.error('Error getting user from token:', error);
+    return null;
+  }
+};
 
 // Get admin client (service_role - bypasses RLS)
 const getAdminClient = () => {
@@ -316,7 +337,7 @@ export async function resetUserBadges(userId: string): Promise<{
   error?: string;
 }> {
   try {
-    const { userId: authUserId } = await auth();
+    const authUserId = await getUserIdFromHeaders();
     
     // In production, verify user is admin
     // For now, just check they're authenticated

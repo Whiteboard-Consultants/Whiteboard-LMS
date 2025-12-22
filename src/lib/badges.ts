@@ -212,8 +212,8 @@ export async function getUserBadgesByRarity(
     };
 
     badges.forEach((badge) => {
-      if (badge.badges) {
-        const rarity = badge.badges.rarity;
+      if (badge.badge) {
+        const rarity = badge.badge.rarity;
         counts[rarity] = (counts[rarity] || 0) + 1;
       }
     });

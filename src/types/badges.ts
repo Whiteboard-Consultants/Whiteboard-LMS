@@ -289,12 +289,6 @@ export interface CourseCompletionData {
   average_quiz_score: number;
 }
 
-export interface StreakData {
-  user_id: string;
-  current_streak: number;
-  last_activity_date: TimestampType;
-}
-
 // ============================================================================
 // SOCIAL & COMMUNITY
 // ============================================================================
