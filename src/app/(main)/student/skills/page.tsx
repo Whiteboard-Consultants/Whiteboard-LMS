@@ -17,7 +17,7 @@ import { SkillCard } from '@/components/skills/skill-card';
 import { GapAnalysis } from '@/components/skills/gap-analysis';
 import { SkillsVisualization } from '@/components/skills/skills-visualization';
 import { Search, Filter, TrendingUp, AlertCircle } from 'lucide-react';
-import { createClient } from '@supabase/supabase-js';
+import { useAuth } from '@/hooks/use-auth';
 
 interface Skill {
   id: string;
@@ -52,6 +52,7 @@ interface SkillGap {
 }
 
 export default function SkillsDashboardPage() {
+  const { user, session } = useAuth();
   const [skills, setSkills] = useState<Skill[]>([]);
   const [goals, setGoals] = useState<LearningGoal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,41 +60,33 @@ export default function SkillsDashboardPage() {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [levelFilter, setLevelFilter] = useState('all');
 
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-  );
-
-  // Get auth token from headers
-  const getAuthToken = () => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('supabase.auth.token');
-    }
-    return null;
-  };
-
   useEffect(() => {
     const fetchSkillsData = async () => {
+      if (!session?.access_token) {
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
 
         // Fetch user skills
-        const skillsResponse = await fetch('/api/skills', {
+        const skillsResponse = await fetch('/api/user/skills', {
           headers: {
-            'Authorization': `Bearer ${getAuthToken()}`,
+            'Authorization': `Bearer ${session.access_token}`,
           },
         });
 
         if (skillsResponse.ok) {
           const data = await skillsResponse.json();
-          setSkills(data.data || []);
+          setSkills(data.data?.skills || []);
         }
 
-        // Fetch learning goals (if endpoint exists)
+        // Fetch learning goals
         try {
           const goalsResponse = await fetch('/api/user/learning-goals', {
             headers: {
-              'Authorization': `Bearer ${getAuthToken()}`,
+              'Authorization': `Bearer ${session.access_token}`,
             },
           });
 
@@ -102,7 +95,7 @@ export default function SkillsDashboardPage() {
             setGoals(goalsData.data || []);
           }
         } catch (e) {
-          // Goals endpoint might not exist yet
+          // Goals endpoint might not be available
           console.log('Learning goals endpoint not available');
         }
       } catch (error) {
@@ -113,7 +106,7 @@ export default function SkillsDashboardPage() {
     };
 
     fetchSkillsData();
-  }, []);
+  }, [session?.access_token]);
 
   // Filter skills
   const filteredSkills = skills.filter(skill => {
