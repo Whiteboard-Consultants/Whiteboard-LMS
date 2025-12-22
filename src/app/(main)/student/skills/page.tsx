@@ -52,7 +52,7 @@ interface SkillGap {
 }
 
 export default function SkillsDashboardPage() {
-  const { user, session } = useAuth();
+  const { user, accessToken } = useAuth();
   const [skills, setSkills] = useState<Skill[]>([]);
   const [goals, setGoals] = useState<LearningGoal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -62,7 +62,7 @@ export default function SkillsDashboardPage() {
 
   useEffect(() => {
     const fetchSkillsData = async () => {
-      if (!session?.access_token) {
+      if (!accessToken) {
         setLoading(false);
         return;
       }
@@ -73,7 +73,7 @@ export default function SkillsDashboardPage() {
         // Fetch user skills
         const skillsResponse = await fetch('/api/user/skills', {
           headers: {
-            'Authorization': `Bearer ${session.access_token}`,
+            'Authorization': `Bearer ${accessToken}`,
           },
         });
 
@@ -86,7 +86,7 @@ export default function SkillsDashboardPage() {
         try {
           const goalsResponse = await fetch('/api/user/learning-goals', {
             headers: {
-              'Authorization': `Bearer ${session.access_token}`,
+              'Authorization': `Bearer ${accessToken}`,
             },
           });
 
@@ -106,7 +106,7 @@ export default function SkillsDashboardPage() {
     };
 
     fetchSkillsData();
-  }, [session?.access_token]);
+  }, [accessToken]);
 
   // Filter skills
   const filteredSkills = skills.filter(skill => {
