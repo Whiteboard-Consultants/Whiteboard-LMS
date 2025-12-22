@@ -106,10 +106,7 @@ export default function StudentDashboardPage() {
         // Fetch course details for enrolled courses
         const { data: courses, error: coursesError } = await supabase
           .from('courses')
-          .select(`
-            *,
-            instructor_details:instructor_id(id, name, email)
-          `)
+          .select('*')
           .in('id', enrolledCourseIds);
         console.log('Supabase courses:', courses, coursesError);
 
@@ -119,9 +116,27 @@ export default function StudentDashboardPage() {
           return;
         }
 
+        // Get unique instructor IDs and fetch instructor data
+        const instructorIds = [...new Set(courses?.map(c => c.instructor_id).filter(Boolean))];
+        let instructorMap = new Map<string, any>();
+        
+        if (instructorIds.length > 0) {
+          const { data: instructors } = await supabase
+            .from('users')
+            .select('id, name, email')
+            .in('id', instructorIds);
+          
+          if (instructors) {
+            instructors.forEach(instructor => {
+              instructorMap.set(instructor.id, instructor);
+            });
+          }
+        }
+
         // Merge course data with enrollment data
         const coursesData = courses?.map(course => {
           const enrollmentData = enrollments.find(e => e.course_id === course.id);
+          const instructorData = instructorMap.get(course.instructor_id);
           return {
             ...course,
             // Map database snake_case fields to camelCase for Course type
@@ -139,7 +154,7 @@ export default function StudentDashboardPage() {
             finalAssessmentId: course.final_assessment_id,
             instructor: {
               id: course.instructor_id,
-              name: (course.instructor_details as any)?.name || course.instructor_name || 'Unknown Instructor'
+              name: instructorData?.name || course.instructor_name || 'Unknown Instructor'
             },
             // Enrollment-specific fields
             progress: enrollmentData?.progress || 0,
