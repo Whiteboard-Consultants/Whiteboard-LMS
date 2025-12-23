@@ -36,15 +36,15 @@ export function SkillCard({
   const getLevelColor = (level: string) => {
     switch (level) {
       case 'beginner':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-200';
       case 'intermediate':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-200';
       case 'advanced':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-200';
       case 'expert':
-        return 'bg-amber-100 text-amber-800';
+        return 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
     }
   };
 
@@ -77,15 +77,15 @@ export function SkillCard({
   };
 
   return (
-    <Card className={isTarget ? 'border-orange-400 border-2' : ''}>
+    <Card className={isTarget ? 'border-orange-400 border-2 dark:bg-slate-800 dark:border-orange-600' : 'dark:bg-slate-800 dark:border-slate-700'}>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
-            <CardTitle className="text-lg">{skillName}</CardTitle>
-            <CardDescription>{category}</CardDescription>
+            <CardTitle className="text-lg dark:text-white">{skillName}</CardTitle>
+            <CardDescription className="dark:text-gray-400">{category}</CardDescription>
           </div>
           {isTarget && (
-            <Badge variant="secondary" className="bg-orange-100 text-orange-800">
+            <Badge variant="secondary" className="bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-200">
               Target Skill
             </Badge>
           )}
@@ -103,21 +103,21 @@ export function SkillCard({
         {/* Mastery Progress */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-700">Mastery</span>
-            <span className="text-sm font-bold text-gray-900">{masteryPercentage}%</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Mastery</span>
+            <span className="text-sm font-bold text-gray-900 dark:text-white">{masteryPercentage}%</span>
           </div>
           <Progress value={masteryPercentage} className="h-2" />
         </div>
 
         {/* Gap Display (if target skill) */}
         {isTarget && gap !== undefined && gap > 0 && (
-          <div className="space-y-2 rounded-lg bg-orange-50 p-3">
+          <div className="space-y-2 rounded-lg bg-orange-50 dark:bg-orange-950 p-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-orange-900">Gap to Master</span>
-              <span className="text-sm font-bold text-orange-900">{gap}%</span>
+              <span className="text-sm font-medium text-orange-900 dark:text-orange-200">Gap to Master</span>
+              <span className="text-sm font-bold text-orange-900 dark:text-orange-200">{gap}%</span>
             </div>
             <Progress value={100 - gap} className="h-1.5" />
-            <p className="text-xs text-orange-700">
+            <p className="text-xs text-orange-700 dark:text-orange-300">
               Need {Math.ceil((gap / 100) * 20)} more practice sessions
             </p>
           </div>
@@ -125,27 +125,27 @@ export function SkillCard({
 
         {/* Stats Row */}
         <div className="grid grid-cols-3 gap-2 pt-2">
-          <div className="flex flex-col items-center gap-1 rounded-lg bg-gray-50 p-2">
-            <Zap className="h-4 w-4 text-blue-600" />
-            <span className="text-xs font-medium text-gray-900">{practiceCount}</span>
-            <span className="text-xs text-gray-600">Practices</span>
+          <div className="flex flex-col items-center gap-1 rounded-lg bg-gray-50 dark:bg-slate-700 p-2">
+            <Zap className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            <span className="text-xs font-medium text-gray-900 dark:text-white">{practiceCount}</span>
+            <span className="text-xs text-gray-600 dark:text-gray-400">Practices</span>
           </div>
-          <div className="flex flex-col items-center gap-1 rounded-lg bg-gray-50 p-2">
-            <Award className="h-4 w-4 text-purple-600" />
-            <span className="text-xs font-medium text-gray-900">{endorsements}</span>
-            <span className="text-xs text-gray-600">Endorsements</span>
+          <div className="flex flex-col items-center gap-1 rounded-lg bg-gray-50 dark:bg-slate-700 p-2">
+            <Award className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+            <span className="text-xs font-medium text-gray-900 dark:text-white">{endorsements}</span>
+            <span className="text-xs text-gray-600 dark:text-gray-400">Endorsements</span>
           </div>
-          <div className="flex flex-col items-center gap-1 rounded-lg bg-gray-50 p-2">
-            <TrendingUp className="h-4 w-4 text-green-600" />
-            <span className="text-xs font-medium text-gray-900">
+          <div className="flex flex-col items-center gap-1 rounded-lg bg-gray-50 dark:bg-slate-700 p-2">
+            <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400" />
+            <span className="text-xs font-medium text-gray-900 dark:text-white">
               {lastPracticed ? Math.floor(Math.random() * 5 + 1) : '—'}
             </span>
-            <span className="text-xs text-gray-600">Week Avg</span>
+            <span className="text-xs text-gray-600 dark:text-gray-400">Week Avg</span>
           </div>
         </div>
 
         {/* Last Practiced */}
-        <div className="text-xs text-gray-500 pt-2 border-t">
+        <div className="text-xs text-gray-500 dark:text-gray-400 pt-2 border-t dark:border-slate-600">
           Last practiced: {formatDate(lastPracticed)}
         </div>
       </CardContent>

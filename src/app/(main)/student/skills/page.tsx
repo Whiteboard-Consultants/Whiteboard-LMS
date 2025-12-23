@@ -185,24 +185,24 @@ export default function SkillsDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
       <div className="container mx-auto py-8 px-4">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Skills Dashboard</h1>
-          <p className="text-lg text-gray-600">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Skills Dashboard</h1>
+          <p className="text-lg text-gray-600 dark:text-gray-300">
             Track your professional development and identify areas for growth
           </p>
         </div>
 
         {/* Alert for empty state */}
         {totalSkills === 0 && (
-          <Card className="mb-8 border-amber-200 bg-amber-50">
+          <Card className="mb-8 border-amber-200 bg-amber-50 dark:bg-amber-950 dark:border-amber-800">
             <CardContent className="flex items-start gap-4 pt-6">
-              <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+              <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
               <div>
-                <h3 className="font-semibold text-amber-900">No skills tracked yet</h3>
-                <p className="text-sm text-amber-800 mt-1">
+                <h3 className="font-semibold text-amber-900 dark:text-amber-100">No skills tracked yet</h3>
+                <p className="text-sm text-amber-800 dark:text-amber-200 mt-1">
                   Complete courses to start tracking and developing your skills. Your progress will appear here.
                 </p>
               </div>
@@ -222,55 +222,55 @@ export default function SkillsDashboardPage() {
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Card>
+              <Card className="dark:bg-slate-800 dark:border-slate-700">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600">Total Skills</CardTitle>
+                  <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Skills</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold">{totalSkills}</div>
-                  <p className="text-xs text-gray-600 mt-1">Skills tracked</p>
+                  <div className="text-3xl font-bold dark:text-white">{totalSkills}</div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Skills tracked</p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="dark:bg-slate-800 dark:border-slate-700">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600">Mastered</CardTitle>
+                  <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Mastered</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-green-600">{masteredSkills}</div>
-                  <p className="text-xs text-gray-600 mt-1">
+                  <div className="text-3xl font-bold text-green-600 dark:text-green-400">{masteredSkills}</div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                     {totalSkills > 0 ? Math.round((masteredSkills / totalSkills) * 100) : 0}% of skills
                   </p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="dark:bg-slate-800 dark:border-slate-700">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600">Avg Mastery</CardTitle>
+                  <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Avg Mastery</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-blue-600">{averageMastery}%</div>
-                  <p className="text-xs text-gray-600 mt-1">Overall progress</p>
+                  <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{averageMastery}%</div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Overall progress</p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="dark:bg-slate-800 dark:border-slate-700">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600">Categories</CardTitle>
+                  <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Categories</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-purple-600">{categories.length}</div>
-                  <p className="text-xs text-gray-600 mt-1">Skill areas</p>
+                  <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">{categories.length}</div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Skill areas</p>
                 </CardContent>
               </Card>
             </div>
 
             {/* Top Skills */}
             {skills.length > 0 && (
-              <Card>
+              <Card className="dark:bg-slate-800 dark:border-slate-700">
                 <CardHeader>
-                  <CardTitle>Top Skills by Mastery</CardTitle>
-                  <CardDescription>Your strongest skills</CardDescription>
+                  <CardTitle className="dark:text-white">Top Skills by Mastery</CardTitle>
+                  <CardDescription className="dark:text-gray-400">Your strongest skills</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -297,7 +297,7 @@ export default function SkillsDashboardPage() {
           {/* Skills Tab */}
           <TabsContent value="skills" className="space-y-6">
             {/* Search and Filters */}
-            <Card>
+            <Card className="dark:bg-slate-800 dark:border-slate-700">
               <CardContent className="pt-6">
                 <div className="space-y-4">
                   <div className="relative">
@@ -306,20 +306,20 @@ export default function SkillsDashboardPage() {
                       placeholder="Search skills..."
                       value={searchTerm}
                       onChange={e => setSearchTerm(e.target.value)}
-                      className="pl-10"
+                      className="pl-10 dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-gray-400"
                     />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                         Category
                       </label>
                       <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                        <SelectTrigger>
+                        <SelectTrigger className="dark:bg-slate-700 dark:border-slate-600 dark:text-white">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="dark:bg-slate-700 dark:border-slate-600">
                           <SelectItem value="all">All Categories</SelectItem>
                           {categories.map(cat => (
                             <SelectItem key={cat} value={cat}>
@@ -331,14 +331,14 @@ export default function SkillsDashboardPage() {
                     </div>
 
                     <div>
-                      <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                         Proficiency Level
                       </label>
                       <Select value={levelFilter} onValueChange={setLevelFilter}>
-                        <SelectTrigger>
+                        <SelectTrigger className="dark:bg-slate-700 dark:border-slate-600 dark:text-white">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="dark:bg-slate-700 dark:border-slate-600">
                           <SelectItem value="all">All Levels</SelectItem>
                           <SelectItem value="beginner">Beginner</SelectItem>
                           <SelectItem value="intermediate">Intermediate</SelectItem>
@@ -368,9 +368,9 @@ export default function SkillsDashboardPage() {
                 ))}
               </div>
             ) : (
-              <Card>
+              <Card className="dark:bg-slate-800 dark:border-slate-700">
                 <CardContent className="pt-6">
-                  <div className="text-center text-gray-600">
+                  <div className="text-center text-gray-600 dark:text-gray-400">
                     No skills match your filters. Try adjusting your search.
                   </div>
                 </CardContent>

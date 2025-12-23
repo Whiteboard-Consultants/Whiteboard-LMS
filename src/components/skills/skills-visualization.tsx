@@ -53,57 +53,57 @@ export function SkillsVisualization({
     <div className="space-y-6">
       {/* Summary Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+        <Card className="dark:bg-slate-800 dark:border-slate-700">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Total Skills</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Skills</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-gray-900">{totalSkills}</div>
-            <p className="text-xs text-gray-600 mt-1">Tracked & developing</p>
+            <div className="text-3xl font-bold text-gray-900 dark:text-white">{totalSkills}</div>
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Tracked & developing</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="dark:bg-slate-800 dark:border-slate-700">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Mastered</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Mastered</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-green-600">{masteredSkills}</div>
-            <p className="text-xs text-gray-600 mt-1">
+            <div className="text-3xl font-bold text-green-600 dark:text-green-400">{masteredSkills}</div>
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
               {totalSkills > 0 ? Math.round((masteredSkills / totalSkills) * 100) : 0}% complete
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="dark:bg-slate-800 dark:border-slate-700">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Average Mastery</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Average Mastery</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-blue-600">{Math.round(averageMastery)}%</div>
-            <p className="text-xs text-gray-600 mt-1">Across all skills</p>
+            <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{Math.round(averageMastery)}%</div>
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Across all skills</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="dark:bg-slate-800 dark:border-slate-700">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Categories</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Categories</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-purple-600">
+            <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
               {Object.keys(skillsByCategory).length}
             </div>
-            <p className="text-xs text-gray-600 mt-1">Skill areas covered</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Skill areas covered</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Bar Chart - Skills by Category */}
       {categoryData.length > 0 && (
-        <Card>
+        <Card className="dark:bg-slate-800 dark:border-slate-700">
           <CardHeader>
-            <CardTitle>Skills Distribution by Category</CardTitle>
-            <CardDescription>Breakdown of proficiency levels across skill categories</CardDescription>
+            <CardTitle className="dark:text-white">Skills Distribution by Category</CardTitle>
+            <CardDescription className="dark:text-gray-400">Breakdown of proficiency levels across skill categories</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="w-full h-80">
@@ -139,10 +139,10 @@ export function SkillsVisualization({
 
       {/* Pie Chart - Mastery Status */}
       {totalSkills > 0 && (
-        <Card>
+        <Card className="dark:bg-slate-800 dark:border-slate-700">
           <CardHeader>
-            <CardTitle>Mastery Overview</CardTitle>
-            <CardDescription>Your progress toward mastering all tracked skills</CardDescription>
+            <CardTitle className="dark:text-white">Mastery Overview</CardTitle>
+            <CardDescription className="dark:text-gray-400">Your progress toward mastering all tracked skills</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="w-full h-80">
@@ -179,10 +179,10 @@ export function SkillsVisualization({
 
       {/* Category Breakdown */}
       {Object.entries(skillsByCategory).length > 0 && (
-        <Card>
+        <Card className="dark:bg-slate-800 dark:border-slate-700">
           <CardHeader>
-            <CardTitle>Detailed Category Breakdown</CardTitle>
-            <CardDescription>Proficiency overview for each skill category</CardDescription>
+            <CardTitle className="dark:text-white">Detailed Category Breakdown</CardTitle>
+            <CardDescription className="dark:text-gray-400">Proficiency overview for each skill category</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -194,8 +194,8 @@ export function SkillsVisualization({
                 return (
                   <div key={category} className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <h4 className="font-medium text-gray-900">{category}</h4>
-                      <Badge variant="outline" className="text-xs">
+                      <h4 className="font-medium text-gray-900 dark:text-white">{category}</h4>
+                      <Badge variant="outline" className="text-xs dark:border-slate-500 dark:text-gray-300">
                         {stats.mastered}/{stats.total} mastered
                       </Badge>
                     </div>
@@ -203,31 +203,31 @@ export function SkillsVisualization({
                     <div className="grid grid-cols-4 gap-2 text-xs">
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS['Mastered'] }} />
-                        <span className="text-gray-600">
+                        <span className="text-gray-600 dark:text-gray-400">
                           {stats.mastered} mastered
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS['Proficient'] }} />
-                        <span className="text-gray-600">
+                        <span className="text-gray-600 dark:text-gray-400">
                           {stats.proficient} proficient
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS['Intermediate'] }} />
-                        <span className="text-gray-600">
+                        <span className="text-gray-600 dark:text-gray-400">
                           {stats.intermediate} intermediate
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS['Beginner'] }} />
-                        <span className="text-gray-600">
+                        <span className="text-gray-600 dark:text-gray-400">
                           {stats.beginner} beginner
                         </span>
                       </div>
                     </div>
 
-                    <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                    <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all duration-300"
                         style={{
@@ -248,10 +248,10 @@ export function SkillsVisualization({
 
       {/* Empty State */}
       {totalSkills === 0 && (
-        <Card>
+        <Card className="dark:bg-slate-800 dark:border-slate-700">
           <CardContent className="pt-6">
             <div className="text-center">
-              <p className="text-gray-600">No skills tracked yet. Complete courses to start tracking skills!</p>
+              <p className="text-gray-600 dark:text-gray-400">No skills tracked yet. Complete courses to start tracking skills!</p>
             </div>
           </CardContent>
         </Card>
