@@ -25,6 +25,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AnnouncementBanner } from "@/components/announcement-banner";
 import { Separator } from "@/components/ui/separator";
 import { RevenueCard } from "@/components/revenue-card";
+import { InstructorCommissionCard } from "./commission-card";
+import { getInstructorCommissionInfo } from "./commission-actions";
 
 
 export default function InstructorDashboardPage() {
@@ -34,6 +36,13 @@ export default function InstructorDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [newEnrollments, setNewEnrollments] = useState(0);
   const [totalRevenue, setTotalRevenue] = useState(0);
+  const [commissionInfo, setCommissionInfo] = useState<{
+    commissionPercentage: number;
+    totalEnrollments: number;
+    totalOriginalPrice: number;
+    totalEarned: number;
+    description: string;
+  } | null>(null);
 
   useEffect(() => {
     if (authLoading) {
@@ -212,6 +221,16 @@ export default function InstructorDashboardPage() {
     fetchCourses();
     fetchNewEnrollments();
 
+    // Fetch commission info
+    const fetchCommissionInfo = async () => {
+      const result = await getInstructorCommissionInfo(user.id);
+      if (result.success && result.data) {
+        setCommissionInfo(result.data);
+      }
+    };
+
+    fetchCommissionInfo();
+
     // Set up real-time subscriptions - simplified to avoid filter issues
     const coursesChannel = supabase
       .channel(`instructor_${user.id}_courses`)
@@ -276,6 +295,15 @@ export default function InstructorDashboardPage() {
       </PageHeader>
       
       <AnnouncementBanner />
+
+      {/* Commission Info Card */}
+      {commissionInfo && (
+        <InstructorCommissionCard
+          commissionPercentage={commissionInfo.commissionPercentage}
+          totalEnrollments={commissionInfo.totalEnrollments}
+          totalEarned={commissionInfo.totalEarned}
+        />
+      )}
       
       <div className="space-y-6">
         <h2 className="text-2xl font-bold tracking-tight font-headline">Action Center</h2>

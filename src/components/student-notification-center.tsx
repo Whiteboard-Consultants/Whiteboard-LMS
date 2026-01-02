@@ -34,19 +34,20 @@ export function StudentNotificationCenter() {
           .order('created_at', { ascending: false });
         
         if (error) {
-          console.error("Error fetching notifications:", error);
-          console.error("Error details:", JSON.stringify(error, null, 2));
+          const errorMessage = error?.message || 'Unknown error';
+          const errorCode = error?.code || 'UNKNOWN';
+          console.error(`Error fetching notifications [${errorCode}]: ${errorMessage}`);
           
           // Check if this is a "table doesn't exist" error
-          if (error.message?.includes('does not exist') || 
-              error.code === 'PGRST205' || 
-              error.message?.includes('schema cache')) {
+          if (errorMessage.includes('does not exist') || 
+              errorCode === 'PGRST205' || 
+              errorMessage.includes('schema cache')) {
             console.log("Notifications table doesn't exist yet. This is normal for new installations.");
             // Set empty array instead of continuing to show error
             setNotifications([]);
           } else {
             // For other errors, also set empty array to prevent UI issues
-            console.error("Unexpected error fetching notifications, setting empty state");
+            console.error(`Unexpected error fetching notifications [${errorCode}], setting empty state`);
             setNotifications([]);
           }
         } else {
@@ -63,8 +64,8 @@ export function StudentNotificationCenter() {
           setNotifications(mappedNotifications);
         }
       } catch (error) {
-        console.error("Unexpected error in notification fetch:", error);
-        console.error("Error details:", JSON.stringify(error, null, 2));
+        const errorMessage = error instanceof Error ? error.message : String(error || 'Unknown error');
+        console.error(`Unexpected error in notification fetch: ${errorMessage}`);
         // Always set empty array on unexpected errors
         setNotifications([]);
       } finally {

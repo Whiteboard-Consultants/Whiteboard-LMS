@@ -5,6 +5,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { supabase } from "@/lib/supabase";
 import { sendPasswordResetEmail, setTemporaryPassword, fetchUserEnrollments, deleteUserEnrollment } from './actions';
+import { getAllUsers, getPendingUsers } from './data-actions';
 import { PageHeader } from "@/components/page-header";
 import { convertToDate } from "@/lib/date-utils";
 import {
@@ -109,13 +110,11 @@ export default function AdminUsersPage() {
 
   const fetchUsers = useCallback(async () => {
     try {
-      const { data: usersData, error } = await supabase
-        .from('users')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Use server action to fetch all users with service role
+      const result = await getAllUsers();
 
-      if (error) {
-        console.error('Error fetching users:', error);
+      if (!result.success || !result.data) {
+        console.error('Error fetching users:', result.error);
         toast({
           variant: "destructive",
           title: "Error",
@@ -124,32 +123,28 @@ export default function AdminUsersPage() {
         return;
       }
 
-      setUsers(usersData || []);
+      setUsers(result.data);
     } catch (error) {
       console.error('Error:', error);
     }
   }, [toast]);
 
   const fetchPendingRegistrations = useCallback(async () => {
-    // For now, we'll show users with 'pending' status as registration requests
     try {
-      const { data: pendingUsers, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('status', 'pending')
-        .order('created_at', { ascending: false });
+      // Use server action to fetch pending users with service role
+      const result = await getPendingUsers();
 
-      if (error) {
-        console.error('Error fetching pending registrations:', error);
+      if (!result.success || !result.data) {
+        console.error('Error fetching pending registrations:', result.error);
         return;
       }
 
-      const formattedRequests: RegistrationRequest[] = (pendingUsers || []).map(user => ({
+      const formattedRequests: RegistrationRequest[] = (result.data || []).map(user => ({
         id: user.id,
         name: user.name || 'Unknown',
         email: user.email,
         role: user.role || 'student',
-        date: format(new Date(user.created_at), 'dd MMM yyyy'),
+        date: format(new Date(user.createdAt || new Date()), 'dd MMM yyyy'),
         status: 'pending' as const
       }));
 

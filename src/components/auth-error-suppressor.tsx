@@ -19,6 +19,15 @@ export function AuthErrorSuppressor() {
     console.error = function(...args: any[]) {
       const firstArg = args[0];
 
+      // Skip empty error objects (Supabase error objects that have no enumerable properties)
+      if (firstArg && typeof firstArg === 'object' && Object.keys(firstArg).length === 0) {
+        // Only suppress if this is the only argument or followed by a simple message
+        // that looks like it's describing the empty object
+        if (args.length === 1 || (args.length === 2 && typeof args[1] === 'string')) {
+          return; // Suppress empty error objects
+        }
+      }
+
       // Check if it's an AuthApiError
       if (firstArg?.name === 'AuthApiError') {
         const message = firstArg.message || '';
@@ -43,7 +52,7 @@ export function AuthErrorSuppressor() {
       }
 
       // Pass through all other errors
-      originalError.apply(console, args);
+      originalError.apply(console, args) || originalError(...args);
     };
 
     // Patch console.warn

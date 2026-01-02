@@ -7,6 +7,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 
 import { supabase } from "@/lib/supabase";
+import { fetchAllEnrollments } from "./data-actions";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import {
@@ -92,6 +93,7 @@ export default function AdminReportsPage() {
   const [selectedCourseId, setSelectedCourseId] = useState<string>('all');
   const [isExportingStudents, setIsExportingStudents] = useState(false);
   const [enrolledStudents, setEnrolledStudents] = useState<EnrolledStudent[]>([]);
+  const [rawEnrollments, setRawEnrollments] = useState<any[]>([]);
   const [platformStats, setPlatformStats] = useState<PlatformStats>({
     totalCourses: 0,
     totalStudents: 0,
@@ -256,18 +258,24 @@ export default function AdminReportsPage() {
 
     paidEnrollments.forEach(enrollment => {
       const course = courses.find(c => c.id === enrollment.course_id);
-      if (course && course.price) {
-        totalRevenue += course.price;
+      // Use enrolled_original_price if available (actual price at time of enrollment)
+      // This ensures we count ALL paid courses, even those that are free or were discounted
+      const enrollmentPrice = enrollment.enrolled_original_price || 
+                              enrollment.enrolled_price || 
+                              (course && course.price) || 0;
+      
+      if (enrollmentPrice > 0) {
+        totalRevenue += enrollmentPrice;
         
-        const existing = courseRevenueMap.get(course.id) || { 
+        const existing = courseRevenueMap.get(enrollment.course_id) || { 
           revenue: 0, 
           enrollments: 0, 
-          title: course.title,
-          instructor_name: course.instructor_name || 'Unknown'
+          title: course?.title || 'Unknown Course',
+          instructor_name: course?.instructor_name || 'Unknown'
         };
-        existing.revenue += course.price;
+        existing.revenue += enrollmentPrice;
         existing.enrollments += 1;
-        courseRevenueMap.set(course.id, existing);
+        courseRevenueMap.set(enrollment.course_id, existing);
       }
     });
 
@@ -327,82 +335,126 @@ export default function AdminReportsPage() {
           throw new Error(`Failed to fetch courses: ${coursesError.message}`);
         }
 
-        // Fetch instructor names
+        console.log('Courses fetched:', coursesData?.length, 'courses');
+
+        // Fetch all users to map instructor names
         const { data: usersData, error: usersError } = await supabase
           .from('users')
-          .select('id, name')
-          .eq('role', 'instructor');
+          .select('id, name, role');
 
         if (usersError) {
-          console.warn('Failed to fetch instructor names:', usersError);
+          console.warn('Failed to fetch user data:', usersError);
         }
 
-        // Create instructor map for quick lookup
+        // Create instructor map for quick lookup - map by user ID (all users, not just instructors)
         const instructorMap = new Map(
-          (usersData || []).map(user => [user.id, user.name])
+          (usersData || []).map(user => [user.id, user.name || user.id])
         );
 
         // Process courses data
-        const processedCourses: CourseData[] = (coursesData || []).map(course => ({
-          id: course.id,
-          title: course.title,
-          description: course.description,
-          instructor_id: course.instructor_id,
-          instructor_name: instructorMap.get(course.instructor_id) || 'Unknown Instructor',
-          student_count: course.student_count || 0,
-          rating: course.rating || 0,
-          type: course.type || 'free',
-          price: course.price,
-          created_at: course.created_at
-        }));
+        const processedCourses: CourseData[] = (coursesData || []).map(course => {
+          // Try to get instructor name from multiple sources
+          let instructorName = 'Unknown Instructor';
+          
+          // Check if course has an instructor field (could be JSON object or string)
+          if (course.instructor) {
+            if (typeof course.instructor === 'object' && course.instructor?.name) {
+              instructorName = course.instructor.name;
+            } else if (typeof course.instructor === 'string') {
+              instructorName = course.instructor;
+            }
+          }
+          
+          // Fall back to looking up instructor_id in the instructorMap
+          if (instructorName === 'Unknown Instructor' && course.instructor_id) {
+            const lookedUpName = instructorMap.get(course.instructor_id);
+            if (lookedUpName) {
+              instructorName = lookedUpName;
+            }
+          }
+
+          return {
+            id: course.id,
+            title: course.title,
+            description: course.description,
+            instructor_id: course.instructor_id,
+            instructor_name: instructorName,
+            student_count: course.student_count || 0,
+            rating: course.rating || 0,
+            type: course.type || 'free',
+            price: course.price,
+            created_at: course.created_at
+          };
+        });
 
         setCourses(processedCourses);
 
-        // Fetch all enrollments with additional fields
-        const { data: rawEnrollments, error: enrollmentsError } = await supabase
-          .from('enrollments')
-          .select(`
-            *,
-            users!enrollments_user_id_fkey(name, email, phone, updated_at)
-          `);
+        // Fetch all enrollments with server action (uses service role)
+        const { data: rawEnrollments, error: enrollmentsError } = await fetchAllEnrollments();
+
+        console.log('[Client] fetchAllEnrollments response:', {
+          dataLength: rawEnrollments?.length,
+          hasError: !!enrollmentsError,
+          error: enrollmentsError,
+        });
 
         if (enrollmentsError) {
           throw new Error(`Failed to fetch enrollments: ${enrollmentsError.message}`);
         }
 
         if (!rawEnrollments || rawEnrollments.length === 0) {
+          console.warn('No enrollments found in database');
           setEnrolledStudents([]);
+          setRawEnrollments([]);
         } else {
+          console.log('[Client] Processing', rawEnrollments.length, 'enrollments');
           // Fetch users and courses data for the enrollments
           const userIds = Array.from(new Set(rawEnrollments.map(e => e.user_id).filter(Boolean)));
           const courseIds = Array.from(new Set(rawEnrollments.map(e => e.course_id).filter(Boolean)));
 
-          const [usersResult, coursesResult] = await Promise.all([
-            supabase.from('users').select('id, name, email, phone').in('id', userIds),
-            supabase.from('courses').select('id, title').in('id', courseIds)
-          ]);
+          console.log('Fetching data for:', userIds.length, 'users and', courseIds.length, 'courses');
 
-          if (usersResult.error || coursesResult.error) {
-            console.error('Error fetching related data:', { usersResult, coursesResult });
-            throw new Error('Failed to fetch related user or course data');
+          // Fetch users and courses via API endpoint (uses service_role to bypass RLS)
+          let usersMap = new Map();
+          let coursesMapData = new Map();
+
+          if (userIds.length > 0 || courseIds.length > 0) {
+            const apiResponse = await fetch('/api/admin/enrollment-data', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ userIds, courseIds }),
+            });
+
+            if (!apiResponse.ok) {
+              const errorData = await apiResponse.json();
+              throw new Error(`Failed to fetch enrollment data: ${errorData.error}`);
+            }
+
+            const { users, courses } = await apiResponse.json();
+            usersMap = new Map(Object.entries(users));
+            coursesMapData = new Map(Object.entries(courses));
+
+            console.log('[Client] Fetched users:', Object.keys(users).length, 'courses:', Object.keys(courses).length);
           }
-
-          // Create maps for quick lookup
-          const usersMap = new Map(usersResult.data?.map(u => [u.id, u]) || []);
-          const coursesMap = new Map(coursesResult.data?.map(c => [c.id, c]) || []);
 
           // Process enrolled students data
           const processedStudents: EnrolledStudent[] = rawEnrollments.map(enrollment => {
             const user = usersMap.get(enrollment.user_id);
-            const course = coursesMap.get(enrollment.course_id);
+            const course = coursesMapData.get(enrollment.course_id);
             
             if (!user || !course) {
+              console.warn('Skipping enrollment - missing user or course:', {
+                enrollmentId: enrollment.id,
+                user_id: enrollment.user_id,
+                userFound: !!user,
+                course_id: enrollment.course_id,
+                courseFound: !!course,
+              });
               return null;
             }
             
-            // Get the most recent activity time from user data or enrollment data
-            const lastLogin = enrollment.users?.updated_at || 
-                             enrollment.last_accessed_at || 
+            // Get the most recent activity time from enrollment data
+            const lastLogin = enrollment.last_accessed_at || 
                              enrollment.updated_at;
 
             return {
@@ -420,16 +472,17 @@ export default function AdminReportsPage() {
             };
           }).filter(Boolean) as EnrolledStudent[];
 
+          console.log('[Client] Processed students:', processedStudents.length, 'from', rawEnrollments.length, 'enrollments');
           setEnrolledStudents(processedStudents);
+          setRawEnrollments(rawEnrollments);
 
           // Calculate platform statistics based on actual enrollment payment status
           const paidEnrollments = rawEnrollments.filter(e => e.payment_status === 'paid');
           const totalRevenue = paidEnrollments.reduce((sum, enrollment) => {
-            const course = processedCourses.find(c => c.id === enrollment.course_id);
-            if (course && course.price) {
-              return sum + course.price;
-            }
-            return sum;
+            // Use enrolled_original_price if available (actual price at enrollment time)
+            const enrollmentPrice = enrollment.enrolled_original_price || 
+                                    enrollment.enrolled_price || 0;
+            return sum + enrollmentPrice;
           }, 0);
 
           const completedEnrollments = processedStudents.filter(s => s.completed || s.progress >= 100);
@@ -471,19 +524,12 @@ export default function AdminReportsPage() {
 
   // Recalculate revenue data when time period changes
   useEffect(() => {
-    if (courses.length > 0 && enrolledStudents.length > 0) {
-      // Convert enrolledStudents to enrollment format for calculation
-      const enrollmentsData = enrolledStudents.map(student => ({
-        course_id: student.courseId,
-        enrolled_at: student.enrolledAt,
-        created_at: student.enrolledAt,
-        payment_status: 'paid' // Assuming enrolled students have paid
-      }));
-      
-      calculateRevenueData(enrollmentsData, courses, selectedTimePeriod);
+    if (courses.length > 0 && rawEnrollments.length > 0) {
+      // Use raw enrollments data which includes pricing fields
+      calculateRevenueData(rawEnrollments, courses, selectedTimePeriod);
       calculateEngagementRate(enrolledStudents);
     }
-  }, [selectedTimePeriod, courses, enrolledStudents]);
+  }, [selectedTimePeriod, courses, rawEnrollments, enrolledStudents]);
 
   const triggerCsvDownload = (csvContent: string, fileName: string) => {
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });

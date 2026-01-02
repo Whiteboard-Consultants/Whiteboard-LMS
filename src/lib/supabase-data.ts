@@ -144,9 +144,12 @@ export async function getPosts() {
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('Error fetching posts:', error);
+    const errorMessage = error?.message || 'Unknown error';
+    const errorCode = error?.code || 'UNKNOWN';
+    console.error(`Error fetching posts [${errorCode}]: ${errorMessage}`);
+    
     // Handle the case where posts table doesn't exist yet
-    if (error.code === 'PGRST205' || error.message?.includes('posts')) {
+    if (errorCode === 'PGRST205' || errorMessage?.includes('posts') || errorMessage?.includes('does not exist')) {
       console.warn("Posts table doesn't exist yet. Please create it in Supabase.");
       return []; // Return empty array instead of throwing error
     }

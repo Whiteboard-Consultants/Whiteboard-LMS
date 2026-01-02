@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, BookOpen, Users, Star, Percent, User as UserIcon, Award, TrendingUp, Target, DollarSign } from "lucide-react";
 
 import { supabase } from "@/lib/supabase";
+import { getInstructorReports } from './data-actions';
 import { PageHeader } from "@/components/page-header";
 import {
   Table,
@@ -41,6 +42,7 @@ export default function InstructorReportsPage() {
   const [reports, setReports] = useState<InstructorReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [totalPlatformRevenue, setTotalPlatformRevenue] = useState(0);
 
   useEffect(() => {
     const fetchInstructorReports = async () => {
@@ -48,114 +50,18 @@ export default function InstructorReportsPage() {
       setError(null);
 
       try {
-        // 1. Fetch all instructors (filter by status if column exists)
-        const { data: instructorsData, error: instructorsError } = await supabase
-          .from('users')
-          .select('*')
-          .eq('role', 'instructor')
-          .order('name');
+        // Use server action to fetch instructor reports
+        const result = await getInstructorReports();
 
-        if (instructorsError) {
-          throw new Error(`Failed to fetch instructors: ${instructorsError.message}`);
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to fetch instructor reports');
         }
 
-        if (!instructorsData || instructorsData.length === 0) {
-          setReports([]);
-          return;
-        }
-
-        // 2. Fetch all courses with instructor information
-        const { data: coursesData, error: coursesError } = await supabase
-          .from('courses')
-          .select('*');
-
-        if (coursesError) {
-          throw new Error(`Failed to fetch courses: ${coursesError.message}`);
-        }
-
-        // 3. Fetch all enrollments (filter by status if column exists)
-        const { data: enrollmentsData, error: enrollmentsError } = await supabase
-          .from('enrollments')
-          .select('*');
-
-        if (enrollmentsError) {
-          throw new Error(`Failed to fetch enrollments: ${enrollmentsError.message}`);
-        }
-
-        // 4. Process data for each instructor
-        const reportData: InstructorReport[] = instructorsData.map((instructor) => {
-          // Find courses by this instructor
-          const instructorCourses = (coursesData || []).filter(
-            course => course.instructor_id === instructor.id
-          );
-
-          // Find enrollments for instructor's courses
-          const courseIds = instructorCourses.map(course => course.id);
-          const instructorEnrollments = (enrollmentsData || []).filter(
-            enrollment => courseIds.includes(enrollment.course_id)
-          );
-
-          // Calculate metrics
-          const totalCourses = instructorCourses.length;
-          const totalEnrollments = instructorEnrollments.length;
-          const completedEnrollments = instructorEnrollments.filter(
-            enrollment => enrollment.completed === true || enrollment.progress === 100
-          ).length;
-          const completionRate = totalEnrollments > 0 
-            ? Math.round((completedEnrollments / totalEnrollments) * 100) 
-            : 0;
-
-          // Calculate average rating (use available rating field or default to 0)
-          const coursesWithRatings = instructorCourses.filter(course => course.rating && course.rating > 0);
-          const averageRating = coursesWithRatings.length > 0
-            ? Math.round((coursesWithRatings.reduce((sum, course) => sum + (course.rating || 0), 0) / coursesWithRatings.length) * 10) / 10
-            : 0;
-
-          // Calculate total students (unique enrollments)
-          const uniqueStudents = new Set(instructorEnrollments.map(e => e.user_id));
-          const totalStudents = uniqueStudents.size;
-
-          // Calculate active students (recent activity)
-          const activeStudents = instructorEnrollments.filter(
-            enrollment => {
-              if (!enrollment.last_accessed_at) return false;
-              const lastAccess = new Date(enrollment.last_accessed_at);
-              const thirtyDaysAgo = new Date();
-              thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-              return lastAccess > thirtyDaysAgo;
-            }
-          ).length;
-
-          // Calculate total revenue (if pricing data available)
-          const totalRevenue = instructorCourses.reduce((sum, course) => {
-            const courseEnrollments = instructorEnrollments.filter(e => e.course_id === course.id);
-            return sum + (courseEnrollments.length * (course.price || 0));
-          }, 0);
-
-          return {
-            id: instructor.id,
-            name: instructor.name || instructor.email,
-            email: instructor.email,
-            avatar_url: instructor.avatar_url,
-            totalCourses,
-            totalStudents,
-            totalEnrollments,
-            completedEnrollments,
-            averageRating,
-            completionRate,
-            totalRevenue,
-            activeStudents,
-            joinedAt: instructor.created_at
-          };
-        });
-
-        // Sort by total students descending
-        reportData.sort((a, b) => b.totalStudents - a.totalStudents);
-        setReports(reportData);
-
+        setReports(result.data || []);
+        setTotalPlatformRevenue(result.totalPlatformRevenue || 0);
       } catch (err) {
-        console.error("Failed to generate instructor reports:", err);
-        setError(err instanceof Error ? err.message : 'Failed to generate instructor reports');
+        console.error('Error:', err);
+        setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
         setLoading(false);
       }
@@ -280,7 +186,7 @@ export default function InstructorReportsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ₹{reports.reduce((sum, report) => sum + report.totalRevenue, 0).toLocaleString()}
+              ₹{totalPlatformRevenue.toLocaleString()}
             </div>
           </CardContent>
         </Card>
@@ -330,10 +236,13 @@ export default function InstructorReportsPage() {
                       </div>
                     </div>
                     <div className="border-t pt-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">Revenue</span>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs text-muted-foreground">Revenue (at {report.commissionPercentage}% commission)</span>
                         <span className="font-semibold">₹{report.totalRevenue.toLocaleString()}</span>
                       </div>
+                      <p className="text-xs text-muted-foreground">
+                        Based on {report.totalEnrollments} enrollment{report.totalEnrollments !== 1 ? 's' : ''} × {report.commissionPercentage}% commission
+                      </p>
                     </div>
                   </CardContent>
                 </Card>

@@ -6,6 +6,7 @@ import { BookOpen, Users, UserCheck, DollarSign, Mail } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { User } from '@/types';
 import { getContactSubmissionStats } from '../contact-submissions/actions';
+import { getDashboardStats } from './actions';
 import { PageHeader } from '@/components/page-header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/use-auth';
@@ -42,6 +43,10 @@ function StatCard({
 
 export default function AdminDashboardPage() {
   const { user, userData } = useAuth();
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [totalInstructors, setTotalInstructors] = useState(0);
+  const [totalStudents, setTotalStudents] = useState(0);
+  const [pendingUsers, setPendingUsers] = useState(0);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [contactStats, setContactStats] = useState<{
@@ -55,18 +60,21 @@ export default function AdminDashboardPage() {
         return;
     }
 
-    // Simplified data fetching for now
+    // Verify user is admin and fetch dashboard data
     const fetchDashboardData = async () => {
       try {
-        // Fetch users
-        const { data: usersData, error: usersError } = await supabase
-          .from('users')
-          .select('*');
-
-        if (usersError && usersError.code !== '42P01') {
-          console.warn("Users data unavailable:", usersError.message);
-        } else if (usersData) {
-          setUsers(usersData);
+        // Use server action to fetch dashboard stats
+        const statsResult = await getDashboardStats();
+        
+        if (statsResult.success && statsResult.data) {
+          setTotalUsers(statsResult.data.totalUsers);
+          setTotalInstructors(statsResult.data.totalInstructors);
+          setTotalStudents(statsResult.data.totalStudents);
+          setPendingUsers(statsResult.data.pendingApprovals);
+          setUsers(statsResult.data.users);
+          console.log('Dashboard stats loaded:', statsResult.data);
+        } else {
+          console.error('Failed to load dashboard stats:', statsResult.error);
         }
 
         // Fetch contact submission stats
@@ -77,22 +85,15 @@ export default function AdminDashboardPage() {
             recentSubmissions: contactStatsResult.data.recentSubmissions
           });
         }
-
       } catch (error) {
         console.warn("Dashboard data unavailable - database not fully set up:", error);
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     };
 
     fetchDashboardData();
   }, [user]);
-
-  // Calculate stats from available data
-  const totalUsers = users.length;
-  const totalInstructors = users.filter(u => u.role === 'instructor').length;
-  const totalStudents = users.filter(u => u.role === 'student').length;
-  const pendingUsers = users.filter(u => u.status === 'pending').length;
 
   if (loading) {
     return (
@@ -175,6 +176,15 @@ export default function AdminDashboardPage() {
               <h4 className="font-medium">Manage Courses</h4>
               <p className="text-sm text-muted-foreground mt-1">
                 Oversee course content and enrollment
+              </p>
+            </Link>
+            <Link 
+              href="/admin/commissions" 
+              className="p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+            >
+              <h4 className="font-medium">Commission Rates</h4>
+              <p className="text-sm text-muted-foreground mt-1">
+                Configure instructor commission percentages
               </p>
             </Link>
             <Link 

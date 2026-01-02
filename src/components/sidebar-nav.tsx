@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
-import { BookMarked, LayoutDashboard, BarChart3, Users, Lightbulb, UserCheck, UserSquare, Megaphone, Award, FileText, Ticket, Rss, Package, ClipboardList, Mail, Zap } from "lucide-react";
+import { BookMarked, LayoutDashboard, BarChart3, Users, Lightbulb, UserCheck, UserSquare, Megaphone, Award, FileText, Ticket, Rss, Package, ClipboardList, Mail, Zap, DollarSign } from "lucide-react";
 import { Skeleton } from "./ui/skeleton";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
 
@@ -13,6 +13,7 @@ const adminManagementLinks = [
     { href: "/admin/coupons", label: "Coupons", icon: Ticket },
     { href: "/admin/courses", label: "Courses", icon: BookMarked },
     { href: "/admin/blog", label: "Blog", icon: Rss },
+    { href: "/admin/commissions", label: "Commissions", icon: DollarSign },
     { href: "/instructor/tests", label: "Tests", icon: FileText },
     { href: "/admin/users", label: "Users", icon: Users },
 ];
