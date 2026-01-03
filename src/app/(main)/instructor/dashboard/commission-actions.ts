@@ -125,6 +125,8 @@ export async function getInstructorCommissionInfo(instructorId: string) {
  */
 export async function getCommissionByDateRange(instructorId: string, startDate: Date, endDate: Date) {
   try {
+    console.log(`[COMMISSION] Fetching commission for ${instructorId} from ${startDate.toISOString()} to ${endDate.toISOString()}`);
+    
     // 1. Get instructor's commission rate
     const { data: instructorRate } = await supabaseAdmin
       .from('commission_rates')
@@ -145,6 +147,8 @@ export async function getCommissionByDateRange(instructorId: string, startDate: 
       commissionPercentage = platformRate?.commission_percentage || 20;
     }
 
+    console.log(`[COMMISSION] Commission percentage: ${commissionPercentage}%`);
+
     // 2. Get instructor's courses
     const { data: courses, error: coursesError } = await supabaseAdmin
       .from('courses')
@@ -152,6 +156,7 @@ export async function getCommissionByDateRange(instructorId: string, startDate: 
       .eq('instructor_id', instructorId);
 
     if (coursesError || !courses || courses.length === 0) {
+      console.log('[COMMISSION] No courses found');
       return {
         success: true,
         data: 0,
@@ -159,22 +164,32 @@ export async function getCommissionByDateRange(instructorId: string, startDate: 
       };
     }
 
+    console.log(`[COMMISSION] Found ${courses.length} courses`);
+
     // 3. Get enrollments within date range
     const courseIds = courses.map(c => c.id);
     const { data: enrollments, error: enrollmentsError } = await supabaseAdmin
       .from('enrollments')
-      .select('enrolled_original_price')
+      .select('enrolled_original_price, enrolled_at')
       .in('course_id', courseIds)
       .gte('enrolled_at', startDate.toISOString())
       .lte('enrolled_at', endDate.toISOString());
 
     if (enrollmentsError) {
-      console.error('Error fetching enrollments:', enrollmentsError);
+      console.error('[COMMISSION] Error fetching enrollments:', enrollmentsError);
       return {
         success: false,
         data: 0,
         error: enrollmentsError.message
       };
+    }
+
+    console.log(`[COMMISSION] Found ${enrollments?.length || 0} enrollments in date range`);
+    if (enrollments && enrollments.length > 0) {
+      console.log('[COMMISSION] Sample enrollments:', enrollments.slice(0, 3).map(e => ({
+        price: e.enrolled_original_price,
+        date: e.enrolled_at
+      })));
     }
 
     // 4. Calculate commission earned
@@ -186,6 +201,8 @@ export async function getCommissionByDateRange(instructorId: string, startDate: 
         totalCommission += commission;
       });
     }
+
+    console.log(`[COMMISSION] Total commission calculated: ₹${totalCommission}`);
 
     return {
       success: true,

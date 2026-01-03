@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { BookOpen, Users, UserCheck, DollarSign, Mail } from 'lucide-react';
+import { BookOpen, Users, UserCheck, DollarSign, Mail, BarChart3, Settings, Bell, TrendingUp } from 'lucide-react';
 
 import { supabase } from '@/lib/supabase';
 import type { User } from '@/types';
@@ -12,34 +12,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/use-auth';
 import { AnnouncementBanner } from '@/components/announcement-banner';
 import { AdminRevenueCard } from '@/components/admin-revenue-card';
+import { StatCard } from '@/components/stat-card';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
-// Simple stat card component
-function StatCard({
-  title,
-  value,
-  description,
-  icon: Icon,
-}: {
-  title: string;
-  value: number;
-  description: string;
-  icon: React.ComponentType<{ className?: string }>;
-}) {
-  return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-        <p className="text-xs text-muted-foreground">{description}</p>
-      </CardContent>
-    </Card>
-  );
-}
+import { Button } from '@/components/ui/button';
 
 export default function AdminDashboardPage() {
   const { user, userData } = useAuth();
@@ -98,10 +74,13 @@ export default function AdminDashboardPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <PageHeader
-          title="Loading Dashboard..."
-          description="Please wait while we load your dashboard."
-        />
+        <div className="rounded-xl bg-gradient-to-r from-indigo-600/90 to-blue-600/90 dark:from-indigo-900/40 dark:to-blue-900/40 p-8">
+          <PageHeader
+            title="Loading Dashboard..."
+            description="Please wait while we load your dashboard."
+            className="text-white dark:text-slate-100 [&>p]:text-indigo-100"
+          />
+        </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-32" />
@@ -112,98 +91,131 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title={`Welcome, ${userData?.name || 'Admin'}!`}
-        description="Oversee and manage the Whiteboard Consultants platform."
-      />
-      
-      <AnnouncementBanner />
+    <div className="min-h-screen bg-gradient-to-b from-indigo-50/50 dark:from-slate-900/50 to-background">
+      <div className="space-y-8">
+        <div className="rounded-xl bg-gradient-to-r from-indigo-600/90 to-blue-600/90 dark:from-indigo-900/40 dark:to-blue-900/40 p-8 mb-8">
+          <PageHeader
+            title={`Welcome back, ${userData?.name || 'Admin'}!`}
+            description="Monitor platform performance and manage system operations."
+            className="text-white dark:text-slate-100 [&>p]:text-indigo-100"
+          />
+        </div>
+        
+        <div className="px-4 md:px-0">
+          <AnnouncementBanner />
       
       <div className="space-y-6">
-        <h2 className="text-2xl font-bold tracking-tight font-headline">Dashboard Overview</h2>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <h2 className="text-2xl font-bold tracking-tight font-headline">System Statistics</h2>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           <StatCard
             title="Total Users"
-            value={totalUsers}
-            description="All registered users"
-            icon={Users}
+            value={totalUsers.toString()}
+            icon={<Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />}
+            gradient="blue"
           />
           <StatCard
-            title="Instructors"
-            value={totalInstructors}
-            description="Teaching staff"
-            icon={UserCheck}
+            title="Active Instructors"
+            value={totalInstructors.toString()}
+            icon={<UserCheck className="h-6 w-6 text-green-600 dark:text-green-400" />}
+            gradient="green"
           />
           <StatCard
-            title="Students"
-            value={totalStudents}
-            description="Learning participants"
-            icon={BookOpen}
+            title="Active Students"
+            value={totalStudents.toString()}
+            icon={<BookOpen className="h-6 w-6 text-purple-600 dark:text-purple-400" />}
+            gradient="purple"
           />
-          <StatCard
-            title="Pending Approvals"
-            value={pendingUsers}
-            description="Users awaiting approval"
-            icon={DollarSign}
-          />
-          <Link href="/admin/contact-submissions">
-            <StatCard
-              title="Contact Forms"
-              value={contactStats.recentSubmissions}
-              description={`${contactStats.totalSubmissions} total submissions`}
-              icon={Mail}
-            />
-          </Link>
-        </div>
-
-        <div className="space-y-4">
-          <h3 className="text-xl font-semibold">Quick Actions</h3>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <Link 
-              href="/admin/users" 
-              className="p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-            >
-              <h4 className="font-medium">Manage Users</h4>
-              <p className="text-sm text-muted-foreground mt-1">
-                View and manage all user accounts
-              </p>
-            </Link>
-            <Link 
-              href="/admin/courses" 
-              className="p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-            >
-              <h4 className="font-medium">Manage Courses</h4>
-              <p className="text-sm text-muted-foreground mt-1">
-                Oversee course content and enrollment
-              </p>
-            </Link>
-            <Link 
-              href="/admin/commissions" 
-              className="p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-            >
-              <h4 className="font-medium">Commission Rates</h4>
-              <p className="text-sm text-muted-foreground mt-1">
-                Configure instructor commission percentages
-              </p>
-            </Link>
-            <Link 
-              href="/admin/announcements" 
-              className="p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-            >
-              <h4 className="font-medium">Create Announcement</h4>
-              <p className="text-sm text-muted-foreground mt-1">
-                Broadcast messages to all users
-              </p>
-            </Link>
-          </div>
         </div>
       </div>
 
+      <div className="space-y-6 mt-12">
+        <h2 className="text-2xl font-bold tracking-tight font-headline">Quick Metrics</h2>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <StatCard
+            title={pendingUsers > 0 ? "⚠️ Pending Approvals" : "Pending Approvals"}
+            value={pendingUsers.toString()}
+            icon={<TrendingUp className="h-6 w-6 text-amber-600 dark:text-amber-400" />}
+            gradient={pendingUsers > 0 ? "amber" : "slate"}
+            isAlert={pendingUsers > 0}
+          >
+            <p className="text-xs text-muted-foreground pt-1">Users awaiting approval</p>
+          </StatCard>
+          <Link href="/admin/contact-submissions" className="no-underline">
+            <StatCard
+              title="Contact Submissions"
+              value={contactStats.recentSubmissions.toString()}
+              icon={<Mail className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />}
+              gradient="indigo"
+            >
+              <p className="text-xs text-muted-foreground pt-1">{contactStats.totalSubmissions} total submissions</p>
+            </StatCard>
+          </Link>
+        </div>
+      </div>
+
+      <div className="space-y-6 mt-12">
+        <h2 className="text-2xl font-bold tracking-tight font-headline">Quick Actions</h2>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Link href="/admin/users" className="no-underline">
+            <Card className="bg-gradient-to-br from-blue-50 dark:from-blue-900/20 border-blue-200 dark:border-blue-800 hover:shadow-lg transition-shadow cursor-pointer h-full">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                  <span>Manage Users</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">View and manage all user accounts</p>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link href="/admin/courses" className="no-underline">
+            <Card className="bg-gradient-to-br from-green-50 dark:from-green-900/20 border-green-200 dark:border-green-800 hover:shadow-lg transition-shadow cursor-pointer h-full">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BookOpen className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  <span>Manage Courses</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">Oversee course content and enrollment</p>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link href="/admin/commissions" className="no-underline">
+            <Card className="bg-gradient-to-br from-purple-50 dark:from-purple-900/20 border-purple-200 dark:border-purple-800 hover:shadow-lg transition-shadow cursor-pointer h-full">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <DollarSign className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                  <span>Commission Rates</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">Configure commission percentages</p>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link href="/admin/announcements" className="no-underline">
+            <Card className="bg-gradient-to-br from-amber-50 dark:from-amber-900/20 border-amber-200 dark:border-amber-800 hover:shadow-lg transition-shadow cursor-pointer h-full">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Bell className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                  <span>Announcements</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">Broadcast messages to users</p>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
+      </div>
       {/* Revenue Analytics Section */}
-      <div className="space-y-6">
+      <div className="space-y-6 mt-12">
         <h2 className="text-2xl font-bold tracking-tight font-headline">Revenue Analytics</h2>
         <AdminRevenueCard />
+      </div>
+        </div>
       </div>
     </div>
   );

@@ -27,6 +27,7 @@ const adminRequestLinks = [
 const adminReportLinks = [
     { href: "/admin/reports", label: "General", icon: BarChart3 },
     { href: "/admin/reports/instructors", label: "Instructors", icon: UserSquare },
+    { href: "/admin/reports/commission", label: "Commission", icon: DollarSign },
     { href: "/admin/reports/tests", label: "Tests", icon: BarChart3 },
 ];
 

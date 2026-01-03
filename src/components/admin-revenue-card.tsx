@@ -15,6 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { fetchAllEnrollments } from '@/app/(main)/admin/reports/data-actions';
 
 interface CourseRevenue {
   id: string;
@@ -29,44 +30,94 @@ export function AdminRevenueCard() {
   const [startDate, setStartDate] = useState<Date>(subDays(new Date(), 30));
   const [endDate, setEndDate] = useState<Date>(new Date());
   const [courses, setCourses] = useState<Course[]>([]);
+  const [enrollments, setEnrollments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchAllCourses = async () => {
+    const fetchData = async () => {
+      setLoading(true);
       try {
-        const { data: coursesData, error } = await supabase
+        // Fetch all courses
+        const { data: coursesData, error: coursesError } = await supabase
           .from('courses')
           .select('*');
 
-        if (error) {
-          console.error('Error fetching courses:', error);
+        if (coursesError) {
+          console.error('Error fetching courses:', coursesError);
           setCourses([]);
         } else {
           setCourses(coursesData || []);
         }
+
+        // Fetch all enrollments using server action
+        const { data: enrollmentsData, error: enrollmentsError } = await fetchAllEnrollments();
+
+        if (enrollmentsError) {
+          console.error('Error fetching enrollments:', enrollmentsError);
+          setEnrollments([]);
+        } else {
+          setEnrollments(enrollmentsData || []);
+        }
       } catch (error) {
-        console.error('Error fetching courses:', error);
+        console.error('Error fetching data:', error);
         setCourses([]);
+        setEnrollments([]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchAllCourses();
+    fetchData();
   }, []);
 
-  const courseRevenues: CourseRevenue[] = courses.map(course => ({
-    id: course.id,
-    title: course.title,
-    price: course.price || 0,
-    studentCount: course.studentCount || 0,
-    revenue: (course.price || 0) * (course.studentCount || 0),
-    instructor: typeof course.instructor === 'string' 
-      ? course.instructor 
-      : course.instructor?.name || 'Unknown',
+  // Calculate revenue based on actual paid enrollments within date range
+  const calculateRevenue = (enrollmentsList: any[], coursesList: Course[]) => {
+    const coursesMap = new Map(coursesList.map(c => [c.id, c]));
+    
+    const paidEnrollments = enrollmentsList.filter(e => {
+      if (e.payment_status !== 'paid') return false;
+      const enrolledDate = new Date(e.enrolled_at || e.created_at);
+      return enrolledDate >= startDate && enrolledDate <= endDate;
+    });
+
+    const courseRevenueMap = new Map<string, { revenue: number; enrollments: number; title: string; instructor: string; price: number }>();
+    let totalRevenue = 0;
+
+    paidEnrollments.forEach(enrollment => {
+      const enrollmentPrice = enrollment.enrolled_original_price || 
+                              enrollment.enrolled_price || 0;
+      totalRevenue += enrollmentPrice;
+
+      const course = coursesMap.get(enrollment.course_id);
+      const existing = courseRevenueMap.get(enrollment.course_id) || {
+        revenue: 0,
+        enrollments: 0,
+        title: course?.title || 'Unknown Course',
+        instructor: typeof course?.instructor === 'string' 
+          ? course.instructor 
+          : course?.instructor?.name || 'Unknown',
+        price: course?.price || 0
+      };
+
+      existing.revenue += enrollmentPrice;
+      existing.enrollments += 1;
+      courseRevenueMap.set(enrollment.course_id, existing);
+    });
+
+    return { totalRevenue, courseRevenueMap, paidEnrollments };
+  };
+
+  const { totalRevenue, courseRevenueMap, paidEnrollments } = calculateRevenue(enrollments, courses);
+
+  const courseRevenues: CourseRevenue[] = Array.from(courseRevenueMap.entries()).map(([id, data]) => ({
+    id,
+    title: data.title,
+    price: data.price,
+    studentCount: data.enrollments,
+    revenue: data.revenue,
+    instructor: data.instructor
   }));
 
-  const totalRevenue = courseRevenues.reduce((sum, course) => sum + course.revenue, 0);
   const topCourses = [...courseRevenues]
     .sort((a, b) => b.revenue - a.revenue)
     .slice(0, 5);
@@ -186,9 +237,7 @@ export function AdminRevenueCard() {
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Total Enrollments</p>
-              <p className="text-2xl font-bold">
-                {courseRevenues.reduce((sum, c) => sum + c.studentCount, 0)}
-              </p>
+              <p className="text-2xl font-bold">{paidEnrollments.length}</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Avg Revenue/Course</p>

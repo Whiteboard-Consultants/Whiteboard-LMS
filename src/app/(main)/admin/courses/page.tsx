@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Edit, PlusCircle, Trash2, Loader2, MoreVertical, DollarSign, Users, StarIcon } from "lucide-react";
+import { Edit, PlusCircle, Trash2, Loader2, MoreVertical, DollarSign, Users, StarIcon, Lightbulb } from "lucide-react";
 
 import { PageHeader } from "@/components/page-header";
 import { supabase } from "@/lib/supabase";
@@ -173,12 +173,20 @@ export default function AdminCoursesPage() {
         title="Course Management"
         description="Oversee all courses on the platform."
       >
-        <Button asChild>
-          <Link href="/instructor/courses/create">
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Add New Course
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button asChild>
+            <Link href="/instructor/courses/create">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add New Course
+            </Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/instructor/ai-suggester">
+              <Lightbulb className="mr-2 h-4 w-4" />
+              AI Suggester
+            </Link>
+          </Button>
+        </div>
       </PageHeader>
       
       {/* Mobile View */}

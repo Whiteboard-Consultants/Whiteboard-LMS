@@ -308,7 +308,7 @@ export default function InstructorDashboardPage() {
 
       <div className="space-y-6">
         <h2 className="text-2xl font-bold tracking-tight font-headline">Overall Performance</h2>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             <StatCard
             title="Total Students"
             value={loading ? "..." : totalStudents.toLocaleString()}
@@ -329,7 +329,9 @@ export default function InstructorDashboardPage() {
             >
               <p className="text-xs text-muted-foreground pt-1">Across all courses</p>
             </StatCard>
-            <RevenueCard courses={courses} loading={loading} instructorId={user?.id} />
+        </div>
+        <div className="grid grid-cols-1">
+          <RevenueCard courses={courses} loading={loading} instructorId={user?.id} />
         </div>
       </div>
 

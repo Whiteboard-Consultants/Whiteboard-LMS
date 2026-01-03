@@ -8,6 +8,7 @@ import { format } from "date-fns";
 
 import { supabase } from "@/lib/supabase";
 import { fetchAllEnrollments } from "./data-actions";
+import { getCouponEnrollments, getCouponDetails } from "./actions";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import {
@@ -144,39 +145,41 @@ export default function AdminReportsPage() {
   const fetchCouponAnalytics = async (coursesData: CourseData[]) => {
     setCouponLoading(true);
     try {
-      // Fetch all enrollments with coupon codes
-      const { data: enrollmentsData, error: enrollmentsError } = await supabase
-        .from('enrollments')
-        .select('coupon_code, course_id, user_id, course_price');
+      // Fetch all enrollments with coupon codes using server action (bypasses RLS)
+      const enrollmentsResult = await getCouponEnrollments();
 
-      if (enrollmentsError) {
-        console.error('Error fetching coupon data:', enrollmentsError);
+      if (!enrollmentsResult.success) {
+        console.error('Error fetching coupon data:', enrollmentsResult.error);
+        setCouponAnalytics([]);
         return;
       }
 
+      const enrollmentsData = enrollmentsResult.data || [];
+
       // Filter enrollments that have coupon codes
-      const couponEnrollments = (enrollmentsData || []).filter(e => e.coupon_code);
+      const couponEnrollments = (enrollmentsData || []).filter((e: any) => e.coupon_code);
 
       if (couponEnrollments.length === 0) {
         setCouponAnalytics([]);
         return;
       }
 
-      // Fetch coupon details
-      const couponCodes = Array.from(new Set(couponEnrollments.map(e => e.coupon_code).filter(Boolean)));
-      const { data: couponsData, error: couponsError } = await supabase
-        .from('coupons')
-        .select('code, type, value')
-        .in('code', couponCodes);
+      // Fetch coupon details using server action
+      const couponCodes = Array.from(new Set(couponEnrollments.map((e: any) => e.coupon_code).filter(Boolean)));
+      const couponsResult = await getCouponDetails(couponCodes);
 
-      if (couponsError) {
-        console.error('Error fetching coupon details:', couponsError);
+      if (!couponsResult.success) {
+        // Coupons table doesn't exist or is not accessible - this is expected
+        console.warn('Coupon analytics unavailable:', couponsResult.error);
+        setCouponAnalytics([]);
         return;
       }
 
+      const couponsData = couponsResult.data || [];
+
       // Create coupon map for quick lookup
       const couponMap = new Map(
-        (couponsData || []).map(c => [c.code, { type: c.type, value: c.value }])
+        (couponsData || []).map((c: any) => [c.code, { type: c.type, value: c.value }])
       );
 
       // Group by coupon code and calculate analytics
@@ -187,7 +190,7 @@ export default function AdminReportsPage() {
         users_set: Set<string>;
       }>();
 
-      couponEnrollments.forEach(enrollment => {
+      couponEnrollments.forEach((enrollment: any) => {
         const couponCode = enrollment.coupon_code;
         const coursePrice = enrollment.course_price || 0;
         const couponDetails = couponMap.get(couponCode);
@@ -237,7 +240,9 @@ export default function AdminReportsPage() {
 
       setCouponAnalytics(analytics);
     } catch (err) {
-      console.error('Error calculating coupon analytics:', err);
+      // Coupons feature may not be set up yet - this is not a critical error
+      console.warn('Coupon analytics unavailable:', err instanceof Error ? err.message : 'Unknown error');
+      setCouponAnalytics([]);
     } finally {
       setCouponLoading(false);
     }
