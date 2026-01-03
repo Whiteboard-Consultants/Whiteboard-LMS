@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { fetchQuizAttemptsForLessons } from '@/app/(main)/instructor/reports/content-efficacy-actions';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 import type { QuizAttempt, Lesson } from '@/types';
@@ -41,31 +41,20 @@ export function ContentEfficacyReport({ courseId, lessons }: ContentEfficacyRepo
         return;
     }
 
-    // Fetch quiz attempts from the database
+    // Fetch quiz attempts from the database using server action
     const fetchAttempts = async () => {
       setLoading(true);
       try {
-        // Fetch quiz attempts for all lessons in this course
-        const { data: attempts, error } = await supabase
-          .from('quiz_attempts')
-          .select(`
-            id,
-            lesson_id,
-            user_id,
-            score,
-            total_questions,
-            answers,
-            submitted_at
-          `)
-          .in('lesson_id', lessons.map(l => l.id));
+        const lessonIds = lessons.map(l => l.id);
+        const result = await fetchQuizAttemptsForLessons(lessonIds);
 
-        if (error) {
-          console.error('Error fetching quiz attempts:', error);
+        if (!result.success) {
+          console.error('Error fetching quiz attempts:', result.error);
           setAttempts([]);
-        } else if (attempts) {
+        } else if (result.data) {
           // Map database attempts to QuizAttempt type
           // Note: This assumes quiz_attempts table has the questions/answers structure
-          setAttempts(attempts as any);
+          setAttempts(result.data as any);
         }
       } catch (err) {
         console.error('Exception fetching quiz attempts:', err);
