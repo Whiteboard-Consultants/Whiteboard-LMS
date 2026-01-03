@@ -329,7 +329,7 @@ export default function InstructorDashboardPage() {
             >
               <p className="text-xs text-muted-foreground pt-1">Across all courses</p>
             </StatCard>
-            <RevenueCard courses={courses} loading={loading} instructorId={user.id} />
+            <RevenueCard courses={courses} loading={loading} instructorId={user?.id} />
         </div>
       </div>
 

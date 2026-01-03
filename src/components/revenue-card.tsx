@@ -11,7 +11,7 @@ import { getCommissionByDateRange } from '@/app/(main)/instructor/dashboard/comm
 interface RevenueCardProps {
   courses: Course[];
   loading: boolean;
-  instructorId?: string;
+  instructorId?: string | null;
 }
 
 export function RevenueCard({ courses, loading, instructorId }: RevenueCardProps) {
