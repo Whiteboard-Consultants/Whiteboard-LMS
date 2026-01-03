@@ -163,35 +163,60 @@ export async function updateProgress(
       console.log('✅ Quiz scoring:', {
         correctAnswers,
         totalQuestions,
-        percentage
+        percentage,
+        userId: enrollment.user_id,
+        lessonId,
+        courseId,
+        enrollmentId
       });
 
-      // Create quiz attempt record in quiz_attempts table
-      const { data: attempt, error: attemptError } = await supabaseAdmin
-        .from('quiz_attempts')
-        .insert([
-          {
-            user_id: enrollment.user_id,
-            lesson_id: lessonId,
-            course_id: courseId,
-            enrollment_id: enrollmentId,
-            answers: quizData.answers,
-            questions: quizData.questions,
-            score: correctAnswers,
-            total_questions: totalQuestions,
-            percentage: percentage,
-            submitted_at: new Date().toISOString(),
-          }
-        ])
-        .select()
-        .single();
+      try {
+        // Create quiz attempt record in quiz_attempts table
+        const quizAttemptPayload = {
+          user_id: enrollment.user_id,
+          lesson_id: lessonId,
+          course_id: courseId,
+          enrollment_id: enrollmentId,
+          answers: quizData.answers,
+          questions: quizData.questions,
+          score: correctAnswers,
+          total_questions: totalQuestions,
+          percentage: percentage,
+          submitted_at: new Date().toISOString(),
+        };
+        
+        console.log('📮 Inserting quiz attempt with payload:', {
+          ...quizAttemptPayload,
+          questions: `[${quizAttemptPayload.questions.length} questions]`
+        });
 
-      if (!attemptError && attempt) {
-        quizAttemptId = attempt.id;
-        console.log('✅ Quiz attempt created:', quizAttemptId);
-      } else {
-        console.error('❌ Error creating quiz attempt:', attemptError);
+        const { data: attempt, error: attemptError } = await supabaseAdmin
+          .from('quiz_attempts')
+          .insert([quizAttemptPayload])
+          .select()
+          .single();
+
+        if (attemptError) {
+          console.error('❌ Error creating quiz attempt:', {
+            code: attemptError.code,
+            message: attemptError.message,
+            details: attemptError.details,
+            hint: attemptError.hint
+          });
+        } else if (attempt) {
+          quizAttemptId = attempt.id;
+          console.log('✅ Quiz attempt created successfully:', quizAttemptId);
+        } else {
+          console.error('❌ No data returned from quiz attempt insert');
+        }
+      } catch (insertError) {
+        console.error('❌ Exception during quiz attempt insert:', insertError);
       }
+    } else {
+      console.log('⏭️ Skipping quiz attempt creation:', {
+        hasQuizData: !!quizData,
+        lessonType: lesson.type
+      });
     }
 
     const { data: updatedEnrollment, error: updateError } = await supabaseAdmin
