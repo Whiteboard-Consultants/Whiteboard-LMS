@@ -9,10 +9,10 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Award, Check, X, Clock, Calendar, User, BookOpen } from 'lucide-react';
+import { Award, Check, X, Clock, Calendar, User, BookOpen, RotateCcw } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { getCertificateRequests, getApprovedCertificates, rejectCertificate } from '@/app/student/certificate-actions';
-import { approveCertificate } from '@/app/admin/actions';
+import { approveCertificate, resetCertificate } from '@/app/admin/actions';
 
 interface CertificateData {
   id: string;
@@ -100,6 +100,24 @@ export default function AdminCertificatesPage() {
     } catch (error) {
       console.error('Error rejecting certificate:', error);
       toast({ variant: 'destructive', title: 'Error', description: 'Failed to reject certificate.' });
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const handleReset = async (enrollmentId: string) => {
+    setProcessingId(enrollmentId);
+    try {
+      const result = await resetCertificate(enrollmentId);
+      if (result.success) {
+        toast({ title: 'Success', description: 'Certificate reset to pending approval.' });
+        await fetchData(); // Refresh data
+      } else {
+        toast({ variant: 'destructive', title: 'Error', description: result.error });
+      }
+    } catch (error) {
+      console.error('Error resetting certificate:', error);
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to reset certificate.' });
     } finally {
       setProcessingId(null);
     }
@@ -259,16 +277,27 @@ export default function AdminCertificatesPage() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex items-center gap-4">
-                      <Avatar>
-                        <AvatarFallback>{certificate.users.name.charAt(0).toUpperCase()}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium">{certificate.users.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          Course completed with {certificate.progress}% progress
-                        </p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <Avatar>
+                          <AvatarFallback>{certificate.users.name.charAt(0).toUpperCase()}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium">{certificate.users.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Course completed with {certificate.progress}% progress
+                          </p>
+                        </div>
                       </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleReset(certificate.id)}
+                        disabled={processingId === certificate.id}
+                      >
+                        <RotateCcw className="h-4 w-4 mr-1" />
+                        Reset
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>

@@ -173,15 +173,15 @@ CREATE POLICY "Instructors can manage their courses" ON public.courses FOR ALL U
     EXISTS (SELECT 1 FROM auth.users WHERE auth.users.id = auth.uid() AND auth.users.raw_user_meta_data->>'role' = 'admin')
 );
 
--- Enrollments: Users can see their own enrollments, instructors can see their course enrollments
+-- Enrollments: Users can see their own enrollments, instructors can see enrollments for their courses
 CREATE POLICY "Users can view their enrollments" ON public.enrollments FOR SELECT USING (
     auth.uid() = user_id OR 
-    auth.uid() = instructor_id OR
+    EXISTS (SELECT 1 FROM public.courses WHERE courses.id = enrollments.course_id AND courses.instructor_id = auth.uid()) OR
     EXISTS (SELECT 1 FROM auth.users WHERE auth.users.id = auth.uid() AND auth.users.raw_user_meta_data->>'role' = 'admin')
 );
 CREATE POLICY "Users can create enrollments" ON public.enrollments FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Instructors can update enrollments" ON public.enrollments FOR UPDATE USING (
-    auth.uid() = instructor_id OR
+    EXISTS (SELECT 1 FROM public.courses WHERE courses.id = enrollments.course_id AND courses.instructor_id = auth.uid()) OR
     EXISTS (SELECT 1 FROM auth.users WHERE auth.users.id = auth.uid() AND auth.users.raw_user_meta_data->>'role' = 'admin')
 );
 

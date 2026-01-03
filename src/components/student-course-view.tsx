@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { CheckCircle, Circle, Loader2, LinkIcon, Video, Mic, FileText, HelpCircle, BookOpen } from 'lucide-react';
+import { CheckCircle, Circle, Loader2, LinkIcon, Video, Mic, FileText, HelpCircle, BookOpen, MessageSquare } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { supabase } from '@/lib/supabase';
@@ -312,9 +312,23 @@ export function StudentCourseView({ course, enrollment: initialEnrollment }: Stu
 
 // Main component return
   return (
-    <div className="flex flex-col md:flex-row gap-8">
-      {/* Sidebar lesson list */}
-      <aside className="md:w-64 w-full md:sticky md:top-24 flex-shrink-0 mb-6 md:mb-0">
+    <div className="flex flex-col gap-6">
+      {/* Header with messaging button */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">{course.title}</h1>
+        <Button 
+          onClick={() => router.push(`/student/${course.id}/messaging`)}
+          variant="outline"
+          className="gap-2"
+        >
+          <MessageSquare className="h-4 w-4" />
+          Messaging
+        </Button>
+      </div>
+
+      <div className="flex flex-col md:flex-row gap-8">
+        {/* Sidebar lesson list */}
+        <aside className="md:w-64 w-full md:sticky md:top-24 flex-shrink-0 mb-6 md:mb-0">
         <div className="bg-muted/50 rounded-lg p-4 shadow-sm">
           <h2 className="text-lg font-semibold mb-4 tracking-tight">Lessons</h2>
           <ul className="space-y-2">
@@ -349,6 +363,7 @@ export function StudentCourseView({ course, enrollment: initialEnrollment }: Stu
       <main className="flex-1 min-w-0">
         {renderContent()}
       </main>
+      </div>
     </div>
   );
 }

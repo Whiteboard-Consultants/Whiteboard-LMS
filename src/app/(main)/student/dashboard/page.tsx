@@ -19,6 +19,7 @@ import { AnnouncementBanner } from "@/components/announcement-banner";
 import { StudentNotificationCenter } from "@/components/student-notification-center";
 import { RecommendedCourses } from "@/components/recommended-courses";
 import { CompactImprovementSuggestions } from "@/components/improvement-suggestions";
+import { getInstructorData, getStudentEnrollments, getEnrolledCourses } from "./actions";
 
 export default function StudentDashboardPage() {
   const { user, userData, loading: authLoading } = useAuth();
@@ -76,25 +77,20 @@ export default function StudentDashboardPage() {
       try {
         setLoading(true);
         
-        // Fetch enrollments for the current user (include approved and active statuses)
-        const { data: enrollments, error: enrollmentsError } = await supabase
-          .from('enrollments')
-          .select('*')
-          .eq('user_id', user.id)
-          .in('status', ['approved', 'active', 'completed']);
+        // Fetch enrollments using server action (bypasses RLS)
+        const enrollmentsResult = await getStudentEnrollments(user.id);
+        
         console.log('🔍 Dashboard: Fetching enrollments for user:', user.id);
-        console.log('📊 Dashboard: Enrollments found:', enrollments?.length || 0);
-        console.log('📋 Dashboard: Enrollments data:', enrollments);
-        if (enrollmentsError) {
-          console.error('❌ Dashboard: Enrollment fetch error:', enrollmentsError);
-        }
-
-        if (enrollmentsError) {
-          console.error('Error fetching enrollments:', enrollmentsError);
+        console.log('📊 Dashboard: Enrollments result:', enrollmentsResult);
+        
+        if (!enrollmentsResult.success) {
+          console.error('❌ Dashboard: Enrollment fetch error:', enrollmentsResult.error);
           setEnrolledCourses([]);
           return;
         }
 
+        const enrollments = enrollmentsResult.data;
+        
         if (!enrollments || enrollments.length === 0) {
           setEnrolledCourses([]);
           return;
@@ -103,40 +99,43 @@ export default function StudentDashboardPage() {
         // Get course IDs from enrollments
         const enrolledCourseIds = enrollments.map(e => e.course_id);
 
-        // Fetch course details for enrolled courses
-        const { data: courses, error: coursesError } = await supabase
-          .from('courses')
-          .select('*')
-          .in('id', enrolledCourseIds);
-        console.log('Supabase courses:', courses, coursesError);
-
-        if (coursesError) {
-          console.error('Error fetching courses:', coursesError);
+        // Fetch course details using server action (bypasses RLS)
+        const coursesResult = await getEnrolledCourses(enrolledCourseIds);
+        
+        console.log('📚 Dashboard: Courses result:', coursesResult);
+        
+        if (!coursesResult.success) {
+          console.error('Error fetching courses:', coursesResult.error);
           setEnrolledCourses([]);
           return;
         }
+
+        const courses = coursesResult.data;
 
         // Get unique instructor IDs and fetch instructor data
         const instructorIds = [...new Set(courses?.map(c => c.instructor_id).filter(Boolean))];
         let instructorMap = new Map<string, any>();
         
+        console.log('📚 Instructor IDs to fetch:', instructorIds);
+        
         if (instructorIds.length > 0) {
-          const { data: instructors } = await supabase
-            .from('users')
-            .select('id, name, email')
-            .in('id', instructorIds);
+          // Call server action to fetch instructor data
+          const instructorData = await getInstructorData(instructorIds as string[]);
           
-          if (instructors) {
-            instructors.forEach(instructor => {
-              instructorMap.set(instructor.id, instructor);
-            });
-          }
+          console.log('👨‍🏫 Instructors fetched:', instructorData);
+          
+          Object.entries(instructorData).forEach(([id, instructor]) => {
+            instructorMap.set(id, instructor);
+          });
         }
 
         // Merge course data with enrollment data
         const coursesData = courses?.map(course => {
           const enrollmentData = enrollments.find(e => e.course_id === course.id);
           const instructorData = instructorMap.get(course.instructor_id);
+          
+          console.log(`Course ${course.id}: instructor_id=${course.instructor_id}, found in map=${!!instructorData}, name=${instructorData?.name}`);
+          
           return {
             ...course,
             // Map database snake_case fields to camelCase for Course type
@@ -154,7 +153,7 @@ export default function StudentDashboardPage() {
             finalAssessmentId: course.final_assessment_id,
             instructor: {
               id: course.instructor_id,
-              name: instructorData?.name || course.instructor_name || 'Unknown Instructor'
+              name: instructorData?.name || 'Unknown Instructor'
             },
             // Enrollment-specific fields
             progress: enrollmentData?.progress || 0,

@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabase';
 import { mapDatabaseCourseToCourse } from '@/lib/course-mapper';
 import type { Enrollment, User, Course, Lesson, TestAttempt } from '@/types';
 import { PageHeader } from '@/components/page-header';
+import { fetchCourseEnrollments, fetchCourseLessons, fetchUsersByIds } from '../actions';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -145,37 +146,38 @@ export default function InstructorReportPage() {
 
     const fetchStudentsAndLessons = async () => {
       try {
-        // Fetch enrollments
-        const { data: enrollments, error: enrollmentsError } = await supabase
-          .from('enrollments')
-          .select('*')
-          .eq('course_id', courseId)
-          .eq('status', 'approved');
-
-        if (enrollmentsError) {
-          console.error('Error fetching enrollments:', enrollmentsError);
+        // Fetch approved enrollments using server action (bypasses RLS)
+        const enrollmentsResult = await fetchCourseEnrollments(courseId);
+        
+        console.log('[FRONTEND] Enrollments result:', enrollmentsResult);
+        
+        if (!enrollmentsResult.success) {
+          console.error('[FRONTEND] Server action failed:', enrollmentsResult.error);
           setLoading(false);
           return;
         }
 
+        const enrollments = enrollmentsResult.data;
+        console.log('[FRONTEND] Enrollments data:', enrollments?.length, 'items');
+
         if (!enrollments || enrollments.length === 0) {
+          console.log('[FRONTEND] No enrollments, setting empty students list');
           setStudents([]);
           setLoading(false);
           return;
         }
 
-        // Fetch user details for each enrollment
+        // Fetch user details for each enrollment using server action
         const userIds = enrollments.map(e => e.user_id);
-        const { data: users, error: usersError } = await supabase
-          .from('users')
-          .select('*')
-          .in('id', userIds);
+        const usersResult = await fetchUsersByIds(userIds);
 
-        if (usersError) {
-          console.error('Error fetching users:', usersError);
+        if (!usersResult.success) {
+          console.error('[FRONTEND] Failed to fetch users:', usersResult.error);
           setLoading(false);
           return;
         }
+
+        const users = usersResult.data;
 
         // Merge enrollment and user data
         const studentsData = enrollments.map(enrollment => {
@@ -195,16 +197,13 @@ export default function InstructorReportPage() {
         setStudents(studentsData);
         setLoading(false);
 
-        // Fetch lessons
-        const { data: lessonsData, error: lessonsError } = await supabase
-          .from('lessons')
-          .select('*')
-          .eq('course_id', courseId);
-
-        if (lessonsError) {
-          console.error('Error fetching lessons:', lessonsError);
+        // Fetch lessons using server action
+        const lessonsResult = await fetchCourseLessons(courseId);
+        
+        if (lessonsResult.success && lessonsResult.data) {
+          setLessons(lessonsResult.data);
         } else {
-          setLessons(lessonsData || []);
+          console.error('Error fetching lessons:', lessonsResult.error);
         }
 
       } catch (error) {

@@ -1,10 +1,13 @@
 import type { Course } from '@/types';
 
 // Helper function to map database course record to frontend Course type
-export function mapDatabaseCourseToCourse(dbCourse: any): Course {
+export function mapDatabaseCourseToCourse(dbCourse: any, instructorData?: any): Course {
   // Handle instructor field - it can be either JSONB object or separate fields
   let instructor;
-  if (dbCourse.instructor && typeof dbCourse.instructor === 'object') {
+  if (instructorData) {
+    // Use provided instructor data (preferred method with lookup from users table)
+    instructor = instructorData;
+  } else if (dbCourse.instructor && typeof dbCourse.instructor === 'object') {
     // JSONB field exists
     instructor = dbCourse.instructor;
   } else {

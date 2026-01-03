@@ -96,7 +96,7 @@ export function CoursePurchaseCard({ course }: CoursePurchaseCardProps) {
 
         {course.type === 'free' ? (
           <Button size="lg" className="w-full mb-2" asChild>
-            <Link href="/auth/register">Enroll Now - Free</Link>
+            <Link href="/register">Enroll Now - Free</Link>
           </Button>
         ) : (
           <>

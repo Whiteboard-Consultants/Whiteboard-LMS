@@ -1,413 +1,173 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
-import { supabaseAdmin } from '@/lib/supabase';
-import { sendEnrollmentWelcomeEmail } from '@/lib/email-oauth2';
-import type { Enrollment } from '@/types';
+import { createClient } from '@supabase/supabase-js';
+import { createPendingEnrollment } from './pending-enrollment-actions';
 
-export async function enrollInFreeCourse(
-  courseId: string, 
-  userId: string, 
-  couponCode?: string
-): Promise<{ success: boolean; error?: string; enrollment?: Enrollment }> {
-  console.log('🚀 enrollInFreeCourse called with:', { courseId, userId, couponCode });
-  
-  if (!courseId || !userId) {
-    console.error('❌ Missing required parameters:', { courseId, userId });
-    return { success: false, error: 'Missing course or user information.' };
-  }
-
-  try {
-    if (!supabaseAdmin) {
-      console.error('Supabase Admin client not available');
-      return { success: false, error: 'Service configuration error.' };
-    }
-
-    console.log('🔄 Checking existing enrollment for user:', userId, 'course:', courseId);
-    
-    // Check if user is already enrolled
-    const { data: existingEnrollment, error: checkError } = await supabaseAdmin
-      .from('enrollments')
-      .select('id')
-      .eq('user_id', userId)
-      .eq('course_id', courseId)
-      .single();
-
-    if (checkError && checkError.code !== 'PGRST116') { // PGRST116 is "no rows returned"
-      console.error('Error checking existing enrollment:', checkError);
-      return { success: false, error: 'Failed to check enrollment status.' };
-    }
-
-    if (existingEnrollment) {
-      return { success: false, error: 'You are already enrolled in this course.' };
-    }
-
-    console.log('✅ No existing enrollment found, proceeding...');
-    
-    // Get course details for enrollment data
-    const { data: course, error: courseError } = await supabaseAdmin
-      .from('courses')
-      .select('instructor_id, title, price, student_count')
-      .eq('id', courseId)
-      .single();
-
-    if (courseError) {
-      console.error('Error fetching course details:', courseError);
-      return { success: false, error: 'Course not found.' };
-    }
-
-    console.log('✅ Course details fetched:', { title: course.title, price: course.price });
-
-    // Get user (student) details
-    const { data: student, error: studentError } = await supabaseAdmin
-      .from('users')
-      .select('name, email')
-      .eq('id', userId)
-      .single();
-
-    if (studentError) {
-      console.error('Error fetching student details:', studentError);
-      return { success: false, error: 'Student not found.' };
-    }
-
-    console.log('✅ Student details fetched:', { name: student.name, email: student.email });
-
-    // Get instructor details
-    const { data: instructor, error: instructorError } = await supabaseAdmin
-      .from('users')
-      .select('name')
-      .eq('id', course.instructor_id)
-      .single();
-
-    if (instructorError) {
-      console.error('Error fetching instructor details:', instructorError);
-      return { success: false, error: 'Instructor not found.' };
-    }
-
-    console.log('✅ Instructor details fetched:', { name: instructor.name });
-
-    // Create enrollment record
-    const enrollmentData = {
-      user_id: userId,
-      course_id: courseId,
-      instructor_id: course.instructor_id,
-      student_name: student.name,
-      course_title: course.title,
-      course_price: course.price,
-      instructor_name: instructor.name,
-      status: 'approved', // Free courses are auto-approved
-      progress: 0,
-      completed_lessons: [],
-      enrolled_at: new Date().toISOString(),
-      coupon_code: couponCode || null,
-      payment_status: 'free',
-      purchase_date: new Date().toISOString()
-    };
-
-    console.log('🔄 Creating enrollment with data:', enrollmentData);
-    
-    const { data: enrollment, error: enrollmentError } = await supabaseAdmin
-      .from('enrollments')
-      .insert(enrollmentData)
-      .select()
-      .single();
-
-    if (enrollmentError) {
-      console.error('❌ Error creating enrollment:', enrollmentError);
-      console.error('❌ Enrollment data that failed:', enrollmentData);
-      return { success: false, error: `Failed to enroll in course: ${enrollmentError.message}` };
-    }
-
-    console.log('✅ Enrollment created successfully:', enrollment.id);
-    
-    // Update course student count
-    const { error: updateError } = await supabaseAdmin
-      .from('courses')
-      .update({ 
-        student_count: course.student_count ? course.student_count + 1 : 1 
-      })
-      .eq('id', courseId);
-
-    if (updateError) {
-      console.warn('Failed to update student count:', updateError);
-    }
-
-    // Revalidate relevant paths
-    revalidatePath('/student/dashboard');
-    revalidatePath('/courses');
-    revalidatePath(`/courses/${courseId}`);
-
-    // Fetch full course details for email
-    const { data: fullCourse, error: fullCourseError } = await supabaseAdmin
-      .from('courses')
-      .select('title, program_outcome, course_structure, duration, category')
-      .eq('id', courseId)
-      .single();
-
-    // Send enrollment welcome email (non-blocking)
-    if (!fullCourseError && fullCourse && student.email) {
-      console.log('📧 Sending enrollment welcome email...');
-      const emailResult = await sendEnrollmentWelcomeEmail(
-        student.email,
-        student.name,
-        course.title,
-        fullCourse.program_outcome || '',
-        fullCourse.course_structure || '',
-        fullCourse.duration || 'Self-paced',
-        instructor.name,
-        fullCourse.category || 'General',
-        courseId,
-        undefined, // coursePrice
-        false // isPaid
-      );
-
-      if (!emailResult.success) {
-        console.warn('⚠️  Failed to send enrollment welcome email:', emailResult.error);
-        // Log for admin review but don't fail the enrollment
+// Initialize Supabase admin client for server-side operations
+const supabaseAdmin = process.env.SUPABASE_SERVICE_ROLE_KEY 
+  ? createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
       }
-    } else {
-      console.warn('⚠️  Could not send enrollment email - missing course details or email');
-    }
+    )
+  : null;
 
-    // Convert to camelCase for consistency
-    const enrollmentResult: Enrollment = {
-      id: enrollment.id,
-      userId: enrollment.user_id,
-      courseId: enrollment.course_id,
-      instructorId: enrollment.instructor_id,
-      status: enrollment.status,
-      progress: enrollment.progress,
-      completedLessons: enrollment.completed_lessons,
-      enrolledAt: enrollment.enrolled_at,
-      couponCode: enrollment.coupon_code,
-      purchaseDate: enrollment.purchase_date,
-      completed: enrollment.completed || false,
-      certificateStatus: enrollment.certificate_status,
-      averageScore: enrollment.average_score,
-      paymentId: enrollment.payment_id,
-      orderId: enrollment.order_id
-    };
-
-    console.log('✅ Free course enrollment completed successfully!');
-    return { success: true, enrollment: enrollmentResult };
-  } catch (error) {
-    console.error('❌ Error in enrollInFreeCourse:', error);
-    return { success: false, error: `An unexpected error occurred: ${error instanceof Error ? error.message : 'Unknown error'}` };
-  }
+interface EnrollmentResult {
+  success: boolean;
+  message?: string;
+  error?: string;
+  enrollmentId?: string;
 }
 
-export async function enrollInPaidCourses(
-  items: Array<{
-    courseId: string;
-    title: string;
-    price: number;
-    instructorId: string;
-  }>,
+/**
+ * Enroll a student in a free course
+ * Creates a pending enrollment that requires admin approval
+ */
+export async function enrollInFreeCourse(
+  courseId: string,
   userId: string,
-  paymentId: string,
-  orderId: string,
   couponCode?: string
-): Promise<{ success: boolean; error?: string; enrollments?: Enrollment[] }> {
-  if (!items || items.length === 0 || !userId || !paymentId) {
-    return { success: false, error: 'Missing required enrollment information.' };
-  }
-
+): Promise<EnrollmentResult> {
   try {
     if (!supabaseAdmin) {
-      console.error('Supabase Admin client not available');
-      return { success: false, error: 'Service configuration error.' };
+      console.error('❌ Supabase admin not configured');
+      return { success: false, error: 'Server configuration error' };
     }
 
-    console.log('🔄 Processing paid enrollment for courses:', items.map(i => i.courseId));
-    
-    // Check for existing enrollments
-    const courseIds = items.map(item => item.courseId);
-    const { data: existingEnrollments, error: checkError } = await supabaseAdmin
-      .from('enrollments')
-      .select('course_id')
-      .eq('user_id', userId)
-      .in('course_id', courseIds);
-
-    if (checkError) {
-      console.error('Error checking existing enrollments:', checkError);
-      return { success: false, error: 'Failed to check enrollment status.' };
+    if (!courseId || !userId) {
+      return { success: false, error: 'Missing required fields: courseId or userId' };
     }
 
-    const existingCourseIds = existingEnrollments?.map((e: any) => e.course_id) || [];
-    const alreadyEnrolledCourses = items.filter(item => existingCourseIds.includes(item.courseId));
+    console.log('📝 Creating pending enrollment for free course:', courseId, 'User:', userId);
 
-    if (alreadyEnrolledCourses.length > 0) {
-      return { 
-        success: false, 
-        error: `You are already enrolled in: ${alreadyEnrolledCourses.map(c => c.title).join(', ')}` 
+    // Use the shared pending enrollment function
+    const result = await createPendingEnrollment(courseId, userId, {
+      paymentStatus: 'free',
+      couponCode: couponCode
+    });
+
+    if (result.success) {
+      console.log('✅ Pending enrollment created successfully:', result.enrollment?.id);
+      return {
+        success: true,
+        message: 'Enrollment pending admin approval',
+        enrollmentId: result.enrollment?.id
+      };
+    } else {
+      console.error('❌ Failed to create pending enrollment:', result.error);
+      return {
+        success: false,
+        error: result.error || 'Failed to create enrollment'
       };
     }
 
-    // Get student details
-    const { data: student, error: studentError } = await supabaseAdmin
-      .from('users')
-      .select('name, email')
-      .eq('id', userId)
-      .single();
-
-    if (studentError) {
-      console.error('Error fetching student details:', studentError);
-      return { success: false, error: 'Student not found.' };
-    }
-
-    // Get instructor details for all courses
-    const uniqueInstructorIds = items.map(item => item.instructorId).filter((id, index, arr) => arr.indexOf(id) === index);
-    const { data: instructors, error: instructorError } = await supabaseAdmin
-      .from('users')
-      .select('id, name')
-      .in('id', uniqueInstructorIds);
-
-    if (instructorError) {
-      console.error('Error fetching instructor details:', instructorError);
-      return { success: false, error: 'Instructor details not found.' };
-    }
-
-    const instructorMap = instructors?.reduce((acc: any, instructor: any) => {
-      acc[instructor.id] = instructor.name;
-      return acc;
-    }, {}) || {};
-
-    // Create enrollment records
-    const enrollmentData = items.map(item => ({
-      user_id: userId,
-      course_id: item.courseId,
-      instructor_id: item.instructorId,
-      student_name: student.name,
-      course_title: item.title,
-      course_price: item.price,
-      instructor_name: instructorMap[item.instructorId] || 'Unknown',
-      status: 'approved', // Paid courses are auto-approved
-      progress: 0,
-      completed_lessons: [],
-      enrolled_at: new Date().toISOString(),
-      coupon_code: couponCode || null,
-      payment_status: 'paid',
-      payment_id: paymentId,
-      order_id: orderId,
-      purchase_date: new Date().toISOString()
-    }));
-
-    console.log('🔄 Creating paid enrollments with data:', enrollmentData);
-    
-    const { data: enrollments, error: enrollmentError } = await supabaseAdmin
-      .from('enrollments')
-      .insert(enrollmentData)
-      .select();
-
-    if (enrollmentError) {
-      console.error('Error creating enrollments:', enrollmentError);
-      return { success: false, error: 'Failed to enroll in courses.' };
-    }
-
-    // Update student counts for all courses
-    for (const courseId of courseIds) {
-      // Get current student count
-      const { data: courseData, error: fetchError } = await supabaseAdmin
-        .from('courses')
-        .select('student_count')
-        .eq('id', courseId)
-        .single();
-
-      if (!fetchError && courseData) {
-        const { error: updateError } = await supabaseAdmin
-          .from('courses')
-          .update({ 
-            student_count: (courseData.student_count || 0) + 1
-          })
-          .eq('id', courseId);
-
-        if (updateError) {
-          console.warn(`Failed to update student count for course ${courseId}:`, updateError);
-        }
-      }
-    }
-
-    // Revalidate relevant paths
-    revalidatePath('/student/dashboard');
-    revalidatePath('/courses');
-    courseIds.forEach(courseId => {
-      revalidatePath(`/courses/${courseId}`);
-    });
-
-    // Fetch user email for sending welcome emails
-    const { data: userWithEmail, error: userEmailError } = await supabaseAdmin
-      .from('users')
-      .select('email')
-      .eq('id', userId)
-      .single();
-
-    const userEmail = userWithEmail?.email;
-
-    // Send enrollment welcome emails for each course (non-blocking)
-    if (userEmail) {
-      console.log('📧 Sending enrollment welcome emails for all courses...');
-      for (const item of items) {
-        try {
-          // Fetch full course details
-          const { data: courseDetails, error: courseDetailsError } = await supabaseAdmin
-            .from('courses')
-            .select('title, program_outcome, course_structure, duration, category, price, type')
-            .eq('id', item.courseId)
-            .single();
-
-          if (!courseDetailsError && courseDetails) {
-            const emailResult = await sendEnrollmentWelcomeEmail(
-              userEmail,
-              student.name,
-              courseDetails.title,
-              courseDetails.program_outcome || '',
-              courseDetails.course_structure || '',
-              courseDetails.duration || 'Self-paced',
-              instructorMap[item.instructorId] || 'Unknown',
-              courseDetails.category || 'General',
-              item.courseId,
-              courseDetails.price || item.price,
-              courseDetails.type === 'paid'
-            );
-
-            if (!emailResult.success) {
-              console.warn(`⚠️  Failed to send enrollment email for course ${courseDetails.title}:`, emailResult.error);
-              // Log for admin review but don't fail the enrollment
-            }
-          }
-        } catch (emailError) {
-          console.warn(`⚠️  Error sending email for course ${item.courseId}:`, emailError);
-          // Continue with other courses even if one email fails
-        }
-      }
-    } else {
-      console.warn('⚠️  Could not send enrollment emails - user email not found');
-    }
-
-    // Convert to camelCase for consistency
-    console.log('✅ Paid enrollments created successfully:', enrollments?.length);
-    
-    const enrollmentResults: Enrollment[] = enrollments?.map((enrollment: any) => ({
-      id: enrollment.id,
-      userId: enrollment.user_id,
-      courseId: enrollment.course_id,
-      instructorId: enrollment.instructor_id,
-      status: enrollment.status,
-      progress: enrollment.progress,
-      completedLessons: enrollment.completed_lessons,
-      enrolledAt: enrollment.enrolled_at,
-      couponCode: enrollment.coupon_code,
-      purchaseDate: enrollment.purchase_date,
-      completed: enrollment.completed || false,
-      certificateStatus: enrollment.certificate_status,
-      averageScore: enrollment.average_score,
-      paymentId: enrollment.payment_id,
-      orderId: enrollment.order_id
-    })) || [];
-
-    return { success: true, enrollments: enrollmentResults };
   } catch (error) {
-    console.error('Error in enrollInPaidCourses:', error);
-    return { success: false, error: 'An unexpected error occurred.' };
+    console.error('❌ Error in enrollInFreeCourse:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'An unexpected error occurred'
+    };
+  }
+}
+
+/**
+ * Enroll a student in a paid course after successful payment
+ * Creates a pending enrollment that requires admin approval
+ */
+export async function enrollInPaidCourses(
+  courseIds: string[],
+  userId: string,
+  paymentId: string,
+  orderId: string
+): Promise<EnrollmentResult> {
+  try {
+    if (!supabaseAdmin) {
+      console.error('❌ Supabase admin not configured');
+      return { success: false, error: 'Server configuration error' };
+    }
+
+    if (!courseIds || courseIds.length === 0 || !userId || !paymentId || !orderId) {
+      return { success: false, error: 'Missing required fields' };
+    }
+
+    console.log('💳 Processing paid course enrollment for:', courseIds, 'User:', userId, 'Payment:', paymentId);
+
+    // Get payment details to include course price info
+    const { data: paymentData } = await supabaseAdmin
+      .from('payments')
+      .select('amount, created_at')
+      .eq('razorpay_payment_id', paymentId)
+      .single();
+
+    let successCount = 0;
+    let failedCourses: string[] = [];
+    let lastEnrollmentId = '';
+
+    // Enroll in each course
+    for (const courseId of courseIds) {
+      try {
+        console.log('🔄 Enrolling in paid course:', courseId);
+
+        // Get course details for price info
+        const { data: course } = await supabaseAdmin
+          .from('courses')
+          .select('title, price')
+          .eq('id', courseId)
+          .single();
+
+        const result = await createPendingEnrollment(courseId, userId, {
+          paymentStatus: 'paid',
+          paymentId: paymentId,
+          orderId: orderId,
+          amount: course?.price || paymentData?.amount || 0
+        });
+
+        if (result.success) {
+          console.log('✅ Pending paid enrollment created:', courseId);
+          successCount++;
+          lastEnrollmentId = result.enrollment?.id || '';
+        } else {
+          console.error('❌ Failed to enroll in paid course:', courseId, result.error);
+          failedCourses.push(courseId);
+        }
+      } catch (courseError) {
+        console.error('❌ Error processing paid course:', courseId, courseError);
+        failedCourses.push(courseId);
+      }
+    }
+
+    if (successCount === courseIds.length) {
+      console.log('✅ All paid course enrollments processed successfully');
+      return {
+        success: true,
+        message: `Enrolled in ${successCount} course(s) pending admin approval`,
+        enrollmentId: lastEnrollmentId
+      };
+    } else if (successCount > 0) {
+      console.warn(`⚠️ Partial enrollment: ${successCount}/${courseIds.length} successful`);
+      return {
+        success: true,
+        message: `Enrolled in ${successCount}/${courseIds.length} courses pending admin approval. Failed: ${failedCourses.join(', ')}`,
+        enrollmentId: lastEnrollmentId
+      };
+    } else {
+      console.error('❌ All paid course enrollments failed');
+      return {
+        success: false,
+        error: `Failed to enroll in courses: ${failedCourses.join(', ')}`
+      };
+    }
+
+  } catch (error) {
+    console.error('❌ Error in enrollInPaidCourses:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'An unexpected error occurred'
+    };
   }
 }

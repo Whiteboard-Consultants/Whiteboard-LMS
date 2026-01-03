@@ -60,8 +60,8 @@ export default function CourseDetails({ course, reviews }: CourseDetailsProps) {
     const result = await enrollInFreeCourse(course.id, user.id);
         if (result.success) {
             toast({
-                title: "Enrollment Successful!",
-                description: "You can now find this course on your dashboard.",
+                title: "Enrollment Request Submitted!",
+                description: "Your enrollment request has been sent for admin approval. You'll be able to access the course once approved.",
             });
             router.push('/student/dashboard');
         } else {

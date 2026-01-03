@@ -1,7 +1,7 @@
 
 'use server';
 
-import { supabase } from '@/lib/supabase';
+import { supabase, supabaseAdmin } from '@/lib/supabase';
 import { revalidatePath } from 'next/cache';
 import { Enrollment } from '@/types';
 
@@ -377,69 +377,121 @@ export async function rejectEnrollment(enrollmentId: string) {
 }
 
 export async function approveCertificate(enrollmentId: string) {
-    if(!enrollmentId) return { success: false, error: 'Enrollment ID is required.' };
+    console.log('[approveCertificate] Called with:', enrollmentId);
+    
+    if (!enrollmentId) {
+        return { success: false, error: 'Enrollment ID is required.' };
+    }
+
+    if (!supabaseAdmin) {
+        return { success: false, error: 'Server configuration error' };
+    }
 
     try {
-        // 1. Approve the certificate in the DB
-        const { error } = await supabase
-            .from('enrollments')
-            .update({ 
-                certificate_status: 'approved',
-                certificate_approved_at: new Date().toISOString()
-            })
-            .eq('id', enrollmentId);
-        if (error) throw error;
-
-        // 2. Fetch enrollment details for PDF
-        const { data: enrollment, error: fetchError } = await supabase
+        // Get enrollment to find course/user info
+        const { data: enrollment, error: enrollmentError } = await supabaseAdmin
             .from('enrollments')
             .select('id, course_id, user_id')
             .eq('id', enrollmentId)
             .single();
-        if (fetchError || !enrollment) {
-            throw fetchError || new Error('Enrollment not found');
+
+        if (enrollmentError || !enrollment) {
+            throw enrollmentError || new Error('Enrollment not found');
         }
 
-        // 3. Fetch user and course info for latest names
-        const { data: user, error: userError } = await supabase
-            .from('users')
-            .select('full_name')
-            .eq('id', enrollment.user_id)
-            .single();
-        if (userError || !user) throw userError || new Error('User not found');
-
-        const { data: course, error: courseError } = await supabase
+        // Get course with instructor_id
+        const { data: course, error: courseError } = await supabaseAdmin
             .from('courses')
             .select('title, instructor_id')
             .eq('id', enrollment.course_id)
             .single();
-        if (courseError || !course) throw courseError || new Error('Course not found');
 
-        const { data: instructor, error: instructorError } = await supabase
+        if (courseError || !course) {
+            throw courseError || new Error('Course not found');
+        }
+
+        // Get user name (student)
+        const { data: user, error: userError } = await supabaseAdmin
             .from('users')
-            .select('full_name')
-            .eq('id', course.instructor_id)
+            .select('name')
+            .eq('id', enrollment.user_id)
             .single();
-        if (instructorError || !instructor) throw instructorError || new Error('Instructor not found');
 
-        // 4. Generate and upload certificate PDF
-    const { generateAndUploadCertificate } = await import('./certificate-generation');
-        const certificateUrl = await generateAndUploadCertificate({
-            enrollmentId,
-            studentName: user.full_name || '',
-            courseTitle: course.title || '',
-            instructorName: instructor.full_name || '',
-        });
+        const studentName = user?.name || 'Student';
 
-        // 5. (Optional) You can send an email here with the certificateUrl
+        // Get instructor name from instructor_id
+        let instructorName = 'Course Instructor';
+        if (course.instructor_id) {
+            const { data: instructor } = await supabaseAdmin
+                .from('users')
+                .select('name')
+                .eq('id', course.instructor_id)
+                .single();
+            if (instructor?.name) {
+                instructorName = instructor.name;
+            }
+        }
 
-        revalidatePath('/admin/certificates');
-        revalidatePath('/student/certificates');
-        return { success: true, message: 'Certificate approved and generated successfully.' };
+        // Update enrollment with certificate approval and metadata
+        const { error: updateError } = await supabaseAdmin
+            .from('enrollments')
+            .update({
+                certificate_status: 'approved',
+                certificate_approved_at: new Date().toISOString(),
+                certificate_url: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/certificates/${enrollmentId}.pdf`,
+                student_name: studentName,
+                course_title: course.title,
+                instructor_name: instructorName
+            })
+            .eq('id', enrollmentId);
+
+        if (updateError) {
+            console.error('[approveCertificate] Error:', updateError);
+            throw updateError;
+        }
+
+        console.log('[approveCertificate] Success');
+        revalidatePath('/(main)/admin/certificates');
+        revalidatePath('/(main)/student/certificates');
+        
+        return { success: true, message: 'Certificate approved successfully.' };
     } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Failed to approve certificate.';
+        console.error('[approveCertificate] Caught error:', errorMessage);
         return { success: false, error: errorMessage };
     }
 }
 
-    
+export async function resetCertificate(enrollmentId: string) {
+    if (!enrollmentId) {
+        return { success: false, error: 'Enrollment ID is required.' };
+    }
+
+    if (!supabaseAdmin) {
+        return { success: false, error: 'Server configuration error' };
+    }
+
+    try {
+        const { error } = await supabaseAdmin
+            .from('enrollments')
+            .update({
+                certificate_status: 'requested',
+                certificate_approved_at: null,
+                certificate_url: null
+            })
+            .eq('id', enrollmentId);
+
+        if (error) {
+            throw error;
+        }
+
+        revalidatePath('/(main)/admin/certificates');
+        revalidatePath('/(main)/student/certificates');
+        
+        return { success: true, message: 'Certificate reset to pending approval.' };
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Failed to reset certificate.';
+        console.error('[resetCertificate] Error:', errorMessage);
+        return { success: false, error: errorMessage };
+    }
+}

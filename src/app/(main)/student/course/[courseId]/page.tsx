@@ -12,6 +12,7 @@ import { StudentCourseView } from '@/components/student-course-view';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import { getCourseById, getStudentEnrollmentForCourse } from '../../dashboard/actions';
 
 export default function StudentCoursePage() {
   const params = useParams();
@@ -42,30 +43,21 @@ export default function StudentCoursePage() {
         const fetchCourseAndEnrollment = async () => {
             try {
                 setLoading(true);
-                // Fetch course
-                const { data: courseData, error: courseError } = await supabase
-                    .from('courses')
-                    .select('*')
-                    .eq('id', courseId)
-                    .single();
-                if (courseError || !courseData) {
+                
+                // Fetch course using server action
+                const courseResult = await getCourseById(courseId);
+                if (!courseResult.success || !courseResult.data) {
                     throw new Error('Course not found.');
                 }
-                setCourse(courseData as Course);
+                setCourse(courseResult.data as Course);
 
-                // Fetch enrollment
-                const { data: enrollmentData, error: enrollmentError } = await supabase
-                    .from('enrollments')
-                    .select('*')
-                    .eq('user_id', user.id)
-                    .eq('course_id', courseId)
-                    .eq('status', 'approved')
-                    .single();
-                if (enrollmentError || !enrollmentData) {
-                    setError('You are not enrolled in this course.');
+                // Fetch enrollment using server action
+                const enrollmentResult = await getStudentEnrollmentForCourse(user.id, courseId);
+                if (!enrollmentResult.success) {
+                    setError(enrollmentResult.error);
                     setEnrollment(null);
                 } else {
-                    setEnrollment(enrollmentData as Enrollment);
+                    setEnrollment(enrollmentResult.data as Enrollment);
                     setError(null);
                 }
             } catch (e) {

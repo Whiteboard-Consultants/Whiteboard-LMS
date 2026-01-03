@@ -1,175 +1,154 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
-import { supabase } from '@/lib/supabase';
-import type { Enrollment } from '@/types';
+import { createClient } from '@supabase/supabase-js';
+
+// Initialize Supabase admin client for server-side operations
+const supabaseAdmin = process.env.SUPABASE_SERVICE_ROLE_KEY 
+  ? createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    )
+  : null;
 
 export async function requestCertificate(enrollmentId: string) {
-  if (!enrollmentId) {
-    return { success: false, error: 'Enrollment ID is required.' };
-  }
-
   try {
-    // Get the enrollment to check eligibility
-    const { data: enrollment, error: fetchError } = await supabase
+    if (!supabaseAdmin) {
+      return { success: false, error: 'Server configuration error' };
+    }
+
+    if (!enrollmentId) {
+      return { success: false, error: 'Enrollment ID is required' };
+    }
+
+    // Update the enrollment's certificate_status to 'requested'
+    const { data, error } = await supabaseAdmin
       .from('enrollments')
-      .select('*')
-      .eq('id', enrollmentId)
-      .single();
-
-    if (fetchError) {
-      console.error('Error fetching enrollment:', fetchError);
-      return { success: false, error: 'Enrollment not found.' };
-    }
-
-    // Check if the student has completed the course
-    if (!enrollment.completed) {
-      return { success: false, error: 'You must complete the course before requesting a certificate.' };
-    }
-
-    // Check if already requested or approved
-    if (enrollment.certificate_status === 'requested') {
-      return { success: false, error: 'Certificate request is already pending approval.' };
-    }
-
-    if (enrollment.certificate_status === 'approved') {
-      return { success: false, error: 'Certificate has already been approved.' };
-    }
-
-    // Update certificate status to requested
-    const { error: updateError } = await supabase
-      .from('enrollments')
-      .update({ 
+      .update({
         certificate_status: 'requested',
-        certificate_requested_at: new Date().toISOString()
+        certificate_requested_at: new Date().toISOString(),
       })
-      .eq('id', enrollmentId);
-
-    if (updateError) {
-      console.error('Error updating certificate status:', updateError);
-      return { success: false, error: 'Failed to submit certificate request.' };
-    }
-
-    // Revalidate relevant paths
-    revalidatePath('/student/dashboard');
-    revalidatePath('/student/certificates');
-    revalidatePath('/admin/certificates');
-
-    return { success: true };
-  } catch (error) {
-    console.error('Error in requestCertificate:', error);
-    return { success: false, error: 'An unexpected error occurred while requesting your certificate.' };
-  }
-}
-
-export async function getCertificateRequests() {
-  try {
-    const { data: enrollments, error } = await supabase
-      .from('enrollments')
-      .select(`
-        *,
-        users:user_id (
-          id,
-          name,
-          email
-        ),
-        courses:course_id (
-          id,
-          title,
-          image_url
-        )
-      `)
-      .eq('certificate_status', 'requested')
-      .order('certificate_requested_at', { ascending: false });
+      .eq('id', enrollmentId)
+      .select();
 
     if (error) {
-      // Log the full error and the query result for debugging
-      console.error('Error fetching certificate requests:', error);
-      console.error('Supabase error details:', JSON.stringify(error, null, 2));
-      console.error('Enrollments data returned:', JSON.stringify(enrollments, null, 2));
-      return { success: false, error: 'Failed to fetch certificate requests. ' + (error.message || error.details || JSON.stringify(error)) };
+      console.error('Error requesting certificate:', error);
+      return { success: false, error: 'Failed to request certificate' };
     }
 
-    // Log the enrollments data for debugging
-    console.log('Fetched enrollments:', JSON.stringify(enrollments, null, 2));
-    return { success: true, data: enrollments || [] };
-  } catch (error) {
-    console.error('Error in getCertificateRequests:', error);
-    let errMsg = 'An unexpected error occurred.';
-    if (error instanceof Error) {
-      errMsg += ' ' + error.message;
-    } else {
-      errMsg += ' ' + JSON.stringify(error);
+    if (!data || data.length === 0) {
+      return { success: false, error: 'Enrollment not found' };
     }
-    return { success: false, error: errMsg };
+
+    return { success: true, message: 'Certificate request submitted successfully', data };
+  } catch (error) {
+    console.error('Error in requestCertificate:', error);
+    return { success: false, error: 'An unexpected error occurred' };
   }
 }
 
 export async function getApprovedCertificates(userId?: string) {
   try {
-    let query = supabase
-      .from('enrollments')
-      .select(`
-        *,
-        users:user_id (
-          id,
-          name,
-          email
-        ),
-        courses:course_id (
-          id,
-          title,
-          image_url
-        )
-      `)
-      .eq('certificate_status', 'approved')
-      .order('certificate_approved_at', { ascending: false });
+    if (!supabaseAdmin) {
+      return { success: false, error: 'Server configuration error', data: [] };
+    }
 
-    // If userId is provided, filter by user
+    // Build query based on whether userId is provided
+    let query = supabaseAdmin
+      .from('enrollments')
+      .select('id, user_id, course_id, progress, completed, certificate_status, certificate_approved_at, enrolled_at, users(id, name, email), courses(id, title, image_url)')
+      .eq('certificate_status', 'approved');
+
+    // If userId provided, filter by user (student page)
     if (userId) {
       query = query.eq('user_id', userId);
     }
 
-    const { data: enrollments, error } = await query;
+    query = query.order('certificate_approved_at', { ascending: false });
+
+    // Fetch approved certificates
+    const { data: certificates, error } = await query;
 
     if (error) {
       console.error('Error fetching approved certificates:', error);
-      return { success: false, error: 'Failed to fetch certificates.' };
+      return { success: false, error: 'Failed to fetch certificates', data: [] };
     }
 
-    return { success: true, data: enrollments || [] };
+    // Return empty array if no certificates found (this is not an error)
+    return { success: true, data: certificates || [] };
   } catch (error) {
     console.error('Error in getApprovedCertificates:', error);
-    return { success: false, error: 'An unexpected error occurred.' };
+    return { success: false, error: 'An unexpected error occurred', data: [] };
+  }
+}
+
+export async function getCertificateRequests() {
+  try {
+    if (!supabaseAdmin) {
+      return { success: false, error: 'Server configuration error', data: [] };
+    }
+
+    // Fetch pending certificate requests with user and course details
+    const { data: certificates, error } = await supabaseAdmin
+      .from('enrollments')
+      .select('id, user_id, course_id, progress, completed, certificate_status, certificate_requested_at, users(id, name, email), courses(id, title, image_url)')
+      .eq('certificate_status', 'requested')
+      .order('certificate_requested_at', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching certificate requests:', error);
+      return { success: false, error: 'Failed to fetch certificate requests', data: [] };
+    }
+
+    if (!certificates || certificates.length === 0) {
+      return { success: true, data: [] };
+    }
+
+    return { success: true, data: certificates };
+  } catch (error) {
+    console.error('Error in getCertificateRequests:', error);
+    return { success: false, error: 'An unexpected error occurred', data: [] };
   }
 }
 
 export async function rejectCertificate(enrollmentId: string, reason?: string) {
-  if (!enrollmentId) {
-    return { success: false, error: 'Enrollment ID is required.' };
-  }
-
   try {
-    const { error } = await supabase
+    if (!supabaseAdmin) {
+      return { success: false, error: 'Server configuration error' };
+    }
+
+    if (!enrollmentId) {
+      return { success: false, error: 'Enrollment ID is required' };
+    }
+
+    // Update the enrollment's certificate_status to 'not_eligible'
+    const { data, error } = await supabaseAdmin
       .from('enrollments')
-      .update({ 
+      .update({
         certificate_status: 'not_eligible',
-        certificate_rejection_reason: reason,
-        certificate_rejected_at: new Date().toISOString()
+        certificate_rejected_reason: reason || 'Certificate request rejected',
+        certificate_rejected_at: new Date().toISOString(),
       })
-      .eq('id', enrollmentId);
+      .eq('id', enrollmentId)
+      .select();
 
     if (error) {
       console.error('Error rejecting certificate:', error);
-      return { success: false, error: 'Failed to reject certificate.' };
+      return { success: false, error: 'Failed to reject certificate' };
     }
 
-    revalidatePath('/admin/certificates');
-    revalidatePath('/student/certificates');
-    
-    return { success: true };
+    if (!data || data.length === 0) {
+      return { success: false, error: 'Enrollment not found' };
+    }
+
+    return { success: true, message: 'Certificate request rejected', data };
   } catch (error) {
     console.error('Error in rejectCertificate:', error);
-    return { success: false, error: 'An unexpected error occurred.' };
+    return { success: false, error: 'An unexpected error occurred' };
   }
 }

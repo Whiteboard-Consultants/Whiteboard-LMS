@@ -110,8 +110,8 @@ export default function CartPage() {
     
     if (successfulEnrollments > 0 && errors.length === 0) {
       toast({
-        title: "Enrollment Successful!",
-        description: `Successfully enrolled in ${successfulEnrollments} course${successfulEnrollments > 1 ? 's' : ''}. Check your dashboard.`,
+        title: "Enrollment Submitted!",
+        description: `Enrollment request for ${successfulEnrollments} course${successfulEnrollments > 1 ? 's' : ''} sent for admin approval. You'll be able to access the course once approved.`,
       });
       clearCart();
       router.push('/student/dashboard');

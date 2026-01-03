@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
-import { BookMarked, LayoutDashboard, BarChart3, Users, Lightbulb, UserCheck, UserSquare, Megaphone, Award, FileText, Ticket, Rss, Package, ClipboardList, Mail, Zap, DollarSign } from "lucide-react";
+import { BookMarked, LayoutDashboard, BarChart3, Users, Lightbulb, UserCheck, UserSquare, Megaphone, Award, FileText, Ticket, Rss, Package, ClipboardList, Mail, Zap, DollarSign, MessageSquare } from "lucide-react";
 import { Skeleton } from "./ui/skeleton";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
 
@@ -140,6 +140,7 @@ export function SidebarNav() {
       instructor: [
           { href: "/instructor/dashboard", label: "Dashboard", icon: LayoutDashboard },
           { href: "/instructor/announcements", label: "Announcements", icon: Megaphone },
+          { href: "/instructor/messages", label: "Messages", icon: MessageSquare },
           { href: "/instructor/courses", label: "Courses & Reports", icon: BookMarked },
           { href: "/instructor/tests", label: "Tests", icon: FileText },
           { href: "/instructor/reports/tests", label: "Test Reports", icon: BarChart3 },
@@ -147,6 +148,7 @@ export function SidebarNav() {
         ],
       student: [
           { href: "/student/dashboard", label: "My Dashboard", icon: LayoutDashboard },
+          { href: "/student/messages", label: "Messages", icon: MessageSquare },
           { href: "/student/skills", label: "My Skills", icon: Zap },
           { href: "/student/tests", label: "Tests", icon: FileText },
           { href: "/student/certificates", label: "My Certificates", icon: Award },

@@ -1,0 +1,93 @@
+'use client';
+
+import { useState, useEffect, use } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/use-auth';
+import { NewThreadForm } from '@/app/(main)/student/messaging/components/new-thread-form';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, Loader2 } from 'lucide-react';
+import Link from 'next/link';
+import { supabase } from '@/lib/supabase';
+
+interface NewThreadPageProps {
+  params: Promise<{
+    courseId: string;
+  }>;
+}
+
+export default function NewThreadPage({
+  params,
+}: NewThreadPageProps) {
+  const { courseId } = use(params);
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+  const [enrollmentId, setEnrollmentId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (authLoading) return;
+
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+
+    const getEnrollmentId = async () => {
+      try {
+
+        const { data: enrollment } = await supabase
+          .from('enrollments')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('course_id', courseId)
+          .single();
+
+        if (enrollment) {
+          setEnrollmentId(enrollment.id);
+        } else {
+          router.push('/student/dashboard');
+        }
+      } catch (error) {
+        console.error('Error fetching enrollment:', error);
+        router.push('/student/dashboard');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    getEnrollmentId();
+  }, [courseId, user, authLoading, router]);
+
+  if (isLoading || !enrollmentId) {
+    return (
+      <div className="min-h-full bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-full bg-background">
+      {/* Header */}
+      <div className="border-b">
+        <div className="max-w-4xl mx-auto p-4">
+          <Button variant="ghost" size="sm" asChild>
+            <Link href={`/student/${courseId}/messaging`}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Messages
+            </Link>
+          </Button>
+          <h1 className="text-3xl font-bold mt-4">Start a New Conversation</h1>
+          <p className="text-muted-foreground mt-1">
+            Ask your instructor a question or discuss a topic
+          </p>
+        </div>
+      </div>
+
+      {/* Form */}
+      <div className="max-w-4xl mx-auto mt-8">
+        <NewThreadForm courseId={courseId} enrollmentId={enrollmentId} />
+      </div>
+    </div>
+  );
+}

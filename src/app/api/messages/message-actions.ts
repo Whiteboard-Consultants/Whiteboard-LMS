@@ -39,12 +39,12 @@ export async function createMessageThread(
   courseId: string,
   enrollmentId: string,
   title: string,
-  description?: string
+  description?: string,
+  userId?: string
 ) {
   try {
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    if (!user) {
-      return { success: false, error: 'Not authenticated', data: null };
+    if (!userId) {
+      return { success: false, error: 'User ID is required', data: null };
     }
 
     // Get enrollment to verify student and find instructor
@@ -59,7 +59,7 @@ export async function createMessageThread(
     }
 
     // Verify user is the enrolled student
-    if (enrollment.user_id !== user.id) {
+    if (enrollment.user_id !== userId) {
       return { success: false, error: 'Unauthorized', data: null };
     }
 
@@ -80,7 +80,7 @@ export async function createMessageThread(
       .insert({
         course_id: courseId,
         enrollment_id: enrollmentId,
-        student_id: user.id,
+        student_id: userId,
         instructor_id: course.instructor_id,
         title,
         description,
@@ -113,17 +113,16 @@ export async function createMessageThread(
   }
 }
 
-export async function getMessageThreads(courseId?: string) {
+export async function getMessageThreads(courseId?: string, userId?: string) {
   try {
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    if (!user) {
-      return { success: false, error: 'Not authenticated', data: null };
+    if (!userId) {
+      return { success: false, error: 'User ID is required', data: null };
     }
 
     let query = supabaseAdmin
       .from('message_threads')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('updated_at', { ascending: false });
 
     if (courseId) {
       query = query.eq('course_id', courseId);
@@ -138,7 +137,7 @@ export async function getMessageThreads(courseId?: string) {
 
     // Filter based on user role
     const filteredThreads = threads?.filter(thread => {
-      return thread.student_id === user.id || thread.instructor_id === user.id;
+      return thread.student_id === userId || thread.instructor_id === userId;
     }) || [];
 
     return { success: true, data: filteredThreads, error: null };
@@ -207,11 +206,10 @@ export interface Message {
   updated_at: string;
 }
 
-export async function sendMessage(threadId: string, body: string) {
+export async function sendMessage(threadId: string, body: string, userId?: string) {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return { success: false, error: 'Not authenticated', data: null };
+    if (!userId) {
+      return { success: false, error: 'User ID is required', data: null };
     }
 
     // Verify thread exists and user is part of it
@@ -225,7 +223,7 @@ export async function sendMessage(threadId: string, body: string) {
       return { success: false, error: 'Thread not found', data: null };
     }
 
-    if (thread.student_id !== user.id && thread.instructor_id !== user.id) {
+    if (thread.student_id !== userId && thread.instructor_id !== userId) {
       return { success: false, error: 'Unauthorized', data: null };
     }
 
@@ -234,7 +232,7 @@ export async function sendMessage(threadId: string, body: string) {
       .from('messages')
       .insert({
         thread_id: threadId,
-        sender_id: user.id,
+        sender_id: userId,
         body,
       })
       .select()
@@ -246,7 +244,7 @@ export async function sendMessage(threadId: string, body: string) {
     }
 
     // Create notification for recipient
-    const recipientId = user.id === thread.student_id ? thread.instructor_id : thread.student_id;
+    const recipientId = userId === thread.student_id ? thread.instructor_id : thread.student_id;
     await supabaseAdmin
       .from('message_notifications')
       .insert({
@@ -261,7 +259,7 @@ export async function sendMessage(threadId: string, body: string) {
       .from('typing_indicators')
       .delete()
       .eq('thread_id', threadId)
-      .eq('user_id', user.id);
+      .eq('user_id', userId);
 
     return { success: true, data: message, error: null };
   } catch (error) {
@@ -274,11 +272,10 @@ export async function sendMessage(threadId: string, body: string) {
   }
 }
 
-export async function getThreadMessages(threadId: string) {
+export async function getThreadMessages(threadId: string, userId?: string) {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return { success: false, error: 'Not authenticated', data: null };
+    if (!userId) {
+      return { success: false, error: 'User ID is required', data: null };
     }
 
     // Verify user is part of thread
@@ -292,7 +289,7 @@ export async function getThreadMessages(threadId: string) {
       return { success: false, error: 'Thread not found', data: null };
     }
 
-    if (thread.student_id !== user.id && thread.instructor_id !== user.id) {
+    if (thread.student_id !== userId && thread.instructor_id !== userId) {
       return { success: false, error: 'Unauthorized', data: null };
     }
 
@@ -309,7 +306,7 @@ export async function getThreadMessages(threadId: string) {
 
     // Mark unread messages as read
     const unreadMessageIds = messages
-      ?.filter(m => !m.is_read && m.sender_id !== user.id)
+      ?.filter(m => !m.is_read && m.sender_id !== userId)
       .map(m => m.id) || [];
 
     if (unreadMessageIds.length > 0) {

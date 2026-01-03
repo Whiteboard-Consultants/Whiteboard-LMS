@@ -1,0 +1,31 @@
+-- Get the current logged-in user ID (replace with actual user ID from Supabase)
+-- First, let's check what users exist
+SELECT id, email, raw_user_meta_data->>'full_name' as name FROM auth.users;
+
+-- Once you have the user ID, run this to create a test course:
+-- INSERT INTO courses (title, description, category, level, price, original_price, instructor_id, created_at, updated_at)
+-- VALUES (
+--   'Web Development Fundamentals',
+--   'Learn the basics of web development including HTML, CSS, and JavaScript',
+--   'technology',
+--   'beginner',
+--   1999,
+--   2999,
+--   'instructor-user-id-here',
+--   NOW(),
+--   NOW()
+-- )
+-- RETURNING id;
+
+-- Then create an enrollment with that course ID and user ID:
+-- INSERT INTO enrollments (user_id, course_id, instructor_id, status, progress, completed, payment_status, enrolled_at)
+-- VALUES (
+--   'user-id-here',
+--   'course-id-from-above',
+--   'instructor-user-id-here',
+--   'active',
+--   0,
+--   false,
+--   'paid',
+--   NOW()
+-- );
