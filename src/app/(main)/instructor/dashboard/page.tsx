@@ -401,5 +401,4 @@ export default function InstructorDashboardPage() {
       </div>
     </div>
   );
-  );
 }
