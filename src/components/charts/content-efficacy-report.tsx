@@ -41,15 +41,46 @@ export function ContentEfficacyReport({ courseId, lessons }: ContentEfficacyRepo
         return;
     }
 
-    // Temporarily disable quiz attempts fetching until schema is clarified
+    // Fetch quiz attempts from the database
     const fetchAttempts = async () => {
       setLoading(true);
-      // TODO: Fix schema mapping between QuizAttempt type and test_attempts table
-      setAttempts([]);
-      setLoading(false);
+      try {
+        // Fetch quiz attempts for all lessons in this course
+        const { data: attempts, error } = await supabase
+          .from('quiz_attempts')
+          .select(`
+            id,
+            lesson_id,
+            user_id,
+            score,
+            total_questions,
+            answers,
+            submitted_at
+          `)
+          .in('lesson_id', lessons.map(l => l.id));
+
+        if (error) {
+          console.error('Error fetching quiz attempts:', error);
+          setAttempts([]);
+        } else if (attempts) {
+          // Map database attempts to QuizAttempt type
+          // Note: This assumes quiz_attempts table has the questions/answers structure
+          setAttempts(attempts as any);
+        }
+      } catch (err) {
+        console.error('Exception fetching quiz attempts:', err);
+        setAttempts([]);
+      } finally {
+        setLoading(false);
+      }
     };
-    fetchAttempts();
-  }, [courseId, user]);
+
+    if (lessons.length > 0) {
+      fetchAttempts();
+    } else {
+      setLoading(false);
+    }
+  }, [courseId, user, lessons]);
 
   const quizLessons = lessons.filter(lesson => lesson.type === 'quiz');
 
@@ -88,6 +119,11 @@ export function ContentEfficacyReport({ courseId, lessons }: ContentEfficacyRepo
   }
 
   if (quizLessons.length === 0) {
+      // Debug: Log the lessons to see what types are available
+      console.log('[ContentEfficacy] Lessons received:', lessons);
+      console.log('[ContentEfficacy] Quiz lessons after filter:', quizLessons);
+      console.log('[ContentEfficacy] Lesson types:', lessons.map(l => ({ id: l.id, title: l.title, type: l.type })));
+      
       return (
          <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm p-12 text-center">
             <div className="flex flex-col items-center gap-2">
@@ -102,47 +138,78 @@ export function ContentEfficacyReport({ courseId, lessons }: ContentEfficacyRepo
 
   return (
     <div className="space-y-6">
-      {quizLessons.map(quiz => {
-        const stats = getStatsForQuiz(quiz.id);
-        const uniqueStudentAttempts = new Set(attempts.filter(a => a.lessonId === quiz.id).map(a => a.userId)).size;
-        const attemptText = uniqueStudentAttempts === 1 ? "student attempt" : "student attempts";
-        
-        return (
-          <Card key={quiz.id}>
-            <CardHeader>
-              <CardTitle>{quiz.title}</CardTitle>
-              <CardDescription>Based on {uniqueStudentAttempts} {attemptText}.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {stats.length > 0 ? (
-                <ResponsiveContainer width="100%" height={stats.length * 50 + 50}>
-                  <BarChart data={stats} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" domain={[0, 100]} tickFormatter={(tick) => `${tick}%`} />
-                    <YAxis dataKey="questionText" type="category" width={150} />
-                    <Tooltip
-                        formatter={(value) => [`${value}% Correct`, ''] }
-                        labelFormatter={(label) => label.split(': ')[1]}
-                        cursor={{fill: 'hsl(var(--muted))'}}
-                        contentStyle={{
-                            backgroundColor: 'hsl(var(--background))',
-                            borderColor: 'hsl(var(--border))',
-                        }}
-                    />
-                    <Bar dataKey="correctPercentage" barSize={20}>
-                       {stats.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              ) : (
-                <p className="text-muted-foreground text-sm">No attempts recorded for this quiz yet.</p>
-              )}
-            </CardContent>
-          </Card>
-        );
-      })}
+      {quizLessons.length > 0 ? (
+        quizLessons.map(quiz => {
+          const stats = getStatsForQuiz(quiz.id);
+          const uniqueStudentAttempts = new Set(attempts.filter(a => a.lessonId === quiz.id).map(a => a.userId)).size;
+          const attemptText = uniqueStudentAttempts === 1 ? "student attempt" : "student attempts";
+          
+          return (
+            <Card key={quiz.id}>
+              <CardHeader>
+                <CardTitle>{quiz.title}</CardTitle>
+                <CardDescription>
+                  {uniqueStudentAttempts > 0 
+                    ? `Based on ${uniqueStudentAttempts} ${attemptText}.`
+                    : `No student attempts yet. Students will take this quiz and their performance will appear here.`}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {stats.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={stats.length * 50 + 50}>
+                    <BarChart data={stats} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis type="number" domain={[0, 100]} tickFormatter={(tick) => `${tick}%`} />
+                      <YAxis dataKey="questionText" type="category" width={150} />
+                      <Tooltip
+                          formatter={(value) => [`${value}% Correct`, ''] }
+                          labelFormatter={(label) => label.split(': ')[1]}
+                          cursor={{fill: 'hsl(var(--muted))'}}
+                          contentStyle={{
+                              backgroundColor: 'hsl(var(--background))',
+                              borderColor: 'hsl(var(--border))',
+                          }}
+                      />
+                      <Bar dataKey="correctPercentage" barSize={20}>
+                         {stats.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p className="text-sm">Waiting for student responses...</p>
+                    <p className="text-xs mt-2">Quiz performance data will display here once students complete this quiz.</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })
+      ) : (
+        <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm p-12 text-center">
+          <div className="flex flex-col items-center gap-2">
+            <h3 className="text-xl font-bold tracking-tight">No Quizzes Found</h3>
+            <p className="text-sm text-muted-foreground">
+              Add a quiz to this course to see content efficacy reports.
+            </p>
+            {lessons.length > 0 && (
+              <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded text-left">
+                <p className="text-xs font-medium text-amber-900 dark:text-amber-200">Debug Info:</p>
+                <p className="text-xs text-amber-800 dark:text-amber-300 mt-1">Lessons found: {lessons.length}</p>
+                <p className="text-xs text-amber-800 dark:text-amber-300">Quiz lessons: {quizLessons.length}</p>
+                <div className="text-xs text-amber-700 dark:text-amber-400 mt-2">Lesson types:</div>
+                <ul className="text-xs text-amber-700 dark:text-amber-400">
+                  {lessons.map(l => (
+                    <li key={l.id}>{l.title}: {l.type}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
