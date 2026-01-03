@@ -397,6 +397,7 @@ export default function InstructorDashboardPage() {
             </TableBody>
           </Table>
         </div>
+
         </div>
       </div>
     </div>
