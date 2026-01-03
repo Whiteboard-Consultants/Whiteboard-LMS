@@ -181,7 +181,6 @@ export async function updateProgress(
           questions: quizData.questions,
           score: correctAnswers,
           total_questions: totalQuestions,
-          percentage: percentage,
           submitted_at: new Date().toISOString(),
         };
         
@@ -296,12 +295,17 @@ export async function getQuizAttempt(attemptId: string) {
       return null;
     }
 
+    // Calculate percentage from score and total_questions
+    const percentage = attempt.total_questions > 0 
+      ? Math.round((attempt.score / attempt.total_questions) * 100) 
+      : 0;
+
     console.log('✅ Quiz attempt fetched:', {
       id: attempt.id,
       questionsCount: attempt.questions?.length,
       score: attempt.score,
       totalQuestions: attempt.total_questions,
-      percentage: attempt.percentage
+      percentage
     });
 
     // Return with snake_case field names as expected by quiz-results page
@@ -315,7 +319,7 @@ export async function getQuizAttempt(attemptId: string) {
       questions: attempt.questions || [],
       score: attempt.score || 0,
       total_questions: attempt.total_questions || 0,
-      percentage: attempt.percentage || 0,
+      percentage: percentage,
       submitted_at: attempt.submitted_at,
     };
   } catch (error) {
