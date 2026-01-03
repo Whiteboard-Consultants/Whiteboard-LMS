@@ -22,6 +22,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GradientProgress } from "@/components/ui/gradient-progress";
 import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
+import { fetchEnrollmentsByStatus } from "./actions";
 
 export default function AdminEnrollmentsPage() {
   const [pendingEnrollments, setPendingEnrollments] = useState<Enrollment[]>([]);
@@ -41,73 +42,17 @@ export default function AdminEnrollmentsPage() {
 
     const fetchEnrollments = async (status: 'pending' | 'approved', setter: React.Dispatch<React.SetStateAction<Enrollment[]>>) => {
         try {
-            // First, fetch the enrollments
-            const { data: enrollments, error } = await supabase
-                .from('enrollments')
-                .select('*')
-                .eq('status', status);
+            // Fetch enrollments using server action (bypasses RLS)
+            const result = await fetchEnrollmentsByStatus(status);
 
-            if (error) {
-                console.error(`Error fetching ${status} enrollments:`, error);
+            if (!result.success) {
+                console.error(`Error fetching ${status} enrollments:`, result.error);
                 toast({ variant: 'destructive', title: 'Error', description: `Failed to load ${status} enrollments.`});
                 setLoading(false);
                 return;
             }
 
-            if (!enrollments || enrollments.length === 0) {
-                setter([]);
-                setLoading(false);
-                return;
-            }
-
-            // Get unique user IDs and course IDs for batch fetching
-            const userIds = Array.from(new Set(enrollments.map(e => e.user_id).filter(Boolean)));
-            const courseIds = Array.from(new Set(enrollments.map(e => e.course_id).filter(Boolean)));
-            const instructorIds = Array.from(new Set(enrollments.map(e => e.instructor_id).filter(Boolean)));
-
-            // Fetch users data (combine student and instructor IDs)
-            const allUserIds = Array.from(new Set([...userIds, ...instructorIds]));
-            const { data: users } = await supabase
-                .from('users')
-                .select('id, name')
-                .in('id', allUserIds);
-
-            // Fetch courses data
-            const { data: courses } = await supabase
-                .from('courses')
-                .select('id, title, price')
-                .in('id', courseIds);
-
-            // Create lookup maps
-            const usersMap = new Map(users?.map(u => [u.id, u]) || []);
-            const coursesMap = new Map(courses?.map(c => [c.id, c]) || []);
-
-            // Map database fields to expected interface fields
-            const mappedEnrollments = enrollments.map((enrollment: any) => ({
-                id: enrollment.id,
-                userId: enrollment.user_id,
-                courseId: enrollment.course_id,
-                instructorId: enrollment.instructor_id,
-                progress: enrollment.progress || 0,
-                completed: enrollment.completed || false,
-                enrolledAt: enrollment.enrolled_at || enrollment.created_at,
-                status: enrollment.status,
-                paymentId: enrollment.payment_id,
-                orderId: enrollment.order_id,
-                amount: enrollment.amount,
-                purchaseDate: enrollment.purchase_date,
-                completedLessons: enrollment.completed_lessons || [],
-                certificateStatus: enrollment.certificate_status,
-                averageScore: enrollment.average_score,
-                couponCode: enrollment.coupon_code,
-                // Derived fields from lookups
-                studentName: usersMap.get(enrollment.user_id)?.name || 'Unknown Student',
-                courseTitle: coursesMap.get(enrollment.course_id)?.title || 'Unknown Course',
-                coursePrice: coursesMap.get(enrollment.course_id)?.price || 0,
-                instructorName: usersMap.get(enrollment.instructor_id)?.name || 'Unknown Instructor'
-            }));
-
-            setter(mappedEnrollments);
+            setter(result.data);
             setLoading(false);
 
             // Set up real-time subscription
@@ -121,8 +66,11 @@ export default function AdminEnrollmentsPage() {
                         filter: `status=eq.${status}`
                     }, 
                     async (payload) => {
-                        // Refetch data when changes occur - reuse the same fetching logic
-                        await fetchEnrollments(status, setter);
+                        // Refetch data when changes occur
+                        const refreshResult = await fetchEnrollmentsByStatus(status);
+                        if (refreshResult.success) {
+                            setter(refreshResult.data);
+                        }
                     }
                 )
                 .subscribe();
@@ -131,7 +79,7 @@ export default function AdminEnrollmentsPage() {
                 subscription.unsubscribe();
             };
         } catch (error) {
-            console.error(`Error setting up ${status} enrollments subscription:`, error);
+            console.error(`Error setting up ${status} enrollments:`, error);
             toast({ variant: 'destructive', title: 'Error', description: `Failed to load ${status} enrollments.`});
             setLoading(false);
         }
