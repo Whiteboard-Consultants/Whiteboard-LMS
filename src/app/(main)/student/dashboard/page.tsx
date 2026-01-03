@@ -253,21 +253,26 @@ export default function StudentDashboardPage() {
   console.log('🔍 Dashboard Debug - isProfileComplete:', userData?.isProfileComplete);
 
   return (
-    <div>
-      <PageHeader
-        title={`Welcome back, ${userData?.name || 'Student'}!`}
-        description="Continue your learning journey and track your progress."
-      />
+    <div className="min-h-screen bg-gradient-to-b from-blue-50/50 dark:from-slate-900/50 to-background">
+      <div className="space-y-8">
+        <div className="rounded-xl bg-gradient-to-r from-blue-600/90 to-indigo-600/90 dark:from-blue-900/40 dark:to-indigo-900/40 p-8 mb-8">
+          <PageHeader
+            title={`Welcome back, ${userData?.name || 'Student'}!`}
+            description="Continue your learning journey and track your progress."
+            className="text-white dark:text-slate-100 [&>p]:text-blue-100"
+          />
+        </div>
 
-      <StudentNotificationCenter />
-      <AnnouncementBanner />
-      
-      {/* Improvement Suggestions Widget */}
-      {latestTestAttempt?.improvement_suggestions && latestTestAttempt.improvement_suggestions.length > 0 && (
-        <div className="mb-8">
-          <h3 className="text-lg font-semibold mb-4">📚 Areas to Focus On</h3>
-          <CompactImprovementSuggestions 
-            suggestions={latestTestAttempt.improvement_suggestions}
+        <div className="px-4 md:px-0">
+          <StudentNotificationCenter />
+          <AnnouncementBanner />
+          
+          {/* Improvement Suggestions Widget */}
+          {latestTestAttempt?.improvement_suggestions && latestTestAttempt.improvement_suggestions.length > 0 && (
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold mb-4">📚 Areas to Focus On</h3>
+              <CompactImprovementSuggestions 
+                suggestions={latestTestAttempt.improvement_suggestions}
           />
           <Link href={`/student/quiz-results/${latestTestAttempt.id}`} className="mt-3 inline-block">
             <Button variant="outline" size="sm">View Full Improvement Plan</Button>
@@ -279,17 +284,20 @@ export default function StudentDashboardPage() {
         <StatCard
           title="Courses Enrolled"
           value={loading ? '...' : enrolledCourses.length.toString()}
-          icon={<BookOpen className="h-6 w-6 text-blue-500" />}
+          icon={<BookOpen className="h-6 w-6 text-blue-600 dark:text-blue-400" />}
+          gradient="blue"
         />
         <StatCard
           title="Courses Completed"
           value={loading ? '...' : completedCourses.toString()}
-          icon={<CheckCircle className="h-6 w-6 text-green-500" />}
+          icon={<CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />}
+          gradient="green"
         />
         <StatCard
           title="Certificates Earned"
           value={loading ? '...' : enrolledCourses.filter(c => c.enrollment?.certificateStatus === 'approved').length.toString()}
-          icon={<Award className="h-6 w-6 text-amber-500" />}
+          icon={<Award className="h-6 w-6 text-amber-600 dark:text-amber-400" />}
+          gradient="amber"
         />
       </div>
 
@@ -347,6 +355,8 @@ export default function StudentDashboardPage() {
             </div>
         </TabsContent>
       </Tabs>
+        </div>
+      </div>
     </div>
   );
 }

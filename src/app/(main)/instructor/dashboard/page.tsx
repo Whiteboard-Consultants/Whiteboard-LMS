@@ -27,6 +27,7 @@ import { Separator } from "@/components/ui/separator";
 import { RevenueCard } from "@/components/revenue-card";
 import { InstructorCommissionCard } from "./commission-card";
 import { getInstructorCommissionInfo } from "./commission-actions";
+import { fetchNewEnrollmentsForInstructor, fetchTotalRevenueForInstructor } from "./actions";
 
 
 export default function InstructorDashboardPage() {
@@ -146,80 +147,43 @@ export default function InstructorDashboardPage() {
 
     const fetchNewEnrollments = async () => {
       try {
-        console.log('Testing enrollments table...');
+        const result = await fetchNewEnrollmentsForInstructor(user.id);
         
-        // Test basic enrollments table access
-        const { data: testEnrollments, error: testEnrollmentsError } = await supabase
-          .from('enrollments')
-          .select('*')
-          .limit(1);
-        
-        if (testEnrollmentsError) {
-          if (testEnrollmentsError.code === 'PGRST205') {
-            console.warn('Enrollments table does not exist. Setting enrollments to 0.');
-            setNewEnrollments(0);
-            return;
-          }
-          console.error("Enrollments table access failed:", testEnrollmentsError);
-          console.error("Error details:", JSON.stringify(testEnrollmentsError, null, 2));
-          return;
-        }
-        
-        console.log('Enrollments table accessible. Sample data:', testEnrollments?.[0]);
-        
-        const sevenDaysAgo = subDays(new Date(), 7).toISOString();
-        
-        // Try both possible field names for enrolled date
-        let data = null;
-        let error = null;
-        
-        // First try enrolled_at (snake_case - correct database schema)
-        const { data: enrolledAtData, error: enrolledAtError } = await supabase
-          .from('enrollments')
-          .select('id', { count: 'exact' })
-          .eq('instructor_id', user.id)
-          .eq('status', 'approved')
-          .gte('enrolled_at', sevenDaysAgo);
-        
-        if (!enrolledAtError && enrolledAtData) {
-          data = enrolledAtData;
-          console.log('Found enrollments using enrolled_at/instructor_id:', data.length);
+        if (result.success) {
+          setNewEnrollments(result.data);
+          console.log('New enrollments count:', result.data);
         } else {
-          // Fallback: Try enrolledAt (camelCase version - if exists)
-          const { data: enrolledAtSnakeData, error: enrolledAtSnakeError } = await supabase
-            .from('enrollments')
-            .select('id', { count: 'exact' })
-            .eq('instructor_id', user.id)
-            .eq('status', 'approved')
-            .gte('enrolledAt', sevenDaysAgo);
-          
-          if (enrolledAtSnakeError) {
-            error = enrolledAtSnakeError;
-            console.error("Error fetching enrollments (both schemas failed):", {
-              enrolledAtError,
-              enrolledAtSnakeError,
-              userId: user.id
-            });
-          } else {
-            data = enrolledAtSnakeData;
-            console.log('Found enrollments using enrolled_at/instructor_id:', data?.length || 0);
-          }
-        }
-        
-        if (error) {
-          console.error("Error fetching enrollments:", error);
+          console.error("Error fetching new enrollments:", result.error);
           setNewEnrollments(0); // Set to 0 on error
-        } else {
-          setNewEnrollments(data?.length || 0);
         }
       } catch (error) {
-        console.error("Error fetching enrollments:", error);
+        console.error("Error fetching new enrollments:", error);
         setNewEnrollments(0); // Set to 0 on any error
       }
     };
 
     fetchCourses();
     fetchNewEnrollments();
+
+    // Fetch total revenue
+    const fetchRevenue = async () => {
+      try {
+        const result = await fetchTotalRevenueForInstructor(user.id);
+        
+        if (result.success) {
+          setTotalRevenue(result.data);
+          console.log('Total revenue:', result.data);
+        } else {
+          console.warn("Could not fetch total revenue, setting to 0:", result.error);
+          setTotalRevenue(0);
+        }
+      } catch (error) {
+        console.warn("Exception fetching total revenue, setting to 0:", error);
+        setTotalRevenue(0);
+      }
+    };
+
+    fetchRevenue();
 
     // Fetch commission info
     const fetchCommissionInfo = async () => {
@@ -273,28 +237,33 @@ export default function InstructorDashboardPage() {
   }, 0);
 
   return (
-    <div className="space-y-8">
-      <PageHeader
-        title={`Welcome back, ${userData?.name || 'Instructor'}!`}
-        description="Manage your courses and view your performance."
-      >
-        <div className="flex items-center gap-2">
-            <Button asChild>
-                <Link href="/instructor/courses/create">
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Create Course
-                </Link>
-            </Button>
-            <Button asChild variant="outline">
-                <Link href="/instructor/ai-suggester">
-                    <Lightbulb className="mr-2 h-4 w-4" />
-                    AI Suggester
-                </Link>
-            </Button>
+    <div className="min-h-screen bg-gradient-to-b from-purple-50/50 dark:from-slate-900/50 to-background">
+      <div className="space-y-8">
+        <div className="rounded-xl bg-gradient-to-r from-purple-600/90 to-indigo-600/90 dark:from-purple-900/40 dark:to-indigo-900/40 p-8 mb-8">
+          <PageHeader
+            title={`Welcome back, ${userData?.name || 'Instructor'}!`}
+            description="Manage your courses and view your performance."
+            className="text-white dark:text-slate-100 [&>p]:text-purple-100"
+          >
+            <div className="flex items-center gap-2">
+                <Button asChild className="bg-white text-purple-600 hover:bg-slate-100">
+                    <Link href="/instructor/courses/create">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Create Course
+                    </Link>
+                </Button>
+                <Button asChild variant="outline" className="border-white text-white hover:bg-white/20">
+                    <Link href="/instructor/ai-suggester">
+                        <Lightbulb className="mr-2 h-4 w-4" />
+                        AI Suggester
+                    </Link>
+                </Button>
+            </div>
+          </PageHeader>
         </div>
-      </PageHeader>
-      
-      <AnnouncementBanner />
+        
+        <div className="px-4 md:px-0">
+          <AnnouncementBanner />
 
       {/* Commission Info Card */}
       {commissionInfo && (
@@ -311,7 +280,8 @@ export default function InstructorDashboardPage() {
              <StatCard
                 title="New Students (Last 7 Days)"
                 value={loading ? '...' : newEnrollments.toString()}
-                icon={<Users className="h-6 w-6 text-green-500" />}
+                icon={<Users className="h-6 w-6 text-green-600 dark:text-green-400" />}
+                gradient="green"
             >
                 <p className="text-xs text-muted-foreground pt-1">A good time to engage with your new learners!</p>
              </StatCard>
@@ -326,17 +296,20 @@ export default function InstructorDashboardPage() {
             <StatCard
             title="Total Students"
             value={loading ? "..." : totalStudents.toLocaleString()}
-            icon={<Users className="h-6 w-6 text-blue-500" />}
+            icon={<Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />}
+            gradient="blue"
             />
             <StatCard
             title="Total Courses"
             value={loading ? "..." : courses.length.toString()}
-            icon={<BookOpen className="h-6 w-6 text-green-500" />}
+            icon={<BookOpen className="h-6 w-6 text-green-600 dark:text-green-400" />}
+            gradient="green"
             />
             <StatCard
               title="Average Rating"
               value={loading ? "..." : averageRating}
-              icon={<StarIcon className="h-6 w-6 text-amber-500" />}
+              icon={<StarIcon className="h-6 w-6 text-amber-600 dark:text-amber-400" />}
+              gradient="amber"
             >
               <p className="text-xs text-muted-foreground pt-1">Across all courses</p>
             </StatCard>
@@ -424,7 +397,9 @@ export default function InstructorDashboardPage() {
             </TableBody>
           </Table>
         </div>
+        </div>
       </div>
     </div>
+  );
   );
 }
