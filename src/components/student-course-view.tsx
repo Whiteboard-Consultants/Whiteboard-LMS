@@ -131,9 +131,22 @@ export function StudentCourseView({ course, enrollment: initialEnrollment }: Stu
       setIsCompleting(true);
 
       try {
+        console.log('📤 Submitting quiz/assignment:', {
+          lessonId: selectedLesson.id,
+          lessonType: selectedLesson.type,
+          answersCount: answers.length,
+          questionsCount: selectedLesson.questions?.length
+        });
+
         const result = await updateProgress(enrollment.id, course.id, selectedLesson.id, {
             questions: selectedLesson.questions || [],
             answers,
+        });
+
+        console.log('📥 Update result:', {
+          success: result.success,
+          hasQuizAttemptId: !!result.quizAttemptId,
+          quizAttemptId: result.quizAttemptId
         });
 
         if (result.success && result.updatedEnrollment) {
@@ -141,7 +154,10 @@ export function StudentCourseView({ course, enrollment: initialEnrollment }: Stu
             toast({ title: `${submissionType} Submitted!` });
             setEnrollment(result.updatedEnrollment);
             if (result.quizAttemptId) {
+                console.log('🚀 Redirecting to quiz results:', result.quizAttemptId);
                 router.push(`/student/quiz-results/${result.quizAttemptId}`);
+            } else {
+                console.warn('⚠️ No quizAttemptId in response, user stayed on page');
             }
         } else {
             toast({ variant: 'destructive', title: 'Error', description: result.error || 'Failed to submit' });

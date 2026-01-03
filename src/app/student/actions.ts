@@ -142,11 +142,29 @@ export async function updateProgress(
     let quizAttemptId = null;
     if (quizData && (lesson.type === 'quiz' || lesson.type === 'assignment')) {
       // Calculate score
+      console.log('📝 Creating quiz attempt for lesson:', {
+        type: lesson.type,
+        questionCount: quizData.questions.length,
+        answerCount: quizData.answers.length,
+        firstQuestion: quizData.questions[0]
+      });
+
       const correctAnswers = quizData.answers.filter(
-        (answer, index) => answer === quizData.questions[index]?.correctAnswer
+        (answer, index) => {
+          const question = quizData.questions[index];
+          // Handle both correctAnswer and correctAnswerIndex
+          const correctIndex = question?.correctAnswer ?? question?.correctAnswerIndex;
+          return answer === correctIndex;
+        }
       ).length;
       const totalQuestions = quizData.questions.length;
       const percentage = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
+
+      console.log('✅ Quiz scoring:', {
+        correctAnswers,
+        totalQuestions,
+        percentage
+      });
 
       // Create quiz attempt record in quiz_attempts table
       const { data: attempt, error: attemptError } = await supabaseAdmin
@@ -170,6 +188,9 @@ export async function updateProgress(
 
       if (!attemptError && attempt) {
         quizAttemptId = attempt.id;
+        console.log('✅ Quiz attempt created:', quizAttemptId);
+      } else {
+        console.error('❌ Error creating quiz attempt:', attemptError);
       }
     }
 
