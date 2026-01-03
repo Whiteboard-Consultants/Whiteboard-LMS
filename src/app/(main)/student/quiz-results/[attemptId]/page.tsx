@@ -71,9 +71,16 @@ export default function QuizResultPage() {
           const quizResult = await getQuizAttempt(attemptId);
           
           if (quizResult) {
-            setCourseId(quizResult.courseId);
+            console.log('📝 Quiz attempt loaded:', {
+              id: quizResult.id,
+              courseId: quizResult.course_id,
+              score: quizResult.score,
+              questions: quizResult.questions?.length || 0
+            });
+            setCourseId(quizResult.course_id);
             setAttempt(quizResult as unknown as QuizAttemptData);
           } else {
+            console.error('❌ Failed to load quiz attempt:', attemptId);
             setError('Failed to load quiz results');
           }
         }

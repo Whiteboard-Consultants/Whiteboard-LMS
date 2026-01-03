@@ -240,19 +240,40 @@ export async function getQuizAttempt(attemptId: string) {
     }
 
     const { data: attempt, error } = await supabaseAdmin
-      .from('test_attempts')
+      .from('quiz_attempts')
       .select('*')
       .eq('id', attemptId)
       .single();
 
     if (error || !attempt) {
-      console.error('Error fetching quiz attempt:', error);
+      console.error('❌ Error fetching quiz attempt:', error);
       return null;
     }
 
-    return attempt;
+    console.log('✅ Quiz attempt fetched:', {
+      id: attempt.id,
+      questionsCount: attempt.questions?.length,
+      score: attempt.score,
+      totalQuestions: attempt.total_questions,
+      percentage: attempt.percentage
+    });
+
+    // Return with snake_case field names as expected by quiz-results page
+    return {
+      id: attempt.id,
+      user_id: attempt.user_id,
+      lesson_id: attempt.lesson_id,
+      course_id: attempt.course_id,
+      enrollment_id: attempt.enrollment_id,
+      answers: attempt.answers || [],
+      questions: attempt.questions || [],
+      score: attempt.score || 0,
+      total_questions: attempt.total_questions || 0,
+      percentage: attempt.percentage || 0,
+      submitted_at: attempt.submitted_at,
+    };
   } catch (error) {
-    console.error('Error in getQuizAttempt:', error);
+    console.error('❌ Error in getQuizAttempt:', error);
     return null;
   }
 }
