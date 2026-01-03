@@ -145,18 +145,23 @@ export async function updateProgress(
       const correctAnswers = quizData.answers.filter(
         (answer, index) => answer === quizData.questions[index]?.correctAnswer
       ).length;
-      const percentage = Math.round((correctAnswers / quizData.questions.length) * 100);
+      const totalQuestions = quizData.questions.length;
+      const percentage = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
 
-      // Create quiz attempt record
+      // Create quiz attempt record in quiz_attempts table
       const { data: attempt, error: attemptError } = await supabaseAdmin
-        .from('test_attempts')
+        .from('quiz_attempts')
         .insert([
           {
             user_id: enrollment.user_id,
-            test_id: lessonId,
+            lesson_id: lessonId,
             course_id: courseId,
+            enrollment_id: enrollmentId,
             answers: quizData.answers,
-            score: percentage,
+            questions: quizData.questions,
+            score: correctAnswers,
+            total_questions: totalQuestions,
+            percentage: percentage,
             submitted_at: new Date().toISOString(),
           }
         ])
