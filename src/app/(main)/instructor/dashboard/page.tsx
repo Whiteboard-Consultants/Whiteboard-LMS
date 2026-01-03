@@ -252,7 +252,7 @@ export default function InstructorDashboardPage() {
                         Create Course
                     </Link>
                 </Button>
-                <Button asChild variant="outline" className="border-white text-white hover:bg-white/20">
+                <Button asChild className="bg-white/20 text-white hover:bg-white/30 border border-white/30">
                     <Link href="/instructor/ai-suggester">
                         <Lightbulb className="mr-2 h-4 w-4" />
                         AI Suggester
