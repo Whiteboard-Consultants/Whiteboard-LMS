@@ -135,7 +135,23 @@ export default function InstructorDashboardPage() {
         if (error) {
           console.error("Error fetching courses:", error);
         } else {
-          setCourses(coursesData || []);
+          // Map snake_case database fields to camelCase for Course type
+          const mappedCourses = (coursesData || []).map((course: any) => ({
+            ...course,
+            studentCount: course.student_count || 0,
+            imageUrl: course.image_url,
+            createdAt: course.created_at,
+            ratingCount: course.rating_count || 0,
+            totalRating: course.total_rating || 0,
+            originalPrice: course.original_price,
+            hasCertificate: course.has_certificate || false,
+            certificateUrl: course.certificate_url,
+            programOutcome: course.program_outcome,
+            courseStructure: course.course_structure,
+            lessonCount: course.lesson_count || 0,
+            finalAssessmentId: course.final_assessment_id,
+          }));
+          setCourses(mappedCourses);
         }
       } catch (error) {
         console.error("Error fetching courses:", error);
@@ -313,7 +329,7 @@ export default function InstructorDashboardPage() {
             >
               <p className="text-xs text-muted-foreground pt-1">Across all courses</p>
             </StatCard>
-            <RevenueCard courses={courses} loading={loading} />
+            <RevenueCard courses={courses} loading={loading} instructorId={user.id} />
         </div>
       </div>
 

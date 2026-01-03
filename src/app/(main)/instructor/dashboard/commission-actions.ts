@@ -119,3 +119,85 @@ export async function getInstructorCommissionInfo(instructorId: string) {
     };
   }
 }
+
+/**
+ * Get commission earned within a date range
+ */
+export async function getCommissionByDateRange(instructorId: string, startDate: Date, endDate: Date) {
+  try {
+    // 1. Get instructor's commission rate
+    const { data: instructorRate } = await supabaseAdmin
+      .from('commission_rates')
+      .select('commission_percentage')
+      .eq('level', 'instructor')
+      .eq('instructor_id', instructorId)
+      .single();
+
+    let commissionPercentage = instructorRate?.commission_percentage;
+
+    if (!commissionPercentage) {
+      const { data: platformRate } = await supabaseAdmin
+        .from('commission_rates')
+        .select('commission_percentage')
+        .eq('level', 'platform')
+        .single();
+
+      commissionPercentage = platformRate?.commission_percentage || 20;
+    }
+
+    // 2. Get instructor's courses
+    const { data: courses, error: coursesError } = await supabaseAdmin
+      .from('courses')
+      .select('id')
+      .eq('instructor_id', instructorId);
+
+    if (coursesError || !courses || courses.length === 0) {
+      return {
+        success: true,
+        data: 0,
+        error: null
+      };
+    }
+
+    // 3. Get enrollments within date range
+    const courseIds = courses.map(c => c.id);
+    const { data: enrollments, error: enrollmentsError } = await supabaseAdmin
+      .from('enrollments')
+      .select('enrolled_original_price')
+      .in('course_id', courseIds)
+      .gte('enrolled_at', startDate.toISOString())
+      .lte('enrolled_at', endDate.toISOString());
+
+    if (enrollmentsError) {
+      console.error('Error fetching enrollments:', enrollmentsError);
+      return {
+        success: false,
+        data: 0,
+        error: enrollmentsError.message
+      };
+    }
+
+    // 4. Calculate commission earned
+    let totalCommission = 0;
+    if (enrollments && enrollments.length > 0) {
+      enrollments.forEach(enrollment => {
+        const originalPrice = enrollment.enrolled_original_price || 0;
+        const commission = (originalPrice * commissionPercentage) / 100;
+        totalCommission += commission;
+      });
+    }
+
+    return {
+      success: true,
+      data: totalCommission,
+      error: null
+    };
+  } catch (error) {
+    console.error('Error fetching commission by date range:', error);
+    return {
+      success: false,
+      data: 0,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
