@@ -144,7 +144,7 @@ export function RevenueCard({ courses, loading, instructorId }: RevenueCardProps
         </div>
 
         <p className="text-xs text-muted-foreground pt-2">
-          💡 <strong>Note:</strong> Revenue is calculated based on course price × enrolled students. For detailed enrollment tracking by date, check your database records.
+          💡 <strong>Note:</strong> Commission is calculated as a percentage of enrolled student prices within your selected date range, based on your instructor commission rate.
         </p>
       </CardContent>
     </Card>
