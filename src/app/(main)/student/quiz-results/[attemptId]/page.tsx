@@ -328,7 +328,6 @@ export default function QuizResultPage() {
                                    </div>
                                )}
                            </div>
-                           )}
                         </CardContent>
                     </Card>
                 )
