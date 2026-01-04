@@ -169,17 +169,23 @@ export async function getTestAttempt(attemptId: string) {
 
     console.log('📖 Getting test attempt:', attemptId);
 
-    // Fetch the test attempt
-    const { data: attempt, error: attemptError } = await supabaseAdmin
+    // Fetch the test attempt - don't use .single() to avoid PGRST116 error
+    const { data: attempts, error: attemptError } = await supabaseAdmin
       .from('test_attempts')
       .select('*')
-      .eq('id', attemptId)
-      .single();
+      .eq('id', attemptId);
 
-    if (attemptError || !attempt) {
-      console.error('❌ Test attempt not found:', attemptError?.message || 'No attempt with this ID');
+    if (attemptError) {
+      console.error('❌ Error fetching test attempt:', attemptError.message, attemptError.code);
       return null;
     }
+
+    if (!attempts || attempts.length === 0) {
+      console.error('❌ Test attempt not found with ID:', attemptId);
+      return null;
+    }
+
+    const attempt = attempts[0];
 
     console.log('✅ Test attempt found:', {
       id: attempt.id,
@@ -207,20 +213,29 @@ export async function getTestAttemptForResults(attemptId: string) {
 
     console.log('📊 Getting test results for attempt:', attemptId);
 
-    // Fetch the test attempt
-    const { data: attempt, error: attemptError } = await supabaseAdmin
+    // Fetch the test attempt - don't use .single() to avoid PGRST116 error
+    const { data: attempts, error: attemptError } = await supabaseAdmin
       .from('test_attempts')
       .select('*')
-      .eq('id', attemptId)
-      .single();
+      .eq('id', attemptId);
 
-    if (attemptError || !attempt) {
-      console.error('❌ Test attempt not found:', attemptError?.message || 'No attempt with this ID');
+    if (attemptError) {
+      console.error('❌ Error fetching test attempt:', attemptError.message, attemptError.code);
+      return {
+        success: false,
+        error: `Error fetching attempt: ${attemptError.message}`
+      };
+    }
+
+    if (!attempts || attempts.length === 0) {
+      console.error('❌ Test attempt not found with ID:', attemptId);
       return {
         success: false,
         error: 'Test attempt not found'
       };
     }
+
+    const attempt = attempts[0];
 
     console.log('✅ Test attempt found:', {
       id: attempt.id,
@@ -230,29 +245,39 @@ export async function getTestAttemptForResults(attemptId: string) {
     });
 
     // Fetch the test details
-    const { data: test, error: testError } = await supabaseAdmin
+    const { data: tests, error: testError } = await supabaseAdmin
       .from('tests')
       .select('id, title, course_id, description, duration, passing_score')
-      .eq('id', attempt.test_id)
-      .single();
+      .eq('id', attempt.test_id);
 
-    if (testError || !test) {
-      console.error('❌ Test details not found:', testError?.message);
+    if (testError) {
+      console.error('❌ Error fetching test details:', testError.message);
+      return {
+        success: false,
+        error: `Error fetching test: ${testError.message}`
+      };
+    }
+
+    if (!tests || tests.length === 0) {
+      console.error('❌ Test details not found for test_id:', attempt.test_id);
       return {
         success: false,
         error: 'Test details not found'
       };
     }
 
+    const test = tests[0];
+
     // Fetch the course details
-    const { data: course, error: courseError } = await supabaseAdmin
+    const { data: courses, error: courseError } = await supabaseAdmin
       .from('courses')
       .select('id, title')
-      .eq('id', test.course_id)
-      .single();
+      .eq('id', test.course_id);
+
+    const course = courses && courses.length > 0 ? courses[0] : null;
 
     if (courseError) {
-      console.warn('⚠️ Course details not found:', courseError.message);
+      console.warn('⚠️ Course fetch error (non-fatal):', courseError.message);
     }
 
     // Fetch test questions with answers
