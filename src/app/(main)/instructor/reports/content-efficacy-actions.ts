@@ -31,7 +31,9 @@ export async function fetchQuizAttemptsForLessons(lessonIds: string[]) {
         total_questions,
         answers,
         questions,
-        submitted_at
+        submitted_at,
+        enrollment_id,
+        course_id
       `)
       .in('lesson_id', lessonIds);
 
@@ -40,8 +42,22 @@ export async function fetchQuizAttemptsForLessons(lessonIds: string[]) {
       return { success: false, error: error.message, data: [] };
     }
 
-    console.log('[SERVER ACTION] Successfully fetched', attempts?.length || 0, 'quiz attempts');
-    return { success: true, error: null, data: attempts || [] };
+    // Map snake_case database fields to camelCase for the frontend
+    const mappedAttempts = (attempts || []).map(attempt => ({
+      id: attempt.id,
+      lessonId: attempt.lesson_id,
+      userId: attempt.user_id,
+      score: attempt.score,
+      totalQuestions: attempt.total_questions,
+      answers: attempt.answers || [],
+      questions: attempt.questions || [],
+      submittedAt: attempt.submitted_at,
+      enrollmentId: attempt.enrollment_id,
+      courseId: attempt.course_id,
+    }));
+
+    console.log('[SERVER ACTION] Successfully fetched', mappedAttempts.length, 'quiz attempts');
+    return { success: true, error: null, data: mappedAttempts };
   } catch (error) {
     console.error('[SERVER ACTION] Exception fetching quiz attempts:', error);
     return { 
