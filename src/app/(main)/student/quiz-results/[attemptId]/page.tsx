@@ -99,7 +99,7 @@ export default function QuizResultPage() {
   if (!attempt) return <div className="text-center p-8">No attempt data found.</div>;
   
   // Log the attempt data for debugging
-  console.log('📊 Quiz attempt loaded on results page:', {
+  const debugInfo = {
     id: attempt.id,
     score: attempt.score,
     scoreType: typeof attempt.score,
@@ -109,10 +109,15 @@ export default function QuizResultPage() {
     questionsType: typeof attempt.questions,
     questionsIsArray: Array.isArray(attempt.questions),
     answersCount: attempt.answers?.length,
+    percentage: attempt.percentage,
     firstQuestion: attempt.questions?.[0],
     allQuestionsKeys: attempt.questions?.[0] ? Object.keys(attempt.questions[0]) : [],
     attemptKeys: Object.keys(attempt)
-  });
+  };
+  console.log('📊 Quiz attempt loaded on results page:', debugInfo);
+  console.log('Raw score value:', attempt.score);
+  console.log('Raw total_questions value:', attempt.total_questions);
+  console.log('Full attempt object keys:', Object.keys(attempt).join(', '));
   
   // Calculate percentage from score and total questions
   const percentage = attempt.percentage ?? (attempt.total_questions > 0 ? Math.round((attempt.score / attempt.total_questions) * 100) : 0);

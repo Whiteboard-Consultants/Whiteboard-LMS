@@ -212,7 +212,13 @@ export async function updateProgress(
           });
         } else if (attempt) {
           quizAttemptId = attempt.id;
-          console.log('✅ Quiz attempt created successfully:', quizAttemptId);
+          console.log('✅ Quiz attempt created successfully:', {
+            id: quizAttemptId,
+            score: attempt.score,
+            total_questions: attempt.total_questions,
+            questions_count: attempt.questions?.length,
+            stored_correctly: attempt.score === correctAnswers && attempt.total_questions === totalQuestions
+          });
         } else {
           console.error('❌ No data returned from quiz attempt insert');
         }
