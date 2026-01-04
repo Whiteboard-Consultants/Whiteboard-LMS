@@ -94,6 +94,8 @@ export default function TestTaker({ testId }: TestTakerProps) {
       answers: answerIndices,
       answerDetails
     });
+
+    console.log('📤 Submit result:', result);
     
     if (result.success && result.attemptId) {
         toast({ 
