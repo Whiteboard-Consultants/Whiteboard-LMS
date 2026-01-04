@@ -323,11 +323,21 @@ export async function getTestAttemptForResults(attemptId: string) {
       };
     });
 
+    // Recalculate score based on actual answers vs correct answers
+    const calculatedScore = formattedQuestions.filter(q => q.correct).length;
+    const calculatedPercentage = formattedQuestions.length > 0 
+      ? Math.round((calculatedScore / formattedQuestions.length) * 100)
+      : 0;
+    const calculatedPassed = calculatedPercentage >= (test.passing_score || 60);
+
     console.log('✅ Test results compiled:', {
-      score: attempt.score,
+      databaseScore: attempt.score,
+      calculatedScore: calculatedScore,
       totalQuestions: formattedQuestions.length,
-      percentage: attempt.percentage,
-      passed: attempt.passed
+      databasePercentage: attempt.percentage,
+      calculatedPercentage: calculatedPercentage,
+      databasePassed: attempt.passed,
+      calculatedPassed: calculatedPassed
     });
 
     return {
@@ -336,17 +346,17 @@ export async function getTestAttemptForResults(attemptId: string) {
       course_id: test.course_id,
       test_id: attempt.test_id,
       enrollment_id: attempt.enrollment_id,
-      score: attempt.score,
+      score: calculatedScore,
       total_questions: formattedQuestions.length,
-      percentage: attempt.percentage,
-      passed: attempt.passed,
+      percentage: calculatedPercentage,
+      passed: calculatedPassed,
       submitted_at: attempt.created_at,
       answers: attempt.answers || [],
       questions: formattedQuestions,
       test_title: test.title || 'Test',
       course_title: course?.title || 'Course',
       courses: course ? { id: course.id, title: course.title } : null,
-      certificateEligible: attempt.passed === true
+      certificateEligible: calculatedPassed === true
     };
   } catch (error) {
     console.error('❌ Error getting test results:', error);
