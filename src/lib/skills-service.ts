@@ -10,6 +10,8 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
  */
 export async function getUserSkills(userId: string) {
   try {
+    console.log('🔍 getUserSkills called for user:', userId?.substring(0, 8));
+    
     const { data, error } = await supabase
       .from('user_skills')
       .select(`
@@ -31,21 +33,31 @@ export async function getUserSkills(userId: string) {
       .eq('user_id', userId)
       .order('mastery_percentage', { ascending: false });
 
+    console.log('📊 Query result:', { 
+      error: error?.message, 
+      dataLength: data?.length,
+      sample: data?.[0]
+    });
+
     if (error) throw error;
+
+    const mapped = data?.map(item => ({
+      ...item.skills,
+      proficiency_level: item.proficiency_level,
+      mastery_percentage: item.mastery_percentage,
+      practice_count: item.practice_count,
+      acquired_at: item.acquired_at,
+      last_practiced_at: item.last_practiced_at,
+    })) || [];
+
+    console.log('✅ Mapped skills:', mapped.length, mapped);
 
     return {
       success: true,
-      data: data?.map(item => ({
-        ...item.skills,
-        proficiency_level: item.proficiency_level,
-        mastery_percentage: item.mastery_percentage,
-        practice_count: item.practice_count,
-        acquired_at: item.acquired_at,
-        last_practiced_at: item.last_practiced_at,
-      })) || [],
+      data: mapped,
     };
   } catch (error) {
-    console.error('Error fetching user skills:', error);
+    console.error('❌ Error fetching user skills:', error);
     return {
       success: false,
       data: [],

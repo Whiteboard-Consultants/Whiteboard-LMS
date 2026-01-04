@@ -30,7 +30,10 @@ export async function GET(request: NextRequest) {
   try {
     const userId = getUserIdFromHeaders(request);
     
+    console.log('🎓 Skills API called for user:', userId?.substring(0, 8));
+    
     if (!userId) {
+      console.log('❌ No user ID extracted from headers');
       return NextResponse.json(
         { error: 'Missing or invalid authorization header' },
         { status: 401 }
@@ -38,9 +41,17 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user skills
+    console.log('📚 Fetching skills from database...');
     const skillsResult = await getUserSkills(userId);
 
+    console.log('📊 Skills result:', {
+      success: skillsResult.success,
+      count: skillsResult.data?.length,
+      data: skillsResult.data
+    });
+
     if (!skillsResult.success) {
+      console.log('❌ Failed to fetch skills:', skillsResult.error);
       return NextResponse.json(
         { error: 'Failed to fetch skills' },
         { status: 500 }
@@ -68,7 +79,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error in skills dashboard API:', error);
+    console.error('❌ Error in skills dashboard API:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
