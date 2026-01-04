@@ -294,35 +294,40 @@ export default function QuizResultPage() {
                                 })}
                            </div>
                            
-                           {!isCorrect && (
-                                <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <TrendingUp className="h-4 w-4 text-blue-600" />
-                                        <h4 className="font-semibold text-blue-800 dark:text-blue-200">Correct Answer</h4>
-                                    </div>
-                                    <p className="text-blue-700 dark:text-blue-300 text-sm mb-2">
-                                        The correct answer is: <strong>{question.correctAnswerText}</strong>
-                                    </p>
-                                    {question.explanation && (
-                                        <div className="mt-3 p-3 bg-blue-100 dark:bg-blue-800/30 rounded border-l-4 border-blue-400">
-                                            <h5 className="font-medium text-blue-800 dark:text-blue-200 text-sm mb-1">Explanation:</h5>
-                                            <p className="text-blue-700 dark:text-blue-300 text-sm">{question.explanation}</p>
-                                        </div>
-                                    )}
-                                </div>
-                           )}
-                           
-                           {isCorrect && question.explanation && (
-                                <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <CheckCircle className="h-4 w-4 text-green-600" />
-                                        <h4 className="font-semibold text-green-800 dark:text-green-200">Great Job!</h4>
-                                    </div>
-                                    <div className="p-3 bg-green-100 dark:bg-green-800/30 rounded border-l-4 border-green-400">
-                                        <h5 className="font-medium text-green-800 dark:text-green-200 text-sm mb-1">Explanation:</h5>
-                                        <p className="text-green-700 dark:text-green-300 text-sm">{question.explanation}</p>
-                                    </div>
-                                </div>
+                           {/* Always show the correct answer and explanation for learning */}
+                           <div className={cn(
+                               "mt-4 p-4 border rounded-lg",
+                               isCorrect 
+                                   ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+                                   : 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+                           )}>
+                               <div className="flex items-center gap-2 mb-2">
+                                   {isCorrect ? (
+                                       <>
+                                           <CheckCircle className="h-4 w-4 text-green-600" />
+                                           <h4 className="font-semibold text-green-800 dark:text-green-200">Correct Answer Explanation</h4>
+                                       </>
+                                   ) : (
+                                       <>
+                                           <TrendingUp className="h-4 w-4 text-blue-600" />
+                                           <h4 className="font-semibold text-blue-800 dark:text-blue-200">Correct Answer</h4>
+                                       </>
+                                   )}
+                               </div>
+                               <p className={cn("text-sm mb-2", isCorrect ? 'text-green-700 dark:text-green-300' : 'text-blue-700 dark:text-blue-300')}>
+                                   The correct answer is: <strong>{question.correctAnswerText}</strong>
+                               </p>
+                               {question.explanation && (
+                                   <div className={cn("mt-3 p-3 rounded border-l-4", 
+                                       isCorrect 
+                                           ? 'bg-green-100 dark:bg-green-800/30 border-green-400'
+                                           : 'bg-blue-100 dark:bg-blue-800/30 border-blue-400'
+                                   )}>
+                                       <h5 className={cn("font-medium text-sm mb-1", isCorrect ? 'text-green-800 dark:text-green-200' : 'text-blue-800 dark:text-blue-200')}>Explanation:</h5>
+                                       <p className={cn("text-sm", isCorrect ? 'text-green-700 dark:text-green-300' : 'text-blue-700 dark:text-blue-300')}>{question.explanation}</p>
+                                   </div>
+                               )}
+                           </div>
                            )}
                         </CardContent>
                     </Card>
