@@ -63,6 +63,7 @@ export default function SkillsDashboardPage() {
   useEffect(() => {
     const fetchSkillsData = async () => {
       if (!accessToken) {
+        console.log('❌ No access token');
         setLoading(false);
         return;
       }
@@ -71,15 +72,25 @@ export default function SkillsDashboardPage() {
         setLoading(true);
 
         // Fetch user skills
+        console.log('📚 Fetching user skills...');
         const skillsResponse = await fetch('/api/user/skills', {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
           },
         });
 
+        console.log('📊 Skills response status:', skillsResponse.status);
+
         if (skillsResponse.ok) {
           const data = await skillsResponse.json();
-          setSkills(data.data?.skills || []);
+          console.log('✅ Skills data received:', data);
+          
+          // API returns { success: true, data: { skills: [...], gaps: [...], ... } }
+          const skillsList = data.data?.skills || [];
+          console.log('🎯 Setting skills:', skillsList.length, 'items');
+          setSkills(skillsList);
+        } else {
+          console.error('❌ Skills response not ok:', skillsResponse.status);
         }
 
         // Fetch learning goals
@@ -92,14 +103,15 @@ export default function SkillsDashboardPage() {
 
           if (goalsResponse.ok) {
             const goalsData = await goalsResponse.json();
+            console.log('✅ Goals data received:', goalsData);
             setGoals(goalsData.data || []);
           }
         } catch (e) {
           // Goals endpoint might not be available
-          console.log('Learning goals endpoint not available');
+          console.log('⚠️ Learning goals endpoint not available');
         }
       } catch (error) {
-        console.error('Error fetching skills data:', error);
+        console.error('❌ Error fetching skills data:', error);
       } finally {
         setLoading(false);
       }
