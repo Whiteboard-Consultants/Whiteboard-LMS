@@ -21,15 +21,21 @@ export function ActivityHeatmap({ students }: ActivityHeatmapProps) {
   };
 
   console.log('📅 ActivityHeatmap - Students count:', students.length);
-  console.log('📅 ActivityHeatmap - Sample students:', students.slice(0, 2).map(s => ({ name: s.name, lastLogin: s.lastLogin })));
+  console.log('📅 ActivityHeatmap - Full students data:', JSON.stringify(students, null, 2));
 
+  let studentsWithLogin = 0;
   students.forEach(student => {
     if (student.lastLogin) {
+      studentsWithLogin++;
       const day = format(student.lastLogin, 'E'); // 'E' gives 'Mon', 'Tue', etc.
       activityByDay[day]++;
+      console.log(`  ✓ ${student.name}: lastLogin = ${student.lastLogin} → Day: ${day}`);
+    } else {
+      console.log(`  ✗ ${student.name}: lastLogin = ${student.lastLogin}`);
     }
   });
 
+  console.log('📅 ActivityHeatmap - Students with lastLogin:', studentsWithLogin, '/', students.length);
   console.log('📅 ActivityHeatmap - Activity by day:', activityByDay);
 
   const chartData = Object.entries(activityByDay).map(([name, total]) => ({ name, total }));

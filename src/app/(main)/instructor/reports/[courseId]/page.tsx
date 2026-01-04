@@ -184,15 +184,17 @@ export default function InstructorReportPage() {
           const userData = users?.find(u => u.id === enrollment.user_id);
           if (!userData) return null;
 
-          console.log('[FRONTEND] User data for', userData.name, ':', { last_login: userData.last_login, created_at: userData.created_at });
+          // Use last_login if available, otherwise use updated_at as proxy for last activity
+          const lastActivityDate = userData.last_login || userData.updated_at;
+          console.log('[FRONTEND] User data for', userData.name, ':', { last_login: userData.last_login, updated_at: userData.updated_at, using: lastActivityDate });
 
           return {
             ...userData,
             enrollmentId: enrollment.id,
             enrolledAt: new Date(enrollment.enrolled_at),
             progress: enrollment.progress || 0,
-            // Override lastLogin to ensure it's a Date or null
-            lastLogin: userData.last_login ? new Date(userData.last_login) : null,
+            // Use last_login if available, otherwise use updated_at as proxy for activity
+            lastLogin: lastActivityDate ? new Date(lastActivityDate) : null,
           } as EnrolledStudent;
         }).filter(Boolean) as EnrolledStudent[];
 
