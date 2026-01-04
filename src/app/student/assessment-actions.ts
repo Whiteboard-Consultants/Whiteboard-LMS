@@ -91,9 +91,11 @@ export async function submitTest(params: {
     // Calculate score
     const correctAnswers = answers.filter((answer, index) => {
       const question = questions?.[index];
-      const correct = answer === question?.correct_answer;
+      // correct_answer is stored as string index ('0', '1', etc), need to parse as integer
+      const correctAnswerIndex = parseInt(question?.correct_answer as string, 10);
+      const correct = answer === correctAnswerIndex;
       if (index < 3) { // Log first 3 for debugging
-        console.log(`  Q${index}: answer=${answer}, correct=${question?.correct_answer}, match=${correct}`);
+        console.log(`  Q${index}: answer=${answer}, correct=${question?.correct_answer}, correctIndex=${correctAnswerIndex}, match=${correct}`);
       }
       return correct;
     }).length;
