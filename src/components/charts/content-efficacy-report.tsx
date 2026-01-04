@@ -87,10 +87,18 @@ export function ContentEfficacyReport({ courseId, lessons }: ContentEfficacyRepo
   console.log('📊 Content Efficacy - Attempts loaded:', attempts.length);
 
   const getStatsForQuiz = (lessonId: string): QuestionStats[] => {
+    console.log('🔍 getStatsForQuiz called with lessonId:', lessonId);
+    console.log('🔍 Attempting to filter', attempts.length, 'attempts');
+    console.log('🔍 Attempt lessonIds:', attempts.map(a => a.lessonId));
+    
     const relevantAttempts = attempts.filter(a => a.lessonId === lessonId);
+    console.log('🔍 Found', relevantAttempts.length, 'relevant attempts for lesson', lessonId);
+    
     if (relevantAttempts.length === 0) return [];
 
     const firstAttempt = relevantAttempts[0];
+    console.log('🔍 First attempt has', firstAttempt.questions?.length || 0, 'questions');
+    
     if (!firstAttempt.questions) return [];
 
     const questionStats: Record<number, { correct: number; total: number }> = {};
