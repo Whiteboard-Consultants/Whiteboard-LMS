@@ -163,22 +163,35 @@ export async function submitTest(params: {
 export async function getTestAttempt(attemptId: string) {
   try {
     if (!supabaseAdmin) {
-      return { success: false, error: 'Server configuration error' };
+      console.error('❌ Server configuration error: supabaseAdmin is not initialized');
+      return null;
     }
 
-    // TODO: Implement test attempt retrieval
     console.log('📖 Getting test attempt:', attemptId);
 
-    return {
-      success: false,
-      error: 'Test attempt not found'
-    };
+    // Fetch the test attempt
+    const { data: attempt, error: attemptError } = await supabaseAdmin
+      .from('test_attempts')
+      .select('*')
+      .eq('id', attemptId)
+      .single();
+
+    if (attemptError || !attempt) {
+      console.error('❌ Test attempt not found:', attemptError?.message || 'No attempt with this ID');
+      return null;
+    }
+
+    console.log('✅ Test attempt found:', {
+      id: attempt.id,
+      test_id: attempt.test_id,
+      score: attempt.score,
+      percentage: attempt.percentage
+    });
+
+    return attempt;
   } catch (error) {
     console.error('❌ Error getting test attempt:', error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to get test attempt'
-    };
+    return null;
   }
 }
 
@@ -188,15 +201,120 @@ export async function getTestAttempt(attemptId: string) {
 export async function getTestAttemptForResults(attemptId: string) {
   try {
     if (!supabaseAdmin) {
+      console.error('❌ Server configuration error: supabaseAdmin is not initialized');
       return { success: false, error: 'Server configuration error' };
     }
 
-    // TODO: Implement test results retrieval with score calculation
     console.log('📊 Getting test results for attempt:', attemptId);
 
+    // Fetch the test attempt
+    const { data: attempt, error: attemptError } = await supabaseAdmin
+      .from('test_attempts')
+      .select('*')
+      .eq('id', attemptId)
+      .single();
+
+    if (attemptError || !attempt) {
+      console.error('❌ Test attempt not found:', attemptError?.message || 'No attempt with this ID');
+      return {
+        success: false,
+        error: 'Test attempt not found'
+      };
+    }
+
+    console.log('✅ Test attempt found:', {
+      id: attempt.id,
+      test_id: attempt.test_id,
+      score: attempt.score,
+      percentage: attempt.percentage
+    });
+
+    // Fetch the test details
+    const { data: test, error: testError } = await supabaseAdmin
+      .from('tests')
+      .select('id, title, course_id, description, duration, passing_score')
+      .eq('id', attempt.test_id)
+      .single();
+
+    if (testError || !test) {
+      console.error('❌ Test details not found:', testError?.message);
+      return {
+        success: false,
+        error: 'Test details not found'
+      };
+    }
+
+    // Fetch the course details
+    const { data: course, error: courseError } = await supabaseAdmin
+      .from('courses')
+      .select('id, title')
+      .eq('id', test.course_id)
+      .single();
+
+    if (courseError) {
+      console.warn('⚠️ Course details not found:', courseError.message);
+    }
+
+    // Fetch test questions with answers
+    const { data: questions, error: questionsError } = await supabaseAdmin
+      .from('test_questions')
+      .select('id, question_text, options, correct_answer, order_number')
+      .eq('test_id', attempt.test_id)
+      .order('order_number', { ascending: true });
+
+    if (questionsError) {
+      console.error('❌ Failed to fetch questions:', questionsError.message);
+      return {
+        success: false,
+        error: 'Failed to fetch questions'
+      };
+    }
+
+    // Format questions with user answers and correctness
+    const formattedQuestions = (questions || []).map((q, index) => {
+      const userAnswer = attempt.answers?.[index];
+      const userAnswerDetail = attempt.answer_details?.[index];
+      const options = q.options || [];
+      
+      // Parse options if string
+      const parsedOptions = typeof options === 'string' ? JSON.parse(options) : options;
+      
+      return {
+        id: q.id,
+        questionText: q.question_text,
+        options: parsedOptions,
+        correctAnswerIndex: parsedOptions.indexOf(q.correct_answer),
+        userAnswerIndex: userAnswer ?? -1,
+        userAnswer: userAnswer !== undefined ? parsedOptions[userAnswer] : null,
+        correct: userAnswer === parsedOptions.indexOf(q.correct_answer),
+        explanation: userAnswerDetail?.explanation || null
+      };
+    });
+
+    console.log('✅ Test results compiled:', {
+      score: attempt.score,
+      totalQuestions: formattedQuestions.length,
+      percentage: attempt.percentage,
+      passed: attempt.passed
+    });
+
     return {
-      success: false,
-      error: 'Test results not found'
+      id: attempt.id,
+      user_id: attempt.user_id,
+      course_id: test.course_id,
+      test_id: attempt.test_id,
+      enrollment_id: attempt.enrollment_id,
+      score: attempt.score,
+      total_questions: formattedQuestions.length,
+      percentage: attempt.percentage,
+      passed: attempt.passed,
+      submitted_at: attempt.created_at,
+      answers: attempt.answers || [],
+      questions: formattedQuestions,
+      test_title: test.title || 'Test',
+      course_title: course?.title || 'Course',
+      courses: course ? { id: course.id, title: course.title } : null,
+      certificateEligible: attempt.passed === true
     };
   } catch (error) {
     console.error('❌ Error getting test results:', error);
