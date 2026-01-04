@@ -258,8 +258,6 @@ export async function updateProgress(
                 practice_count: 1,
                 last_practiced_at: new Date().toISOString(),
                 acquired_at: new Date().toISOString(),
-              }, {
-                onConflict: 'user_id,skill_id'
               });
 
             if (upsertError) {
