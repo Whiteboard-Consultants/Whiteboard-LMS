@@ -225,6 +225,58 @@ export async function updateProgress(
       } catch (insertError) {
         console.error('❌ Exception during quiz attempt insert:', insertError);
       }
+
+      // Track skills gained from this course
+      try {
+        console.log('📚 Attempting to track skills for course:', courseId);
+        
+        // Get skills associated with this course
+        const { data: courseSkills, error: skillsError } = await supabaseAdmin
+          .from('course_skills')
+          .select('skill_id, proficiency_level')
+          .eq('course_id', courseId);
+
+        if (skillsError) {
+          console.log('⚠️ Could not fetch course skills:', skillsError.message);
+        } else if (courseSkills && courseSkills.length > 0) {
+          console.log('🎓 Found', courseSkills.length, 'skills for course');
+
+          // For each skill, update or create user_skills record
+          for (const courseSkill of courseSkills) {
+            const skillLevel = Math.max(
+              Math.round(percentage / 20), // Scale percentage to 0-5
+              1 // At least 1 if they completed the quiz
+            );
+
+            const { error: upsertError } = await supabaseAdmin
+              .from('user_skills')
+              .upsert({
+                user_id: enrollment.user_id,
+                skill_id: courseSkill.skill_id,
+                proficiency_level: courseSkill.proficiency_level,
+                mastery_percentage: percentage, // Use quiz score as mastery %
+                practice_count: 1,
+                last_practiced_at: new Date().toISOString(),
+                acquired_at: new Date().toISOString(),
+              }, {
+                onConflict: 'user_id,skill_id'
+              });
+
+            if (upsertError) {
+              console.log('⚠️ Error updating skill:', upsertError.message);
+            } else {
+              console.log('✅ Skill tracked for user:', {
+                userId: enrollment.user_id,
+                skillId: courseSkill.skill_id,
+                masteryPercentage: percentage
+              });
+            }
+          }
+        }
+      } catch (skillError) {
+        console.error('⚠️ Exception during skill tracking:', skillError);
+        // Don't fail the quiz submission if skill tracking fails
+      }
     } else {
       console.log('⏭️ Skipping quiz attempt creation:', {
         hasQuizData: !!quizData,
