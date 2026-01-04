@@ -98,6 +98,17 @@ export default function QuizResultPage() {
   if (error) return <div className="text-destructive text-center p-8">{error}</div>;
   if (!attempt) return <div className="text-center p-8">No attempt data found.</div>;
   
+  // Log the attempt data for debugging
+  console.log('📊 Quiz attempt loaded on results page:', {
+    id: attempt.id,
+    score: attempt.score,
+    totalQuestions: attempt.total_questions,
+    questionCount: attempt.questions?.length,
+    answersCount: attempt.answers?.length,
+    firstQuestion: attempt.questions?.[0],
+    allQuestionsKeys: attempt.questions?.[0] ? Object.keys(attempt.questions[0]) : []
+  });
+  
   // Calculate percentage from score and total questions
   const percentage = attempt.percentage ?? (attempt.total_questions > 0 ? Math.round((attempt.score / attempt.total_questions) * 100) : 0);
 

@@ -167,7 +167,15 @@ export async function updateProgress(
         userId: enrollment.user_id,
         lessonId,
         courseId,
-        enrollmentId
+        enrollmentId,
+        questionsStructure: quizData.questions.map((q, i) => ({
+          index: i,
+          hasId: !!q.id,
+          hasQuestionText: !!q.questionText,
+          hasOptions: !!q.options,
+          hasCorrectAnswerIndex: q.correctAnswerIndex !== undefined,
+          keys: Object.keys(q)
+        }))
       });
 
       try {
