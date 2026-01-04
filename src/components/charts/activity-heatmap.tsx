@@ -29,7 +29,7 @@ export function ActivityHeatmap({ students }: ActivityHeatmapProps) {
       studentsWithLogin++;
       const day = format(student.lastLogin, 'E'); // 'E' gives 'Mon', 'Tue', etc.
       activityByDay[day]++;
-      console.log(`  ✓ ${student.name}: lastLogin = ${student.lastLogin} → Day: ${day}`);
+      console.log(`  ✓ ${student.name}: lastLogin = ${student.lastLogin.toISOString()} → Day: ${day}`);
     } else {
       console.log(`  ✗ ${student.name}: lastLogin = ${student.lastLogin}`);
     }
