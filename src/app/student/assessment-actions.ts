@@ -304,14 +304,19 @@ export async function getTestAttemptForResults(attemptId: string) {
       // Parse options if string
       const parsedOptions = typeof options === 'string' ? JSON.parse(options) : options;
       
+      // correct_answer is stored as a string index ('0', '1', etc.), not the option text
+      const correctAnswerIndex = parseInt(q.correct_answer as string, 10);
+      const correctAnswerText = parsedOptions[correctAnswerIndex] || '';
+      
       return {
         id: q.id,
         questionText: q.question_text,
         options: parsedOptions,
-        correctAnswerIndex: parsedOptions.indexOf(q.correct_answer),
+        correctAnswerIndex,
+        correctAnswerText,
         userAnswerIndex: userAnswer ?? -1,
         userAnswer: userAnswer !== undefined ? parsedOptions[userAnswer] : null,
-        correct: userAnswer === parsedOptions.indexOf(q.correct_answer),
+        correct: userAnswer === correctAnswerIndex,
         explanation: userAnswerDetail?.explanation || null
       };
     });

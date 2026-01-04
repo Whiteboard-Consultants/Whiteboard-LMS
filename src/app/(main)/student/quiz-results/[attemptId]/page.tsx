@@ -27,6 +27,10 @@ interface QuizAttemptData {
     questionText: string;
     options: string[];
     correctAnswerIndex: number;
+    correctAnswerText?: string;
+    userAnswerIndex?: number;
+    userAnswer?: string;
+    correct?: boolean;
     explanation?: string;
   }>;
   score: number;
@@ -297,7 +301,7 @@ export default function QuizResultPage() {
                                         <h4 className="font-semibold text-blue-800 dark:text-blue-200">Correct Answer</h4>
                                     </div>
                                     <p className="text-blue-700 dark:text-blue-300 text-sm mb-2">
-                                        The correct answer is: <strong>{String.fromCharCode(65 + question.correctAnswerIndex)}. {question.options[question.correctAnswerIndex]}</strong>
+                                        The correct answer is: <strong>{String.fromCharCode(65 + question.correctAnswerIndex)}. {question.correctAnswerText || question.options[question.correctAnswerIndex]}</strong>
                                     </p>
                                     {question.explanation && (
                                         <div className="mt-3 p-3 bg-blue-100 dark:bg-blue-800/30 rounded border-l-4 border-blue-400">
