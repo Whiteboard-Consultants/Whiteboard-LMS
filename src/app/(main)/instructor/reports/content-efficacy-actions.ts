@@ -30,6 +30,7 @@ export async function fetchQuizAttemptsForLessons(lessonIds: string[]) {
         score,
         total_questions,
         answers,
+        questions,
         submitted_at
       `)
       .in('lesson_id', lessonIds);
