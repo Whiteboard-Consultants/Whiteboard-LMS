@@ -46,7 +46,15 @@ export function ContentEfficacyReport({ courseId, lessons }: ContentEfficacyRepo
       setLoading(true);
       try {
         const lessonIds = lessons.map(l => l.id);
+        console.log('📚 Content Efficacy - Fetching attempts for lessons:', lessonIds);
         const result = await fetchQuizAttemptsForLessons(lessonIds);
+
+        console.log('📊 Content Efficacy - Fetch result:', {
+          success: result.success,
+          error: result.error,
+          dataLength: result.data?.length || 0,
+          firstAttempt: result.data?.[0],
+        });
 
         if (!result.success) {
           console.error('Error fetching quiz attempts:', result.error);
@@ -54,6 +62,7 @@ export function ContentEfficacyReport({ courseId, lessons }: ContentEfficacyRepo
         } else if (result.data) {
           // Map database attempts to QuizAttempt type
           // Note: This assumes quiz_attempts table has the questions/answers structure
+          console.log('✅ Setting attempts with data:', result.data);
           setAttempts(result.data as any);
         }
       } catch (err) {
@@ -72,6 +81,10 @@ export function ContentEfficacyReport({ courseId, lessons }: ContentEfficacyRepo
   }, [courseId, user, lessons]);
 
   const quizLessons = lessons.filter(lesson => lesson.type === 'quiz');
+  
+  console.log('📖 Content Efficacy - All lessons:', lessons.length);
+  console.log('📝 Content Efficacy - Quiz lessons:', quizLessons.length, quizLessons);
+  console.log('📊 Content Efficacy - Attempts loaded:', attempts.length);
 
   const getStatsForQuiz = (lessonId: string): QuestionStats[] => {
     const relevantAttempts = attempts.filter(a => a.lessonId === lessonId);
