@@ -311,10 +311,24 @@ export async function getQuizAttempt(attemptId: string) {
     console.log('✅ Quiz attempt fetched:', {
       id: attempt.id,
       questionsCount: attempt.questions?.length,
+      questionsType: typeof attempt.questions,
+      questionsIsArray: Array.isArray(attempt.questions),
       score: attempt.score,
       totalQuestions: attempt.total_questions,
-      percentage
+      percentage,
+      firstQuestion: attempt.questions?.[0]
     });
+
+    // Ensure questions is always an array
+    let questionsArray = attempt.questions || [];
+    if (typeof questionsArray === 'string') {
+      try {
+        questionsArray = JSON.parse(questionsArray);
+      } catch (e) {
+        console.error('Failed to parse questions JSON:', questionsArray);
+        questionsArray = [];
+      }
+    }
 
     // Return with snake_case field names as expected by quiz-results page
     return {
@@ -324,7 +338,7 @@ export async function getQuizAttempt(attemptId: string) {
       course_id: attempt.course_id,
       enrollment_id: attempt.enrollment_id,
       answers: attempt.answers || [],
-      questions: attempt.questions || [],
+      questions: questionsArray,
       score: attempt.score || 0,
       total_questions: attempt.total_questions || 0,
       percentage: percentage,

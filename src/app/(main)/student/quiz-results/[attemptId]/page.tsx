@@ -102,11 +102,16 @@ export default function QuizResultPage() {
   console.log('📊 Quiz attempt loaded on results page:', {
     id: attempt.id,
     score: attempt.score,
+    scoreType: typeof attempt.score,
     totalQuestions: attempt.total_questions,
+    totalQuestionsType: typeof attempt.total_questions,
     questionCount: attempt.questions?.length,
+    questionsType: typeof attempt.questions,
+    questionsIsArray: Array.isArray(attempt.questions),
     answersCount: attempt.answers?.length,
     firstQuestion: attempt.questions?.[0],
-    allQuestionsKeys: attempt.questions?.[0] ? Object.keys(attempt.questions[0]) : []
+    allQuestionsKeys: attempt.questions?.[0] ? Object.keys(attempt.questions[0]) : [],
+    attemptKeys: Object.keys(attempt)
   });
   
   // Calculate percentage from score and total questions
