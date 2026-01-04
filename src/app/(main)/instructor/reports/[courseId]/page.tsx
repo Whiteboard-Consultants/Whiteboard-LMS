@@ -184,6 +184,8 @@ export default function InstructorReportPage() {
           const userData = users?.find(u => u.id === enrollment.user_id);
           if (!userData) return null;
 
+          console.log('[FRONTEND] User data for', userData.name, ':', { last_login: userData.last_login, created_at: userData.created_at });
+
           return {
             ...userData,
             enrollmentId: enrollment.id,
@@ -193,6 +195,8 @@ export default function InstructorReportPage() {
             lastLogin: userData.last_login ? new Date(userData.last_login) : null,
           } as EnrolledStudent;
         }).filter(Boolean) as EnrolledStudent[];
+
+        console.log('[FRONTEND] Final studentsData for heatmap:', studentsData.map(s => ({ name: s.name, lastLogin: s.lastLogin })));
 
         setStudents(studentsData);
         setLoading(false);

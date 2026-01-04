@@ -115,13 +115,16 @@ export function ContentEfficacyReport({ courseId, lessons }: ContentEfficacyRepo
       });
     });
 
-    return firstAttempt.questions.map((question, index) => {
-        const stats = questionStats[index];
+    const stats = firstAttempt.questions.map((question, index) => {
+        const stat = questionStats[index];
         return {
             questionText: `Q${index + 1}: ${question.questionText.substring(0, 30)}...`,
-            correctPercentage: stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0,
+            correctPercentage: stat.total > 0 ? Math.round((stat.correct / stat.total) * 100) : 0,
         };
     });
+    
+    console.log('📊 Final stats for lesson', lessonId, ':', stats);
+    return stats;
   };
   
   if (loading) {
@@ -151,6 +154,7 @@ export function ContentEfficacyReport({ courseId, lessons }: ContentEfficacyRepo
       {quizLessons.length > 0 ? (
         quizLessons.map(quiz => {
           const stats = getStatsForQuiz(quiz.id);
+          console.log('🎯 Rendering quiz', quiz.title, 'with stats:', stats);
           const uniqueStudentAttempts = new Set(attempts.filter(a => a.lessonId === quiz.id).map(a => a.userId)).size;
           const attemptText = uniqueStudentAttempts === 1 ? "student attempt" : "student attempts";
           

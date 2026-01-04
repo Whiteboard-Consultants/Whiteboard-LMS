@@ -20,6 +20,9 @@ export function ActivityHeatmap({ students }: ActivityHeatmapProps) {
     'Sun': 0, 'Mon': 0, 'Tue': 0, 'Wed': 0, 'Thu': 0, 'Fri': 0, 'Sat': 0,
   };
 
+  console.log('📅 ActivityHeatmap - Students count:', students.length);
+  console.log('📅 ActivityHeatmap - Sample students:', students.slice(0, 2).map(s => ({ name: s.name, lastLogin: s.lastLogin })));
+
   students.forEach(student => {
     if (student.lastLogin) {
       const day = format(student.lastLogin, 'E'); // 'E' gives 'Mon', 'Tue', etc.
@@ -27,7 +30,10 @@ export function ActivityHeatmap({ students }: ActivityHeatmapProps) {
     }
   });
 
+  console.log('📅 ActivityHeatmap - Activity by day:', activityByDay);
+
   const chartData = Object.entries(activityByDay).map(([name, total]) => ({ name, total }));
+  console.log('📅 ActivityHeatmap - Chart data:', chartData);
 
   return (
     <Card>
