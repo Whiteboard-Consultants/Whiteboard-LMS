@@ -297,7 +297,7 @@ export default function SkillsDashboardPage() {
                           proficiencyLevel={skill.proficiency_level}
                           masteryPercentage={skill.mastery_percentage}
                           practiceCount={skill.practice_count}
-                          lastPracticed={new Date(skill.last_practiced_at)}
+                          lastPracticed={skill.last_practiced_at ? new Date(skill.last_practiced_at) : undefined}
                         />
                       ))}
                   </div>
@@ -375,7 +375,7 @@ export default function SkillsDashboardPage() {
                     proficiencyLevel={skill.proficiency_level}
                     masteryPercentage={skill.mastery_percentage}
                     practiceCount={skill.practice_count}
-                    lastPracticed={new Date(skill.last_practiced_at)}
+                    lastPracticed={skill.last_practiced_at ? new Date(skill.last_practiced_at) : undefined}
                   />
                 ))}
               </div>
