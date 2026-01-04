@@ -62,7 +62,8 @@ export default function QuizResultPage() {
         // Try to get test attempt with full details (for enhanced testing system)
         const testAttemptResults = await getTestAttemptForResults(attemptId);
         
-        if (testAttemptResults) {
+        // Check if it's a successful test attempt (has id and course_id, not success/error)
+        if (testAttemptResults && 'id' in testAttemptResults && 'course_id' in testAttemptResults && !('success' in testAttemptResults)) {
           // Use the detailed test attempt data with questions and answers
           setCourseId(testAttemptResults.course_id);
           setAttempt(testAttemptResults as unknown as QuizAttemptData);
