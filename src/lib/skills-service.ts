@@ -364,6 +364,8 @@ export async function createLearningGoal(
  */
 export async function getUserLearningGoals(userId: string) {
   try {
+    console.log('🎯 getUserLearningGoals called for user:', userId?.substring(0, 8));
+    
     const { data, error } = await supabase
       .from('user_learning_goals')
       .select(`
@@ -380,6 +382,12 @@ export async function getUserLearningGoals(userId: string) {
       .eq('user_id', userId)
       .eq('is_active', true)
       .order('deadline', { ascending: true });
+
+    console.log('📊 Learning goals query result:', {
+      error: error?.message,
+      dataLength: data?.length,
+      sample: data?.[0]
+    });
 
     if (error) throw error;
 
