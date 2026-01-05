@@ -283,10 +283,7 @@ export function TestForm({ initialData }: TestFormProps) {
                             <FormLabel>Assign to Instructor</FormLabel>
                             <Select onValueChange={field.onChange} value={field.value || ''}>
                                 <FormControl>
-                                    <SelectTrigger 
-                                        disabled={loadingInstructors || instructors.length === 0}
-                                        className="cursor-pointer"
-                                    >
+                                    <SelectTrigger disabled={loadingInstructors || instructors.length === 0}>
                                         <SelectValue placeholder={loadingInstructors ? "Loading instructors..." : instructors.length === 0 ? "No instructors available" : "Select an instructor"} />
                                     </SelectTrigger>
                                 </FormControl>
@@ -306,30 +303,25 @@ export function TestForm({ initialData }: TestFormProps) {
               control={form.control}
               name="courseId"
               render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Link to Course (Optional)</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value || 'none'} name={field.name}>
-                        <FormControl>
-                                                <SelectTrigger 
-                          disabled={loadingCourses}
-                          className="cursor-pointer"
-                          onClick={() => console.log('Course dropdown clicked - courses:', courses.length, 'disabled:', loadingCourses)}
-                        >
-                            <SelectValue placeholder={loadingCourses ? "Loading courses..." : "Select a course to link"} />
-                        </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                        <SelectItem value="none">None</SelectItem>
-                        {courses.map(course => (
-                            <SelectItem key={course.id} value={course.id}>{course.title}</SelectItem>
-                        ))}
-                        </SelectContent>
-                    </Select>
-                    <FormDescription>Link this test as a final assessment for a course.</FormDescription>
-                    <FormMessage />
-                    </FormItem>
-                )
-              }
+                <FormItem>
+                  <FormLabel>Link to Course (Optional)</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value || 'none'}>
+                    <FormControl>
+                      <SelectTrigger disabled={loadingCourses}>
+                        <SelectValue placeholder={loadingCourses ? "Loading courses..." : "Select a course to link"} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
+                      {courses.map(course => (
+                        <SelectItem key={course.id} value={course.id}>{course.title}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>Link this test as a final assessment for a course.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
 
             {/* Certification Section */}
