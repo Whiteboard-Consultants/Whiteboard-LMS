@@ -125,6 +125,7 @@ export function TestForm({ initialData }: TestFormProps) {
       
       const fetchInstructors = async () => {
         try {
+          console.log('TestForm: Starting instructor fetch...');
           const { data: instructorsData, error } = await supabase
             .from('users')
             .select('*')
@@ -132,15 +133,12 @@ export function TestForm({ initialData }: TestFormProps) {
             .order('name');
           
           if (error) {
-            console.error("Failed to fetch instructors:", error);
-            toast({ variant: 'destructive', title: 'Error', description: 'Could not fetch instructors.' });
+            console.error("Failed to fetch instructors:", error.message, error.code);
+            toast({ variant: 'destructive', title: 'Error', description: 'Could not fetch instructors: ' + error.message });
           } else {
-            console.log('TestForm: Instructors fetched:', instructorsData?.length || 0);
+            console.log('TestForm: Instructors fetched successfully:', instructorsData?.length || 0, 'instructors');
+            console.log('TestForm: Instructor names:', instructorsData?.map(i => ({ id: i.id, name: i.name })) || []);
             setInstructors(instructorsData || []);
-            // If no initial instructor is set, set the current user as default
-            if (!initialData?.instructorId && user?.id) {
-              form.setValue('instructorId', user.id);
-            }
           }
         } catch (err) {
           console.error("Failed to fetch instructors:", err);
@@ -157,6 +155,20 @@ export function TestForm({ initialData }: TestFormProps) {
 
   }, [user?.id, userData?.role, toast]);
 
+
+  // Sync form values when instructors are loaded
+  useEffect(() => {
+    if (instructors.length > 0 && !initialData?.instructorId) {
+      // If we loaded instructors and there's no initial instructor, set current user as default
+      const currentUserInstructors = instructors.find(i => i.id === user?.id);
+      if (currentUserInstructors) {
+        form.setValue('instructorId', user.id);
+      } else if (instructors.length > 0) {
+        // If current user is not in list, just select the first one
+        form.setValue('instructorId', instructors[0].id);
+      }
+    }
+  }, [instructors, user?.id, initialData?.instructorId, form]);
 
   const { isSubmitting } = form.formState;
 
