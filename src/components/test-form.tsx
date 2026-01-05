@@ -61,6 +61,18 @@ export function TestForm({ initialData }: TestFormProps) {
   const [loadingCourses, setLoadingCourses] = useState(false);
   const [loadingInstructors, setLoadingInstructors] = useState(false);
 
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: initialData?.title || "",
+      description: initialData?.description || "",
+      duration: initialData ? initialData.duration / 60 : 60,
+      type: initialData?.type || "assessment",
+      courseId: initialData?.courseId || "none",
+      instructorId: initialData?.instructorId || user?.id || "",
+    },
+  });
+
   useEffect(() => {
     if (!user || !userData) {
       console.log('TestForm: Waiting for user and userData to load...', { user: !!user, userData: !!userData, role: userData?.role });
@@ -143,20 +155,8 @@ export function TestForm({ initialData }: TestFormProps) {
       console.log('TestForm: User is not admin, skipping instructor fetch');
     }
 
-  }, [user?.id, userData?.role, toast]);
+  }, [user?.id, userData?.role, toast, form]);
 
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: initialData?.title || "",
-      description: initialData?.description || "",
-      duration: initialData ? initialData.duration / 60 : 60,
-      type: initialData?.type || "assessment",
-      courseId: initialData?.courseId || "none",
-      instructorId: initialData?.instructorId || user?.id || "",
-    },
-  });
 
   const { isSubmitting } = form.formState;
 
