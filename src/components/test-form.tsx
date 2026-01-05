@@ -155,7 +155,7 @@ export function TestForm({ initialData }: TestFormProps) {
       console.log('TestForm: User is not admin, skipping instructor fetch');
     }
 
-  }, [user?.id, userData?.role, toast, form]);
+  }, [user?.id, userData?.role, toast]);
 
 
   const { isSubmitting } = form.formState;
@@ -279,29 +279,27 @@ export function TestForm({ initialData }: TestFormProps) {
                     control={form.control}
                     name="instructorId"
                     render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Assign to Instructor</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value || ''} name={field.name}>
-                                    <FormControl>
-                                        <SelectTrigger 
-                                            disabled={loadingInstructors || instructors.length === 0}
-                                            className="cursor-pointer"
-                                            onClick={() => console.log('Instructor dropdown clicked - instructors:', instructors.length, 'disabled:', loadingInstructors || instructors.length === 0)}
-                                        >
-                                            <SelectValue placeholder={loadingInstructors ? "Loading instructors..." : instructors.length === 0 ? "No instructors available" : "Select an instructor"} />
+                        <FormItem>
+                            <FormLabel>Assign to Instructor</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value || ''}>
+                                <FormControl>
+                                    <SelectTrigger 
+                                        disabled={loadingInstructors || instructors.length === 0}
+                                        className="cursor-pointer"
+                                    >
+                                        <SelectValue placeholder={loadingInstructors ? "Loading instructors..." : instructors.length === 0 ? "No instructors available" : "Select an instructor"} />
                                     </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
+                                </FormControl>
+                                <SelectContent>
                                     {instructors.map(instructor => (
                                         <SelectItem key={instructor.id} value={instructor.id}>{instructor.name}</SelectItem>
                                     ))}
-                                    </SelectContent>
-                                </Select>
-                                <FormDescription>The instructor who will own this test.</FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )
-                    }
+                                </SelectContent>
+                            </Select>
+                            <FormDescription>The instructor who will own this test.</FormDescription>
+                            <FormMessage />
+                        </FormItem>
+                    )}
                 />
             )}
             <FormField
