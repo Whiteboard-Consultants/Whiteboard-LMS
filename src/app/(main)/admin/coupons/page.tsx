@@ -151,9 +151,15 @@ export default function AdminCouponsPage() {
   }
 
   const handleStatusChange = async (id: string, isActive: boolean) => {
+    // Update local state immediately for real-time UI feedback
+    setCoupons(coupons.map(c => c.id === id ? { ...c, isActive } : c));
+    
+    // Then update on server
     const result = await updateCouponStatus(id, isActive);
     if (!result.success) {
-        toast({ variant: "destructive", title: "Error", description: result.error });
+        toast({ variant: 'destructive', title: 'Error', description: result.error });
+        // Revert on error
+        setCoupons(coupons.map(c => c.id === id ? { ...c, isActive: !isActive } : c));
     }
   }
   const toggleCouponSelection = (id: string) => {
