@@ -27,6 +27,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import { createCoupon, deleteCoupon, updateCouponStatus, bulkDeleteCoupons } from './actions';
@@ -297,12 +298,10 @@ export default function AdminCouponsPage() {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead className="w-12">
-                              <input
-                                type="checkbox"
+                            <TableHead className="w-12 text-center">
+                              <Checkbox
                                 checked={coupons.length > 0 && selectedCoupons.size === coupons.length}
-                                onChange={toggleSelectAll}
-                                className="h-4 w-4 cursor-pointer"
+                                onCheckedChange={toggleSelectAll}
                                 aria-label="Select all coupons"
                               />
                             </TableHead>
@@ -319,12 +318,10 @@ export default function AdminCouponsPage() {
                         {loading ? <TableRow><TableCell colSpan={8} className="h-24 text-center">Loading...</TableCell></TableRow> 
                         : coupons.length > 0 ? coupons.map(coupon => (
                             <TableRow key={coupon.id} className={selectedCoupons.has(coupon.id) ? 'bg-muted/50' : ''}>
-                                <TableCell className="w-12">
-                                  <input
-                                    type="checkbox"
+                                <TableCell className="w-12 text-center">
+                                  <Checkbox
                                     checked={selectedCoupons.has(coupon.id)}
-                                    onChange={() => toggleCouponSelection(coupon.id)}
-                                    className="h-4 w-4 cursor-pointer"
+                                    onCheckedChange={() => toggleCouponSelection(coupon.id)}
                                     aria-label={`Select coupon ${coupon.code}`}
                                   />
                                 </TableCell>
@@ -333,7 +330,7 @@ export default function AdminCouponsPage() {
                                 <TableCell>{coupon.type === 'percentage' ? `${coupon.value}%` : `$${coupon.value}`}</TableCell>
                                 <TableCell>{coupon.usageCount} / {coupon.usageLimit || '∞'}</TableCell>
                                 <TableCell>{coupon.expiresAt ? format(new Date(coupon.expiresAt as string), 'dd MMM yyyy') : 'Never'}</TableCell>
-                                <TableCell><Switch checked={coupon.isActive} onCheckedChange={(checked) => handleStatusChange(coupon.id, checked)} /></TableCell>
+                                <TableCell className="pointer-events-auto"><div className="flex justify-center"><Switch checked={coupon.isActive} onCheckedChange={(checked) => handleStatusChange(coupon.id, checked)} /></div></TableCell>
                                 <TableCell className="text-right">
                                     <AlertDialog>
                                         <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground"><Trash2 className="h-4 w-4" /></Button></AlertDialogTrigger>
