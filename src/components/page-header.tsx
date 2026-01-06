@@ -18,7 +18,7 @@ export function PageHeader({ title, description, children, className, showGradie
           "text-3xl md:text-4xl font-bold tracking-tight font-headline",
           showGradient ? "bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent dark:from-primary-foreground dark:to-primary-foreground/70" : ""
         )}>{title}</h1>
-        {description && <p className="text-muted-foreground mt-2 text-base">{description}</p>}
+        {description && <p className={cn("mt-2 text-base", showGradient ? "text-muted-foreground" : "")}>{description}</p>}
       </div>
       {children && <div className="flex-shrink-0">{children}</div>}
     </div>
