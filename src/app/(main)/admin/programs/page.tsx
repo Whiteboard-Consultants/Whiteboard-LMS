@@ -216,28 +216,28 @@ export default function AdminProgramsPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-8 bg-gradient-to-r from-primary/5 to-primary/10 dark:from-primary/20 dark:to-primary/10 rounded-lg px-6 py-8 border border-primary/10 dark:border-primary/20">
         <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" asChild>
+          <Button variant="outline" size="icon" asChild className="hover:bg-primary/10">
             <Link href="/admin/dashboard">
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">Programs Management</h1>
-            <p className="text-muted-foreground">Manage online programs and link courses</p>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent dark:from-primary-foreground dark:to-primary-foreground/70">Programs Management</h1>
+            <p className="text-muted-foreground mt-1">Manage online programs and link courses</p>
           </div>
         </div>
         <Dialog open={showNewDialog} onOpenChange={setShowNewDialog}>
           <DialogTrigger asChild>
-            <Button className="gap-2">
+            <Button className="gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-md">
               <Plus className="h-4 w-4" />
               New Program
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="border border-primary/20">
             <DialogHeader>
-              <DialogTitle>Create New Program</DialogTitle>
+              <DialogTitle className="text-2xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent dark:from-primary-foreground dark:to-primary-foreground/70">Create New Program</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div>
@@ -294,9 +294,9 @@ export default function AdminProgramsPage() {
       </div>
 
       {/* Programs Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>All Programs</CardTitle>
+      <Card className="border-0 shadow-lg dark:border dark:border-primary/10">
+        <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 dark:from-primary/20 dark:to-primary/10 border-b border-primary/10 dark:border-primary/20">
+          <CardTitle className="text-2xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent dark:from-primary-foreground dark:to-primary-foreground/70">All Programs</CardTitle>
           <CardDescription>Manage programs and their associated courses</CardDescription>
         </CardHeader>
         <CardContent>
@@ -306,12 +306,12 @@ export default function AdminProgramsPage() {
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Program Name</TableHead>
-                    <TableHead>Start Date</TableHead>
-                    <TableHead>Last Enrollment</TableHead>
-                    <TableHead className="text-center">Courses</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                  <TableRow className="bg-primary/5 dark:bg-primary/10 border-b-2 border-primary/20">
+                    <TableHead className="font-bold text-foreground">Program Name</TableHead>
+                    <TableHead className="font-bold text-foreground">Start Date</TableHead>
+                    <TableHead className="font-bold text-foreground">Last Enrollment</TableHead>
+                    <TableHead className="text-center font-bold text-foreground">Courses</TableHead>
+                    <TableHead className="text-right font-bold text-foreground">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -323,42 +323,42 @@ export default function AdminProgramsPage() {
                     </TableRow>
                   ) : (
                     programs.map((program) => (
-                      <TableRow key={program.id}>
+                      <TableRow key={program.id} className="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors border-b border-primary/5">
                         <TableCell>
                           {editingId === program.id ? (
                             <Input
                               value={editingData.name || ''}
                               onChange={(e) => setEditingData({ ...editingData, name: e.target.value })}
-                              className="max-w-xs"
+                              className="max-w-xs border-primary/20"
                             />
                           ) : (
                             <div>
-                              <p className="font-medium">{program.name}</p>
+                              <p className="font-semibold text-foreground">{program.name}</p>
                               {program.description && (
                                 <p className="text-sm text-muted-foreground">{program.description}</p>
                               )}
                             </div>
                           )}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="font-medium">
                           {editingId === program.id ? (
                             <Input
                               type="date"
                               value={editingData.start_date || ''}
                               onChange={(e) => setEditingData({ ...editingData, start_date: e.target.value })}
-                              className="max-w-xs"
+                              className="max-w-xs border-primary/20"
                             />
                           ) : (
                             formatDate(program.start_date)
                           )}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="font-medium">
                           {editingId === program.id ? (
                             <Input
                               type="date"
                               value={editingData.last_enrollment_date || ''}
                               onChange={(e) => setEditingData({ ...editingData, last_enrollment_date: e.target.value })}
-                              className="max-w-xs"
+                              className="max-w-xs border-primary/20"
                             />
                           ) : (
                             formatDate(program.last_enrollment_date)
@@ -369,6 +369,7 @@ export default function AdminProgramsPage() {
                             variant="outline"
                             size="sm"
                             onClick={() => handleOpenCoursesDialog(program.id)}
+                            className="hover:bg-primary/10 hover:text-primary border-primary/20"
                           >
                             {program.course_count || 0} courses
                           </Button>
@@ -376,15 +377,15 @@ export default function AdminProgramsPage() {
                         <TableCell className="text-right">
                           {editingId === program.id ? (
                             <div className="flex gap-2 justify-end">
-                              <Button size="sm" onClick={() => handleSaveEdit(program.id)}>Save</Button>
-                              <Button size="sm" variant="outline" onClick={() => setEditingId(null)}>Cancel</Button>
+                              <Button size="sm" onClick={() => handleSaveEdit(program.id)} className="bg-green-600 hover:bg-green-700">Save</Button>
+                              <Button size="sm" variant="outline" onClick={() => setEditingId(null)} className="border-primary/20">Cancel</Button>
                             </div>
                           ) : (
                             <div className="flex gap-2 justify-end">
-                              <Button size="sm" variant="outline" onClick={() => handleEdit(program)}>
+                              <Button size="sm" variant="outline" onClick={() => handleEdit(program)} className="hover:bg-primary/10 hover:text-primary border-primary/20">
                                 <Pencil className="h-4 w-4" />
                               </Button>
-                              <Button size="sm" variant="outline" className="text-red-600" onClick={() => handleDeleteProgram(program.id)}>
+                              <Button size="sm" variant="outline" className="text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 border-red-200 dark:border-red-800/50" onClick={() => handleDeleteProgram(program.id)}>
                                 <Trash2 className="h-4 w-4" />
                               </Button>
                             </div>
@@ -402,21 +403,21 @@ export default function AdminProgramsPage() {
 
       {/* Manage Courses Dialog */}
       <Dialog open={showCoursesDialog} onOpenChange={setShowCoursesDialog}>
-        <DialogContent className="max-w-2xl max-h-[600px] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[600px] overflow-y-auto border border-primary/20">
           <DialogHeader>
-            <DialogTitle>Manage Program Courses</DialogTitle>
+            <DialogTitle className="text-2xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent dark:from-primary-foreground dark:to-primary-foreground/70">Manage Program Courses</DialogTitle>
           </DialogHeader>
           
           <div className="space-y-6">
             {/* Linked Courses */}
             <div>
-              <h3 className="font-semibold mb-3">Linked Courses ({programCourses.length})</h3>
+              <h3 className="font-semibold mb-3 text-lg">Linked Courses ({programCourses.length})</h3>
               {programCourses.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No courses linked yet</p>
               ) : (
                 <div className="space-y-2">
                   {programCourses.map((course) => (
-                    <div key={course.id} className="flex items-center justify-between p-3 bg-muted rounded">
+                    <div key={course.id} className="flex items-center justify-between p-3 bg-gradient-to-r from-green-50/50 to-green-100/30 dark:from-green-950/20 dark:to-green-900/10 rounded border border-green-200/50 dark:border-green-800/30">
                       <div>
                         <p className="font-medium">{course.title}</p>
                         <p className="text-xs text-muted-foreground">ID: {course.id}</p>
@@ -425,6 +426,7 @@ export default function AdminProgramsPage() {
                         size="sm"
                         variant="destructive"
                         onClick={() => handleUnlinkCourse(course.id)}
+                        className="bg-red-600 hover:bg-red-700"
                       >
                         <Unlink className="h-4 w-4 mr-1" />
                         Unlink
@@ -437,13 +439,13 @@ export default function AdminProgramsPage() {
 
             {/* Available Courses */}
             <div>
-              <h3 className="font-semibold mb-3">Available Courses ({unlinkedCourses.length})</h3>
+              <h3 className="font-semibold mb-3 text-lg">Available Courses ({unlinkedCourses.length})</h3>
               {unlinkedCourses.length === 0 ? (
                 <p className="text-sm text-muted-foreground">All courses are linked</p>
               ) : (
                 <div className="space-y-2 max-h-[300px] overflow-y-auto">
                   {unlinkedCourses.map((course) => (
-                    <div key={course.id} className="flex items-center justify-between p-3 bg-muted rounded">
+                    <div key={course.id} className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50/50 to-blue-100/30 dark:from-blue-950/20 dark:to-blue-900/10 rounded border border-blue-200/50 dark:border-blue-800/30 hover:shadow-sm transition-shadow">
                       <div>
                         <p className="font-medium">{course.title}</p>
                         <p className="text-xs text-muted-foreground">ID: {course.id}</p>
@@ -452,6 +454,7 @@ export default function AdminProgramsPage() {
                         size="sm"
                         variant="outline"
                         onClick={() => handleLinkCourse(course.id)}
+                        className="hover:bg-primary/10 hover:text-primary border-primary/20"
                       >
                         <LinkIcon className="h-4 w-4 mr-1" />
                         Link
