@@ -254,13 +254,14 @@ export default function StudentDashboardPage() {
   console.log('🔍 Dashboard Debug - isProfileComplete:', userData?.isProfileComplete);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50/50 dark:from-slate-900/50 to-background">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50/50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900/50">
       <div className="space-y-8">
-        <div className="rounded-xl bg-gradient-to-r from-blue-600/90 to-indigo-600/90 dark:from-blue-900/40 dark:to-indigo-900/40 p-8 mb-8">
+        <div className="rounded-2xl bg-white/30 dark:bg-slate-900/30 backdrop-blur-xl border border-white/40 dark:border-slate-700/40 p-8 mb-8 shadow-xl">
           <PageHeader
             title={`Welcome back, ${userData?.name || 'Student'}!`}
             description="Continue your learning journey and track your progress."
-            className="text-white dark:text-slate-100 [&>p]:text-blue-100"
+            showGradient={false}
+            className="text-slate-900 dark:text-white"
           />
         </div>
 
@@ -287,23 +288,26 @@ export default function StudentDashboardPage() {
           value={loading ? '...' : enrolledCourses.length.toString()}
           icon={<BookOpen className="h-6 w-6 text-blue-600 dark:text-blue-400" />}
           gradient="blue"
+          glass
         />
         <StatCard
           title="Courses Completed"
           value={loading ? '...' : completedCourses.toString()}
           icon={<CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />}
           gradient="green"
+          glass
         />
         <StatCard
           title="Certificates Earned"
           value={loading ? '...' : enrolledCourses.filter(c => c.enrollment?.certificateStatus === 'approved').length.toString()}
           icon={<Award className="h-6 w-6 text-amber-600 dark:text-amber-400" />}
           gradient="amber"
+          glass
         />
       </div>
 
       <Tabs defaultValue="my-learning">
-        <TabsList className="mb-6 inline-flex h-auto w-full max-w-lg items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground">
+        <TabsList className="mb-6 inline-flex h-auto w-full max-w-lg items-center justify-center rounded-lg bg-white/40 dark:bg-slate-900/40 backdrop-blur-sm border border-white/40 dark:border-slate-700/40 p-1 text-muted-foreground shadow-md">
           <TabsTrigger value="my-learning" className="w-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md">My Learning</TabsTrigger>
           <TabsTrigger value="recommended" className="w-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md">
             Recommended for You {userData?.improvementAreas ? `(${userData.improvementAreas.length})` : '(0)'}

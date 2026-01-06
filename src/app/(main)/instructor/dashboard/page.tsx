@@ -253,22 +253,23 @@ export default function InstructorDashboardPage() {
   }, 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50/50 dark:from-slate-900/50 to-background">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50/50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900/50">
       <div className="space-y-8">
-        <div className="rounded-xl bg-gradient-to-r from-purple-600/90 to-indigo-600/90 dark:from-purple-900/40 dark:to-indigo-900/40 p-8 mb-8">
+        <div className="rounded-2xl bg-white/30 dark:bg-slate-900/30 backdrop-blur-xl border border-white/40 dark:border-slate-700/40 p-8 mb-8 shadow-xl">
           <PageHeader
             title={`Welcome back, ${userData?.name || 'Instructor'}!`}
             description="Manage your courses and view your performance."
-            className="text-white dark:text-slate-100 [&>p]:text-purple-100"
+            showGradient={false}
+            className="text-slate-900 dark:text-white"
           >
             <div className="flex items-center gap-2">
-                <Button asChild className="bg-white text-purple-600 hover:bg-slate-100">
+                <Button asChild className="bg-purple-600 text-white hover:bg-purple-700">
                     <Link href="/instructor/courses/create">
                         <PlusCircle className="mr-2 h-4 w-4" />
                         Create Course
                     </Link>
                 </Button>
-                <Button asChild className="bg-white/20 text-white hover:bg-white/30 border border-white/30">
+                <Button asChild className="bg-white/30 dark:bg-slate-700/30 text-slate-900 dark:text-white hover:bg-white/40 dark:hover:bg-slate-600/40 backdrop-blur-sm border border-white/40 dark:border-slate-600/40">
                     <Link href="/instructor/ai-suggester">
                         <Lightbulb className="mr-2 h-4 w-4" />
                         AI Suggester
@@ -291,15 +292,16 @@ export default function InstructorDashboardPage() {
       )}
       
       <div className="space-y-6">
-        <h2 className="text-2xl font-bold tracking-tight font-headline">Action Center</h2>
+        <h2 className="text-2xl font-bold tracking-tight font-headline text-slate-900 dark:text-white">Action Center</h2>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
              <StatCard
                 title="New Students (Last 7 Days)"
                 value={loading ? '...' : newEnrollments.toString()}
                 icon={<Users className="h-6 w-6 text-green-600 dark:text-green-400" />}
                 gradient="green"
+                glass
             >
-                <p className="text-xs text-muted-foreground pt-1">A good time to engage with your new learners!</p>
+                <p className="text-xs text-foreground/60 dark:text-slate-300/60 pt-1">A good time to engage with your new learners!</p>
              </StatCard>
         </div>
       </div>
@@ -307,27 +309,30 @@ export default function InstructorDashboardPage() {
        <Separator />
 
       <div className="space-y-6">
-        <h2 className="text-2xl font-bold tracking-tight font-headline">Overall Performance</h2>
+        <h2 className="text-2xl font-bold tracking-tight font-headline text-slate-900 dark:text-white">Overall Performance</h2>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             <StatCard
             title="Total Students"
             value={loading ? "..." : totalStudents.toLocaleString()}
             icon={<Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />}
             gradient="blue"
+            glass
             />
             <StatCard
             title="Total Courses"
             value={loading ? "..." : courses.length.toString()}
             icon={<BookOpen className="h-6 w-6 text-green-600 dark:text-green-400" />}
             gradient="green"
+            glass
             />
             <StatCard
               title="Average Rating"
               value={loading ? "..." : averageRating}
               icon={<StarIcon className="h-6 w-6 text-amber-600 dark:text-amber-400" />}
               gradient="amber"
+              glass
             >
-              <p className="text-xs text-muted-foreground pt-1">Across all courses</p>
+              <p className="text-xs text-foreground/60 dark:text-slate-300/60 pt-1">Across all courses</p>
             </StatCard>
         </div>
         <div className="grid grid-cols-1">
@@ -336,7 +341,7 @@ export default function InstructorDashboardPage() {
       </div>
 
       <div>
-        <h2 className="text-2xl font-bold tracking-tight font-headline mb-4">My Courses</h2>
+        <h2 className="text-2xl font-bold tracking-tight font-headline mb-4 text-slate-900 dark:text-white">My Courses</h2>
         
         {/* Mobile View */}
         <div className="md:hidden">
