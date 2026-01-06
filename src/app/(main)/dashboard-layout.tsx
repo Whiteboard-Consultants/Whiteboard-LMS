@@ -54,19 +54,19 @@ export function DashboardLayout({
   return (
     <SidebarProvider>
       <div className="relative">
-        <div className="hidden border-r bg-primary text-primary-foreground lg:flex lg:flex-col lg:fixed lg:left-0 lg:top-0 lg:h-full lg:w-[220px] xl:w-[280px] z-40 dark:bg-black">
+        <div className="hidden border-r border-primary/10 bg-gradient-to-b from-primary to-primary/95 text-primary-foreground lg:flex lg:flex-col lg:fixed lg:left-0 lg:top-0 lg:h-full lg:w-[220px] xl:w-[280px] z-40 dark:from-black dark:to-black dark:border-primary/20 shadow-lg">
             <div className="flex items-center justify-start border-b border-primary-foreground/10 px-4 lg:px-6 h-[120px] py-2">
                 <Link href="/" className="flex items-center gap-2 font-semibold shrink-0">
                   <Image src="/Whitedge-Logo.png" alt="Whiteboard Consultants Logo" width={80} height={80} priority />
                 </Link>
             </div>
-            <div className="flex-1 py-2">
+            <div className="flex-1 py-2 overflow-y-auto">
               <SidebarNav />
             </div>
         </div>
 
         <div className="lg:ml-[220px] xl:ml-[280px] flex flex-col flex-1 min-h-screen">
-            <header className="sticky top-0 z-30 flex h-[60px] items-center gap-4 border-b bg-primary px-4 sm:px-6 dark:bg-black">
+            <header className="sticky top-0 z-30 flex h-[60px] items-center gap-4 border-b border-primary/20 bg-gradient-to-r from-primary to-primary/80 px-4 sm:px-6 dark:from-black dark:to-black shadow-sm">
               <MobileSidebar />
               <div className="w-full flex-1">
                   <SearchInput />
@@ -78,7 +78,7 @@ export function DashboardLayout({
                  </div>
               </div>
             </header>
-            <main className="flex-1 bg-background text-foreground dark:bg-black">
+            <main className="flex-1 bg-gradient-to-b from-background via-background to-background/95 text-foreground dark:from-black dark:via-black dark:to-black">
                 <div className="p-4 sm:p-6 lg:p-8">{children}</div>
             </main>
         </div>

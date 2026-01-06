@@ -109,9 +109,9 @@ export function CourseCard({ course, context = 'listing' }: CourseCardProps) {
   };
 
   return (
-    <Card className="flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 bg-card text-card-foreground">
+    <Card className="flex flex-col overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2 bg-card text-card-foreground border-0 dark:border dark:border-primary/10">
       <CardHeader className="p-0">
-        <div className="relative h-[180px] w-full">
+        <div className="relative h-[180px] w-full bg-gradient-to-br from-primary/5 to-primary/10">
           {course.imageUrl && course.imageUrl.trim() !== '' ? (
             <Image
               src={course.imageUrl}
@@ -131,7 +131,7 @@ export function CourseCard({ course, context = 'listing' }: CourseCardProps) {
             </div>
           )}
            {course.enrollment?.completed && (
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-black/30 flex items-center justify-center">
                 <div className="flex flex-col items-center text-center text-white p-4">
                     <Award className="h-12 w-12 text-amber-400" />
                     <span className="text-xl font-bold mt-2">Completed</span>
@@ -141,12 +141,12 @@ export function CourseCard({ course, context = 'listing' }: CourseCardProps) {
         </div>
       </CardHeader>
       <CardContent className="flex-1 p-6">
-        <CardTitle className="mb-2 text-xl font-headline">{course.title}</CardTitle>
+        <CardTitle className="mb-2 text-xl font-headline line-clamp-2">{course.title}</CardTitle>
         <CardDescription className="text-sm text-muted-foreground flex items-center gap-2">
           <User className="h-4 w-4" /> By {course.instructor.name}
         </CardDescription>
         <div className="mt-4 flex items-center gap-2">
-          <span className="font-bold text-amber-500">{course.rating?.toFixed(1)}</span>
+          <span className="font-bold text-amber-500 bg-amber-50 dark:bg-amber-950/30 px-2 py-1 rounded">{course.rating?.toFixed(1)}</span>
           <div className="flex items-center">
             {[...Array(5)].map((_, i) => (
               <Star
@@ -178,7 +178,7 @@ export function CourseCard({ course, context = 'listing' }: CourseCardProps) {
         </div>
         {context === 'dashboard' && course.progress !== undefined && (
             <div className="mt-4">
-                <p className="text-sm text-muted-foreground mb-1">
+                <p className="text-sm text-muted-foreground mb-2 font-medium">
                     {course.completedLessons || 0} / {course.lessonCount || 0} Lessons
                 </p>
                 <GradientProgress value={course.progress || 0} />
