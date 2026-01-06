@@ -73,32 +73,36 @@ export default function AdminDashboardPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="rounded-xl bg-gradient-to-r from-indigo-600/90 to-blue-600/90 dark:from-indigo-900/40 dark:to-blue-900/40 p-8">
-          <PageHeader
-            title="Loading Dashboard..."
-            description="Please wait while we load your dashboard."
-            className="text-white dark:text-slate-100 [&>p]:text-indigo-100"
-          />
-        </div>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-32" />
-          ))}
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900">
+        <div className="space-y-6">
+          <div className="rounded-2xl bg-white/30 dark:bg-slate-900/30 backdrop-blur-xl border border-white/40 dark:border-slate-700/40 p-8">
+            <PageHeader
+              title="Loading Dashboard..."
+              description="Please wait while we load your dashboard."
+              showGradient={false}
+              className="text-slate-900 dark:text-white"
+            />
+          </div>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-32 bg-white/30 dark:bg-slate-900/30" />
+            ))}
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-50/50 dark:from-slate-900/50 to-background">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900">
       <div className="space-y-8">
-        <div className="rounded-xl bg-gradient-to-r from-indigo-600/90 to-blue-600/90 dark:from-indigo-900/40 dark:to-blue-900/40 p-8 mb-8">
+        {/* Glass Header */}
+        <div className="rounded-2xl bg-white/30 dark:bg-slate-900/30 backdrop-blur-xl border border-white/40 dark:border-slate-700/40 p-8 mb-8 shadow-xl">
           <PageHeader
             title={`Welcome back, ${userData?.name || 'Admin'}!`}
             description="Monitor platform performance and manage system operations."
             showGradient={false}
-            className="text-white dark:text-white"
+            className="text-slate-900 dark:text-white"
           />
         </div>
         
@@ -106,40 +110,44 @@ export default function AdminDashboardPage() {
           <AnnouncementBanner />
       
       <div className="space-y-6">
-        <h2 className="text-2xl font-bold tracking-tight font-headline">System Statistics</h2>
+        <h2 className="text-2xl font-bold tracking-tight font-headline text-slate-900 dark:text-white">System Statistics</h2>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           <StatCard
             title="Total Users"
             value={totalUsers.toString()}
             icon={<Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />}
             gradient="blue"
+            glass
           />
           <StatCard
             title="Active Instructors"
             value={totalInstructors.toString()}
             icon={<UserCheck className="h-6 w-6 text-green-600 dark:text-green-400" />}
             gradient="green"
+            glass
           />
           <StatCard
             title="Active Students"
             value={totalStudents.toString()}
             icon={<BookOpen className="h-6 w-6 text-purple-600 dark:text-purple-400" />}
             gradient="purple"
+            glass
           />
         </div>
       </div>
 
       <div className="space-y-6 mt-12">
-        <h2 className="text-2xl font-bold tracking-tight font-headline">Quick Metrics</h2>
+        <h2 className="text-2xl font-bold tracking-tight font-headline text-slate-900 dark:text-white">Quick Metrics</h2>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <StatCard
             title={pendingUsers > 0 ? "⚠️ Pending Approvals" : "Pending Approvals"}
             value={pendingUsers.toString()}
             icon={<TrendingUp className="h-6 w-6 text-amber-600 dark:text-amber-400" />}
             gradient={pendingUsers > 0 ? "amber" : "slate"}
+            glass
             isAlert={pendingUsers > 0}
           >
-            <p className="text-xs text-muted-foreground pt-1">Users awaiting approval</p>
+            <p className="text-xs text-foreground/60 dark:text-slate-300/60 pt-1">Users awaiting approval</p>
           </StatCard>
           <Link href="/admin/contact-submissions" className="no-underline">
             <StatCard
@@ -147,65 +155,66 @@ export default function AdminDashboardPage() {
               value={contactStats.recentSubmissions.toString()}
               icon={<Mail className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />}
               gradient="indigo"
+              glass
             >
-              <p className="text-xs text-muted-foreground pt-1">{contactStats.totalSubmissions} total submissions</p>
+              <p className="text-xs text-foreground/60 dark:text-slate-300/60 pt-1">{contactStats.totalSubmissions} total submissions</p>
             </StatCard>
           </Link>
         </div>
       </div>
 
       <div className="space-y-6 mt-12">
-        <h2 className="text-2xl font-bold tracking-tight font-headline">Quick Actions</h2>
+        <h2 className="text-2xl font-bold tracking-tight font-headline text-slate-900 dark:text-white">Quick Actions</h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Link href="/admin/users" className="no-underline">
-            <Card className="bg-gradient-to-br from-blue-50 dark:from-blue-900/20 border-blue-200 dark:border-blue-800 hover:shadow-lg transition-shadow cursor-pointer h-full">
+            <Card className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border-white/60 dark:border-slate-700/60 hover:border-white/80 dark:hover:border-slate-600/80 hover:bg-white/50 dark:hover:bg-slate-900/50 hover:shadow-lg transition-all cursor-pointer h-full">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-white">
                   <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   <span>Manage Users</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground">View and manage all user accounts</p>
+                <p className="text-sm text-foreground/60 dark:text-slate-300/60">View and manage all user accounts</p>
               </CardContent>
             </Card>
           </Link>
           <Link href="/admin/courses" className="no-underline">
-            <Card className="bg-gradient-to-br from-green-50 dark:from-green-900/20 border-green-200 dark:border-green-800 hover:shadow-lg transition-shadow cursor-pointer h-full">
+            <Card className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border-white/60 dark:border-slate-700/60 hover:border-white/80 dark:hover:border-slate-600/80 hover:bg-white/50 dark:hover:bg-slate-900/50 hover:shadow-lg transition-all cursor-pointer h-full">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-white">
                   <BookOpen className="h-5 w-5 text-green-600 dark:text-green-400" />
                   <span>Manage Courses</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground">Oversee course content and enrollment</p>
+                <p className="text-sm text-foreground/60 dark:text-slate-300/60">Oversee course content and enrollment</p>
               </CardContent>
             </Card>
           </Link>
           <Link href="/admin/commissions" className="no-underline">
-            <Card className="bg-gradient-to-br from-purple-50 dark:from-purple-900/20 border-purple-200 dark:border-purple-800 hover:shadow-lg transition-shadow cursor-pointer h-full">
+            <Card className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border-white/60 dark:border-slate-700/60 hover:border-white/80 dark:hover:border-slate-600/80 hover:bg-white/50 dark:hover:bg-slate-900/50 hover:shadow-lg transition-all cursor-pointer h-full">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-white">
                   <DollarSign className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                   <span>Commission Rates</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground">Configure commission percentages</p>
+                <p className="text-sm text-foreground/60 dark:text-slate-300/60">Configure commission percentages</p>
               </CardContent>
             </Card>
           </Link>
           <Link href="/admin/announcements" className="no-underline">
-            <Card className="bg-gradient-to-br from-amber-50 dark:from-amber-900/20 border-amber-200 dark:border-amber-800 hover:shadow-lg transition-shadow cursor-pointer h-full">
+            <Card className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border-white/60 dark:border-slate-700/60 hover:border-white/80 dark:hover:border-slate-600/80 hover:bg-white/50 dark:hover:bg-slate-900/50 hover:shadow-lg transition-all cursor-pointer h-full">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-white">
                   <Bell className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                   <span>Announcements</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground">Broadcast messages to users</p>
+                <p className="text-sm text-foreground/60 dark:text-slate-300/60">Broadcast messages to users</p>
               </CardContent>
             </Card>
           </Link>
@@ -213,7 +222,7 @@ export default function AdminDashboardPage() {
       </div>
       {/* Revenue Analytics Section */}
       <div className="space-y-6 mt-12">
-        <h2 className="text-2xl font-bold tracking-tight font-headline">Revenue Analytics</h2>
+        <h2 className="text-2xl font-bold tracking-tight font-headline text-slate-900 dark:text-white">Revenue Analytics</h2>
         <AdminRevenueCard />
       </div>
         </div>

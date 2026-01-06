@@ -9,9 +9,10 @@ interface StatCardProps {
   isAlert?: boolean;
   className?: string;
   gradient?: "blue" | "green" | "purple" | "amber" | "slate" | "indigo" | "primary" | "rose" | "cyan";
+  glass?: boolean;
 }
 
-export function StatCard({ title, value, icon, children, isAlert, className, gradient }: StatCardProps) {
+export function StatCard({ title, value, icon, children, isAlert, className, gradient, glass }: StatCardProps) {
   const gradientClasses = {
     blue: "bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-950/40 dark:to-blue-900/20 border-blue-200/50 dark:border-blue-800/50 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md transition-all",
     green: "bg-gradient-to-br from-green-50 to-green-100/50 dark:from-green-950/40 dark:to-green-900/20 border-green-200/50 dark:border-green-800/50 hover:border-green-300 dark:hover:border-green-700 hover:shadow-md transition-all",
@@ -24,17 +25,29 @@ export function StatCard({ title, value, icon, children, isAlert, className, gra
     cyan: "bg-gradient-to-br from-cyan-50 to-cyan-100/50 dark:from-cyan-950/40 dark:to-cyan-900/20 border-cyan-200/50 dark:border-cyan-800/50 hover:border-cyan-300 dark:hover:border-cyan-700 hover:shadow-md transition-all",
   };
 
-  const gradientClass = gradient ? gradientClasses[gradient] : gradientClasses.primary;
+  const glassClasses = {
+    blue: "bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border-white/60 dark:border-slate-700/60 hover:border-white/80 dark:hover:border-slate-600/80 hover:bg-white/50 dark:hover:bg-slate-900/50 hover:shadow-lg transition-all",
+    green: "bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border-white/60 dark:border-slate-700/60 hover:border-white/80 dark:hover:border-slate-600/80 hover:bg-white/50 dark:hover:bg-slate-900/50 hover:shadow-lg transition-all",
+    purple: "bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border-white/60 dark:border-slate-700/60 hover:border-white/80 dark:hover:border-slate-600/80 hover:bg-white/50 dark:hover:bg-slate-900/50 hover:shadow-lg transition-all",
+    amber: "bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border-white/60 dark:border-slate-700/60 hover:border-white/80 dark:hover:border-slate-600/80 hover:bg-white/50 dark:hover:bg-slate-900/50 hover:shadow-lg transition-all",
+    slate: "bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border-white/60 dark:border-slate-700/60 hover:border-white/80 dark:hover:border-slate-600/80 hover:bg-white/50 dark:hover:bg-slate-900/50 hover:shadow-lg transition-all",
+    indigo: "bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border-white/60 dark:border-slate-700/60 hover:border-white/80 dark:hover:border-slate-600/80 hover:bg-white/50 dark:hover:bg-slate-900/50 hover:shadow-lg transition-all",
+    primary: "bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border-white/60 dark:border-slate-700/60 hover:border-white/80 dark:hover:border-slate-600/80 hover:bg-white/50 dark:hover:bg-slate-900/50 hover:shadow-lg transition-all",
+    rose: "bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border-white/60 dark:border-slate-700/60 hover:border-white/80 dark:hover:border-slate-600/80 hover:bg-white/50 dark:hover:bg-slate-900/50 hover:shadow-lg transition-all",
+    cyan: "bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border-white/60 dark:border-slate-700/60 hover:border-white/80 dark:hover:border-slate-600/80 hover:bg-white/50 dark:hover:bg-slate-900/50 hover:shadow-lg transition-all",
+  };
+
+  const gradientClass = glass ? glassClasses[gradient || 'primary'] : (gradient ? gradientClasses[gradient] : gradientClasses.primary);
   const alertClass = isAlert ? "border-orange-500/50 bg-gradient-to-br from-orange-50 to-orange-100/50 dark:from-orange-950/40 dark:to-orange-900/20 hover:shadow-md" : "";
 
   return (
-    <Card className={cn("border transition-all", alertClass || gradientClass, className)}>
+    <Card className={cn("border transition-all", alertClass || gradientClass, glass && "shadow-xl", className)}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">{title}</CardTitle>
-        <div className="text-primary opacity-75">{icon}</div>
+        <CardTitle className={cn("text-sm font-medium uppercase tracking-wider", glass ? "text-foreground/80" : "text-muted-foreground")}>{title}</CardTitle>
+        <div className={cn("opacity-75", glass ? "text-foreground/70" : "text-primary")}>{icon}</div>
       </CardHeader>
       <CardContent>
-        {value && <div className="text-3xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent dark:from-primary-foreground dark:to-primary-foreground/60 mt-2">{value}</div>}
+        {value && <div className={cn("text-3xl font-bold mt-2", glass ? "text-foreground" : "bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent dark:from-primary-foreground dark:to-primary-foreground/60")}>{value}</div>}
         {children}
       </CardContent>
     </Card>
