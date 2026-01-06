@@ -96,3 +96,31 @@ export async function updateCouponStatus(id: string, isActive: boolean) {
         return { success: false, error: 'Failed to update coupon status.' };
     }
 }
+
+export async function bulkDeleteCoupons(ids: string[]) {
+    if (!ids || ids.length === 0) {
+        return { success: false, error: 'No coupons selected.' };
+    }
+    try {
+        if (!supabaseAdmin) {
+            console.error("Supabase Admin client not available");
+            return { success: false, error: 'Service configuration error.' };
+        }
+
+        const { error } = await supabaseAdmin
+            .from('coupons')
+            .delete()
+            .in('id', ids);
+
+        if (error) {
+            console.error("Error bulk deleting coupons:", error);
+            return { success: false, error: 'Failed to delete coupons.' };
+        }
+
+        revalidatePath('/admin/coupons');
+        return { success: true, deletedCount: ids.length };
+    } catch (error) {
+        console.error("Error bulk deleting coupons:", error);
+        return { success: false, error: 'Failed to delete coupons.' };
+    }
+}

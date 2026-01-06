@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { format } from 'date-fns';
-import { CalendarIcon, Loader2, Trash2 } from 'lucide-react';
+import { CalendarIcon, Loader2, Trash2, CheckCircle2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { Coupon } from '@/types';
 import { PageHeader } from '@/components/page-header';
@@ -29,7 +29,7 @@ import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
-import { createCoupon, deleteCoupon, updateCouponStatus } from './actions';
+import { createCoupon, deleteCoupon, updateCouponStatus, bulkDeleteCoupons } from './actions';
 
 const formSchema = z.object({
   code: z.string().min(4, 'Code must be at least 4 characters.').max(20).toUpperCase(),
@@ -42,6 +42,8 @@ const formSchema = z.object({
 export default function AdminCouponsPage() {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedCoupons, setSelectedCoupons] = useState<Set<string>>(new Set());
+  const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -153,7 +155,41 @@ export default function AdminCouponsPage() {
         toast({ variant: "destructive", title: "Error", description: result.error });
     }
   }
+  const toggleCouponSelection = (id: string) => {
+    const newSelected = new Set(selectedCoupons);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedCoupons(newSelected);
+  }
 
+  const toggleSelectAll = () => {
+    if (selectedCoupons.size === coupons.length) {
+      setSelectedCoupons(new Set());
+    } else {
+      setSelectedCoupons(new Set(coupons.map(c => c.id)));
+    }
+  }
+
+  const handleBulkDelete = async () => {
+    if (selectedCoupons.size === 0) {
+      toast({ variant: 'destructive', title: 'Error', description: 'No coupons selected.' });
+      return;
+    }
+
+    setIsDeleting(true);
+    const result = await bulkDeleteCoupons(Array.from(selectedCoupons));
+    setIsDeleting(false);
+
+    if (result.success) {
+      toast({ title: 'Success', description: `${result.deletedCount} coupon(s) deleted.` });
+      setSelectedCoupons(new Set());
+    } else {
+      toast({ variant: 'destructive', title: 'Error', description: result.error });
+    }
+  }
   return (
     <div>
       <PageHeader title="Coupon Management" description="Create and manage discount coupons for your courses." />
@@ -229,11 +265,47 @@ export default function AdminCouponsPage() {
 
         {/* Existing Coupons Section */}
         <div>
-          <h3 className="text-xl font-semibold mb-4">Existing Coupons</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold">Existing Coupons</h3>
+            {selectedCoupons.size > 0 && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="sm" disabled={isDeleting}>
+                    {isDeleting ? (
+                      <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deleting...</>
+                    ) : (
+                      <><Trash2 className="mr-2 h-4 w-4" /> Delete {selectedCoupons.size} Selected</>
+                    )}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete {selectedCoupons.size} Coupon(s)?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will permanently delete the selected {selectedCoupons.size} coupon(s). This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleBulkDelete} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+          </div>
             <div className="rounded-lg border">
                 <Table>
                     <TableHeader>
                         <TableRow>
+                            <TableHead className="w-12">
+                              <input
+                                type="checkbox"
+                                checked={coupons.length > 0 && selectedCoupons.size === coupons.length}
+                                onChange={toggleSelectAll}
+                                className="h-4 w-4 cursor-pointer"
+                                aria-label="Select all coupons"
+                              />
+                            </TableHead>
                             <TableHead>Code</TableHead>
                             <TableHead>Type</TableHead>
                             <TableHead>Value</TableHead>
@@ -244,9 +316,18 @@ export default function AdminCouponsPage() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {loading ? <TableRow><TableCell colSpan={7} className="h-24 text-center">Loading...</TableCell></TableRow> 
+                        {loading ? <TableRow><TableCell colSpan={8} className="h-24 text-center">Loading...</TableCell></TableRow> 
                         : coupons.length > 0 ? coupons.map(coupon => (
-                            <TableRow key={coupon.id}>
+                            <TableRow key={coupon.id} className={selectedCoupons.has(coupon.id) ? 'bg-muted/50' : ''}>
+                                <TableCell className="w-12">
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedCoupons.has(coupon.id)}
+                                    onChange={() => toggleCouponSelection(coupon.id)}
+                                    className="h-4 w-4 cursor-pointer"
+                                    aria-label={`Select coupon ${coupon.code}`}
+                                  />
+                                </TableCell>
                                 <TableCell className="font-mono font-semibold">{coupon.code}</TableCell>
                                 <TableCell className="capitalize">{coupon.type}</TableCell>
                                 <TableCell>{coupon.type === 'percentage' ? `${coupon.value}%` : `$${coupon.value}`}</TableCell>
@@ -265,7 +346,7 @@ export default function AdminCouponsPage() {
                             </TableRow>
                         )) : (
                             <TableRow>
-                                <TableCell colSpan={7} className="h-24 text-center">
+                                <TableCell colSpan={8} className="h-24 text-center">
                                     <div className="text-center">
                                         <p className="text-muted-foreground">No coupons have been created yet.</p>
                                         <p className="text-xs text-muted-foreground mt-2">
