@@ -19,6 +19,11 @@ export async function POST(request: Request) {
     console.log('Attempting authentication for:', email);
     console.log('Supabase URL:', supabaseUrl);
 
+    // Add timeout for Supabase API call
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 second timeout
+    
+    const startTime = Date.now();
     const authResponse = await fetch(
       `${supabaseUrl}/auth/v1/token?grant_type=password`,
       {
@@ -31,10 +36,13 @@ export async function POST(request: Request) {
           email,
           password,
         }),
+        signal: controller.signal,
       }
     );
 
-    console.log('Auth response status:', authResponse.status);
+    clearTimeout(timeoutId);
+    const duration = Date.now() - startTime;
+    console.log('Auth response status:', authResponse.status, '(took', duration + 'ms)');
     
     const responseText = await authResponse.text();
     console.log('Auth response body (raw):', responseText);
@@ -102,6 +110,16 @@ export async function POST(request: Request) {
 
   } catch (error) {
     console.error('Sign in API error:', error);
+    
+    // Check if it's an abort/timeout error
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.error('Supabase auth request timeout');
+      return NextResponse.json(
+        { error: 'Authentication service timed out. Please try again.' },
+        { status: 504 }
+      );
+    }
+    
     console.error('Error details:', JSON.stringify(error, null, 2));
     return NextResponse.json(
       { error: 'Internal server error: ' + (error instanceof Error ? error.message : 'Unknown') },

@@ -85,10 +85,11 @@ export async function signInWithEmail(email: string, password: string) {
     
     // Use API proxy to bypass CORS issues with Supabase auth
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    const timeout = setTimeout(() => controller.abort(), 30000); // 30 second timeout
     
     try {
-      console.log('📡 Sending request to /api/auth/signin');
+      console.log('📡 Sending request to /api/auth/signin at', new Date().toISOString());
+      const startTime = Date.now();
       const response = await fetch('/api/auth/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -98,7 +99,8 @@ export async function signInWithEmail(email: string, password: string) {
       });
 
       clearTimeout(timeout);
-      console.log('📦 Response received, status:', response.status);
+      const duration = Date.now() - startTime;
+      console.log('📦 Response received after', duration + 'ms, status:', response.status);
 
       if (!response.ok) {
         const errorData = await response.json();
