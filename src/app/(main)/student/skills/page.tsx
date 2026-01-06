@@ -16,6 +16,9 @@ import {
 import { SkillCard } from '@/components/skills/skill-card';
 import { GapAnalysis } from '@/components/skills/gap-analysis';
 import { SkillsVisualization } from '@/components/skills/skills-visualization';
+import { LearningGoalForm } from '@/components/skills/learning-goal-form';
+import { LearningGoalList } from '@/components/skills/learning-goal-list';
+import { HelpTooltip } from '@/components/ui/help-tooltip';
 import { Search, Filter, TrendingUp, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 
@@ -35,10 +38,13 @@ interface Skill {
 
 interface LearningGoal {
   id: string;
-  skill_id: string;
-  target_proficiency_level: string;
-  deadline: string;
-  is_active: boolean;
+  goal_title: string;
+  goal_description?: string;
+  role_title?: string;
+  target_skills?: string[];
+  priority: number;
+  target_completion_date?: string;
+  status: string;
 }
 
 interface SkillGap {
@@ -54,14 +60,14 @@ interface SkillGap {
 export default function SkillsDashboardPage() {
   const { user, accessToken } = useAuth();
   const [skills, setSkills] = useState<Skill[]>([]);
-  const [goals, setGoals] = useState<LearningGoal[]>([]);
+  const [learningGoals, setLearningGoals] = useState<LearningGoal[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [levelFilter, setLevelFilter] = useState('all');
 
   useEffect(() => {
-    const fetchSkillsData = async () => {
+    const fetchAllData = async () => {
       if (!accessToken) {
         console.log('❌ No access token');
         setLoading(false);
@@ -85,7 +91,6 @@ export default function SkillsDashboardPage() {
           const data = await skillsResponse.json();
           console.log('✅ Skills data received:', data);
           
-          // API returns { success: true, data: { skills: [...], gaps: [...], ... } }
           const skillsList = data.data?.skills || [];
           console.log('🎯 Setting skills:', skillsList.length, 'items');
           setSkills(skillsList);
@@ -95,6 +100,7 @@ export default function SkillsDashboardPage() {
 
         // Fetch learning goals
         try {
+          console.log('📋 Fetching learning goals...');
           const goalsResponse = await fetch('/api/user/learning-goals', {
             headers: {
               'Authorization': `Bearer ${accessToken}`,
@@ -103,21 +109,24 @@ export default function SkillsDashboardPage() {
 
           if (goalsResponse.ok) {
             const goalsData = await goalsResponse.json();
-            console.log('✅ Goals data received:', goalsData);
-            setGoals(goalsData.data || []);
+            console.log('✅ Learning goals received:', goalsData);
+            setLearningGoals(goalsData.data || []);
+          } else {
+            console.log('⚠️ Learning goals response not ok:', goalsResponse.status);
+            setLearningGoals([]);
           }
         } catch (e) {
-          // Goals endpoint might not be available
-          console.log('⚠️ Learning goals endpoint not available');
+          console.log('⚠️ Learning goals endpoint error:', e);
+          setLearningGoals([]);
         }
       } catch (error) {
-        console.error('❌ Error fetching skills data:', error);
+        console.error('❌ Error fetching data:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchSkillsData();
+    fetchAllData();
   }, [accessToken]);
 
   // Filter skills
@@ -150,33 +159,8 @@ export default function SkillsDashboardPage() {
   });
 
   // Calculate gaps for goal-based analysis
-  const gapObjects = goals
-    .filter(g => g.is_active)
-    .map(goal => {
-      const skill = skills.find(s => s.id === goal.skill_id);
-      if (!skill) return null;
-
-      const targetLevel = ['beginner', 'intermediate', 'advanced', 'expert'].indexOf(
-        goal.target_proficiency_level
-      );
-      const currentLevel = ['beginner', 'intermediate', 'advanced', 'expert'].indexOf(
-        skill.proficiency_level
-      );
-
-      const gap: SkillGap = {
-        skillName: skill.name,
-        category: skill.category,
-        currentLevel: skill.mastery_percentage,
-        targetLevel: Math.min(100, (targetLevel + 1) * 25),
-        gap: Math.max(0, Math.min(100, (targetLevel + 1) * 25) - skill.mastery_percentage),
-        importance: currentLevel === 0 ? 'high' : currentLevel === 1 ? 'medium' : 'low',
-        relatedCourses: [],
-      };
-      return gap;
-    })
-    .filter((g): g is SkillGap => g !== null);
-
-  const gaps = gapObjects;
+  // For now, show a message that no gaps are detected without goals
+  const gaps: SkillGap[] = [];
 
   const totalGaps = gaps.length;
   const averageGap = totalGaps > 0 ? Math.round(gaps.reduce((acc, g) => acc + g.gap, 0) / totalGaps) : 0;
@@ -201,7 +185,19 @@ export default function SkillsDashboardPage() {
       <div className="container mx-auto py-8 px-4">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Skills Dashboard</h1>
+          <div className="flex items-center justify-between mb-2">
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Skills Dashboard</h1>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.location.href = '/student/help'}
+              >
+                Help & Documentation
+              </Button>
+              <HelpTooltip content="Visit our Learning Center for comprehensive guides on skills, goals, and more" />
+            </div>
+          </div>
           <p className="text-lg text-gray-600 dark:text-gray-300">
             Track your professional development and identify areas for growth
           </p>
@@ -392,12 +388,70 @@ export default function SkillsDashboardPage() {
 
           {/* Gap Analysis Tab */}
           <TabsContent value="gaps">
-            <GapAnalysis
-              gaps={gaps}
-              totalGaps={totalGaps}
-              averageGap={averageGap}
-              recommendedFocusAreas={recommendedFocusAreas}
-            />
+            <div className="space-y-6">
+              {/* Learning Goals Section */}
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-2xl font-bold">Learning Goals</h2>
+                    <HelpTooltip content="Set specific skill development targets to track your progress and identify areas for improvement. Goals help you stay focused on meaningful skill development aligned with your career aspirations." />
+                  </div>
+                  <LearningGoalForm 
+                    skills={skills} 
+                    onGoalCreated={() => {
+                      // Refresh learning goals
+                      const refreshGoals = async () => {
+                        const response = await fetch('/api/user/learning-goals', {
+                          headers: { 'Authorization': `Bearer ${accessToken}` },
+                        });
+                        if (response.ok) {
+                          const data = await response.json();
+                          setLearningGoals(data.data || []);
+                        }
+                      };
+                      refreshGoals();
+                    }}
+                  />
+                </div>
+
+                {learningGoals.length > 0 ? (
+                  <LearningGoalList 
+                    goals={learningGoals}
+                    onGoalDeleted={() => {
+                      // Refresh learning goals
+                      const refreshGoals = async () => {
+                        const response = await fetch('/api/user/learning-goals', {
+                          headers: { 'Authorization': `Bearer ${accessToken}` },
+                        });
+                        if (response.ok) {
+                          const data = await response.json();
+                          setLearningGoals(data.data || []);
+                        }
+                      };
+                      refreshGoals();
+                    }}
+                  />
+                ) : (
+                  <Card className="border-blue-200 bg-blue-50 dark:bg-blue-950 dark:border-blue-800">
+                    <CardContent className="pt-6">
+                      <p className="text-sm text-blue-900 dark:text-blue-100">
+                        No learning goals created yet. Create one to start tracking skill gaps and get personalized recommendations.
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+
+              {/* Gap Analysis Stats */}
+              {learningGoals.length > 0 && (
+                <GapAnalysis
+                  gaps={gaps}
+                  totalGaps={totalGaps}
+                  averageGap={averageGap}
+                  recommendedFocusAreas={recommendedFocusAreas}
+                />
+              )}
+            </div>
           </TabsContent>
 
           {/* Analytics Tab */}

@@ -4,14 +4,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
+import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { BookMarked, LayoutDashboard, BarChart3, Users, Lightbulb, UserCheck, UserSquare, Megaphone, Award, FileText, Ticket, Rss, Package, ClipboardList, Mail, Zap, DollarSign, MessageSquare } from "lucide-react";
+import { BookMarked, LayoutDashboard, BarChart3, Users, Lightbulb, UserCheck, UserSquare, Megaphone, Award, FileText, Ticket, Rss, Package, ClipboardList, Mail, Zap, DollarSign, MessageSquare, HelpCircle, Folder } from "lucide-react";
 import { Skeleton } from "./ui/skeleton";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
 
 const adminManagementLinks = [
     { href: "/admin/coupons", label: "Coupons", icon: Ticket },
     { href: "/admin/courses", label: "Courses", icon: BookMarked },
+    { href: "/admin/programs", label: "Programs", icon: Folder },
     { href: "/admin/blog", label: "Blog", icon: Rss },
     { href: "/admin/commissions", label: "Commissions", icon: DollarSign },
     { href: "/instructor/tests", label: "Tests", icon: FileText },
@@ -34,6 +36,7 @@ const adminReportLinks = [
 export function SidebarNav() {
   const { userData, loading } = useAuth();
   const pathname = usePathname();
+  const { setOpenMobile } = useSidebar();
   const role = userData?.role;
 
   if (loading) {
@@ -52,6 +55,7 @@ export function SidebarNav() {
      <div className="px-2 text-sm font-medium lg:px-4 space-y-1">
         <Link
             href="/admin/dashboard"
+            onClick={() => setOpenMobile(false)}
             className={cn(
               "flex items-center gap-3 rounded-lg px-3 py-2 text-primary-foreground/80 transition-all",
               pathname === "/admin/dashboard"
@@ -64,6 +68,7 @@ export function SidebarNav() {
         </Link>
          <Link
             href="/admin/announcements"
+            onClick={() => setOpenMobile(false)}
             className={cn(
               "flex items-center gap-3 rounded-lg px-3 py-2 text-primary-foreground/80 transition-all",
               pathname === "/admin/announcements"
@@ -86,7 +91,7 @@ export function SidebarNav() {
                      {adminManagementLinks.map(link => {
                          const isActive = pathname.startsWith(link.href);
                          return (
-                            <Link key={link.href} href={link.href} className={cn("flex items-center gap-3 rounded-md px-3 py-2 text-primary-foreground/70 transition-all hover:text-primary-foreground", isActive && "bg-primary-foreground/10 text-primary-foreground")}>
+                            <Link key={link.href} href={link.href} onClick={() => setOpenMobile(false)} className={cn("flex items-center gap-3 rounded-md px-3 py-2 text-primary-foreground/70 transition-all hover:text-primary-foreground", isActive && "bg-primary-foreground/10 text-primary-foreground")}>
                                 <link.icon className="h-4 w-4" />
                                 {link.label}
                             </Link>
@@ -105,7 +110,7 @@ export function SidebarNav() {
                      {adminRequestLinks.map(link => {
                           const isActive = pathname.startsWith(link.href);
                          return (
-                            <Link key={link.href} href={link.href} className={cn("flex items-center gap-3 rounded-md px-3 py-2 text-primary-foreground/70 transition-all hover:text-primary-foreground", isActive && "bg-primary-foreground/10 text-primary-foreground")}>
+                            <Link key={link.href} href={link.href} onClick={() => setOpenMobile(false)} className={cn("flex items-center gap-3 rounded-md px-3 py-2 text-primary-foreground/70 transition-all hover:text-primary-foreground", isActive && "bg-primary-foreground/10 text-primary-foreground")}>
                                 <link.icon className="h-4 w-4" />
                                 {link.label}
                             </Link>
@@ -124,7 +129,7 @@ export function SidebarNav() {
                      {adminReportLinks.map(link => {
                           const isActive = pathname.startsWith(link.href);
                          return (
-                            <Link key={link.href} href={link.href} className={cn("flex items-center gap-3 rounded-md px-3 py-2 text-primary-foreground/70 transition-all hover:text-primary-foreground", isActive && "bg-primary-foreground/10 text-primary-foreground")}>
+                            <Link key={link.href} href={link.href} onClick={() => setOpenMobile(false)} className={cn("flex items-center gap-3 rounded-md px-3 py-2 text-primary-foreground/70 transition-all hover:text-primary-foreground", isActive && "bg-primary-foreground/10 text-primary-foreground")}>
                                 <link.icon className="h-4 w-4" />
                                 {link.label}
                             </Link>
@@ -153,6 +158,7 @@ export function SidebarNav() {
           { href: "/student/skills", label: "My Skills", icon: Zap },
           { href: "/student/tests", label: "Tests", icon: FileText },
           { href: "/student/certificates", label: "My Certificates", icon: Award },
+          { href: "/student/help", label: "Help & Documentation", icon: HelpCircle },
       ],
     };
     
@@ -173,6 +179,7 @@ export function SidebarNav() {
           <Link
             key={link.href}
             href={link.href}
+            onClick={() => setOpenMobile(false)}
             className={cn(
               "flex items-center gap-3 rounded-lg px-3 py-2 text-primary-foreground/80 transition-all",
               isActive

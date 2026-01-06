@@ -8,6 +8,7 @@ import * as z from "zod";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { fetchInstructorsAsAdmin } from "@/app/(main)/instructor/tests/actions";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -125,20 +126,17 @@ export function TestForm({ initialData }: TestFormProps) {
       
       const fetchInstructors = async () => {
         try {
-          console.log('TestForm: Starting instructor fetch...');
-          const { data: instructorsData, error } = await supabase
-            .from('users')
-            .select('*')
-            .eq('role', 'instructor')
-            .order('name');
+          console.log('TestForm: Starting instructor fetch via server action...');
+          // Use server action to bypass RLS
+          const result = await fetchInstructorsAsAdmin();
           
-          if (error) {
-            console.error("Failed to fetch instructors:", error.message, error.code);
-            toast({ variant: 'destructive', title: 'Error', description: 'Could not fetch instructors: ' + error.message });
+          if (result.error) {
+            console.error("Failed to fetch instructors:", result.error);
+            toast({ variant: 'destructive', title: 'Error', description: 'Could not fetch instructors: ' + result.error });
           } else {
-            console.log('TestForm: Instructors fetched successfully:', instructorsData?.length || 0, 'instructors');
-            console.log('TestForm: Instructor names:', instructorsData?.map(i => ({ id: i.id, name: i.name })) || []);
-            setInstructors(instructorsData || []);
+            console.log('TestForm: Instructors fetched successfully:', result.instructors?.length || 0, 'instructors');
+            console.log('TestForm: Instructor data:', result.instructors?.map(i => ({ id: i.id, name: i.name })) || []);
+            setInstructors(result.instructors || []);
           }
         } catch (err) {
           console.error("Failed to fetch instructors:", err);

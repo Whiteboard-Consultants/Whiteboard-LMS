@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
 import type { Enrollment, Course, User } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Printer, ArrowLeft } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
+import { getCertificateData } from '@/app/student/certificate-actions';
 
 
 interface CertificateData {
@@ -49,37 +49,23 @@ function StudentCertificatePage() {
       setLoading(true);
       setError(null);
       const { enrollmentId } = params as { enrollmentId: string };
-      // 1. Fetch enrollment
-      const { data: enrollment, error: enrollmentError } = await supabase
-        .from('enrollments')
-        .select('id, enrolled_at, completed, user_id, course_id, student_name, course_title, instructor_name')
-        .eq('id', enrollmentId)
-        .single();
-      if (enrollmentError || !enrollment) {
-        setError('Certificate not found.');
+      
+      try {
+        const result = await getCertificateData(enrollmentId);
+        
+        if (result.error) {
+          setError(result.error);
+        } else if (result.data) {
+          setData(result.data);
+        }
+      } catch (err) {
+        console.error('Error fetching certificate:', err);
+        setError('Failed to fetch certificate data.');
+      } finally {
         setLoading(false);
-        return;
       }
-      // 2. Fetch user
-      const { data: user, error: userError } = await supabase
-        .from('users')
-        .select('name')
-        .eq('id', enrollment.user_id)
-        .single();
-      // 3. Fetch course
-      const { data: course, error: courseError } = await supabase
-        .from('courses')
-        .select('title')
-        .eq('id', enrollment.course_id)
-        .single();
-      setData({
-        studentName: user?.name || enrollment.student_name || 'Student',
-        courseTitle: course?.title || enrollment.course_title || 'Course',
-        completionDate: enrollment.completed ? new Date(enrollment.enrolled_at).toLocaleDateString() : '',
-        instructorName: enrollment.instructor_name || '',
-      });
-      setLoading(false);
     }
+    
     fetchData();
   }, [params]);
 

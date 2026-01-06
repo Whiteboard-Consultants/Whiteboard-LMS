@@ -407,7 +407,12 @@ export default function TestTaker({ testId }: TestTakerProps) {
   };
   
   const handleSaveAndNext = () => {
-     handleNext();
+     const isLastQuestion = currentQuestionIndex === questions.length - 1;
+     if (isLastQuestion) {
+       handleSubmit();
+     } else {
+       handleNext();
+     }
   }
 
   const handleExitTest = () => {
@@ -620,7 +625,7 @@ export default function TestTaker({ testId }: TestTakerProps) {
                        </Button>
                      ) : (
                        <Button onClick={handleSaveAndNext} className="bg-orange-500 hover:bg-orange-600">
-                         Save & Next
+                         {currentQuestionIndex === questions.length - 1 ? 'Save & Submit' : 'Save & Next'}
                          <ChevronsRight className="ml-2 h-4 w-4" />
                        </Button>
                      )}

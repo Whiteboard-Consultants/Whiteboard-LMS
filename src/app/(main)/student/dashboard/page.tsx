@@ -162,6 +162,7 @@ export default function StudentDashboardPage() {
             enrollment: {
               ...enrollmentData,
               // Map snake_case to camelCase for compatibility
+              id: enrollmentData?.id,
               userId: enrollmentData?.user_id,
               courseId: enrollmentData?.course_id,
               instructorId: enrollmentData?.instructor_id,

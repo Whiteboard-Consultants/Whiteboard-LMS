@@ -152,3 +152,53 @@ export async function rejectCertificate(enrollmentId: string, reason?: string) {
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
+export async function getCertificateData(enrollmentId: string) {
+  try {
+    if (!supabaseAdmin) {
+      return { error: 'Server configuration error' };
+    }
+
+    if (!enrollmentId) {
+      return { error: 'Enrollment ID is required' };
+    }
+
+    // Fetch enrollment with certificate status
+    const { data: enrollment, error: enrollmentError } = await supabaseAdmin
+      .from('enrollments')
+      .select('id, enrolled_at, completed, user_id, course_id, student_name, course_title, instructor_name, certificate_status')
+      .eq('id', enrollmentId)
+      .single();
+
+    if (enrollmentError || !enrollment) {
+      console.error('Error fetching enrollment:', enrollmentError);
+      return { error: 'Certificate not found.' };
+    }
+
+    // Fetch user name
+    const { data: user } = await supabaseAdmin
+      .from('users')
+      .select('name')
+      .eq('id', enrollment.user_id)
+      .single();
+
+    // Fetch course title
+    const { data: course } = await supabaseAdmin
+      .from('courses')
+      .select('title')
+      .eq('id', enrollment.course_id)
+      .single();
+
+    return {
+      data: {
+        studentName: user?.name || enrollment.student_name || 'Student',
+        courseTitle: course?.title || enrollment.course_title || 'Course',
+        completionDate: enrollment.completed ? new Date(enrollment.enrolled_at).toLocaleDateString() : new Date().toLocaleDateString(),
+        instructorName: enrollment.instructor_name || '',
+      },
+      error: null,
+    };
+  } catch (error) {
+    console.error('Error in getCertificateData:', error);
+    return { error: 'Failed to fetch certificate data.' };
+  }
+}

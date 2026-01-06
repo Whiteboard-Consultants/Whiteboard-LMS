@@ -67,6 +67,12 @@ export function CourseCard({ course, context = 'listing' }: CourseCardProps) {
     if (!course.enrollment) return null;
 
     const certificateStatus = course.enrollment.certificateStatus;
+    const enrollmentId = course.enrollmentId || course.enrollment?.id;
+    
+    // Only show certificate button if enrollment has an ID
+    if (!enrollmentId) {
+      return null;
+    }
     
     switch (certificateStatus) {
       case 'requested':
@@ -74,7 +80,7 @@ export function CourseCard({ course, context = 'listing' }: CourseCardProps) {
       case 'approved':
          return (
             <Button asChild className="w-full bg-green-600 hover:bg-green-700">
-                <Link href={`/student/certificate/${course.enrollmentId}`}>
+                <Link href={`/student/certificate/${enrollmentId}`}>
                     <Award className="mr-2 h-4 w-4" />
                     View Certificate
                 </Link>
@@ -87,14 +93,18 @@ export function CourseCard({ course, context = 'listing' }: CourseCardProps) {
             Request Certificate
           </Button>
         );
-      // 'not_eligible' or undefined will not show a button
+      // 'not_eligible' or undefined - if course is completed and has certificate, allow request
       default:
-        return (
-             <Button onClick={handleRequestCertificate} disabled={isRequesting} variant="secondary" className="w-full">
-                {isRequesting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Award className="mr-2 h-4 w-4" />}
-                Request Certificate
+        // If course is 100% complete and has certificate option, show request button
+        if (course.progress === 100 && course.hasCertificate) {
+          return (
+            <Button onClick={handleRequestCertificate} disabled={isRequesting} variant="secondary" className="w-full">
+              {isRequesting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Award className="mr-2 h-4 w-4" />}
+              Request Certificate
             </Button>
-        );
+          );
+        }
+        return null;
     }
   };
 
