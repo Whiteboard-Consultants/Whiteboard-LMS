@@ -98,7 +98,7 @@ export default function AdminDashboardPage() {
             title={`Welcome back, ${userData?.name || 'Admin'}!`}
             description="Monitor platform performance and manage system operations."
             showGradient={false}
-            className="text-white [&>p]:text-indigo-50 [&>h1]:text-white dark:text-white"
+            className="text-white [&>p]:text-white dark:text-white"
           />
         </div>
         
