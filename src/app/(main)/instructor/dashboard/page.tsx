@@ -291,7 +291,7 @@ export default function InstructorDashboardPage() {
         />
       )}
       
-      <div className="space-y-6">
+      <div className="space-y-6 mt-12">
         <h2 className="text-2xl font-bold tracking-tight font-headline text-slate-900 dark:text-white">Action Center</h2>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
              <StatCard
@@ -308,7 +308,7 @@ export default function InstructorDashboardPage() {
       
        <Separator />
 
-      <div className="space-y-6">
+      <div className="space-y-6 mt-12">
         <h2 className="text-2xl font-bold tracking-tight font-headline text-slate-900 dark:text-white">Overall Performance</h2>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             <StatCard
@@ -340,7 +340,7 @@ export default function InstructorDashboardPage() {
         </div>
       </div>
 
-      <div>
+      <div className="mt-12">
         <h2 className="text-2xl font-bold tracking-tight font-headline mb-4 text-slate-900 dark:text-white">My Courses</h2>
         
         {/* Mobile View */}
