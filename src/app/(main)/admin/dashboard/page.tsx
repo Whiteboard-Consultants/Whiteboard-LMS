@@ -117,21 +117,18 @@ export default function AdminDashboardPage() {
             value={totalUsers.toString()}
             icon={<Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />}
             gradient="blue"
-            glass
           />
           <StatCard
             title="Active Instructors"
             value={totalInstructors.toString()}
             icon={<UserCheck className="h-6 w-6 text-green-600 dark:text-green-400" />}
             gradient="green"
-            glass
           />
           <StatCard
             title="Active Students"
             value={totalStudents.toString()}
             icon={<BookOpen className="h-6 w-6 text-purple-600 dark:text-purple-400" />}
             gradient="purple"
-            glass
           />
         </div>
       </div>
@@ -144,7 +141,6 @@ export default function AdminDashboardPage() {
             value={pendingUsers.toString()}
             icon={<TrendingUp className="h-6 w-6 text-amber-600 dark:text-amber-400" />}
             gradient={pendingUsers > 0 ? "amber" : "slate"}
-            glass
             isAlert={pendingUsers > 0}
           >
             <p className="text-xs text-foreground/60 dark:text-slate-300/60 pt-1">Users awaiting approval</p>
@@ -155,7 +151,6 @@ export default function AdminDashboardPage() {
               value={contactStats.recentSubmissions.toString()}
               icon={<Mail className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />}
               gradient="indigo"
-              glass
             >
               <p className="text-xs text-foreground/60 dark:text-slate-300/60 pt-1">{contactStats.totalSubmissions} total submissions</p>
             </StatCard>
@@ -167,7 +162,7 @@ export default function AdminDashboardPage() {
         <h2 className="text-2xl font-bold tracking-tight font-headline text-slate-900 dark:text-white">Quick Actions</h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Link href="/admin/users" className="no-underline">
-            <Card className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border-white/60 dark:border-slate-700/60 hover:border-white/80 dark:hover:border-slate-600/80 hover:bg-white/50 dark:hover:bg-slate-900/50 hover:shadow-lg transition-all cursor-pointer h-full">
+            <Card variant="blue" className="hover:bg-blue-100/50 dark:hover:bg-blue-900/30 cursor-pointer h-full">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-white">
                   <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
@@ -180,7 +175,7 @@ export default function AdminDashboardPage() {
             </Card>
           </Link>
           <Link href="/admin/courses" className="no-underline">
-            <Card className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border-white/60 dark:border-slate-700/60 hover:border-white/80 dark:hover:border-slate-600/80 hover:bg-white/50 dark:hover:bg-slate-900/50 hover:shadow-lg transition-all cursor-pointer h-full">
+            <Card variant="green" className="hover:bg-green-100/50 dark:hover:bg-green-900/30 cursor-pointer h-full">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-white">
                   <BookOpen className="h-5 w-5 text-green-600 dark:text-green-400" />
@@ -193,7 +188,7 @@ export default function AdminDashboardPage() {
             </Card>
           </Link>
           <Link href="/admin/commissions" className="no-underline">
-            <Card className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border-white/60 dark:border-slate-700/60 hover:border-white/80 dark:hover:border-slate-600/80 hover:bg-white/50 dark:hover:bg-slate-900/50 hover:shadow-lg transition-all cursor-pointer h-full">
+            <Card variant="purple" className="hover:bg-purple-100/50 dark:hover:bg-purple-900/30 cursor-pointer h-full">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-white">
                   <DollarSign className="h-5 w-5 text-purple-600 dark:text-purple-400" />
@@ -206,7 +201,7 @@ export default function AdminDashboardPage() {
             </Card>
           </Link>
           <Link href="/admin/announcements" className="no-underline">
-            <Card className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border-white/60 dark:border-slate-700/60 hover:border-white/80 dark:hover:border-slate-600/80 hover:bg-white/50 dark:hover:bg-slate-900/50 hover:shadow-lg transition-all cursor-pointer h-full">
+            <Card variant="orange" className="hover:bg-orange-100/50 dark:hover:bg-orange-900/30 cursor-pointer h-full">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-white">
                   <Bell className="h-5 w-5 text-amber-600 dark:text-amber-400" />
