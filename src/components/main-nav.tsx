@@ -114,6 +114,16 @@ export function MainNav({ isMobileLayout = false }: MainNavProps) {
               Online Courses
             </Link>
           </div>
+          <AccordionItem value="career-solutions" className="border-b-0">
+            <AccordionTrigger className="px-2 py-2 text-sm font-medium hover:bg-primary-foreground/10 rounded-md">Career Solutions</AccordionTrigger>
+            <AccordionContent className="pl-4 pt-2 pb-2">
+              <div className="space-y-2">
+                <Link href="/career-solutions" className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">Overview</Link>
+                <Link href="/career-solutions/internship-programs" className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">Internship Programs</Link>
+                <Link href="/career-solutions/skill-development" className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">Skill Development & Training</Link>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
           <div>
             <Link href="/blog" className="block px-2 py-2 text-sm font-medium rounded-md hover:bg-primary-foreground/10 transition-colors">
               Blog
@@ -210,6 +220,35 @@ export function MainNav({ isMobileLayout = false }: MainNavProps) {
                 <NavigationMenuLink asChild>
                     <Link href="/courses" className={cn(navigationMenuTriggerStyle(), "bg-transparent hover:bg-primary-foreground/10 text-primary-foreground hover:text-primary-foreground focus:text-primary-foreground")}>Online Courses</Link>
                 </NavigationMenuLink>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-primary-foreground/10 text-primary-foreground hover:text-primary-foreground focus:text-primary-foreground">Career Solutions</NavigationMenuTrigger>
+                <NavigationMenuContent>
+                    <ul className="grid gap-3 p-6 md:w-[500px] lg:w-[600px]">
+                        <li className="col-span-full">
+                            <NavigationMenuLink asChild>
+                                <Link
+                                    href="/career-solutions"
+                                    className="flex flex-col h-full justify-center rounded-lg bg-muted p-6 no-underline outline-none focus:shadow-md"
+                                >
+                                    <Briefcase className="h-6 w-6" />
+                                    <div className="mb-2 mt-4 text-lg font-medium">
+                                        Career Solutions Hub
+                                    </div>
+                                    <p className="text-sm leading-tight text-muted-foreground">
+                                        Explore internships and professional training programs for your career growth.
+                                    </p>
+                                </Link>
+                            </NavigationMenuLink>
+                        </li>
+                        <ListItem href="/career-solutions/internship-programs" title="Internship Programs">
+                            4 specialized internship tracks with real-world project experience and mentorship.
+                        </ListItem>
+                        <ListItem href="/career-solutions/skill-development" title="Skill Development & Training">
+                            Corporate training, bootcamps, certifications, and professional development courses.
+                        </ListItem>
+                    </ul>
+                </NavigationMenuContent>
             </NavigationMenuItem>
              <NavigationMenuItem>
                 <NavigationMenuLink asChild>
