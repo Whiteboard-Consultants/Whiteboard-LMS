@@ -35,30 +35,30 @@ const trainingPrograms = [
     benefits: ['Increased Productivity', 'Better Employee Retention', 'Enhanced Performance', 'Competitive Advantage'],
   },
   {
-    id: 'institutional-training',
-    title: 'INSTITUTIONAL TRAINING',
+    id: 'campus-recruitment-training',
+    title: 'CAMPUS RECRUITMENT TRAINING',
     category: 'Educational Programs',
     duration: '6 months - 1 year',
     icon: Users,
     gradient: 'green' as const,
-    objective: 'Purpose-built training programs for educational institutions, helping students and faculty develop career-ready skills aligned with industry standards and employability requirements.',
+    objective: 'Purpose-built training programs for educational institutions, helping students develop campus recruitment readiness and career-ready skills aligned with industry standards and employability requirements.',
     offerings: [
-      'Employability Skills Development',
-      'Industry-Aligned Curriculum Support',
-      'Faculty Development Programs',
+      'Campus Recruitment Preparation',
+      'Interview & Aptitude Training',
+      'Resume & LinkedIn Optimization',
       'Soft Skills & Professional Etiquette',
-      'Certification Programs',
-      'Workshops & Guest Lectures'
+      'Group Discussion & Communication Skills',
+      'Industry Connection & Placement Support'
     ],
     deliverables: [
-      'Curriculum development support',
-      'Training delivery and facilitation',
-      'Student skill assessments',
-      'Industry connection & placement support',
-      'Faculty training on latest practices',
+      'Customized recruitment training delivery',
+      'Mock interview sessions and feedback',
+      'Student skill assessments and reports',
+      'Industry partner connections for placements',
+      'Alumni success stories and case studies',
       'Performance tracking and improvement plans'
     ],
-    benefits: ['Better Placements', 'Enhanced Curriculum', 'Industry Alignment', 'Student Success'],
+    benefits: ['Better Campus Placements', 'Higher Selection Rates', 'Industry Readiness', 'Student Success'],
   },
   {
     id: 'bootcamp-programs',
@@ -111,32 +111,6 @@ const trainingPrograms = [
       'Follow-up resources'
     ],
     benefits: ['Focused Learning', 'Expert Insights', 'Networking', 'Current Trends'],
-  },
-  {
-    id: 'professional-certification',
-    title: 'PROFESSIONAL CERTIFICATIONS',
-    category: 'Credential Programs',
-    duration: '3-6 months',
-    icon: Award,
-    gradient: 'orange' as const,
-    objective: 'Industry-recognized certification programs that validate expertise and enhance career prospects in specific professional domains.',
-    offerings: [
-      'Project Management Certifications',
-      'Cloud Computing Certifications',
-      'Digital Marketing Certifications',
-      'Business Analysis Certifications',
-      'Agile & Scrum Certifications',
-      'Technical & Software Certifications'
-    ],
-    deliverables: [
-      'Comprehensive study materials',
-      'Expert instructor support',
-      'Practice exams and assessments',
-      'Exam preparation guidance',
-      'Official certification credentials',
-      'Lifetime resource access'
-    ],
-    benefits: ['Industry Recognition', 'Career Advancement', 'Salary Increase', 'Credibility'],
   },
   {
     id: 'custom-programs',
