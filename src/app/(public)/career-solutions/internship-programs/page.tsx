@@ -551,7 +551,7 @@ export default function InternshipProgramsPage() {
       {/* CTA Section */}
       <section className="py-20 px-4 md:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
-          <div className="rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 p-8 md:p-12 text-center text-white">
+          <div className="rounded-2xl bg-primary p-8 md:p-12 text-center text-white">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Ready to Launch Your Career?
             </h2>
@@ -560,7 +560,7 @@ export default function InternshipProgramsPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/simple-register">
-                <Button size="lg" variant="secondary">
+                <Button size="lg" className="border-2 border-white bg-transparent text-white hover:bg-white/10">
                   Apply Now
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
