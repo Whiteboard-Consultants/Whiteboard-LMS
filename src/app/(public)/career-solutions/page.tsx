@@ -47,9 +47,9 @@ const trainingHighlights = [
     gradient: 'green' as const,
   },
   {
-    title: 'Professional Certifications',
-    description: 'Industry-recognized credentials for career advancement',
-    participants: 'For Professionals',
+    title: 'INSTITUTIONAL TRAINING',
+    description: 'Campus recruitment training for educational institutions',
+    participants: 'For Students',
     gradient: 'purple' as const,
   },
   {
