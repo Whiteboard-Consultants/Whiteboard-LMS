@@ -510,9 +510,9 @@ export default function SkillDevelopmentPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {workflowSteps.map((step, i) => (
-              <div key={i} className="relative">
-                <Card variant={(['blue', 'green', 'purple', 'indigo'] as const)[i]}>
-                  <CardContent className="pt-6">
+              <div key={i} className="relative h-full">
+                <Card variant={(['blue', 'green', 'purple', 'indigo'] as const)[i]} className="h-full">
+                  <CardContent className="pt-6 h-full flex flex-col">
                     <div className="text-4xl font-bold text-primary/20 mb-4">
                       {step.number}
                     </div>
