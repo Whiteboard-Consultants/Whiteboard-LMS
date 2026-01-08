@@ -211,8 +211,7 @@ export default function CareerSolutionsHub() {
                 <Link href="/simple-register">
                   <Button
                     size="lg"
-                    variant="outline"
-                    className="border-white text-white hover:bg-white/10 dark:text-white"
+                    className="border-2 border-white bg-transparent text-white hover:bg-white/10"
                   >
                     Apply Now
                   </Button>
@@ -321,8 +320,7 @@ export default function CareerSolutionsHub() {
                 <Link href="/contact">
                   <Button
                     size="lg"
-                    variant="outline"
-                    className="border-white text-white hover:bg-white/10"
+                    className="border-2 border-white bg-transparent text-white hover:bg-white/10"
                   >
                     Get Consultation
                   </Button>
