@@ -19,7 +19,7 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import React from "react";
-import { Globe, University } from "lucide-react";
+import { Globe, University, Briefcase } from "lucide-react";
 
 const studyAbroadDestinations: { title: string; href: string; description: string }[] = [
     {
