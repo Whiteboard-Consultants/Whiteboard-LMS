@@ -473,7 +473,7 @@ export default function InternshipProgramsPage() {
             {workflowSteps.map((step, i) => (
               <div key={i} className="relative">
                 <Card variant={(['blue', 'green', 'purple', 'indigo'] as const)[i]}>
-                  <CardContent className="pt-6">
+                  <CardContent className="pt-6 h-full flex flex-col">
                     <div className="text-4xl font-bold text-primary/20 mb-4">
                       {step.number}
                     </div>
