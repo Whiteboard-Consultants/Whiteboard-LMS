@@ -36,7 +36,7 @@ const trainingPrograms = [
   },
   {
     id: 'campus-recruitment-training',
-    title: 'INSTITUTIONAL TRAINING',
+    title: 'Institutional Training',
     category: 'Educational Programs',
     duration: '6 months - 1 year',
     icon: Users,
