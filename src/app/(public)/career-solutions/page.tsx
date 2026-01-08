@@ -47,7 +47,7 @@ const trainingHighlights = [
     gradient: 'green' as const,
   },
   {
-    title: 'INSTITUTIONAL TRAINING',
+    title: 'Institutional Training',
     description: 'Campus recruitment training for educational institutions',
     participants: 'For Students',
     gradient: 'purple' as const,
