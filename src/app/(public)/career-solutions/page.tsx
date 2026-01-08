@@ -196,9 +196,9 @@ export default function CareerSolutionsHub() {
             </div>
 
             {/* CTA */}
-            <div className="rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 p-8 md:p-12 text-center text-white">
+            <div className="rounded-2xl bg-primary p-8 md:p-12 text-center text-white">
               <h3 className="text-2xl md:text-3xl font-bold mb-4">Ready to Build Your Portfolio?</h3>
-              <p className="text-blue-100 mb-8">
+              <p className="text-primary-foreground/80 mb-8">
                 Join our next internship cohort and gain real-world experience with industry mentorship.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -212,7 +212,7 @@ export default function CareerSolutionsHub() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="border-white text-white hover:bg-white/10"
+                    className="border-white text-white hover:bg-white/10 dark:text-white"
                   >
                     Apply Now
                   </Button>
@@ -306,7 +306,7 @@ export default function CareerSolutionsHub() {
             </div>
 
             {/* CTA */}
-            <div className="rounded-2xl bg-gradient-to-r from-green-600 to-cyan-600 p-8 md:p-12 text-center text-white">
+            <div className="rounded-2xl bg-primary p-8 md:p-12 text-center text-white">
               <h3 className="text-2xl md:text-3xl font-bold mb-4">Upskill for Your Future</h3>
               <p className="text-green-100 mb-8">
                 Choose from corporate training, bootcamps, certifications, and workshops designed for every career stage.
