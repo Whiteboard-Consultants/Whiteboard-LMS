@@ -566,7 +566,7 @@ export default function InternshipProgramsPage() {
                 </Button>
               </Link>
               <Link href="/contact">
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+                <Button size="lg" className="border-2 border-white bg-transparent text-white hover:bg-white/10">
                   Contact Us
                 </Button>
               </Link>
