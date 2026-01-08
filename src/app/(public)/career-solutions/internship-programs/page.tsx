@@ -471,8 +471,8 @@ export default function InternshipProgramsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {workflowSteps.map((step, i) => (
-              <div key={i} className="relative">
-                <Card variant={(['blue', 'green', 'purple', 'indigo'] as const)[i]}>
+              <div key={i} className="relative h-full">
+                <Card variant={(['blue', 'green', 'purple', 'indigo'] as const)[i]} className="h-full">
                   <CardContent className="pt-6 h-full flex flex-col">
                     <div className="text-4xl font-bold text-primary/20 mb-4">
                       {step.number}
@@ -480,7 +480,7 @@ export default function InternshipProgramsPage() {
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">
                       {step.title}
                     </h3>
-                    <ul className="space-y-2">
+                    <ul className="space-y-2 flex-grow">
                       {step.items.map((item, j) => (
                         <li key={j} className="text-sm text-foreground/60 dark:text-slate-300/60 flex gap-2">
                           <span className="text-primary">✓</span>
