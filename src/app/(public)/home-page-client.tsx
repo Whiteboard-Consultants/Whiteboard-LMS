@@ -96,7 +96,7 @@ export default function HomePageClient({ whyChooseUsData }: HomePageClientProps)
             <JobTrendsChartSection />
             <ResumeEvaluationSection />
              
-             <section className="py-16 sm:py-24 bg-[#005CB4] dark:bg-black">
+             <section className="py-16 sm:py-24 bg-[#005CB4] dark:bg-slate-900">
                 <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center text-primary-foreground">
                         {stats.map((stat, index) => (
