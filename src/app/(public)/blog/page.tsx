@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { getPosts } from "@/lib/supabase-data";
 import { format } from "date-fns";
 import { convertToDate } from "@/lib/date-utils";
-import { Breadcrumb } from "@/components/breadcrumb";
 import BlogTabs from "@/components/blog-tabs";
 
 export const metadata: Metadata = {
@@ -84,8 +83,7 @@ export default async function BlogPage() {
       <div className="bg-background dark:bg-black">
       <section className="bg-slate-100 dark:bg-slate-dark py-16 sm:py-24">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <Breadcrumb items={[{ name: 'Blog', href: '/blog' }]} />
-            <div className="text-center mt-8">
+            <div className="text-center">
                 <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl font-headline">
                   Whiteboard Consultants Blog
                 </h1>
