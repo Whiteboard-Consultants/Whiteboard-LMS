@@ -355,7 +355,7 @@ export function StudentCourseView({ course, enrollment: initialEnrollment }: Stu
                   className={cn(
                     "w-full text-left p-2 rounded flex items-center gap-3 text-sm transition-colors group",
                     selectedLesson?.id === lesson.id
-                      ? "bg-primary/10 text-primary font-semibold shadow"
+                      ? "bg-primary text-primary-foreground font-semibold shadow dark:bg-primary dark:text-white"
                       : "hover:bg-muted"
                   )}
                   aria-current={selectedLesson?.id === lesson.id ? 'page' : undefined}
