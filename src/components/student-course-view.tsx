@@ -354,6 +354,7 @@ export function StudentCourseView({ course, enrollment: initialEnrollment }: Stu
                   onClick={() => setSelectedLesson(lesson)}
                   className={cn(
                     "w-full text-left p-2 rounded flex items-center gap-3 text-sm transition-colors group",
+                    lesson.parentId ? "ml-6 pr-2" : "",
                     selectedLesson?.id === lesson.id
                       ? "bg-primary text-primary-foreground font-semibold shadow dark:bg-primary dark:text-white"
                       : "hover:bg-muted"
