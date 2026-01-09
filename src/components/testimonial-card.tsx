@@ -14,7 +14,7 @@ export interface TestimonialProps {
 
 export function TestimonialCard({ name, university, quote }: TestimonialProps) {
   return (
-    <Card className="flex flex-col p-6 bg-background dark:bg-black h-full">
+    <Card className="flex flex-col p-6 glass dark:glass-card h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
       <div className="flex items-center mb-4">
         {[...Array(5)].map((_, i) => (
             <Star

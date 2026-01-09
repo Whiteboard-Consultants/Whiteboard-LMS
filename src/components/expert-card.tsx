@@ -24,7 +24,7 @@ interface ExpertCardProps {
 
 export function ExpertCard({ name, title, description, imageUrl, linkedinUrl, dataAiHint }: ExpertCardProps) {
   return (
-    <Card className="flex flex-col overflow-hidden text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1 dark:bg-black">
+    <Card className="flex flex-col overflow-hidden text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-2 glass dark:glass-card">
       <CardHeader className="p-0">
         <div className="relative h-64 w-full">
           {imageUrl && imageUrl.trim() !== '' ? (

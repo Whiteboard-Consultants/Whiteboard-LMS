@@ -12,12 +12,12 @@ interface StepCardProps {
 
 export function StepCard({ stepNumber, icon, title, description, checklist }: StepCardProps) {
   return (
-    <Card className="p-6 rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300 bg-card text-card-foreground h-full flex flex-col">
+    <Card className="p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 glass dark:glass-card text-card-foreground h-full flex flex-col hover:-translate-y-1">
         <div className="flex items-center gap-4 mb-4">
-            <div className="flex items-center justify-center h-12 w-12 rounded-full bg-muted">
+            <div className="flex items-center justify-center h-12 w-12 rounded-full glass-button dark:glass-button-dark">
                 <span className="text-lg font-bold text-foreground">{stepNumber}</span>
             </div>
-            <div className="p-3 bg-muted rounded-full">
+            <div className="p-3 glass-button dark:glass-button-dark rounded-full">
                 {icon}
             </div>
         </div>

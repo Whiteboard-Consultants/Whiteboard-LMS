@@ -210,3 +210,41 @@
 .dark .dark\:border-blue-500\/30 {
     border-color: rgba(59, 130, 246, 0.3);
 }
+/* Glassmorphism effects inspired by Apple iOS 26 */
+@layer components {
+  .glass {
+    @apply backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl;
+  }
+
+  .glass-dark {
+    @apply backdrop-blur-xl bg-black/10 border border-white/20 rounded-2xl;
+  }
+
+  .glass-light {
+    @apply backdrop-blur-lg bg-white/30 border border-white/30 rounded-xl;
+  }
+
+  .glass-card {
+    @apply backdrop-blur-2xl bg-white/5 border border-white/10 rounded-2xl shadow-xl;
+  }
+
+  .glass-card-dark {
+    @apply backdrop-blur-2xl bg-white/5 border border-white/10 rounded-2xl shadow-2xl dark:bg-black/20;
+  }
+
+  .glass-header {
+    @apply backdrop-blur-2xl bg-white/40 border-b border-white/20;
+  }
+
+  .glass-header-dark {
+    @apply backdrop-blur-2xl bg-black/30 border-b border-white/20;
+  }
+
+  .glass-button {
+    @apply backdrop-blur-lg bg-white/20 hover:bg-white/30 border border-white/30 rounded-lg transition-all;
+  }
+
+  .glass-button-dark {
+    @apply backdrop-blur-lg bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-all dark:bg-white/5 dark:hover:bg-white/15;
+  }
+}

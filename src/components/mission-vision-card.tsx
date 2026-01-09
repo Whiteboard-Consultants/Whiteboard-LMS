@@ -9,8 +9,8 @@ interface MissionVisionCardProps {
 
 export function MissionVisionCard({ icon, title, description }: MissionVisionCardProps) {
   return (
-    <Card className="flex flex-col items-center text-center p-8 space-y-4 rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300">
-      <div className="p-4 bg-muted rounded-full inline-flex">
+    <Card className="flex flex-col items-center text-center p-8 space-y-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 glass dark:glass-card hover:-translate-y-1">
+      <div className="p-4 glass-button dark:glass-button-dark rounded-full inline-flex">
         {icon}
       </div>
       <CardHeader className="p-0">

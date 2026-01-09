@@ -38,8 +38,8 @@ export function ServiceCard({ icon, title, description }: ServiceCardProps) {
   const IconComponent = icons[icon];
   const colorClass = iconColors[icon];
   return (
-    <Card className="flex flex-col items-start p-6 space-y-4 rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300 bg-slate-100 dark:bg-[#1A2A3A] text-foreground dark:text-white w-full">
-      <div className="p-3 bg-background/50 dark:bg-white/10 rounded-full">
+    <Card className="flex flex-col items-start p-6 space-y-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 glass dark:glass-card w-full hover:-translate-y-1">
+      <div className="p-3 glass-button dark:glass-button-dark rounded-full">
         {IconComponent && <IconComponent className={`h-8 w-8 ${colorClass}`} />}
       </div>
       <CardHeader className="p-0">
