@@ -77,7 +77,7 @@ export async function updateProgress(
   lessonId: string,
   quizData?: {
     questions: any[];
-    answers: (number | null)[];
+    answers: (number | string | null)[];
   }
 ) {
   try {
@@ -149,10 +149,19 @@ export async function updateProgress(
         firstQuestion: quizData.questions[0]
       });
 
+      // Calculate correct answers
+      // For MCQ: check if answer index matches correct index
+      // For Descriptive: any non-empty answer is considered as "attempted" (instructors will grade manually)
       const correctAnswers = quizData.answers.filter(
         (answer, index) => {
           const question = quizData.questions[index];
-          // Handle both correctAnswer and correctAnswerIndex
+          
+          // For descriptive questions, count if answer is provided (non-empty string)
+          if (question?.type === 'descriptive') {
+            return typeof answer === 'string' && answer.trim().length > 0;
+          }
+          
+          // For MCQ questions, check if answer matches correct index
           const correctIndex = question?.correctAnswer ?? question?.correctAnswerIndex;
           return answer === correctIndex;
         }
@@ -170,6 +179,7 @@ export async function updateProgress(
         enrollmentId,
         questionsStructure: quizData.questions.map((q, i) => ({
           index: i,
+          type: q.type || 'mcq',
           hasId: !!q.id,
           hasQuestionText: !!q.questionText,
           hasOptions: !!q.options,

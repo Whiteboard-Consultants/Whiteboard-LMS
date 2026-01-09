@@ -73,9 +73,64 @@ export function StudentCourseView({ course, enrollment: initialEnrollment }: Stu
             ...lesson,
             parentId: lesson.parent_id,
           }));
-          setLessons(mappedLessons);
-          if (!selectedLesson && mappedLessons && mappedLessons.length > 0) {
-            setSelectedLesson(mappedLessons[0]);
+          
+          // Sort lessons hierarchically: parent lessons with their immediate children
+          const sortedLessons = mappedLessons.sort((a, b) => {
+            // Both are parent lessons - sort by order_number
+            if (!a.parentId && !b.parentId) {
+              return (a.order_number || 0) - (b.order_number || 0);
+            }
+            
+            // If one is a parent and one is a child, need to check relationships
+            if (!a.parentId && b.parentId) {
+              // 'a' is parent, 'b' is child
+              // If 'b' is a child of 'a', then 'a' comes first
+              if (b.parentId === a.id) {
+                return -1;
+              }
+              // Otherwise, compare 'a' with 'b's parent
+              const bParent = mappedLessons.find(l => l.id === b.parentId);
+              if (bParent) {
+                return (a.order_number || 0) - (bParent.order_number || 0);
+              }
+              return -1;
+            }
+            
+            if (a.parentId && !b.parentId) {
+              // 'a' is child, 'b' is parent
+              // If 'a' is a child of 'b', then 'b' comes first
+              if (a.parentId === b.id) {
+                return 1;
+              }
+              // Otherwise, compare 'a's parent with 'b'
+              const aParent = mappedLessons.find(l => l.id === a.parentId);
+              if (aParent) {
+                return (aParent.order_number || 0) - (b.order_number || 0);
+              }
+              return 1;
+            }
+            
+            // Both are children
+            if (a.parentId && b.parentId) {
+              // If same parent, sort by order_number
+              if (a.parentId === b.parentId) {
+                return (a.order_number || 0) - (b.order_number || 0);
+              }
+              // Different parents, compare parent order numbers
+              const aParent = mappedLessons.find(l => l.id === a.parentId);
+              const bParent = mappedLessons.find(l => l.id === b.parentId);
+              if (aParent && bParent) {
+                return (aParent.order_number || 0) - (bParent.order_number || 0);
+              }
+              return 0;
+            }
+            
+            return 0;
+          });
+          
+          setLessons(sortedLessons);
+          if (!selectedLesson && sortedLessons && sortedLessons.length > 0) {
+            setSelectedLesson(sortedLessons[0]);
           }
         }
       } catch (error) {
@@ -127,7 +182,7 @@ export function StudentCourseView({ course, enrollment: initialEnrollment }: Stu
     setIsCompleting(false);
   };
   
-  const handleQuizSubmit = async (answers: (number | null)[]) => {
+  const handleQuizSubmit = async (answers: (number | string | null)[]) => {
       if (!selectedLesson || (selectedLesson.type !== 'quiz' && selectedLesson.type !== 'assignment')) {
         console.error('Invalid lesson for quiz/assignment submission:', selectedLesson);
         return;

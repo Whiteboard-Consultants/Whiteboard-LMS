@@ -6,18 +6,19 @@ import type { Question } from '@/types';
 import { Button } from './ui/button';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { Label } from './ui/label';
+import { Textarea } from './ui/textarea';
 import { Loader2 } from 'lucide-react';
 import { Progress } from './ui/progress';
 
 interface QuizTakerProps {
   questions: Question[];
-  onSubmit: (answers: (number | null)[]) => void;
+  onSubmit: (answers: (number | string | null)[]) => void;
   lessonType?: 'quiz' | 'assignment';
 }
 
 export function QuizTaker({ questions, onSubmit, lessonType = 'quiz' }: QuizTakerProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState<(number | null)[]>([]);
+  const [selectedAnswers, setSelectedAnswers] = useState<(number | string | null)[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -25,11 +26,29 @@ export function QuizTaker({ questions, onSubmit, lessonType = 'quiz' }: QuizTake
     setCurrentQuestionIndex(0);
   }, [questions]);
   
-  const allQuestionsAnswered = selectedAnswers.every(answer => answer !== null);
+  const allQuestionsAnswered = selectedAnswers.every((answer, index) => {
+    const currentQ = questions[index];
+    if (!currentQ) return answer !== null;
+    // For MCQ questions, answer must be a number
+    if (currentQ.type === 'mcq' || !currentQ.type) {
+      return typeof answer === 'number';
+    }
+    // For descriptive questions, answer must be a non-empty string
+    if (currentQ.type === 'descriptive') {
+      return typeof answer === 'string' && answer.trim().length > 0;
+    }
+    return answer !== null;
+  });
 
   const handleAnswerSelect = (optionIndex: number) => {
     const newAnswers = [...selectedAnswers];
     newAnswers[currentQuestionIndex] = optionIndex;
+    setSelectedAnswers(newAnswers);
+  };
+
+  const handleTextAnswerChange = (text: string) => {
+    const newAnswers = [...selectedAnswers];
+    newAnswers[currentQuestionIndex] = text;
     setSelectedAnswers(newAnswers);
   };
 
@@ -61,6 +80,8 @@ export function QuizTaker({ questions, onSubmit, lessonType = 'quiz' }: QuizTake
   }
 
   const currentQuestion = questions[currentQuestionIndex];
+  const isDescriptive = currentQuestion.type === 'descriptive';
+  const isMCQ = !isDescriptive; // Default to MCQ if no type specified
 
   return (
     <div className="space-y-6">
@@ -69,18 +90,34 @@ export function QuizTaker({ questions, onSubmit, lessonType = 'quiz' }: QuizTake
          <Progress value={((currentQuestionIndex + 1) / questions.length) * 100} className="w-full h-2" />
        </div>
        <p className="text-lg font-semibold">{currentQuestion.questionText}</p>
-       <RadioGroup
-            value={selectedAnswers[currentQuestionIndex]?.toString() ?? ''}
-            onValueChange={(value) => handleAnswerSelect(parseInt(value))}
-            className="space-y-2"
-        >
-            {currentQuestion.options.map((option, index) => (
-                <Label key={index} className="flex items-center gap-3 p-3 border rounded-md cursor-pointer hover:bg-muted has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
-                    <RadioGroupItem value={index.toString()} id={`option-${index}`} />
-                    <span>{option}</span>
-                </Label>
-            ))}
-       </RadioGroup>
+       
+       {isMCQ ? (
+         // MCQ Question
+         <RadioGroup
+              value={selectedAnswers[currentQuestionIndex]?.toString() ?? ''}
+              onValueChange={(value) => handleAnswerSelect(parseInt(value))}
+              className="space-y-2"
+          >
+              {currentQuestion.options.map((option, index) => (
+                  <Label key={index} className="flex items-center gap-3 p-3 border rounded-md cursor-pointer hover:bg-muted has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
+                      <RadioGroupItem value={index.toString()} id={`option-${index}`} />
+                      <span>{option}</span>
+                  </Label>
+              ))}
+         </RadioGroup>
+       ) : (
+         // Descriptive Question
+         <div>
+           <label className="block text-sm font-medium mb-2">Your Answer</label>
+           <Textarea
+             value={selectedAnswers[currentQuestionIndex] || ''}
+             onChange={(e) => handleTextAnswerChange(e.target.value)}
+             placeholder="Type your answer here..."
+             className="min-h-[150px]"
+           />
+         </div>
+       )}
+       
        <div className="flex justify-between items-center">
             <Button variant="outline" onClick={handlePrev} disabled={isSubmitting || currentQuestionIndex === 0}>
                 Previous
