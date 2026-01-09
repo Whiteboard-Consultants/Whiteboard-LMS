@@ -48,7 +48,7 @@ export default function BlogTabs({ posts }: BlogTabsProps) {
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Category Tabs */}
         <div className="mb-12">
-          <div className="flex flex-wrap gap-3 items-center">
+          <div className="flex flex-wrap gap-3 items-center justify-center">
             {categories.map((category) => (
               <button
                 key={category}
