@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import React from "react";
 import { Globe, University, Briefcase } from "lucide-react";
+import { useSidebar } from "@/components/ui/sidebar";
 
 const studyAbroadDestinations: { title: string; href: string; description: string }[] = [
     {
@@ -69,18 +70,20 @@ interface MainNavProps {
 }
 
 export function MainNav({ isMobileLayout = false }: MainNavProps) {
+  const { setOpenMobile } = useSidebar();
+  
   // Render mobile vertical menu when explicitly in mobile layout mode
   if (isMobileLayout) {
     return (
       <Accordion type="multiple" className="w-full">
         <div className="space-y-2">
           <div>
-            <Link href="/" className="block px-2 py-2 text-sm font-medium rounded-md hover:bg-primary-foreground/10 transition-colors">
+            <Link href="/" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm font-medium rounded-md hover:bg-primary-foreground/10 transition-colors">
               Home
             </Link>
           </div>
           <div>
-            <Link href="/about" className="block px-2 py-2 text-sm font-medium rounded-md hover:bg-primary-foreground/10 transition-colors">
+            <Link href="/about" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm font-medium rounded-md hover:bg-primary-foreground/10 transition-colors">
               About
             </Link>
           </div>
@@ -89,9 +92,9 @@ export function MainNav({ isMobileLayout = false }: MainNavProps) {
             <AccordionTrigger className="px-2 py-2 text-sm font-medium hover:bg-primary-foreground/10 rounded-md">Study Abroad</AccordionTrigger>
             <AccordionContent className="pl-4 pt-2 pb-2">
               <div className="space-y-2">
-                <Link href="/study-abroad" className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">All Study Abroad</Link>
+                <Link href="/study-abroad" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">All Study Abroad</Link>
                 {studyAbroadDestinations.map((dest) => (
-                  <Link key={dest.title} href={dest.href} className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">
+                  <Link key={dest.title} href={dest.href} onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">
                     {dest.title}
                   </Link>
                 ))}
@@ -103,14 +106,14 @@ export function MainNav({ isMobileLayout = false }: MainNavProps) {
             <AccordionTrigger className="px-2 py-2 text-sm font-medium hover:bg-primary-foreground/10 rounded-md">Admissions</AccordionTrigger>
             <AccordionContent className="pl-4 pt-2 pb-2">
               <div className="space-y-2">
-                <Link href="/admissions/uow-india" className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">UOW India Partner</Link>
-                <Link href="/college-admissions" className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">College Admissions</Link>
+                <Link href="/admissions/uow-india" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">UOW India Partner</Link>
+                <Link href="/college-admissions" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">College Admissions</Link>
               </div>
             </AccordionContent>
           </AccordionItem>
 
           <div>
-            <Link href="/courses" className="block px-2 py-2 text-sm font-medium rounded-md hover:bg-primary-foreground/10 transition-colors">
+            <Link href="/courses" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm font-medium rounded-md hover:bg-primary-foreground/10 transition-colors">
               Online Courses
             </Link>
           </div>
@@ -118,19 +121,19 @@ export function MainNav({ isMobileLayout = false }: MainNavProps) {
             <AccordionTrigger className="px-2 py-2 text-sm font-medium hover:bg-primary-foreground/10 rounded-md">Career Solutions</AccordionTrigger>
             <AccordionContent className="pl-4 pt-2 pb-2">
               <div className="space-y-2">
-                <Link href="/career-solutions" className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">Overview</Link>
-                <Link href="/career-solutions/internship-programs" className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">Internship Programs</Link>
-                <Link href="/career-solutions/skill-development" className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">Skill Development & Training</Link>
+                <Link href="/career-solutions" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">Overview</Link>
+                <Link href="/career-solutions/internship-programs" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">Internship Programs</Link>
+                <Link href="/career-solutions/skill-development" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">Skill Development & Training</Link>
               </div>
             </AccordionContent>
           </AccordionItem>
           <div>
-            <Link href="/blog" className="block px-2 py-2 text-sm font-medium rounded-md hover:bg-primary-foreground/10 transition-colors">
+            <Link href="/blog" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm font-medium rounded-md hover:bg-primary-foreground/10 transition-colors">
               Blog
             </Link>
           </div>
           <div>
-            <Link href="/contact" className="block px-2 py-2 text-sm font-medium rounded-md hover:bg-primary-foreground/10 transition-colors">
+            <Link href="/contact" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm font-medium rounded-md hover:bg-primary-foreground/10 transition-colors">
               Contact Us
             </Link>
           </div>
