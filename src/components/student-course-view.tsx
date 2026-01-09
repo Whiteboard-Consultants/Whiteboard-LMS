@@ -68,9 +68,14 @@ export function StudentCourseView({ course, enrollment: initialEnrollment }: Stu
             description: "Could not fetch course lessons. Please check your connection.",
           });
         } else {
-          setLessons(lessonsData || []);
-          if (!selectedLesson && lessonsData && lessonsData.length > 0) {
-            setSelectedLesson(lessonsData[0]);
+          // Map database fields to Lesson type, including parentId
+          const mappedLessons = (lessonsData || []).map(lesson => ({
+            ...lesson,
+            parentId: lesson.parent_id,
+          }));
+          setLessons(mappedLessons);
+          if (!selectedLesson && mappedLessons && mappedLessons.length > 0) {
+            setSelectedLesson(mappedLessons[0]);
           }
         }
       } catch (error) {
