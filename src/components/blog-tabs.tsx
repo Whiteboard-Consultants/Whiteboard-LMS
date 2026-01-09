@@ -94,7 +94,7 @@ export default function BlogTabs({ posts }: BlogTabsProps) {
                         priority={false}
                       />
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center">
+                      <div className="w-full h-full glass dark:glass-card flex items-center justify-center">
                         <div className="text-center text-muted-foreground">
                           <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
                           <p className="text-sm font-medium">Blog Image</p>

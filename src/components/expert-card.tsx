@@ -37,7 +37,7 @@ export function ExpertCard({ name, title, description, imageUrl, linkedinUrl, da
               data-ai-hint={dataAiHint}
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center">
+            <div className="w-full h-full glass dark:glass-card flex items-center justify-center">
               <div className="text-center text-muted-foreground">
                 <User className="h-16 w-16 mx-auto mb-3 opacity-50" />
                 <p className="text-lg font-medium">Expert Photo</p>
