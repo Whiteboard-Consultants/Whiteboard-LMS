@@ -183,6 +183,9 @@ export function CourseContentManager({ courseId }: { courseId: string }) {
                 console.log('Available fields:', Object.keys(lessonsData[0]));
             }
 
+            // Sort by order_number BEFORE mapping to ensure correct sequence
+            lessonsData.sort((a, b) => (a.order_number || 0) - (b.order_number || 0));
+
             const lessons = lessonsData.map((lesson, index) => ({
                 id: lesson.id,
                 title: lesson.title,

@@ -107,7 +107,7 @@ export async function fetchCourseLessons(courseId: string) {
       .from('lessons')
       .select('*')
       .eq('course_id', courseId)
-      .order('created_at', { ascending: true });
+      .order('order_number', { ascending: true });
 
     if (error) {
       console.error('Error fetching lessons:', error);
