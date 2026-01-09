@@ -36,7 +36,7 @@ function MobileSidebar() {
 
 export function PublicHeader() {
     return (
-        <header className="sticky top-0 z-50 w-full glass-header dark:glass-header-dark">
+        <header className="sticky top-0 z-50 w-full border-b bg-primary text-primary-foreground dark:bg-black dark:border-primary-foreground/20">
             <SidebarProvider>
                 <div className="container flex h-[60px] items-center">
                     <Link href="/" className="mr-6 flex items-center space-x-2">
