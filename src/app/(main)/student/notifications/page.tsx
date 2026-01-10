@@ -46,7 +46,7 @@ export default function NotificationsPage() {
         setUserId(user.id);
 
         // Fetch notifications
-        const { getStudentNotifications } = await import('@/app/instructor/grading/actions');
+        const { getStudentNotifications } = await import('@/app/(main)/instructor/grading/actions');
         const result = await getStudentNotifications(user.id);
 
         if (result.success) {
@@ -64,7 +64,7 @@ export default function NotificationsPage() {
 
   const handleMarkAsRead = async (notificationId: string) => {
     try {
-      const { markNotificationAsRead } = await import('@/app/instructor/grading/actions');
+      const { markNotificationAsRead } = await import('@/app/(main)/instructor/grading/actions');
       await markNotificationAsRead(notificationId, userId!);
 
       // Update local state

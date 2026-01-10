@@ -145,6 +145,7 @@ export function SidebarNav() {
     const allLinks = {
       instructor: [
           { href: "/instructor/dashboard", label: "Dashboard", icon: LayoutDashboard },
+          { href: "/instructor/grading", label: "Grading", icon: ClipboardList },
           { href: "/instructor/announcements", label: "Announcements", icon: Megaphone },
           { href: "/instructor/messages", label: "Messages", icon: MessageSquare },
           { href: "/instructor/courses", label: "Courses & Reports", icon: BookMarked },
@@ -154,6 +155,7 @@ export function SidebarNav() {
         ],
       student: [
           { href: "/student/dashboard", label: "My Dashboard", icon: LayoutDashboard },
+          { href: "/student/notifications", label: "Notifications", icon: Mail },
           { href: "/student/messages", label: "Messages", icon: MessageSquare },
           { href: "/student/skills", label: "My Skills", icon: Zap },
           { href: "/student/tests", label: "Tests", icon: FileText },
