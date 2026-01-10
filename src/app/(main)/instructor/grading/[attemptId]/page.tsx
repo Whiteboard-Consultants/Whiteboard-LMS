@@ -125,7 +125,7 @@ export default function GradingDetailPage() {
 
       const module = await import('../actions');
       const { submitGradingFeedback } = module;
-      const result = await submitGradingFeedback(attemptId, userId, feedback, score);
+      const result = await submitGradingFeedback(attemptId, user.id, feedback, score);
 
       if (!result.success) {
         setError(result.error || 'Failed to submit feedback');
