@@ -152,6 +152,7 @@ export function SidebarNav() {
           { href: "/instructor/tests", label: "Tests", icon: FileText },
           { href: "/instructor/reports/tests", label: "Test Reports", icon: BarChart3 },
           { href: "/instructor/ai-suggester", label: "AI Suggester", icon: Lightbulb },
+          { href: "/instructor/help", label: "Help & Documentation", icon: HelpCircle },
         ],
       student: [
           { href: "/student/dashboard", label: "My Dashboard", icon: LayoutDashboard },
