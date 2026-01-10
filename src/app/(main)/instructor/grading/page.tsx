@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, CheckCircle, Clock } from 'lucide-react';
@@ -28,29 +29,28 @@ interface QuizAttempt {
 }
 
 export default function InstructorGradingPage() {
+  const { user, userData, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [pendingAttempts, setPendingAttempts] = useState<QuizAttempt[]>([]);
   const [reviewedAttempts, setReviewedAttempts] = useState<QuizAttempt[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ pending: 0, reviewed: 0, total: 0 });
-  const router = useRouter();
 
   useEffect(() => {
+    if (authLoading) {
+      setLoading(true);
+      return;
+    }
+
+    // Check if user is authenticated and is an instructor
+    if (!user || userData?.role !== 'instructor') {
+      router.push('/login');
+      return;
+    }
+
     const fetchPendingGrading = async () => {
       try {
         setLoading(true);
-        
-        // Get current user
-        const { data: { user }, error: userError } = await (
-          await import('@supabase/supabase-js')
-        ).createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-        ).auth.getUser();
-
-        if (userError || !user) {
-          router.push('/auth/sign-in');
-          return;
-        }
 
         // Import action
         const { getPendingGradingTasks, getGradingStats } = await import('./actions');
@@ -78,7 +78,7 @@ export default function InstructorGradingPage() {
     };
 
     fetchPendingGrading();
-  }, [router]);
+  }, [user, userData, authLoading, router]);
 
   const countDescriptiveQuestions = (questions: any[]) => {
     return questions?.filter((q: any) => q.type === 'descriptive').length || 0;

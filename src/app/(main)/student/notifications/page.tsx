@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Bell, CheckCircle, AlertCircle, ArrowRight } from 'lucide-react';
@@ -18,32 +19,26 @@ interface Notification {
 }
 
 export default function NotificationsPage() {
+  const { user, userData, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState<string | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
+    if (authLoading) {
+      setLoading(true);
+      return;
+    }
+
+    // Check if user is authenticated and is a student
+    if (!user || userData?.role !== 'student') {
+      router.push('/login');
+      return;
+    }
+
     const fetchNotifications = async () => {
       try {
         setLoading(true);
-
-        // Get current user
-        const supabase = await import('@supabase/supabase-js').then(m =>
-          m.createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-          )
-        );
-
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-
-        if (userError || !user) {
-          router.push('/auth/sign-in');
-          return;
-        }
-
-        setUserId(user.id);
 
         // Fetch notifications
         const { getStudentNotifications } = await import('@/app/(main)/instructor/grading/actions');
@@ -60,12 +55,12 @@ export default function NotificationsPage() {
     };
 
     fetchNotifications();
-  }, [router]);
+  }, [user, userData, authLoading, router]);
 
   const handleMarkAsRead = async (notificationId: string) => {
     try {
       const { markNotificationAsRead } = await import('@/app/(main)/instructor/grading/actions');
-      await markNotificationAsRead(notificationId, userId!);
+      await markNotificationAsRead(notificationId, user!.id);
 
       // Update local state
       setNotifications(
