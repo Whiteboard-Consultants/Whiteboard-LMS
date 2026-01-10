@@ -409,6 +409,10 @@ export async function getQuizAttempt(attemptId: string) {
       total_questions: attempt.total_questions || 0,
       percentage: percentage,
       submitted_at: attempt.submitted_at,
+      instructor_feedback: attempt.instructor_feedback || null,
+      instructor_score: attempt.instructor_score || null,
+      grading_status: attempt.grading_status || 'pending',
+      graded_at: attempt.graded_at || null,
     };
   } catch (error) {
     console.error('❌ Error in getQuizAttempt:', error);

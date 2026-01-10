@@ -2,6 +2,9 @@
 -- Purpose: Track instructor feedback notifications for students
 -- Created: 2026-01-09
 
+-- Drop and recreate notifications table to ensure clean state
+DROP TABLE IF EXISTS public.notifications CASCADE;
+
 -- Create notifications table
 CREATE TABLE IF NOT EXISTS public.notifications (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -9,16 +12,16 @@ CREATE TABLE IF NOT EXISTS public.notifications (
   type TEXT NOT NULL CHECK (type IN ('feedback_posted', 'grade_available')),
   title TEXT NOT NULL,
   message TEXT NOT NULL,
-  related_attempt_id UUID,
+  attempt_id UUID,
   read BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Note: Indexes are created separately due to Supabase timing issues
--- CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON public.notifications(user_id);
--- CREATE INDEX IF NOT EXISTS idx_notifications_read_status ON public.notifications(user_id, read);
--- CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON public.notifications(created_at DESC);
+-- Add indexes for performance
+CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON public.notifications(user_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_read_status ON public.notifications(user_id, read);
+CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON public.notifications(created_at DESC);
 
 -- Create function to mark notification as read
 CREATE OR REPLACE FUNCTION public.mark_notification_read(notification_id UUID)

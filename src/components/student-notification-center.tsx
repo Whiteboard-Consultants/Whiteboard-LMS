@@ -29,8 +29,8 @@ export function StudentNotificationCenter() {
         const { data: notificationsData, error } = await supabase
           .from('notifications')
           .select('*')
-          .eq('receiver_id', user.id)  // Fixed: use snake_case column name
-          .eq('is_read', false)         // Fixed: use snake_case column name
+          .eq('user_id', user.id)
+          .eq('read', false)
           .order('created_at', { ascending: false });
         
         if (error) {

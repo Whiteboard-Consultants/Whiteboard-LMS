@@ -13,7 +13,7 @@ interface Notification {
   type: 'feedback_posted' | 'grade_available';
   title: string;
   message: string;
-  related_attempt_id?: string;
+  attempt_id?: string;
   read: boolean;
   created_at: string;
 }
@@ -157,13 +157,13 @@ export default function NotificationsPage() {
                           })}
                         </p>
 
-                        {notification.related_attempt_id && (
+                        {notification.attempt_id && (
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={() => {
                               handleMarkAsRead(notification.id);
-                              handleViewAssessment(notification.related_attempt_id);
+                              handleViewAssessment(notification.attempt_id);
                             }}
                           >
                             View <ArrowRight className="w-4 h-4 ml-2" />

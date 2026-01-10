@@ -162,7 +162,7 @@ export default function GradingDetailPage() {
     try {
       const module = await import('../actions');
       const { getSimilarAnswers } = module;
-      const result = await getSimilarAnswers(attemptId, userId!, questionIndex);
+      const result = await getSimilarAnswers(attemptId, user!.id, questionIndex);
 
       if (result.success) {
         setSimilarAnswers(result.data);

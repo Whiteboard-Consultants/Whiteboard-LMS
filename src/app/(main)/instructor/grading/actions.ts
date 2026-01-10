@@ -210,16 +210,16 @@ export async function submitGradingFeedback(
     }
 
     // Create notification for student
-    const lessonTitle = (attempt.lessons as any)?.title || 'Assessment';
+    const lessonTitle = (attempt.lessons as any)?.title || 'Assessment/Quiz';
     const { error: notificationError } = await supabaseAdmin
       .from('notifications')
       .insert({
         user_id: attempt.user_id,
         type: 'feedback_posted',
         title: 'Feedback Posted',
-        message: `Your instructor has posted feedback on "${lessonTitle}"`,
-        related_attempt_id: attemptId,
-      });
+        message: `Your instructor has posted feedback on your Assessment/Quiz: "${lessonTitle}"`,
+        attempt_id: attemptId,
+      } as any);
 
     if (notificationError) {
       console.error('⚠️ Warning: Failed to create notification:', notificationError);
