@@ -17,9 +17,12 @@ export default function InstructorHelpPage() {
         />
 
         <Tabs defaultValue="getting-started" className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-8">
+          <TabsList className="grid w-full grid-cols-7 mb-8 h-auto flex-wrap">
             <TabsTrigger value="getting-started">Getting Started</TabsTrigger>
+            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+            <TabsTrigger value="courses">Courses</TabsTrigger>
             <TabsTrigger value="grading">Grading</TabsTrigger>
+            <TabsTrigger value="test-reports">Test Reports</TabsTrigger>
             <TabsTrigger value="features">Features</TabsTrigger>
             <TabsTrigger value="best-practices">Best Practices</TabsTrigger>
             <TabsTrigger value="faq">FAQ</TabsTrigger>
@@ -73,6 +76,490 @@ export default function InstructorHelpPage() {
                     <p>⚙️ <strong>Mobile Friendly:</strong> The navigation adjusts for mobile devices - tap the menu icon to expand</p>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* DASHBOARD TAB */}
+          <TabsContent value="dashboard" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5" />
+                  Understanding Your Dashboard
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <p className="text-sm text-slate-600">Your instructor dashboard is your command center. It displays all key metrics and provides quick access to important functions.</p>
+
+                  <div className="border-l-4 border-blue-500 pl-4">
+                    <h3 className="font-semibold mb-2">📊 Dashboard Sections</h3>
+                    <div className="space-y-3">
+                      <div className="bg-blue-50 p-3 rounded">
+                        <p className="font-semibold text-sm text-blue-900">Quick Stats Cards</p>
+                        <p className="text-xs text-blue-800 mt-1">Shows high-level overview of your teaching metrics: total students, active courses, pending tasks, and recent activity.</p>
+                      </div>
+                      <div className="bg-green-50 p-3 rounded">
+                        <p className="font-semibold text-sm text-green-900">Recent Assessments</p>
+                        <p className="text-xs text-green-800 mt-1">List of recently submitted assessments pending your review. Click any to start grading immediately.</p>
+                      </div>
+                      <div className="bg-purple-50 p-3 rounded">
+                        <p className="font-semibold text-sm text-purple-900">Quick Links</p>
+                        <p className="text-xs text-purple-800 mt-1">Shortcuts to frequently used features like Grading, Messages, Announcements, and Course Management.</p>
+                      </div>
+                      <div className="bg-amber-50 p-3 rounded">
+                        <p className="font-semibold text-sm text-amber-900">Notifications</p>
+                        <p className="text-xs text-amber-800 mt-1">Recent notifications including new student enrollments, messages, and system updates.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-l-4 border-green-500 pl-4">
+                    <h3 className="font-semibold mb-2">📈 Understanding the Metrics</h3>
+                    <div className="space-y-3 text-sm">
+                      <div>
+                        <p className="font-semibold text-green-900">Active Courses</p>
+                        <p className="text-slate-700">Number of courses you're currently teaching. Includes only courses with active students.</p>
+                      </div>
+                      <div>
+                        <p className="font-semibold text-green-900">Total Students</p>
+                        <p className="text-slate-700">Combined count of all students enrolled across your active courses.</p>
+                      </div>
+                      <div>
+                        <p className="font-semibold text-green-900">Pending Reviews</p>
+                        <p className="text-slate-700">Number of student assessments waiting for your feedback. This is your primary action item.</p>
+                      </div>
+                      <div>
+                        <p className="font-semibold text-green-900">Completion Rate</p>
+                        <p className="text-slate-700">Percentage of assessments you've reviewed. Higher is better - shows you're keeping up with grading.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-l-4 border-indigo-500 pl-4">
+                    <h3 className="font-semibold mb-2">🎯 Using Dashboard Data</h3>
+                    <ul className="list-disc list-inside text-sm space-y-2 text-slate-700">
+                      <li>Check pending reviews count to prioritize your grading workload</li>
+                      <li>Monitor completion rate to stay on schedule with feedback</li>
+                      <li>Use quick links to jump to frequently needed sections</li>
+                      <li>Review recent activity to stay aware of course dynamics</li>
+                      <li>Check notifications for important updates and messages</li>
+                    </ul>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* COURSES TAB */}
+          <TabsContent value="courses" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BookOpen className="h-5 w-5" />
+                  Creating and Managing Courses
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <Accordion type="single" collapsible className="w-full">
+                  <AccordionItem value="create-course">
+                    <AccordionTrigger className="text-base font-semibold">Create a New Course</AccordionTrigger>
+                    <AccordionContent className="space-y-4">
+                      <div className="space-y-3">
+                        <p className="font-semibold">Step 1: Access Course Management</p>
+                        <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+                          <li>Click <strong>"Courses & Reports"</strong> in the sidebar</li>
+                          <li>Click <strong>"New Course"</strong> button (top right)</li>
+                        </ul>
+                      </div>
+
+                      <div className="space-y-3">
+                        <p className="font-semibold">Step 2: Fill Course Details</p>
+                        <div className="bg-slate-50 p-3 rounded text-sm space-y-2">
+                          <div>
+                            <p className="font-semibold text-slate-900">Course Title</p>
+                            <p className="text-slate-700">Enter the course name (e.g., "LinkedIn Profile Optimization")</p>
+                          </div>
+                          <div>
+                            <p className="font-semibold text-slate-900">Description</p>
+                            <p className="text-slate-700">Write a clear description of what students will learn</p>
+                          </div>
+                          <div>
+                            <p className="font-semibold text-slate-900">Category</p>
+                            <p className="text-slate-700">Select from predefined categories (Professional Development, Skills, etc.)</p>
+                          </div>
+                          <div>
+                            <p className="font-semibold text-slate-900">Level</p>
+                            <p className="text-slate-700">Choose difficulty level: Beginner, Intermediate, or Advanced</p>
+                          </div>
+                          <div>
+                            <p className="font-semibold text-slate-900">Price</p>
+                            <p className="text-slate-700">Set course price (can be free or paid)</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <p className="font-semibold">Step 3: Add Course Content</p>
+                        <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+                          <li>Add course thumbnail/image</li>
+                          <li>Create course modules/sections</li>
+                          <li>Add lessons within each module</li>
+                          <li>Upload video, text, or other media content</li>
+                        </ul>
+                      </div>
+
+                      <div className="space-y-3">
+                        <p className="font-semibold">Step 4: Configure Assessments</p>
+                        <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+                          <li>Add tests/quizzes to course lessons</li>
+                          <li>Link assessments to specific learning modules</li>
+                          <li>Set passing thresholds if needed</li>
+                        </ul>
+                      </div>
+
+                      <div className="space-y-3">
+                        <p className="font-semibold">Step 5: Publish Course</p>
+                        <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+                          <li>Review all course details</li>
+                          <li>Click <strong>"Publish Course"</strong> to make it available to students</li>
+                          <li>Course is now visible in the student marketplace</li>
+                        </ul>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="manage-course">
+                    <AccordionTrigger className="text-base font-semibold">Manage Course Content</AccordionTrigger>
+                    <AccordionContent className="space-y-4">
+                      <p className="text-sm">Once your course is published, you can make updates and manage content.</p>
+
+                      <div className="space-y-3">
+                        <p className="font-semibold">Editing Course Details</p>
+                        <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+                          <li>Go to <strong>Courses & Reports</strong> → Select your course</li>
+                          <li>Click <strong>"Edit"</strong> to modify course information</li>
+                          <li>Update title, description, price, or other details</li>
+                          <li>Click <strong>"Save Changes"</strong></li>
+                        </ul>
+                      </div>
+
+                      <div className="space-y-3">
+                        <p className="font-semibold">Managing Lessons</p>
+                        <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+                          <li>View all lessons in the course structure</li>
+                          <li>Add new lessons to existing modules</li>
+                          <li>Reorder lessons by dragging</li>
+                          <li>Edit lesson content and media</li>
+                          <li>Archive or delete lessons (careful - affects student progress)</li>
+                        </ul>
+                      </div>
+
+                      <div className="space-y-3">
+                        <p className="font-semibold">Managing Assessments</p>
+                        <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+                          <li>Add quizzes or tests to lessons</li>
+                          <li>Edit test questions and answers</li>
+                          <li>View test performance analytics</li>
+                          <li>Adjust passing scores or test settings</li>
+                        </ul>
+                      </div>
+
+                      <div className="bg-amber-50 p-3 rounded">
+                        <p className="text-sm text-amber-900"><strong>⚠️ Important:</strong> When editing course content, be careful about removing lessons or changing assessments, as this may affect students who are already enrolled.</p>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="view-enrollments">
+                    <AccordionTrigger className="text-base font-semibold">View Course Enrollments</AccordionTrigger>
+                    <AccordionContent className="space-y-4">
+                      <p className="text-sm">Track which students are enrolled in your courses and their progress.</p>
+
+                      <div className="space-y-3">
+                        <p className="font-semibold">Accessing Enrollment Data</p>
+                        <ol className="list-decimal list-inside text-sm space-y-1 ml-2">
+                          <li>Go to <strong>Courses & Reports</strong> in the sidebar</li>
+                          <li>Select a course from the list</li>
+                          <li>Click the <strong>"Enrollments"</strong> or <strong>"Students"</strong> tab</li>
+                        </ol>
+                      </div>
+
+                      <div className="space-y-3">
+                        <p className="font-semibold">What You Can See</p>
+                        <div className="bg-blue-50 p-3 rounded text-sm space-y-2">
+                          <p><strong>Student Names:</strong> List of all enrolled students</p>
+                          <p><strong>Enrollment Date:</strong> When they joined the course</p>
+                          <p><strong>Progress:</strong> How far they've progressed (lessons completed)</p>
+                          <p><strong>Test Scores:</strong> Their assessment results</p>
+                          <p><strong>Status:</strong> Active, completed, or dropped</p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <p className="font-semibold">Taking Action</p>
+                        <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+                          <li>Click a student name to see detailed progress</li>
+                          <li>Send messages to individual students</li>
+                          <li>View their assessment submissions</li>
+                          <li>Check their completion status</li>
+                        </ul>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="course-analytics">
+                    <AccordionTrigger className="text-base font-semibold">Course Analytics & Insights</AccordionTrigger>
+                    <AccordionContent className="space-y-4">
+                      <p className="text-sm">Understand how your course is performing and where students struggle.</p>
+
+                      <div className="space-y-3">
+                        <p className="font-semibold">Key Metrics</p>
+                        <div className="space-y-2">
+                          <div className="bg-green-50 p-3 rounded text-sm">
+                            <p className="font-semibold text-green-900">Average Score</p>
+                            <p className="text-green-800">Mean test score across all students - indicates overall course difficulty</p>
+                          </div>
+                          <div className="bg-blue-50 p-3 rounded text-sm">
+                            <p className="font-semibold text-blue-900">Completion Rate</p>
+                            <p className="text-blue-800">Percentage of enrolled students who finished the course</p>
+                          </div>
+                          <div className="bg-purple-50 p-3 rounded text-sm">
+                            <p className="font-semibold text-purple-900">Drop-off Points</p>
+                            <p className="text-purple-800">Lessons where students commonly stop progressing (identify difficult content)</p>
+                          </div>
+                          <div className="bg-amber-50 p-3 rounded text-sm">
+                            <p className="font-semibold text-amber-900">Question Performance</p>
+                            <p className="text-amber-800">Which test questions students struggle with most</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <p className="font-semibold">Using Analytics to Improve</p>
+                        <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+                          <li>If average score is low, consider reviewing lesson explanations</li>
+                          <li>If completion is low, check for drop-off points and improve that content</li>
+                          <li>If specific questions have low scores, rewrite or clarify them</li>
+                          <li>Compare metrics over time to see improvements</li>
+                        </ul>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* TEST REPORTS TAB */}
+          <TabsContent value="test-reports" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5" />
+                  Understanding Test Reports
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <Accordion type="single" collapsible className="w-full">
+                  <AccordionItem value="accessing-reports">
+                    <AccordionTrigger className="text-base font-semibold">Accessing Test Reports</AccordionTrigger>
+                    <AccordionContent className="space-y-3">
+                      <p>There are multiple ways to view test reports depending on what you want to analyze.</p>
+
+                      <div className="space-y-3">
+                        <div>
+                          <p className="font-semibold text-sm mb-2">Option 1: From Sidebar</p>
+                          <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+                            <li>Click <strong>"Test Reports"</strong> in the sidebar</li>
+                            <li>View comprehensive reports across all your tests</li>
+                          </ul>
+                        </div>
+
+                        <div>
+                          <p className="font-semibold text-sm mb-2">Option 2: From Courses Page</p>
+                          <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+                            <li>Go to <strong>Courses & Reports</strong> → Select a course</li>
+                            <li>Click <strong>"Test Reports"</strong> tab within that course</li>
+                          </ul>
+                        </div>
+
+                        <div>
+                          <p className="font-semibold text-sm mb-2">Option 3: From Tests Page</p>
+                          <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+                            <li>Go to <strong>Tests</strong> in the sidebar</li>
+                            <li>Click a test to see detailed report</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="report-overview">
+                    <AccordionTrigger className="text-base font-semibold">Report Overview - Key Sections</AccordionTrigger>
+                    <AccordionContent className="space-y-4">
+                      <div className="space-y-3">
+                        <div className="border-l-4 border-blue-500 pl-4">
+                          <p className="font-semibold mb-2">📊 Summary Statistics</p>
+                          <div className="bg-blue-50 p-3 rounded text-sm space-y-2">
+                            <p><strong>Total Attempts:</strong> How many students have taken the test</p>
+                            <p><strong>Average Score:</strong> Mean score across all attempts (0-100)</p>
+                            <p><strong>Highest Score:</strong> Best student performance</p>
+                            <p><strong>Lowest Score:</strong> Lowest performance</p>
+                            <p><strong>Pass Rate:</strong> Percentage of students who passed (if applicable)</p>
+                          </div>
+                        </div>
+
+                        <div className="border-l-4 border-green-500 pl-4">
+                          <p className="font-semibold mb-2">📈 Score Distribution</p>
+                          <div className="bg-green-50 p-3 rounded text-sm space-y-2">
+                            <p>Visual graph showing how student scores are distributed across ranges (e.g., 0-25%, 25-50%, 50-75%, 75-100%)</p>
+                            <p className="text-xs mt-2"><strong>What it means:</strong> A curve toward higher scores indicates easier test; spread indicates varied understanding</p>
+                          </div>
+                        </div>
+
+                        <div className="border-l-4 border-purple-500 pl-4">
+                          <p className="font-semibold mb-2">❓ Question Performance</p>
+                          <div className="bg-purple-50 p-3 rounded text-sm space-y-2">
+                            <p>Breakdown of each test question with:</p>
+                            <ul className="list-disc list-inside mt-2 space-y-1 ml-2">
+                              <li><strong>Correct %:</strong> Percentage of students who answered correctly</li>
+                              <li><strong>Incorrect %:</strong> Percentage who got it wrong</li>
+                              <li><strong>Difficulty Index:</strong> How hard the question is overall</li>
+                              <li><strong>Discrimination Index:</strong> How well it differentiates high/low performers</li>
+                            </ul>
+                          </div>
+                        </div>
+
+                        <div className="border-l-4 border-amber-500 pl-4">
+                          <p className="font-semibold mb-2">👥 Student Breakdown</p>
+                          <div className="bg-amber-50 p-3 rounded text-sm space-y-2">
+                            <p>Table showing each student's:</p>
+                            <ul className="list-disc list-inside mt-2 space-y-1 ml-2">
+                              <li>Name and ID</li>
+                              <li>Total score achieved</li>
+                              <li>Time spent on test</li>
+                              <li>Attempt number (if multiple attempts allowed)</li>
+                              <li>Submission date/time</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="interpreting-data">
+                    <AccordionTrigger className="text-base font-semibold">How to Interpret Test Data</AccordionTrigger>
+                    <AccordionContent className="space-y-4">
+                      <div className="space-y-3">
+                        <div>
+                          <p className="font-semibold text-sm mb-2">📌 Understanding Average Score</p>
+                          <div className="bg-slate-50 p-3 rounded text-sm space-y-2">
+                            <p><strong>85% or higher:</strong> Test is appropriately easy for your students - they understand the material</p>
+                            <p><strong>70-85%:</strong> Optimal difficulty - challenging but achievable. Most students grasp content</p>
+                            <p><strong>50-70%:</strong> Test is challenging. Consider if material needs better explanation or if test is too hard</p>
+                            <p><strong>Below 50%:</strong> Test may be too difficult or students didn't understand key concepts. Review lesson content</p>
+                          </div>
+                        </div>
+
+                        <div>
+                          <p className="font-semibold text-sm mb-2">📌 Analyzing Question Performance</p>
+                          <div className="bg-slate-50 p-3 rounded text-sm space-y-2">
+                            <p><strong>80%+ correct:</strong> Too easy - question isn't discriminating or teaching anything new</p>
+                            <p><strong>50-80% correct:</strong> Good - shows students are learning and it's appropriately challenging</p>
+                            <p><strong>20-50% correct:</strong> Very challenging - indicate this is a difficult concept, or question may be unclear</p>
+                            <p><strong>Below 20%:</strong> Likely too hard or poorly written. Review question wording and consider revision</p>
+                          </div>
+                        </div>
+
+                        <div>
+                          <p className="font-semibold text-sm mb-2">📌 Using Discrimination Index</p>
+                          <div className="bg-slate-50 p-3 rounded text-sm space-y-2">
+                            <p><strong>What it measures:</strong> How well top performers vs. bottom performers answer the question</p>
+                            <p><strong>Positive discrimination:</strong> Top students answer correctly more than low students (good - question is valid)</p>
+                            <p><strong>Negative discrimination:</strong> Low students answer correctly more than high students (bad - something is wrong with question)</p>
+                            <p><strong>Zero discrimination:</strong> All students answer the same (question isn't differentiating)</p>
+                          </div>
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="using-insights">
+                    <AccordionTrigger className="text-base font-semibold">Taking Action Based on Reports</AccordionTrigger>
+                    <AccordionContent className="space-y-4">
+                      <p className="text-sm mb-3">Test reports aren't just for viewing - use them to improve your course.</p>
+
+                      <div className="space-y-3">
+                        <div className="border-l-4 border-green-500 pl-4">
+                          <p className="font-semibold mb-2">✅ If Average Score is Good (70%+)</p>
+                          <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+                            <li>Your teaching is effective - keep this approach</li>
+                            <li>Consider if test could be slightly harder to better differentiate students</li>
+                            <li>Use as benchmark for future courses</li>
+                          </ul>
+                        </div>
+
+                        <div className="border-l-4 border-amber-500 pl-4">
+                          <p className="font-semibold mb-2">⚠️ If Average Score is Low (&lt;70%)</p>
+                          <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+                            <li>Review lesson materials - is the content clear enough?</li>
+                            <li>Check if questions match what was taught</li>
+                            <li>Consider adding practice questions or review materials</li>
+                            <li>Check which specific questions have low scores (next step)</li>
+                          </ul>
+                        </div>
+
+                        <div className="border-l-4 border-red-500 pl-4">
+                          <p className="font-semibold mb-2">❌ If Specific Questions Have &lt;50% Correct</p>
+                          <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+                            <li>Review the lesson that teaches this concept</li>
+                            <li>Check if question wording is clear and unambiguous</li>
+                            <li>Verify answer key is correct</li>
+                            <li>Add explanations in lesson or consider rewording question</li>
+                            <li>Discuss topic in announcements or messages</li>
+                          </ul>
+                        </div>
+
+                        <div className="border-l-4 border-blue-500 pl-4">
+                          <p className="font-semibold mb-2">💡 High-Achieving Students Scoring Low</p>
+                          <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+                            <li>Indicates question has negative discrimination (something is wrong)</li>
+                            <li>Review question carefully for ambiguity or errors</li>
+                            <li>Consider invalidating that question for all students</li>
+                            <li>Rewrite the question for next iteration</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="filtering-reports">
+                    <AccordionTrigger className="text-base font-semibold">Filtering and Customizing Reports</AccordionTrigger>
+                    <AccordionContent className="space-y-4">
+                      <div className="space-y-3">
+                        <p className="font-semibold text-sm mb-2">Report Options</p>
+                        <div className="bg-blue-50 p-3 rounded text-sm space-y-2">
+                          <p><strong>Date Range:</strong> Filter results by specific time period (e.g., last 7 days, last month)</p>
+                          <p><strong>Course Filter:</strong> View reports for specific courses only</p>
+                          <p><strong>Test Selection:</strong> Choose which test(s) to analyze</p>
+                          <p><strong>Export Options:</strong> Download reports as CSV or PDF for further analysis</p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <p className="font-semibold text-sm mb-2">Export & Analysis</p>
+                        <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+                          <li>Export test results to Excel for deeper analysis</li>
+                          <li>Create custom comparisons or trends</li>
+                          <li>Share reports with course coordinators</li>
+                          <li>Maintain records for accreditation or review</li>
+                        </ul>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               </CardContent>
             </Card>
           </TabsContent>
