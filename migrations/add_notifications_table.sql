@@ -5,23 +5,23 @@
 -- Create notifications table
 CREATE TABLE IF NOT EXISTS public.notifications (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL,
   type TEXT NOT NULL CHECK (type IN ('feedback_posted', 'grade_available')),
   title TEXT NOT NULL,
   message TEXT NOT NULL,
-  related_attempt_id UUID REFERENCES quiz_attempts(id) ON DELETE CASCADE,
+  related_attempt_id UUID,
   read BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Create indexes for fast notification queries
-CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON public.notifications(user_id);
-CREATE INDEX IF NOT EXISTS idx_notifications_read_status ON public.notifications(user_id, read);
-CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON public.notifications(created_at DESC);
+-- Note: Indexes are created separately due to Supabase timing issues
+-- CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON public.notifications(user_id);
+-- CREATE INDEX IF NOT EXISTS idx_notifications_read_status ON public.notifications(user_id, read);
+-- CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON public.notifications(created_at DESC);
 
 -- Create function to mark notification as read
-CREATE OR REPLACE FUNCTION mark_notification_read(notification_id UUID)
+CREATE OR REPLACE FUNCTION public.mark_notification_read(notification_id UUID)
 RETURNS void AS $$
 BEGIN
   UPDATE public.notifications
@@ -31,13 +31,15 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Create function to get unread notification count
-CREATE OR REPLACE FUNCTION get_unread_notification_count(user_id_input UUID)
+CREATE OR REPLACE FUNCTION public.get_unread_notification_count(user_id_input UUID)
 RETURNS INTEGER AS $$
+DECLARE
+  count_result INTEGER;
 BEGIN
-  RETURN (
-    SELECT COUNT(*)
-    FROM public.notifications
-    WHERE user_id = user_id_input AND read = FALSE
-  );
+  SELECT COUNT(*) INTO count_result
+  FROM public.notifications
+  WHERE user_id = user_id_input AND read = FALSE;
+  
+  RETURN count_result;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

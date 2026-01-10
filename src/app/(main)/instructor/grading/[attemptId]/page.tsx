@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -30,6 +31,7 @@ interface QuizAttempt {
 }
 
 export default function GradingDetailPage() {
+  const { user, userData, loading: authLoading } = useAuth();
   const router = useRouter();
   const params = useParams();
   const attemptId = params.attemptId as string;
@@ -40,34 +42,27 @@ export default function GradingDetailPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
   const [showComparison, setShowComparison] = useState(false);
   const [comparisonQuestionIndex, setComparisonQuestionIndex] = useState<number | null>(null);
   const [similarAnswers, setSimilarAnswers] = useState<any[]>([]);
   const [loadingComparison, setLoadingComparison] = useState(false);
 
   useEffect(() => {
+    if (authLoading) {
+      setLoading(true);
+      return;
+    }
+
+    // Check if user is authenticated and is an instructor
+    if (!user || userData?.role !== 'instructor') {
+      router.push('/login');
+      return;
+    }
+
     const loadAttempt = async () => {
       try {
         setLoading(true);
         setError(null);
-
-        // Get current user
-        const supabase = await import('@supabase/supabase-js').then(m =>
-          m.createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-          )
-        );
-
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-
-        if (userError || !user) {
-          router.push('/auth/sign-in');
-          return;
-        }
-
-        setUserId(user.id);
 
         // Import action - relative path from dynamic route
         const module = await import('../actions');
@@ -111,7 +106,7 @@ export default function GradingDetailPage() {
     };
 
     loadAttempt();
-  }, [attemptId, router]);
+  }, [attemptId, user, router]);
 
   const handleSubmitFeedback = async () => {
     if (!feedback.trim()) {
@@ -119,7 +114,7 @@ export default function GradingDetailPage() {
       return;
     }
 
-    if (!userId) {
+    if (!user) {
       setError('User not authenticated');
       return;
     }
