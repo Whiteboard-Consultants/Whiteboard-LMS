@@ -514,6 +514,14 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
       attributes: {
         class: 'prose dark:prose-invert prose-sm max-w-full m-5 focus:outline-none min-h-[150px] w-full',
       },
+      handleKeyDown: (view, event) => {
+        if (event.key === ' ') {
+          console.log('[RichTextEditor] handleKeyDown - Space detected, allowing');
+          // Return false to let default behavior happen
+          return false;
+        }
+        return false;
+      },
       handlePaste: (view, event) => {
         console.log('[RichTextEditor] Paste event detected');
         
