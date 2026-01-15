@@ -205,7 +205,7 @@ export default function AdminCoursesPage() {
                          </CardHeader>
                          <CardContent className="space-y-3">
                              <p className="text-sm text-muted-foreground">
-                                 By {course.instructor.name}
+                                 By {course.instructor?.name || 'Unknown Instructor'}
                              </p>
                              <div className="flex items-center gap-4 text-sm">
                                  <div className="flex items-center gap-1">
@@ -261,7 +261,7 @@ export default function AdminCoursesPage() {
               courses.map((course) => (
                 <TableRow key={course.id}>
                   <TableCell className="font-medium">{course.title}</TableCell>
-                  <TableCell>{course.instructor.name}</TableCell>
+                  <TableCell>{course.instructor?.name || 'Unknown Instructor'}</TableCell>
                   <TableCell>
                     <Badge variant={course.type === 'paid' ? 'secondary' : 'outline'}>
                         {course.type === 'paid' ? 'Paid' : 'Free'}

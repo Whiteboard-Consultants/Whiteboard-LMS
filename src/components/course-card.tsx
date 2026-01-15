@@ -143,7 +143,7 @@ export function CourseCard({ course, context = 'listing' }: CourseCardProps) {
       <CardContent className="flex-1 p-6">
         <CardTitle className="mb-2 text-xl font-headline line-clamp-2">{course.title}</CardTitle>
         <CardDescription className="text-sm text-muted-foreground flex items-center gap-2">
-          <User className="h-4 w-4" /> By {course.instructor.name}
+          <User className="h-4 w-4" /> By {course.instructor?.name || 'Unknown Instructor'}
         </CardDescription>
         <div className="mt-4 flex items-center gap-2">
           <span className="font-bold text-amber-500 bg-amber-50 dark:bg-amber-950/30 px-2 py-1 rounded">{course.rating?.toFixed(1)}</span>

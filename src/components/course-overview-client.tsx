@@ -257,7 +257,7 @@ export function CourseOverviewClient({ courseId, userId }: CourseOverviewClientP
             <p className="text-lg text-muted-foreground">{course.description}</p>
             
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <span>By {course.instructor.name}</span>
+              <span>By {course.instructor?.name || 'Unknown Instructor'}</span>
               {course.duration && (
                 <>
                   <span>•</span>

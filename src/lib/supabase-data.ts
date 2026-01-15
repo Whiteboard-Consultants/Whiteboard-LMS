@@ -63,7 +63,8 @@ export async function getCourses(options?: {
     });
   }
 
-  return mapDatabaseCoursesToCourses(filteredData);
+  const mapped = mapDatabaseCoursesToCourses(filteredData);
+  return mapped;
 }
 
 export async function getCourse(courseId: string) {

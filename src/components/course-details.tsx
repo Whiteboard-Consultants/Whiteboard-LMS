@@ -98,9 +98,9 @@ export default function CourseDetails({ course, reviews }: CourseDetailsProps) {
                             </div>
                              <div className="mt-4 flex items-center gap-2">
                                 <Avatar className="h-8 w-8">
-                                    <AvatarFallback>{course.instructor.name.charAt(0)}</AvatarFallback>
+                                    <AvatarFallback>{(course.instructor?.name || 'U').charAt(0)}</AvatarFallback>
                                 </Avatar>
-                                <span className="text-sm">Created by {course.instructor.name}</span>
+                                <span className="text-sm">Created by {course.instructor?.name || 'Unknown Instructor'}</span>
                             </div>
                         </div>
                     </div>

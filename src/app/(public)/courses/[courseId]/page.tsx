@@ -143,7 +143,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
                                         <Users className="h-5 w-5" /> {course.studentCount} students
                                     </span>
                                 </div>
-                                <p className="text-sm text-muted-foreground mb-4">Created by <Link href={`/instructors/${course.instructor.id}`} className="text-primary hover:underline">{course.instructor.name}</Link></p>
+                                <p className="text-sm text-muted-foreground mb-4">Created by <Link href={`/instructors/${course.instructor?.id || '#'}`} className="text-primary hover:underline">{course.instructor?.name || 'Unknown Instructor'}</Link></p>
                             </div>
                             <div className="order-1 md:order-2 relative group">
                                 <div className="aspect-video rounded-lg overflow-hidden shadow-2xl">

@@ -25,7 +25,7 @@ function courseToCartItem(course: Course): CartItem {
     quantity: 1,
     instructor: course.instructor ? {
       id: course.instructor.id,
-      name: course.instructor.name
+      name: course.instructor.name || 'Unknown Instructor'
     } : undefined
   };
 }
