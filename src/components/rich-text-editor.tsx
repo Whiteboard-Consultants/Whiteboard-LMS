@@ -247,10 +247,13 @@ const EditorToolbar = ({ editor }: { editor: Editor | null }) => {
           type="button"
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
+            if (e.key === 'Enter') {
               e.preventDefault();
+              e.stopPropagation();
               setIsDropdownOpen(!isDropdownOpen);
             } else if (e.key === 'Escape') {
+              e.preventDefault();
+              e.stopPropagation();
               setIsDropdownOpen(false);
             }
           }}
