@@ -488,6 +488,9 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
         heading: {
           levels: [1, 2, 3],
         },
+        paragraph: {
+          // Don't remove empty paragraphs
+        },
         table: false, // Disable table in StarterKit, we'll use our own
       }),
       TextStyle,
@@ -507,10 +510,14 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
       const text = editor.getText();
-      console.log('[RichTextEditor] Content updated - HTML length:', html.length, 'Text:', text);
+      console.log('[RichTextEditor] Content updated - HTML length:', html.length, 'Text:', `"${text}"`);
       if (onChange) {
+        console.log('[RichTextEditor] Calling onChange with HTML');
         onChange(html);
       }
+    },
+    onSelectionUpdate: ({ editor }) => {
+      console.log('[RichTextEditor] Selection update');
     },
     editorProps: {
       attributes: {
@@ -540,7 +547,10 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
   useEffect(() => {
     if (!editor) return;
 
-    if (content && content.trim()) {
+    // Check if content has actually changed by comparing with current editor content
+    const currentContent = editor.getHTML();
+    
+    if (content && content !== currentContent) {
       console.log('[RichTextEditor] Setting content, length:', content.length);
       try {
         // Parse HTML content - detect if it looks like HTML
@@ -558,7 +568,8 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
       } catch (error) {
         console.error('[RichTextEditor] Error setting content:', error);
       }
-    } else {
+    } else if (!content) {
+      // Only clear if content is explicitly empty (not just whitespace)
       editor.commands.clearContent();
     }
   }, [editor, content]);
