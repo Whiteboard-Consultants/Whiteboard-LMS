@@ -732,7 +732,14 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
             }
           }
         `}</style>
-        <EditorContent editor={editor} />
+        <div onKeyDown={(e) => {
+          // Prevent any parent handlers from interfering with space key
+          if (e.key === ' ') {
+            e.stopPropagation();
+          }
+        }}>
+          <EditorContent editor={editor} />
+        </div>
       </div>
     </div>
   );
