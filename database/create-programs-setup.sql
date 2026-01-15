@@ -20,7 +20,8 @@ ALTER TABLE public.programs ADD COLUMN IF NOT EXISTS batch_time TEXT;
 CREATE INDEX IF NOT EXISTS idx_courses_program_id ON public.courses(program_id);
 
 -- Create a view to see programs with their course count
-CREATE OR REPLACE VIEW public.programs_with_courses AS
+-- Use SECURITY_INVOKER to ensure the view respects querying user permissions (not creator)
+CREATE OR REPLACE VIEW public.programs_with_courses WITH (SECURITY_INVOKER) AS
 SELECT 
     p.id,
     p.name,

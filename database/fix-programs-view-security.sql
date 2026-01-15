@@ -5,9 +5,10 @@
 -- Drop the existing view with SECURITY DEFINER
 DROP VIEW IF EXISTS public.programs_with_courses;
 
--- Recreate the view WITHOUT SECURITY DEFINER
--- Views inherit permissions from underlying tables by default
-CREATE OR REPLACE VIEW public.programs_with_courses AS
+-- Recreate the view with explicit SECURITY_INVOKER
+-- This ensures the view respects the permissions of the querying user,
+-- not the creator, and properly enforces RLS policies
+CREATE OR REPLACE VIEW public.programs_with_courses WITH (SECURITY_INVOKER) AS
 SELECT 
     p.id,
     p.name,
