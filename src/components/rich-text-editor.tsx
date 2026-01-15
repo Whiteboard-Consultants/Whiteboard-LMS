@@ -470,6 +470,7 @@ interface RichTextEditorProps {
 }
 
 export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorProps) => {
+  console.log('[RichTextEditor] Rendering, content length:', content?.length || 0);
   const hiddenInputRef = useRef<HTMLInputElement>(null);
   
   const editor = useEditor({
@@ -505,7 +506,8 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
     content: content || '', // Initialize with content prop
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
-      console.log('[RichTextEditor] Content updated, length:', html.length);
+      const text = editor.getText();
+      console.log('[RichTextEditor] Content updated - HTML length:', html.length, 'Text:', text);
       if (onChange) {
         onChange(html);
       }
@@ -513,14 +515,6 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
     editorProps: {
       attributes: {
         class: 'prose dark:prose-invert prose-sm max-w-full m-5 focus:outline-none min-h-[150px] w-full',
-      },
-      handleKeyDown: (view, event) => {
-        if (event.key === ' ') {
-          console.log('[RichTextEditor] handleKeyDown - Space detected, allowing');
-          // Return false to let default behavior happen
-          return false;
-        }
-        return false;
       },
       handlePaste: (view, event) => {
         console.log('[RichTextEditor] Paste event detected');
@@ -572,7 +566,14 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
   return (
     <div className="border border-input rounded-lg overflow-hidden">
       <EditorToolbar editor={editor} />
-      <div className="prose-custom">
+      <div 
+        className="prose-custom"
+        onKeyDownCapture={(e) => {
+          if (e.key === ' ') {
+            console.log('[RichTextEditor] Prose-custom captured space key');
+          }
+        }}
+      >
         <style>{`
           .prose-custom :where(h1):not(:where([class~="not-prose"] *)) {
             font-size: 1.875rem;
@@ -732,14 +733,7 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
             }
           }
         `}</style>
-        <div onKeyDown={(e) => {
-          // Prevent any parent handlers from interfering with space key
-          if (e.key === ' ') {
-            e.stopPropagation();
-          }
-        }}>
-          <EditorContent editor={editor} />
-        </div>
+        <EditorContent editor={editor} />
       </div>
     </div>
   );
