@@ -27,9 +27,10 @@ import type { Program } from '@/app/admin/programs-actions';
 interface ProgramsTableProps {
   isAdmin: boolean;
   programs?: Program[];
+  hideBatchTitle?: boolean;
 }
 
-export function ProgramsTable({ isAdmin, programs: initialPrograms }: ProgramsTableProps) {
+export function ProgramsTable({ isAdmin, programs: initialPrograms, hideBatchTitle }: ProgramsTableProps) {
   const [programs, setPrograms] = useState<Program[]>(initialPrograms || []);
   const [loading, setLoading] = useState(!initialPrograms);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -258,7 +259,9 @@ export function ProgramsTable({ isAdmin, programs: initialPrograms }: ProgramsTa
         </div>
       )}
 
-      <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6 text-center font-headline leading-tight">Batch Start Schedule</h2>
+      {!hideBatchTitle && (
+        <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6 text-center font-headline leading-tight">Batch Start Schedule</h2>
+      )}
 
       <div className="border rounded-lg overflow-hidden">
         <Table>

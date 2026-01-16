@@ -191,25 +191,18 @@ export default function CoursesPageClient({ categories, initialCategory, childre
                     {/* Conditional content based on selected category */}
                     {selectedCategory === "Batch Schedule" ? (
                         <div className="mt-12">
-                            <div className="mb-8">
-                                <h2 className="text-3xl md:text-4xl font-bold tracking-tight font-headline leading-tight mb-2">
+                            <div className="flex flex-col items-center justify-center space-y-4 text-center mb-4">
+                                <h2 className="text-3xl md:text-4xl font-bold tracking-tight font-headline leading-tight">
                                     Batch Start Schedule
                                 </h2>
                                 <p className="text-base md:text-lg text-muted-foreground">
                                     View all upcoming batch start dates and enrollment deadlines
                                 </p>
                             </div>
-                            <ProgramsTable isAdmin={isAdmin} programs={programs} />
+                            <ProgramsTable isAdmin={isAdmin} programs={programs} hideBatchTitle={true} />
                         </div>
                     ) : (
                         <>
-                            {/* Programs Table Section - displays before course listing */}
-                            {selectedCategory === "All Programs" && (
-                                <div className="mb-16">
-                                    <ProgramsTable isAdmin={isAdmin} programs={programs} />
-                                </div>
-                            )}
-                            
                             <div className="flex flex-col items-center justify-center space-y-4 text-center my-10">
                                 <h2 className="text-3xl md:text-4xl font-bold tracking-tight font-headline leading-tight">
                                     {currentCategoryInfo.fullTitle}
