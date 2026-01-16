@@ -44,7 +44,7 @@ export function CourseCategoryFilter({ categories, selectedCategory, onSelectCat
                             : 'bg-[#E2E8F0] hover:bg-primary hover:text-primary-foreground text-gray-700 border-gray-300 hover:border-primary'
                     }`}
                 >
-                    Batch Schedule
+                    Upcoming Batches
                 </button>
             )}
         </div>
