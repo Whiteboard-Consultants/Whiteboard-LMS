@@ -207,7 +207,7 @@ export default function CoursesPageClient({ categories, initialCategory, childre
                                 <h2 className="text-3xl md:text-4xl font-bold tracking-tight font-headline leading-tight">
                                     {currentCategoryInfo.fullTitle}
                                 </h2>
-                                <p className="max-w-[900px] text-base md:text-lg text-muted-foreground md:text-lg/relaxed lg:text-base/relaxed xl:text-lg/relaxed">
+                                <p className="max-w-[900px] text-base md:text-lg/relaxed lg:text-base/relaxed xl:text-lg/relaxed text-muted-foreground">
                                     {currentCategoryInfo.fullDescription}
                                 </p>
                             </div>
