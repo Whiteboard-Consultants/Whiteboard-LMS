@@ -43,9 +43,34 @@ export default function CoursesPageClient({ categories, initialCategory, childre
         router.replace(`${pathname}${query}`, { scroll: false });
     }, [pathname, router, searchParams]);
 
+    const getCategoryColors = (iconName: string) => {
+        const colorMap: { [key: string]: { bg: string; border: string; icon: string; accent: string } } = {
+            Globe: {
+                bg: 'bg-blue-50 dark:bg-blue-950',
+                border: 'border-blue-200 dark:border-blue-800',
+                icon: 'text-blue-600 dark:text-blue-400',
+                accent: 'bg-blue-100 dark:bg-blue-900'
+            },
+            MessageSquare: {
+                bg: 'bg-purple-50 dark:bg-purple-950',
+                border: 'border-purple-200 dark:border-purple-800',
+                icon: 'text-purple-600 dark:text-purple-400',
+                accent: 'bg-purple-100 dark:bg-purple-900'
+            },
+            Briefcase: {
+                bg: 'bg-emerald-50 dark:bg-emerald-950',
+                border: 'border-emerald-200 dark:border-emerald-800',
+                icon: 'text-emerald-600 dark:text-emerald-400',
+                accent: 'bg-emerald-100 dark:bg-emerald-900'
+            }
+        };
+        return colorMap[iconName] || colorMap.Globe; // Default to blue
+    };
+
     const getCategoryIcon = (iconName: string) => {
         const IconComponent = iconComponents[iconName];
-        return IconComponent ? <IconComponent className="h-6 w-6 text-blue-500" /> : null;
+        const colors = getCategoryColors(iconName);
+        return IconComponent ? <IconComponent className={`h-6 w-6 ${colors.icon}`} /> : null;
     };
     
     const staticCategoryInfo = {
@@ -113,17 +138,19 @@ export default function CoursesPageClient({ categories, initialCategory, childre
                     </p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-                    {categories && categories.map((category) => (
-                        <div key={category.title} className="group relative bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-6 hover:shadow-md dark:hover:shadow-lg transition-all duration-300 hover:border-primary/30">
+                    {categories && categories.map((category) => {
+                        const colors = getCategoryColors(category.icon);
+                        return (
+                        <div key={category.title} className={`group relative ${colors.bg} rounded-lg border ${colors.border} p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1`}>
                             <div className="flex flex-col h-full">
                                 <div className="mb-4 flex items-start justify-between">
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary group-hover:bg-primary/20 transition-colors">
+                                    <div className={`flex h-12 w-12 items-center justify-center rounded-lg ${colors.accent} group-hover:scale-110 transition-transform`}>
                                         {getCategoryIcon(category.icon)}
                                     </div>
                                 </div>
                                 <CardTitle className="font-headline text-lg mb-2 text-foreground">{category.title}</CardTitle>
                                 <p className="text-sm text-muted-foreground mb-4 leading-relaxed flex-grow">{category.description}</p>
-                                <div className="space-y-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+                                <div className="space-y-2 pt-2 border-t border-current border-opacity-10">
                                     {category.items.map((item) => (
                                         <div key={item} className="flex items-start gap-2 text-xs text-muted-foreground">
                                             <CheckCircle2 className="h-3.5 w-3.5 text-green-500 flex-shrink-0 mt-0.5" />
@@ -133,7 +160,8 @@ export default function CoursesPageClient({ categories, initialCategory, childre
                                 </div>
                             </div>
                         </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
         </section>
