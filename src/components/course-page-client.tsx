@@ -73,9 +73,9 @@ export default function CoursesPageClient({ categories, initialCategory, childre
     return (
         <div>
             <section className="w-full bg-slate-100 dark:bg-slate-dark">
-                <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-center py-12 md:py-24 lg:py-32">
+                <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-center py-6 md:py-12 lg:py-16">
                 <div className="flex flex-col items-start space-y-6">
-                    <h1 className="text-3xl font-bold tracking-tighter text-foreground sm:text-4xl lg:text-5xl font-headline">
+                    <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl font-headline leading-tight">
                         Online Courses to Master <span className="text-primary dark:text-white">Test Preparation & Professional Skills</span>
                     </h1>
                     <div className="max-w-[700px] text-muted-foreground md:text-lg">
@@ -102,43 +102,43 @@ export default function CoursesPageClient({ categories, initialCategory, childre
                 </div>
             </section>
 
-            <section className="w-full py-12 md:py-24 bg-background dark:bg-black">
+            <section className="w-full py-8 md:py-16 bg-background dark:bg-black">
             <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-12">
-                     <h2 className="text-3xl font-bold tracking-tight text-center font-headline">
+                <div className="text-center mb-10">
+                     <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-center font-headline leading-tight">
                         Our Online Course Categories
                     </h2>
-                    <p className="text-muted-foreground">
+                    <p className="text-base md:text-lg text-muted-foreground">
                         Specialized online modules designed for your success in test prep and career skills.
                     </p>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                     {categories && categories.map((category) => (
-                        <Card key={category.title} className="shadow-lg">
-                            <CardHeader className="flex flex-row items-center gap-4">
-                                {getCategoryIcon(category.icon)}
-                                <div>
-                                    <CardTitle className="font-headline text-xl">{category.title}</CardTitle>
-                                    <p className="text-sm text-muted-foreground">{category.description}</p>
+                        <div key={category.title} className="group relative bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-6 hover:shadow-md dark:hover:shadow-lg transition-all duration-300 hover:border-primary/30">
+                            <div className="flex flex-col h-full">
+                                <div className="mb-4 flex items-start justify-between">
+                                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary group-hover:bg-primary/20 transition-colors">
+                                        {getCategoryIcon(category.icon)}
+                                    </div>
                                 </div>
-                            </CardHeader>
-                            <CardContent>
-                                <ul className="space-y-3">
+                                <CardTitle className="font-headline text-lg mb-2 text-foreground">{category.title}</CardTitle>
+                                <p className="text-sm text-muted-foreground mb-4 leading-relaxed flex-grow">{category.description}</p>
+                                <div className="space-y-2 pt-2 border-t border-slate-200 dark:border-slate-800">
                                     {category.items.map((item) => (
-                                        <li key={item} className="flex items-center">
-                                            <CheckCircle2 className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
-                                            <span>{item}</span>
-                                        </li>
+                                        <div key={item} className="flex items-start gap-2 text-xs text-muted-foreground">
+                                            <CheckCircle2 className="h-3.5 w-3.5 text-green-500 flex-shrink-0 mt-0.5" />
+                                            <span className="line-clamp-1">{item}</span>
+                                        </div>
                                     ))}
-                                </ul>
-                            </CardContent>
-                        </Card>
+                                </div>
+                            </div>
+                        </div>
                     ))}
                 </div>
             </div>
         </section>
             
-            <section className="w-full py-12 md:py-24 bg-muted dark:bg-slate-dark">
+            <section className="w-full py-8 md:py-16 bg-muted dark:bg-slate-dark">
                 <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Programs Table Section - displays before course listing */}
                     {selectedCategory === "All Programs" && (
@@ -163,11 +163,11 @@ export default function CoursesPageClient({ categories, initialCategory, childre
                         onSelectCategory={handleSelectCategory}
                     />
                     
-                    <div className="flex flex-col items-center justify-center space-y-4 text-center my-12">
-                        <h2 className="text-3xl font-bold tracking-tight font-headline">
+                    <div className="flex flex-col items-center justify-center space-y-4 text-center my-10">
+                        <h2 className="text-3xl md:text-4xl font-bold tracking-tight font-headline leading-tight">
                             {currentCategoryInfo.fullTitle}
                         </h2>
-                        <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                        <p className="max-w-[900px] text-base md:text-lg text-muted-foreground md:text-lg/relaxed lg:text-base/relaxed xl:text-lg/relaxed">
                             {currentCategoryInfo.fullDescription}
                         </p>
                     </div>

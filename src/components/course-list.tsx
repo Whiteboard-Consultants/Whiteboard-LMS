@@ -58,7 +58,7 @@ export function CourseList({ courses: initialCourses, searchTerm, category, excl
     }
   
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {courses.map((course) => {
         const plainCourse = {
           ...course,
@@ -75,7 +75,7 @@ export function CourseList({ courses: initialCourses, searchTerm, category, excl
 
 export function CourseListSkeleton() {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {[...Array(6)].map((_, i) => (
             <Card key={i} className="overflow-hidden shadow-lg">
                 <div className="relative h-48 w-full bg-muted animate-pulse"></div>

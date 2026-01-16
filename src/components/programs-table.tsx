@@ -254,7 +254,7 @@ export function ProgramsTable({ isAdmin }: ProgramsTableProps) {
         </div>
       )}
 
-      <h2 className="text-2xl font-bold tracking-tight mb-4 text-center">Batch Start Schedule</h2>
+      <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6 text-center font-headline leading-tight">Batch Start Schedule</h2>
 
       <div className="border rounded-lg overflow-hidden">
         <Table>
