@@ -13,6 +13,7 @@ import type { CourseCategory, CourseCategoryData } from '@/types';
 import { CourseListSkeleton } from './course-list';
 import { ProgramsTable } from './programs-table';
 import { useAuth } from '@/hooks/use-auth';
+import type { Program } from '@/app/admin/programs-actions';
 
 const iconComponents: { [key: string]: React.ElementType } = {
     Globe,
@@ -24,9 +25,10 @@ interface CoursesPageClientProps {
     categories: CourseCategoryData[];
     initialCategory: CourseCategory | "All Programs" | "Free Courses";
     children: React.ReactNode;
+    programs: Program[];
 }
 
-export default function CoursesPageClient({ categories, initialCategory, children }: CoursesPageClientProps) {
+export default function CoursesPageClient({ categories, initialCategory, children, programs }: CoursesPageClientProps) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -168,43 +170,61 @@ export default function CoursesPageClient({ categories, initialCategory, childre
             
             <section className="w-full py-8 md:py-16 bg-muted dark:bg-slate-dark">
                 <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    {/* Programs Table Section - displays before course listing */}
-                    {selectedCategory === "All Programs" && (
-                        <div className="mb-16">
-                            <ProgramsTable isAdmin={isAdmin} />
+                    {/* Show Batch Schedule Table when Batch Schedule tab is selected */}
+                    {selectedCategory === "Batch Schedule" ? (
+                        <div>
+                            <div className="mb-8">
+                                <h2 className="text-3xl md:text-4xl font-bold tracking-tight font-headline leading-tight mb-2">
+                                    Batch Start Schedule
+                                </h2>
+                                <p className="text-base md:text-lg text-muted-foreground">
+                                    View all upcoming batch start dates and enrollment deadlines
+                                </p>
+                            </div>
+                            <ProgramsTable isAdmin={isAdmin} programs={programs} />
                         </div>
+                    ) : (
+                        <>
+                            {/* Programs Table Section - displays before course listing */}
+                            {selectedCategory === "All Programs" && (
+                                <div className="mb-16">
+                                    <ProgramsTable isAdmin={isAdmin} programs={programs} />
+                                </div>
+                            )}
+
+                            {/* Refund Policy Guarantee Banner */}
+                            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-8 text-center">
+                                <p className="text-sm text-blue-900 dark:text-blue-100">
+                                    <strong>30-Day Money-Back Guarantee:</strong> If you're not satisfied with any course, we'll refund your full payment within 14 days of enrollment. 
+                                    <Link href="/refund-policy" className="text-blue-600 dark:text-blue-400 hover:underline ml-1">
+                                        Learn more about our refund policy
+                                    </Link>
+                                </p>
+                            </div>
+
+                            <CourseCategoryFilter
+                                categories={categories}
+                                selectedCategory={selectedCategory}
+                                onSelectCategory={handleSelectCategory}
+                                showBatchScheduleTab={true}
+                            />
+                            
+                            <div className="flex flex-col items-center justify-center space-y-4 text-center my-10">
+                                <h2 className="text-3xl md:text-4xl font-bold tracking-tight font-headline leading-tight">
+                                    {currentCategoryInfo.fullTitle}
+                                </h2>
+                                <p className="max-w-[900px] text-base md:text-lg text-muted-foreground md:text-lg/relaxed lg:text-base/relaxed xl:text-lg/relaxed">
+                                    {currentCategoryInfo.fullDescription}
+                                </p>
+                            </div>
+
+                            <div className="mt-8">
+                                <Suspense fallback={<CourseListSkeleton />}>
+                                   {children}
+                                </Suspense>
+                            </div>
+                        </>
                     )}
-
-                    {/* Refund Policy Guarantee Banner */}
-                    <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-8 text-center">
-                        <p className="text-sm text-blue-900 dark:text-blue-100">
-                            <strong>30-Day Money-Back Guarantee:</strong> If you're not satisfied with any course, we'll refund your full payment within 14 days of enrollment. 
-                            <Link href="/refund-policy" className="text-blue-600 dark:text-blue-400 hover:underline ml-1">
-                                Learn more about our refund policy
-                            </Link>
-                        </p>
-                    </div>
-
-                    <CourseCategoryFilter
-                        categories={categories}
-                        selectedCategory={selectedCategory}
-                        onSelectCategory={handleSelectCategory}
-                    />
-                    
-                    <div className="flex flex-col items-center justify-center space-y-4 text-center my-10">
-                        <h2 className="text-3xl md:text-4xl font-bold tracking-tight font-headline leading-tight">
-                            {currentCategoryInfo.fullTitle}
-                        </h2>
-                        <p className="max-w-[900px] text-base md:text-lg text-muted-foreground md:text-lg/relaxed lg:text-base/relaxed xl:text-lg/relaxed">
-                            {currentCategoryInfo.fullDescription}
-                        </p>
-                    </div>
-
-                    <div className="mt-8">
-                        <Suspense fallback={<CourseListSkeleton />}>
-                           {children}
-                        </Suspense>
-                    </div>
 
                 </div>
             </section>

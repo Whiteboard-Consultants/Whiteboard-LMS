@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import { getCourses, getCourseCategories } from '@/lib/supabase-data';
 import { CourseList, CourseListSkeleton } from '@/components/course-list';
 import CoursesPageClient from '@/components/course-page-client';
+import { getPrograms } from '@/app/admin/programs-actions';
 import { CourseCategory, Course } from '@/types';
 import type { Metadata } from 'next';
 
@@ -37,6 +38,8 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
 
     const courses: Course[] = await getCourses({ searchTerm, category });
     const categories = await getCourseCategories();
+    const programsResult = await getPrograms();
+    const programs = programsResult.success ? programsResult.data : [];
 
     const breadcrumbLd = {
         "@context": "https://schema.org",
@@ -89,7 +92,7 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }}
             />
-            <CoursesPageClient categories={categories} initialCategory={category}>
+            <CoursesPageClient categories={categories} initialCategory={category} programs={programs}>
                 <Suspense fallback={<CourseListSkeleton />}>
                     <CourseList courses={courses} />
                 </Suspense>

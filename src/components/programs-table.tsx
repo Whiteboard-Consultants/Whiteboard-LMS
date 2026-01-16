@@ -26,11 +26,12 @@ import type { Program } from '@/app/admin/programs-actions';
 
 interface ProgramsTableProps {
   isAdmin: boolean;
+  programs?: Program[];
 }
 
-export function ProgramsTable({ isAdmin }: ProgramsTableProps) {
-  const [programs, setPrograms] = useState<Program[]>([]);
-  const [loading, setLoading] = useState(true);
+export function ProgramsTable({ isAdmin, programs: initialPrograms }: ProgramsTableProps) {
+  const [programs, setPrograms] = useState<Program[]>(initialPrograms || []);
+  const [loading, setLoading] = useState(!initialPrograms);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingData, setEditingData] = useState<Partial<Program>>({});
   const [showNewDialog, setShowNewDialog] = useState(false);
@@ -44,8 +45,11 @@ export function ProgramsTable({ isAdmin }: ProgramsTableProps) {
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchPrograms();
-  }, []);
+    // Only fetch if programs weren't passed in
+    if (!initialPrograms) {
+      fetchPrograms();
+    }
+  }, [initialPrograms]);
 
   const fetchPrograms = async () => {
     setLoading(true);

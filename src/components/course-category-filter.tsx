@@ -6,12 +6,13 @@ import { COURSE_CATEGORIES, getAllCategories, getCategoryInfo, type CategoryKey 
 
 interface CourseCategoryFilterProps {
     categories?: CourseCategoryData[];
-    selectedCategory: CategoryKey;
-    onSelectCategory: (category: CategoryKey) => void;
+    selectedCategory: CategoryKey | "Batch Schedule";
+    onSelectCategory: (category: CategoryKey | "Batch Schedule") => void;
     showIcons?: boolean;
+    showBatchScheduleTab?: boolean;
 }
 
-export function CourseCategoryFilter({ categories, selectedCategory, onSelectCategory, showIcons = false }: CourseCategoryFilterProps) {
+export function CourseCategoryFilter({ categories, selectedCategory, onSelectCategory, showIcons = false, showBatchScheduleTab = false }: CourseCategoryFilterProps) {
     const allCategories = getAllCategories();
     
     return (
@@ -34,6 +35,18 @@ export function CourseCategoryFilter({ categories, selectedCategory, onSelectCat
                     </button>
                 );
             })}
+            {showBatchScheduleTab && (
+                <button
+                    onClick={() => onSelectCategory("Batch Schedule")}
+                    className={`px-6 py-3 text-base font-semibold rounded-lg whitespace-nowrap transition-all duration-200 border-2 ${
+                        selectedCategory === "Batch Schedule"
+                            ? 'bg-primary text-primary-foreground border-primary shadow-md'
+                            : 'bg-[#E2E8F0] hover:bg-primary hover:text-primary-foreground text-gray-700 border-gray-300 hover:border-primary'
+                    }`}
+                >
+                    Batch Schedule
+                </button>
+            )}
         </div>
     );
 }
