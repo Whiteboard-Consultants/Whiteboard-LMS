@@ -76,7 +76,7 @@ function SortableQuestionItem({ question, sectionName, onEdit, onDelete }: Sorta
                     const isHTML = question.text.includes('<') && question.text.includes('>');
                     return isHTML ? (
                         <div 
-                            className="font-medium text-sm"
+                            className="font-medium text-sm prose prose-sm dark:prose-invert max-w-none"
                             dangerouslySetInnerHTML={{ __html: question.text }}
                             style={{
                                 display: 'block'

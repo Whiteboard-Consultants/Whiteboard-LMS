@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
+import { DarkModeHtmlWrapper } from '@/components/dark-mode-html-wrapper';
 import { useCart } from '@/hooks/use-cart';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
@@ -81,10 +82,9 @@ export default function CourseDetails({ course, reviews }: CourseDetailsProps) {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         <div className="md:col-span-2">
                             <h1 className="text-3xl md:text-4xl font-extrabold font-headline text-foreground">{course.title}</h1>
-                                                         <div
-                                                             className="mt-4 text-lg text-muted-foreground"
-                                                             dangerouslySetInnerHTML={{ __html: course.description }}
-                                                         />
+                                                         <div className="mt-4">
+                                                             <DarkModeHtmlWrapper html={course.description} className="text-lg text-muted-foreground" />
+                                                         </div>
                             <div className="mt-4 flex items-center gap-4 text-sm">
                                 <div className="flex items-center gap-1">
                                     <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
@@ -117,7 +117,7 @@ export default function CourseDetails({ course, reviews }: CourseDetailsProps) {
                                         What you&apos;ll learn
                                     </AccordionTrigger>
                                                                         <AccordionContent>
-                                        <div dangerouslySetInnerHTML={{ __html: course.programOutcome || '' }} />
+                                        <DarkModeHtmlWrapper html={course.programOutcome || ''} />
                                     </AccordionContent>
                                 </AccordionItem>
                             </Card>
@@ -127,7 +127,7 @@ export default function CourseDetails({ course, reviews }: CourseDetailsProps) {
                                         Course Content
                                     </AccordionTrigger>
                                     <AccordionContent className="px-6 pb-6">
-                                        <div dangerouslySetInnerHTML={{ __html: course.courseStructure || '' }} />
+                                        <DarkModeHtmlWrapper html={course.courseStructure || ''} />
                                     </AccordionContent>
                                 </AccordionItem>
                             </Card>
@@ -139,7 +139,7 @@ export default function CourseDetails({ course, reviews }: CourseDetailsProps) {
                                             Frequently Asked Questions
                                         </AccordionTrigger>
                                         <AccordionContent className="px-6 pb-6">
-                                           <div dangerouslySetInnerHTML={{ __html: course.faqs }} />
+                                           <DarkModeHtmlWrapper html={course.faqs} />
                                         </AccordionContent>
                                     </AccordionItem>
                                </Card>

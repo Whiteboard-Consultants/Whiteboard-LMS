@@ -101,6 +101,193 @@
       --tw-prose-code: hsl(var(--foreground));
       --tw-prose-pre-code: hsl(var(--foreground));
       --tw-prose-pre-bg: hsl(var(--muted));
+      --tw-prose-th-borders: hsl(var(--border));
+      --tw-prose-td-borders: hsl(var(--border));
+  }
+
+  /* Dark mode table styling with actual colors */
+  .dark .prose table,
+  .dark table {
+    background-color: hsl(222.2, 84%, 4.9%) !important;
+    border-collapse: collapse !important;
+    color: hsl(210, 40%, 98%) !important;
+  }
+
+  .dark .prose thead,
+  .dark thead {
+    background-color: hsl(217.2, 32.6%, 17.5%) !important;
+    border-bottom: 2px solid hsl(217.2, 32.6%, 17.5%) !important;
+  }
+
+  .dark .prose th,
+  .dark th {
+    color: hsl(210, 40%, 98%) !important;
+    background-color: hsl(217.2, 32.6%, 17.5%) !important;
+    border: 1px solid hsl(217.2, 32.6%, 17.5%) !important;
+    padding: 0.75rem !important;
+    text-align: left !important;
+    font-weight: 600 !important;
+  }
+
+  .dark .prose td,
+  .dark td {
+    color: hsl(210, 40%, 98%) !important;
+    background-color: hsl(222.2, 84%, 4.9%) !important;
+    border: 1px solid hsl(217.2, 32.6%, 17.5%) !important;
+    padding: 0.75rem !important;
+  }
+
+  .dark .prose tbody tr,
+  .dark tbody tr {
+    border-bottom: 1px solid hsl(217.2, 32.6%, 17.5%) !important;
+  }
+
+  .dark .prose tbody tr:last-child,
+  .dark tbody tr:last-child {
+    border-bottom: none !important;
+  }
+
+  /* AGGRESSIVE IMAGE FIXES - Force visibility */
+  .dark img,
+  .dark .prose img {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    max-width: 100% !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 1rem auto !important;
+    padding: 0.5rem !important;
+    background-color: hsl(222.2, 84%, 4.9%) !important;
+    border-radius: 0.5rem !important;
+    box-shadow: 0 0 0 1px hsl(217.2, 32.6%, 17.5%) !important;
+  }
+
+  /* Fix hidden elements in dark mode */
+  .dark [style*="display: none"],
+  .dark [style*="visibility: hidden"],
+  .dark [style*="opacity: 0"] {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  /* SVG styling in dark mode */
+  .dark .prose svg,
+  .dark svg {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    margin: 1rem auto !important;
+  }
+
+  /* TipTap Editor Dark Mode Fixes */
+  .dark .tiptap {
+    color: hsl(210, 40%, 98%) !important;
+  }
+
+  .dark .tiptap img {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    max-width: 100% !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 1rem auto !important;
+    padding: 0.5rem !important;
+    border-radius: 0.5rem !important;
+    box-shadow: 0 0 0 1px hsl(217.2, 32.6%, 17.5%) !important;
+  }
+
+  .dark .tiptap table {
+    background-color: hsl(222.2, 84%, 4.9%) !important;
+    border-collapse: collapse !important;
+    color: hsl(210, 40%, 98%) !important;
+    margin: 1rem 0 !important;
+    width: 100% !important;
+  }
+
+  .dark .tiptap table thead {
+    background-color: hsl(217.2, 32.6%, 17.5%) !important;
+    border-bottom: 2px solid hsl(217.2, 32.6%, 17.5%) !important;
+  }
+
+  .dark .tiptap table th {
+    color: hsl(210, 40%, 98%) !important;
+    background-color: hsl(217.2, 32.6%, 17.5%) !important;
+    border: 1px solid hsl(217.2, 32.6%, 17.5%) !important;
+    padding: 0.75rem !important;
+    text-align: left !important;
+    font-weight: 600 !important;
+  }
+
+  .dark .tiptap table td {
+    color: hsl(210, 40%, 98%) !important;
+    background-color: hsl(222.2, 84%, 4.9%) !important;
+    border: 1px solid hsl(217.2, 32.6%, 17.5%) !important;
+    padding: 0.75rem !important;
+  }
+
+  .dark .tiptap table tbody tr {
+    border-bottom: 1px solid hsl(217.2, 32.6%, 17.5%) !important;
+  }
+
+  .dark .tiptap table tbody tr:last-child {
+    border-bottom: none !important;
+  }
+
+  /* TipTap editor container */
+  .dark .tiptap-editor-content {
+    background-color: transparent !important;
+    color: hsl(210, 40%, 98%) !important;
+  }
+
+  /* Fix elements with light backgrounds in dark mode */
+  .dark *[style*="background-color: rgb(255"],
+  .dark *[style*="background-color: white"],
+  .dark *[style*="background-color: #fff"],
+  .dark *[style*="background-color: #ffffff"],
+  .dark *[style*="background: white"],
+  .dark *[style*="background: rgb(255"],
+  .dark *[style*="background: #fff"] {
+    background-color: hsl(222.2, 84%, 4.9%) !important;
+    color: hsl(210, 40%, 98%) !important;
+  }
+
+  /* Fix text colors in dark mode */
+  .dark *[style*="color: white"],
+  .dark *[style*="color: rgb(255"],
+  .dark *[style*="color: #fff"],
+  .dark *[style*="color: #ffffff"] {
+    color: hsl(210, 40%, 98%) !important;
+  }
+
+  /* Global dark mode content fixes */
+  .dark .prose,
+  .dark [class*="prose"] {
+    color: hsl(210, 40%, 98%) !important;
+  }
+
+  .dark .prose * {
+    color: hsl(210, 40%, 98%) !important;
+  }
+
+  /* Force visibility of all divs in prose content */
+  .dark .prose div {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  /* Fix any elements with whitespace or zero dimensions */
+  .dark [style*="width: 0"],
+  .dark [style*="height: 0"],
+  .dark [style*="min-width: 0"],
+  .dark [style*="min-height: 0"] {
+    width: auto !important;
+    height: auto !important;
+    min-width: auto !important;
+    min-height: auto !important;
   }
 }
 
@@ -247,4 +434,23 @@
   .glass-button-dark {
     @apply backdrop-blur-lg bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-all dark:bg-white/5 dark:hover:bg-white/15;
   }
+}
+
+/* Global dark mode content fixes */
+.dark {
+  color-scheme: dark;
+}
+
+.dark *[style*="color: white"],
+.dark *[style*="color: #fff"],
+.dark *[style*="color: #ffffff"] {
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark *[style*="background-color: white"],
+.dark *[style*="background-color: #fff"],
+.dark *[style*="background-color: #ffffff"],
+.dark *[style*="background-color: rgb(255, 255, 255)"] {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
 }
