@@ -96,8 +96,16 @@ export default function StudentDashboardPage() {
           return;
         }
 
-        // Get course IDs from enrollments
-        const enrolledCourseIds = enrollments.map(e => e.course_id);
+        // Get course IDs from enrollments (filter out null values for test-only purchases)
+        const enrolledCourseIds = enrollments
+          .map(e => e.course_id)
+          .filter((id): id is string => id !== null);
+
+        // If no course enrollments (only test purchases), set empty
+        if (enrolledCourseIds.length === 0) {
+          setEnrolledCourses([]);
+          return;
+        }
 
         // Fetch course details using server action (bypasses RLS)
         const coursesResult = await getEnrolledCourses(enrolledCourseIds);

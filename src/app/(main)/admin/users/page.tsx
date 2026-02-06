@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, Loader2, BookOpen, Trash2, MoreVertical, Calendar, AlertCircle, PlayCircle, User, ArrowLeft, Plus, Key, Shield } from "lucide-react";
+import { CheckCircle, XCircle, Loader2, BookOpen, Trash2, MoreVertical, Calendar, AlertCircle, PlayCircle, User, ArrowLeft, Plus, Key, Shield, ArrowUp, ArrowDown } from "lucide-react";
 import type { User as UserType, Enrollment, Course } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -60,7 +60,7 @@ import {
 import { cn } from "@/lib/utils";
 
 interface UserWithEnrollments extends UserType {
-    enrollments: (Enrollment & { courseTitle: string; status: 'pending' | 'approved' })[];
+    enrollments: (Enrollment & { courseTitle: string; status: 'pending' | 'approved'; enrollmentType?: 'course' | 'test' | 'series' })[];
 }
 
 interface RegistrationRequest {
@@ -94,6 +94,8 @@ export default function AdminUsersPage() {
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [isCreatingUser, setIsCreatingUser] = useState(false);
+  const [sortColumn, setSortColumn] = useState<'name' | 'email' | 'role' | 'status' | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const { toast } = useToast();
   const { user: authUser, userData } = useAuth();
 
@@ -107,6 +109,61 @@ export default function AdminUsersPage() {
       phone: "",
     },
   });
+
+  const handleSort = (column: 'name' | 'email' | 'role' | 'status') => {
+    if (sortColumn === column) {
+      // Toggle direction if same column is clicked
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Set new column and default to ascending
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortedUsers = useCallback(() => {
+    if (!sortColumn) return users;
+
+    const sorted = [...users].sort((a, b) => {
+      let aValue: any = '';
+      let bValue: any = '';
+
+      switch (sortColumn) {
+        case 'name':
+          aValue = a.name || '';
+          bValue = b.name || '';
+          break;
+        case 'email':
+          aValue = a.email || '';
+          bValue = b.email || '';
+          break;
+        case 'role':
+          aValue = a.role || '';
+          bValue = b.role || '';
+          break;
+        case 'status':
+          aValue = a.status || '';
+          bValue = b.status || '';
+          break;
+        default:
+          return 0;
+      }
+
+      // Convert to lowercase for case-insensitive comparison
+      aValue = typeof aValue === 'string' ? aValue.toLowerCase() : aValue;
+      bValue = typeof bValue === 'string' ? bValue.toLowerCase() : bValue;
+
+      if (aValue < bValue) {
+        return sortDirection === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortDirection === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+
+    return sorted;
+  }, [users, sortColumn, sortDirection]);
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -351,7 +408,8 @@ export default function AdminUsersPage() {
 
       const detailedEnrollments = (result.enrollments || []).map((enrollment: any) => ({
         ...enrollment,
-        courseTitle: enrollment.courses?.title || enrollment.course_title || 'Unknown Course',
+        courseTitle: enrollment.title,
+        enrollmentType: enrollment.type,
         status: enrollment.status as 'pending' | 'approved'
       }));
 
@@ -636,10 +694,38 @@ export default function AdminUsersPage() {
                 <Table>
                 <TableHeader>
                     <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort('name')}>
+                      <div className="flex items-center gap-2">
+                        Name
+                        {sortColumn === 'name' && (
+                          sortDirection === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />
+                        )}
+                      </div>
+                    </TableHead>
+                    <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort('email')}>
+                      <div className="flex items-center gap-2">
+                        Email
+                        {sortColumn === 'email' && (
+                          sortDirection === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />
+                        )}
+                      </div>
+                    </TableHead>
+                    <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort('role')}>
+                      <div className="flex items-center gap-2">
+                        Role
+                        {sortColumn === 'role' && (
+                          sortDirection === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />
+                        )}
+                      </div>
+                    </TableHead>
+                    <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort('status')}>
+                      <div className="flex items-center gap-2">
+                        Status
+                        {sortColumn === 'status' && (
+                          sortDirection === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />
+                        )}
+                      </div>
+                    </TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -651,7 +737,7 @@ export default function AdminUsersPage() {
                         </TableCell>
                     </TableRow>
                     ) : users.length > 0 ? (
-                    users.map((user) => (
+                    getSortedUsers().map((user) => (
                         <TableRow key={user.id} className={cn(user.status === 'suspended' && 'bg-yellow-50 hover:bg-yellow-100')}>
                             <TableCell className="font-medium">{user.name}</TableCell>
                             <TableCell>{user.email}</TableCell>
@@ -778,7 +864,7 @@ export default function AdminUsersPage() {
             <DialogHeader>
                 <DialogTitle>Manage Enrollments for {selectedUser?.name}</DialogTitle>
                 <DialogDescription>
-                    View and revoke access to enrolled courses for this user.
+                    View and revoke access to enrolled courses, tests, and test series for this user.
                 </DialogDescription>
             </DialogHeader>
             <div className="mt-4 max-h-96 overflow-y-auto">
@@ -787,7 +873,12 @@ export default function AdminUsersPage() {
                         {selectedUser.enrollments.map(enrollment => (
                             <li key={enrollment.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-md">
                                 <div>
-                                    <p className="font-semibold">{enrollment.courseTitle}</p>
+                                    <div className="flex items-center gap-2">
+                                        <p className="font-semibold">{enrollment.courseTitle}</p>
+                                        <Badge variant="outline" className="text-xs">
+                                            {enrollment.enrollmentType === 'course' ? '📚 Course' : enrollment.enrollmentType === 'series' ? '📋 Series' : '📝 Test'}
+                                        </Badge>
+                                    </div>
                                     <p className="text-sm text-muted-foreground">Enrolled: {(() => {
                                         const date = convertToDate(enrollment.enrolledAt);
                                         return date ? format(date, 'dd MMM yyyy') : 'Invalid date';
@@ -804,7 +895,7 @@ export default function AdminUsersPage() {
                                         <AlertDialogHeader>
                                             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                                             <AlertDialogDescription>
-                                                This will un-enroll the student from this course. They will lose all access and progress. This cannot be undone.
+                                                This will un-enroll the student from this {enrollment.enrollmentType || 'course'}. They will lose all access and progress. This cannot be undone.
                                             </AlertDialogDescription>
                                         </AlertDialogHeader>
                                         <AlertDialogFooter>
@@ -819,7 +910,7 @@ export default function AdminUsersPage() {
                         ))}
                     </ul>
                 ) : (
-                    <p className="text-center text-muted-foreground py-8">This student is not enrolled in any courses.</p>
+                    <p className="text-center text-muted-foreground py-8">This student is not enrolled in any courses or tests.</p>
                 )}
             </div>
         </DialogContent>

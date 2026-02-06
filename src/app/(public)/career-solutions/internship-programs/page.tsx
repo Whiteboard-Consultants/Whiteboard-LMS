@@ -149,22 +149,22 @@ const workflowSteps = [
 
 const testimonials = [
   {
-    name: 'Priya Sharma',
-    role: 'PIXEL PRODIGY Alumni - Graphic Designer',
-    quote: 'This internship gave me practical experience that no classroom could. I built a portfolio I\'m truly proud of.',
-    company: 'Design Studio XYZ',
+    name: 'Riddhi Sanchety',
+    role: 'Amity University - BAJMC Batch (2027)',
+    quote: 'I had an exceptional internship experience at Whiteboard Consultants with creative freedom and support to grow. My mentor\'s (Mr Navnit Daniel Alley) guidance helped me refine skills and deliver impactful designs. I appreciated the collaborative environment and the opportunities beyond my role. This experience boosted at my conference and prepared me for the future. I am grateful to have worked with a talented team.',
+    company: '',
   },
   {
-    name: 'Arjun Patel',
-    role: 'OUTREACH ORACLE Alumni - Sales Executive',
-    quote: 'The mentorship and real sales experience accelerated my learning curve significantly.',
-    company: 'Tech Solutions Inc',
+    name: 'Sonali Sivangi Roy',
+    role: 'Amity University - BAJMC Batch (2027)',
+    quote: 'I joined Whiteboard Consultants for my summer internship as an outreach intern. It was a valuable learning experience that helped me bridge the gap between theory and practical knowledge. I gained hands-on exposure to real-world projects in outreach, improved my research and communication skills, and learned the importance of teamwork, deadlines, and creative problem-solving. The guidance and feedback from the mentors made the experience both enriching and confidence-building, and it has significantly contributed to my professional growth.',
+    company: '',
   },
   {
-    name: 'Sneha Gupta',
-    role: 'MEDIA MAVERICK Alumni - Digital Marketer',
-    quote: 'I made real impact on company projects and learned what digital marketing truly looks like in practice.',
-    company: 'Marketing Plus Agency',
+    name: 'Anoushka Sundar',
+    role: 'Amity University - BA(Eng) Batch (2027)',
+    quote: 'My eight-week summer internship at Whiteboard Consultants as an Outreach Oracle and Media Maverick was truly transformative. Under the exceptional guidance of Mr. Navnit Daniel Alley and mentors Nigel Vincent, Prateek Chaudhari, and Shumaila Shaukat Ali, I gained invaluable experience in strategic outreach, content writing, and professional communication. Whiteboard Consultants provided a nurturing yet challenging environment that pushed me beyond my comfort zone. From organizing seminars for the University of Wollongong to developing public speaking skills and mastering LinkedIn optimization, every phase of the internship was thoughtfully designed to build real-world competencies. The organization\'s commitment to intern development was evident in the personalized mentorship, hands-on responsibilities, and exposure to cutting-edge AI tools like NotebookLM and Perplexity. What distinguishes Whiteboard Consultants is their holistic approach, they don\'t just assign tasks, they invest in your growth. I was nervous about public speaking and uncertain about professional communication, I left with published content, optimized digital presence, and confidence in my abilities. The skills I acquired in strategic outreach, content creation, and educational marketing are directly applicable to my career aspirations. This internship has profoundly shaped my career aspirations and provided clarity on my professional path in communications and content strategy. The practical experience in educational outreach, digital marketing, and strategic communication has equipped me with competencies that will serve as a strong foundation for my future endeavors. I am deeply grateful to Whiteboard Consultants for this exceptional opportunity and for believing in my potential. The knowledge, skills, and confidence I have gained will continue to guide my professional journey for years to come.',
+    company: '',
   },
 ];
 

@@ -34,21 +34,34 @@ export default function NewThreadPage({
 
     const getEnrollmentId = async () => {
       try {
+        console.log('[NewThreadPage] Fetching enrollment for user:', user.id, 'courseId:', courseId);
 
-        const { data: enrollment } = await supabase
+        const { data: enrollment, error: enrollmentError } = await supabase
           .from('enrollments')
           .select('id')
           .eq('user_id', user.id)
           .eq('course_id', courseId)
           .single();
 
+        console.log('[NewThreadPage] Enrollment query result:', { enrollment, enrollmentError });
+
+        if (enrollmentError) {
+          console.error('[NewThreadPage] Enrollment error:', enrollmentError);
+          if (enrollmentError.code === 'PGRST116') {
+            // No rows returned
+            console.warn('[NewThreadPage] No enrollment found for user in this course');
+          }
+        }
+
         if (enrollment) {
+          console.log('[NewThreadPage] Enrollment found:', enrollment.id);
           setEnrollmentId(enrollment.id);
         } else {
+          console.warn('[NewThreadPage] No enrollment found, redirecting to dashboard');
           router.push('/student/dashboard');
         }
       } catch (error) {
-        console.error('Error fetching enrollment:', error);
+        console.error('[NewThreadPage] Exception fetching enrollment:', error);
         router.push('/student/dashboard');
       } finally {
         setIsLoading(false);
@@ -56,7 +69,7 @@ export default function NewThreadPage({
     };
 
     getEnrollmentId();
-  }, [courseId, user, authLoading, router]);
+  }, [courseId, user, authLoading]);
 
   if (isLoading || !enrollmentId) {
     return (

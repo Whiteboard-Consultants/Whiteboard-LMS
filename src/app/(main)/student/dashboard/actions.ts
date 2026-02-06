@@ -137,3 +137,70 @@ export async function getInstructorData(instructorIds: string[]) {
     return {};
   }
 }
+
+export async function getStudentEnrolledTests(userId: string) {
+  if (!userId) {
+    return { success: false, error: 'User ID required', data: [] };
+  }
+
+  try {
+    console.log('[SERVER ACTION] getStudentEnrolledTests called for user:', userId);
+    
+    // Fetch test-related enrollments (individual and series purchases)
+    const { data: enrollments, error: enrollmentsError } = await supabaseAdmin
+      .from('enrollments')
+      .select('test_id, series_id, status')
+      .eq('user_id', userId)
+      .or('purchase_type.eq.individual,purchase_type.eq.series_package')
+      .in('status', ['pending', 'approved', 'active', 'completed']);
+
+    if (enrollmentsError) {
+      console.error('[SERVER ACTION] Error fetching test enrollments:', enrollmentsError);
+      return { success: false, error: enrollmentsError.message, data: [] };
+    }
+
+    // Extract test IDs and series IDs
+    const testIds = new Set<string>();
+    const seriesIds = new Set<string>();
+    
+    (enrollments || []).forEach(enrollment => {
+      if (enrollment.test_id) testIds.add(enrollment.test_id);
+      if (enrollment.series_id) seriesIds.add(enrollment.series_id);
+    });
+
+    if (testIds.size === 0 && seriesIds.size === 0) {
+      console.log('[SERVER ACTION] No test enrollments found');
+      return { success: true, error: null, data: [] };
+    }
+
+    // Build query - fetch tests that are either directly enrolled or part of an enrolled series
+    let query = supabaseAdmin
+      .from('tests')
+      .select('*');
+
+    // Create OR condition for test IDs and series IDs
+    const testIdArray = Array.from(testIds);
+    const seriesIdArray = Array.from(seriesIds);
+    
+    if (testIdArray.length > 0 && seriesIdArray.length > 0) {
+      query = query.or(`id.in.(${testIdArray.join(',')}),series_id.in.(${seriesIdArray.join(',')})`);
+    } else if (testIdArray.length > 0) {
+      query = query.in('id', testIdArray);
+    } else if (seriesIdArray.length > 0) {
+      query = query.in('series_id', seriesIdArray);
+    }
+
+    const { data: tests, error: testsError } = await query.order('created_at', { ascending: false });
+
+    if (testsError) {
+      console.error('[SERVER ACTION] Error fetching tests:', testsError);
+      return { success: false, error: testsError.message, data: [] };
+    }
+
+    console.log('[SERVER ACTION] Successfully fetched', tests?.length || 0, 'tests');
+    return { success: true, error: null, data: tests || [] };
+  } catch (error) {
+    console.error('[SERVER ACTION] Exception in getStudentEnrolledTests:', error);
+    return { success: false, error: String(error), data: [] };
+  }
+}

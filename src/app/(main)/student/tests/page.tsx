@@ -14,6 +14,7 @@ import { PageHeader } from '@/components/page-header';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { supabase } from '@/lib/supabase';
+import { getStudentEnrolledTests } from '@/app/(main)/student/dashboard/actions';
 import type { Test, TestAttempt, TestType } from '@/lib/types';
 
 interface StudentTest extends Test {
@@ -43,14 +44,11 @@ export default function StudentTestsPage() {
     try {
       setLoading(true);
       
-      // Fetch all available tests
-      const { data: testsData, error: testsError } = await supabase
-        .from('tests')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Use server action to fetch enrolled tests (bypasses RLS)
+      const testsResult = await getStudentEnrolledTests(userData.id);
 
-      if (testsError) {
-        console.error('Error fetching tests:', testsError);
+      if (!testsResult.success) {
+        console.error('Error fetching tests:', testsResult.error);
         toast({
           variant: 'destructive',
           title: 'Error',
@@ -59,6 +57,8 @@ export default function StudentTestsPage() {
         return;
       }
 
+      const testsData = testsResult.data || [];
+      
       // Fetch user's test attempts
       const { data: attemptsData, error: attemptsError } = await supabase
         .from('test_attempts')

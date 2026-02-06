@@ -107,25 +107,60 @@ export async function fetchUserEnrollments(userId: string) {
 
     console.log('🔍 [SERVER ACTION] Fetching enrollments for user:', userId);
 
-    const { data: enrollmentsData, error } = await supabaseAdmin
+    // Fetch course enrollments
+    const { data: courseEnrollmentsData, error: courseError } = await supabaseAdmin
       .from('enrollments')
       .select(`
         *,
         courses:course_id(title)
       `)
-      .eq('user_id', userId);
+      .eq('user_id', userId)
+      .not('course_id', 'is', null);
 
-    console.log('📊 [SERVER ACTION] Query error:', error);
-    console.log('📊 [SERVER ACTION] Enrollments data:', enrollmentsData);
-    console.log('📊 [SERVER ACTION] Enrollments count:', enrollmentsData?.length || 0);
+    console.log('📊 [SERVER ACTION] Course query error:', courseError);
+    console.log('📊 [SERVER ACTION] Course enrollments data:', courseEnrollmentsData);
+    console.log('📊 [SERVER ACTION] Course enrollments count:', courseEnrollmentsData?.length || 0);
 
-    if (error) {
-      throw error;
+    if (courseError) {
+      throw courseError;
     }
+
+    // Fetch test enrollments
+    const { data: testEnrollmentsData, error: testError } = await supabaseAdmin
+      .from('enrollments')
+      .select(`
+        *,
+        tests:test_id(title),
+        test_series:series_id(title)
+      `)
+      .eq('user_id', userId)
+      .or('test_id.not.is.null,series_id.not.is.null');
+
+    console.log('📊 [SERVER ACTION] Test query error:', testError);
+    console.log('📊 [SERVER ACTION] Test enrollments data:', testEnrollmentsData);
+    console.log('📊 [SERVER ACTION] Test enrollments count:', testEnrollmentsData?.length || 0);
+
+    if (testError) {
+      throw testError;
+    }
+
+    // Combine and format all enrollments
+    const allEnrollments = [
+      ...(courseEnrollmentsData || []).map(e => ({
+        ...e,
+        type: 'course' as const,
+        title: e.courses?.title || 'Unknown Course'
+      })),
+      ...(testEnrollmentsData || []).map(e => ({
+        ...e,
+        type: e.test_id ? ('test' as const) : ('series' as const),
+        title: e.tests?.title || e.test_series?.title || 'Unknown Test/Series'
+      }))
+    ];
 
     return {
       success: true,
-      enrollments: enrollmentsData || []
+      enrollments: allEnrollments
     };
   } catch (error) {
     console.error('❌ [SERVER ACTION] Error fetching enrollments:', error);

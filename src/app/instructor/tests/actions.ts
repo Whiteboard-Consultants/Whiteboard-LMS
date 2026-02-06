@@ -59,8 +59,12 @@ export async function createTest(testData: any) {
                 show_results: testData.showResults ?? true,
                 allow_review: testData.allowReview ?? true,
                 question_count: 0,
-                has_certification: testData.hasCertification ?? false,
-                certificate_minimum_score: testData.certificateMinimumScore ?? 70
+                // Series fields
+                series_id: testData.seriesId || null,
+                topic: testData.topic || null,
+                difficulty_level: testData.difficultyLevel || null,
+                price: testData.price || 0,
+                is_free: testData.isFree ?? true
             })
             .select()
             .single();
@@ -68,6 +72,39 @@ export async function createTest(testData: any) {
         if (error) {
             console.error('Error creating test:', error);
             return { success: false, error: `Failed to create test: ${error.message}` };
+        }
+
+        // Handle series pricing if provided
+        if (testData.seriesId && (testData.seriesPrice !== undefined || testData.discountPercentage !== undefined || testData.isPurchasableSeries !== undefined)) {
+            try {
+                const seriesUpdateData: any = {};
+                
+                if (testData.seriesPrice !== undefined) seriesUpdateData.price = testData.seriesPrice;
+                if (testData.discountPercentage !== undefined) seriesUpdateData.discount_percentage = testData.discountPercentage;
+                if (testData.isPurchasableSeries !== undefined) seriesUpdateData.is_purchasable = testData.isPurchasableSeries;
+                
+                console.log('💾 [createTest] Setting series pricing:', {
+                  seriesId: testData.seriesId,
+                  seriesPrice: testData.seriesPrice,
+                  discountPercentage: testData.discountPercentage,
+                  isPurchasableSeries: testData.isPurchasableSeries
+                });
+                
+                const { error: seriesError } = await db
+                  .from('test_series')
+                  .update(seriesUpdateData)
+                  .eq('id', testData.seriesId);
+                
+                if (seriesError) {
+                  console.error('⚠️ [createTest] Warning: Failed to update series pricing:', seriesError);
+                  // Don't fail the entire operation if series pricing update fails
+                } else {
+                  console.log('✅ [createTest] Series pricing set successfully');
+                }
+            } catch (seriesError) {
+              console.error('⚠️ [createTest] Warning: Error setting series pricing:', seriesError);
+              // Don't fail the entire operation if series pricing update fails
+            }
         }
 
         // Save sections if provided
@@ -135,8 +172,12 @@ export async function updateTest(testId: string, testData: any) {
         if (testData.maxAttempts !== undefined) updateData.max_attempts = testData.maxAttempts;
         if (testData.showResults !== undefined) updateData.show_results = testData.showResults;
         if (testData.allowReview !== undefined) updateData.allow_review = testData.allowReview;
-        if (testData.hasCertification !== undefined) updateData.has_certification = testData.hasCertification;
-        if (testData.certificateMinimumScore !== undefined) updateData.certificate_minimum_score = testData.certificateMinimumScore;
+        // Series fields
+        if (testData.seriesId !== undefined) updateData.series_id = testData.seriesId;
+        if (testData.topic !== undefined) updateData.topic = testData.topic;
+        if (testData.difficultyLevel !== undefined) updateData.difficulty_level = testData.difficultyLevel;
+        if (testData.price !== undefined) updateData.price = testData.price;
+        if (testData.isFree !== undefined) updateData.is_free = testData.isFree;
 
         const { error } = await db
             .from('tests')
@@ -146,6 +187,39 @@ export async function updateTest(testId: string, testData: any) {
         if (error) {
             console.error('Error updating test:', error);
             return { success: false, error: error.message };
+        }
+
+        // Handle series pricing if provided
+        if (testData.seriesId && (testData.seriesPrice !== undefined || testData.discountPercentage !== undefined || testData.isPurchasableSeries !== undefined)) {
+            try {
+                const seriesUpdateData: any = {};
+                
+                if (testData.seriesPrice !== undefined) seriesUpdateData.price = testData.seriesPrice;
+                if (testData.discountPercentage !== undefined) seriesUpdateData.discount_percentage = testData.discountPercentage;
+                if (testData.isPurchasableSeries !== undefined) seriesUpdateData.is_purchasable = testData.isPurchasableSeries;
+                
+                console.log('💾 [updateTest] Updating series pricing:', {
+                  seriesId: testData.seriesId,
+                  seriesPrice: testData.seriesPrice,
+                  discountPercentage: testData.discountPercentage,
+                  isPurchasableSeries: testData.isPurchasableSeries
+                });
+                
+                const { error: seriesError } = await db
+                  .from('test_series')
+                  .update(seriesUpdateData)
+                  .eq('id', testData.seriesId);
+                
+                if (seriesError) {
+                  console.error('⚠️ [updateTest] Warning: Failed to update series pricing:', seriesError);
+                  // Don't fail the entire operation if series pricing update fails
+                } else {
+                  console.log('✅ [updateTest] Series pricing updated successfully');
+                }
+            } catch (seriesError) {
+              console.error('⚠️ [updateTest] Warning: Error updating series pricing:', seriesError);
+              // Don't fail the entire operation if series pricing update fails
+            }
         }
 
         // Handle sections if provided

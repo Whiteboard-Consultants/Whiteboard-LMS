@@ -132,15 +132,18 @@ export function LoginForm({ router }: LoginFormProps) {
         description: "Welcome back! Redirecting...",
       });
 
-      console.log('🚀 Redirecting to dashboard...');
-      // Redirect based on role - use startTransition for proper navigation
-      const path = role === 'admin' ? '/admin/dashboard' 
-                 : role === 'instructor' ? '/instructor/dashboard'
-                 : '/student/dashboard';
+      // Check for returnUrl from query params (for purchase redirects)
+      const returnUrl = searchParams.get('returnUrl');
       
-      console.log('→ Going to', path);
+      let redirectPath = returnUrl 
+        ? returnUrl
+        : role === 'admin' ? '/admin/dashboard' 
+        : role === 'instructor' ? '/instructor/dashboard'
+        : '/student/dashboard';
+      
+      console.log('🚀 Redirecting to:', redirectPath);
       startTransition(() => {
-        router.push(path);
+        router.push(redirectPath);
       });
     } catch (error: unknown) {
       console.error('💥 Catch block error:', error);

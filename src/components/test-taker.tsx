@@ -455,7 +455,9 @@ export default function TestTaker({ testId }: TestTakerProps) {
 
   if (loading) return <div className="flex justify-center items-center h-screen"><Loader2 className="h-8 w-8 animate-spin" /></div>;
   if (error) return <div className="text-destructive text-center p-8">{error}</div>;
-  if (!test || !currentQuestion) return <div className="text-center p-8">Could not load test content.</div>;
+  if (!test) return <div className="text-center p-8">Test data not found. Please try again.</div>;
+  if (questions.length === 0) return <div className="text-center p-8">This test has no questions yet.</div>;
+  if (!currentQuestion) return <div className="text-center p-8">Could not load test content.</div>;
 
   return (
     <div className="bg-gray-100 dark:bg-gray-900 min-h-screen p-4 space-y-4">

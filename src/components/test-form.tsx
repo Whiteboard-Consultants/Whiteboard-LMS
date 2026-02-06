@@ -328,7 +328,13 @@ export function TestForm({ initialData }: TestFormProps) {
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormDescription>Link this test as a final assessment for a course.</FormDescription>
+                  <FormDescription>
+                    Link this test to a course to provide <strong>free access</strong> to enrolled students.
+                  </FormDescription>
+                  <div className="mt-2 text-xs space-y-1 list-disc list-inside text-muted-foreground">
+                    <div><strong>With course:</strong> Students enrolled in the course get this test for free</div>
+                    <div><strong>Without course:</strong> Test can only be purchased separately</div>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}

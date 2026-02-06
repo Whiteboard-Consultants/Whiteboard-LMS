@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { PageHeader } from '@/components/page-header';
+import { getTestById } from '@/app/instructor/test-series-actions';
 import type { Test } from '@/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -13,7 +14,7 @@ import { ArrowLeft } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import dynamic from 'next/dynamic';
 
-const TestForm = dynamic(() => import('@/components/test-form').then(mod => mod.TestForm), { ssr: false });
+const TestForm = dynamic(() => import('@/components/series-test-form').then(mod => mod.SeriesTestForm), { ssr: false });
 const TestSectionBuilder = dynamic(() => import('@/components/test-section-builder').then(mod => mod.TestSectionBuilder), {
     ssr: false,
     loading: () => <p>Loading section builder...</p>
@@ -41,23 +42,46 @@ export default function EditTestPage() {
     const fetchTest = async () => {
       setLoading(true);
       try {
-        const { data, error } = await supabase
-          .from('tests')
-          .select('*')
-          .eq('id', testId)
-          .single();
+        // Use server action to fetch test with series data
+        const result = await getTestById(testId);
 
-        if (error) {
-          setError('Test not found.');
-          console.error(error);
-        } else if (data) {
-          setTest(data as Test);
+        console.log('🎯 [EditTestPage] getTestById result:', {
+          success: result.success,
+          testId: result.data?.id,
+          seriesId: result.data?.seriesId,
+          seriesPrice: result.data?.seriesPrice,
+          discountPercentage: result.data?.discountPercentage
+        });
+
+        if (!result.success) {
+          setError(result.error || 'Test not found.');
+          console.error(result.error);
+        } else if (result.data) {
+          console.log('✅ [EditTestPage] Test loaded with series pricing:', {
+            id: result.data.id,
+            title: result.data.title,
+            instructorId: result.data.instructorId,
+            seriesId: result.data.seriesId,
+            seriesPrice: result.data.seriesPrice,
+            discountPercentage: result.data.discountPercentage
+          });
+          
+          // Log what we're passing to form
+          console.log('📋 [EditTestPage] Passing to SeriesTestForm initialData:', {
+            id: result.data.id,
+            seriesId: result.data.seriesId,
+            seriesPrice: result.data.seriesPrice,
+            discountPercentage: result.data.discountPercentage,
+            isPurchasableSeries: result.data.seriesPrice ? true : false
+          });
+          
+          setTest(result.data);
         } else {
           setError('Test not found.');
         }
       } catch (err) {
         setError('Failed to fetch test data.');
-        console.error(err);
+        console.error('❌ [EditTestPage] Error:', err);
       } finally {
         setLoading(false);
       }

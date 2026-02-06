@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { deleteTest } from "@/app/instructor/tests/actions";
+import { getInstructors } from "@/app/instructor/test-series-actions";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 
 export default function InstructorTestsPage() {
@@ -99,22 +100,14 @@ export default function InstructorTestsPage() {
 
         setTests(mappedTests);
 
-        // Fetch all instructors if user is admin
+        // Fetch all instructors if user is admin (using server action)
         if (userData?.role === 'admin') {
-          const { data: usersData, error: usersError } = await supabase
-            .from('users')
-            .select('id, name')
-            .eq('role', 'instructor');
-
-          if (usersError) {
-            console.error("Error fetching instructors:", usersError);
-          } else {
-            const instructorMap = new Map();
-            (usersData || []).forEach(user => {
-              instructorMap.set(user.id, user.name);
-            });
-            setInstructors(instructorMap);
-          }
+          const instructorsList = await getInstructors();
+          const instructorMap = new Map();
+          instructorsList.forEach(instructor => {
+            instructorMap.set(instructor.id, instructor.name);
+          });
+          setInstructors(instructorMap);
         }
 
         setLoading(false);

@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "sonner"
 import { AuthProvider } from './auth-provider';
 import { AuthErrorSuppressor } from '@/components/auth-error-suppressor';
 import { CartProvider } from '@/hooks/use-cart';
+import { TestCartProvider } from '@/hooks/use-test-cart';
 import Script from 'next/script';
 import { ThemeProvider } from "@/components/theme-provider";
 import { WebVitalsTracker, PerformanceOptimizations, WebsiteSearchSchema } from '@/components/seo-optimizations';
@@ -237,21 +238,23 @@ export default function RootLayout({
         >
             <AuthProvider>
                 <CartProvider>
-                    {children}
-                    <Toaster />
-                    <Sonner theme="system" position="top-right" />
-                    
-                    {/* Cookie Consent Banner */}
-                    <CookieConsentBanner />
-                    
-                    {/* Web Vitals tracking for SXO */}
-                    <WebVitalsTracker />
-                    
-                    {/* Google Analytics */}
-                    <GoogleAnalyticsComponent />
-                    
-                    {/* Meta Pixel */}
-                    <MetaPixelInit />
+                    <TestCartProvider>
+                        {children}
+                        <Toaster />
+                        <Sonner theme="system" position="top-right" />
+                        
+                        {/* Cookie Consent Banner */}
+                        <CookieConsentBanner />
+                        
+                        {/* Web Vitals tracking for SXO */}
+                        <WebVitalsTracker />
+                        
+                        {/* Google Analytics */}
+                        <GoogleAnalyticsComponent />
+                        
+                        {/* Meta Pixel */}
+                        <MetaPixelInit />
+                    </TestCartProvider>
                 </CartProvider>
             </AuthProvider>
             <Script src="https://checkout.razorpay.com/v1/checkout.js" />

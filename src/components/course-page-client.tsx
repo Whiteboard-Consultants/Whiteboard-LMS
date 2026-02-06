@@ -32,11 +32,18 @@ export default function CoursesPageClient({ categories, initialCategory, childre
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
-    const [selectedCategory, setSelectedCategory] = useState(initialCategory);
+    const [selectedCategory, setSelectedCategory] = useState<typeof initialCategory | "Mock Tests">(initialCategory);
     const { userData } = useAuth();
     const isAdmin = userData?.role === 'admin';
 
     const handleSelectCategory = useCallback((category: string) => {
+        // Handle Mock Tests navigation
+        if (category === "Mock Tests") {
+            router.push('/mock-tests');
+            setSelectedCategory("Mock Tests" as const);
+            return;
+        }
+        
         setSelectedCategory(category as CourseCategory | "All Programs" | "Free Courses");
         const current = new URLSearchParams(Array.from(searchParams.entries()));
         current.set("category", category);
@@ -186,10 +193,26 @@ export default function CoursesPageClient({ categories, initialCategory, childre
                         selectedCategory={selectedCategory}
                         onSelectCategory={handleSelectCategory}
                         showBatchScheduleTab={true}
+                        showMockTestsTab={true}
                     />
 
                     {/* Conditional content based on selected category */}
-                    {selectedCategory === "Batch Schedule" ? (
+                    {selectedCategory === "Mock Tests" ? (
+                        <div className="mt-12">
+                            <div className="flex flex-col items-center justify-center space-y-4 text-center mb-4">
+                                <h2 className="text-3xl md:text-4xl font-bold tracking-tight font-headline leading-tight">
+                                    Mock Test Series
+                                </h2>
+                                <p className="text-base md:text-lg text-muted-foreground">
+                                    Practice with comprehensive mock tests across multiple topics and difficulty levels
+                                </p>
+                            </div>
+                            {/* Redirect to mock-tests page */}
+                            <div className="text-center py-12">
+                                <p className="text-muted-foreground mb-4">Redirecting to Mock Tests page...</p>
+                            </div>
+                        </div>
+                    ) : selectedCategory === "Batch Schedule" ? (
                         <div className="mt-12">
                             <div className="flex flex-col items-center justify-center space-y-4 text-center mb-4">
                                 <h2 className="text-3xl md:text-4xl font-bold tracking-tight font-headline leading-tight">

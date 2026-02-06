@@ -74,7 +74,7 @@ export function EnhancedTestForm({ initialData, courses = [] }: EnhancedTestForm
       maxAttempts: initialData?.maxAttempts || undefined,
       showResults: initialData?.showResults ?? true,
       allowReview: initialData?.allowReview ?? true,
-      courseId: initialData?.courseId || "",
+      courseId: initialData?.courseId || "none",
     },
   });
 
@@ -125,9 +125,10 @@ export function EnhancedTestForm({ initialData, courses = [] }: EnhancedTestForm
     try {
       const testData = {
         ...values,
+        courseId: values.courseId && values.courseId !== 'none' ? values.courseId : null,
         duration: values.duration * 60, // Convert minutes to seconds
         instructorId: userData.id,
-        courseTitle: values.courseId 
+        courseTitle: values.courseId && values.courseId !== 'none'
           ? availableCourses.find(c => c.id === values.courseId)?.title 
           : null,
       };
@@ -286,14 +287,14 @@ export function EnhancedTestForm({ initialData, courses = [] }: EnhancedTestForm
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Link to Course (Optional)</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value || 'none'}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select a course to link..." />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">No course selected</SelectItem>
+                          <SelectItem value="none">No course selected</SelectItem>
                           {availableCourses.map((course) => (
                             <SelectItem key={course.id} value={course.id}>
                               {course.title}
@@ -302,8 +303,12 @@ export function EnhancedTestForm({ initialData, courses = [] }: EnhancedTestForm
                         </SelectContent>
                       </Select>
                       <FormDescription>
-                        Link this test to a specific course for better organization.
+                        Link this test to a course to provide <strong>free access</strong> to enrolled students.
                       </FormDescription>
+                      <div className="mt-2 text-xs space-y-1 list-disc list-inside text-muted-foreground">
+                        <div><strong>With course:</strong> Students enrolled in the course get this test for free</div>
+                        <div><strong>Without course:</strong> Test can only be purchased separately</div>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}

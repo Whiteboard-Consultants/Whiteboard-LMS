@@ -156,7 +156,8 @@ export type RegistrationRequest = {
 export interface Enrollment {
   id: string;
   userId: string;
-  courseId: string;
+  courseId?: string | null; // nullable for test-only enrollments
+  testId?: string | null; // for test-specific enrollments
   studentName?: string;
   courseTitle?: string;
   coursePrice?: number;
@@ -174,6 +175,29 @@ export interface Enrollment {
   certificateStatus?: 'eligible' | 'not_eligible' | 'requested' | 'approved';
   averageScore?: number;
   couponCode?: string;
+  // Test-specific fields
+  testScore?: number;
+  testAttempts?: number;
+  isTestPurchase?: boolean; // flag to distinguish test purchases from course enrollments
+}
+
+export interface TestAttempt {
+  id: string;
+  testId: string;
+  userId: string;
+  enrollmentId?: string | null;
+  status: 'in-progress' | 'completed' | 'abandoned';
+  startTime: TimestampType;
+  submittedAt?: TimestampType;
+  score?: number;
+  totalMarks?: number;
+  correctAnswers?: number;
+  incorrectAnswers?: number;
+  unattempted?: number;
+  timeSpent?: number; // in seconds
+  answers?: Record<string, any>; // store all answers
+  createdAt?: TimestampType;
+  updatedAt?: TimestampType;
 }
 
 export interface Review {
@@ -246,12 +270,57 @@ export interface TestQuestion {
 
 export type TestType = 'practice' | 'final' | 'assessment' | 'quiz';
 
+export type DifficultyLevel = 'Easy' | 'Medium' | 'Medium-Hard' | 'Hard';
+
+export interface TestSeries {
+    id: string;
+    title: string;
+    description?: string;
+    topicArea: string; // e.g., "Campus Recruitment", "IELTS", "GMAT"
+    instructorId: string;
+    instructorName?: string;
+    coverImageUrl?: string;
+    isPublished: boolean;
+    createdAt: TimestampType;
+    updatedAt: TimestampType;
+    testCount?: number; // number of tests in series
+    topicsInSeries?: string[]; // unique topics in this series
+    // Phase 1: Series packaging
+    price?: number; // series package price (optional, null = no package pricing)
+    isPurchasable?: boolean; // can this series be purchased as package
+    discountPercentage?: number; // discount when buying series vs individual tests
+}
+
+export type PurchaseType = 'individual' | 'series_package';
+
+export interface SeriesPurchase {
+    id: string;
+    userId: string;
+    seriesId: string;
+    seriesTitle: string;
+    price: number;
+    discount: number; // amount saved
+    purchaseDate: TimestampType;
+    status: 'active' | 'inactive' | 'expired';
+}
+
+export interface TestPurchase {
+    id: string;
+    userId: string;
+    testId: string;
+    testTitle: string;
+    price: number;
+    purchaseDate: TimestampType;
+    status: 'active' | 'inactive' | 'expired';
+}
+
 export interface Test {
     id: string;
     title: string;
     description: string;
     duration: number; // in seconds
     instructorId: string;
+    instructorName?: string; // instructor display name
     questionCount: number;
     createdAt: TimestampType;
     courseId?: string | null;
@@ -264,6 +333,16 @@ export interface Test {
     allowReview: boolean; // whether to allow review of answers after completion
     hasCertification?: boolean; // whether this test provides a certificate
     certificateMinimumScore?: number; // minimum score required for certificate (0-100)
+    // New fields for test series
+    seriesId?: string | null; // reference to test series
+    seriesTitle?: string; // denormalized series title for display
+    seriesPrice?: number; // series package price (if available)
+    discountPercentage?: number; // discount for series vs individual purchase
+    topic?: string; // topic within series (e.g., "QA", "VA", "LRDI")
+    difficultyLevel?: DifficultyLevel; // Easy, Medium, Medium-Hard, Hard
+    price?: number; // individual test price
+    isFree?: boolean; // whether test is free
+    orderWithinTopic?: number; // ordering within topic group
 }
 
 export type AnswerStatus = 'not-visited' | 'not-answered' | 'answered' | 'marked' | 'answered-and-marked';
