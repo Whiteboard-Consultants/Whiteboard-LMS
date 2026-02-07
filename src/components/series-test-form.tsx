@@ -181,10 +181,10 @@ export function SeriesTestForm({ initialData, onSuccess }: SeriesTestFormProps) 
   // Load test series on mount
   useEffect(() => {
     // In edit mode, use the test's instructor ID; in create mode, use the current user's ID
-    const instructorId = isEditMode ? (initialData?.instructorId || userData?.id) : userData?.id;
+    const instructorId = isEditMode ? initialData?.instructorId : userData?.id;
     
     if (instructorId) {
-      console.log('👤 User data loaded:', { userId: userData?.id, userEmail: userData?.email });
+      console.log('👤 User data loaded:', { userId: userData?.id, userEmail: userData?.email, instructorId });
       console.log('📚 Loading series for instructor:', instructorId, '(edit mode:', isEditMode, ')');
       loadTestSeries(instructorId);
       loadInstructors();
@@ -202,10 +202,10 @@ export function SeriesTestForm({ initialData, onSuccess }: SeriesTestFormProps) 
     setIsLoadingSeriesData(true);
     try {
       console.log('📚 Loading test series for instructor:', instructorId);
-      // In edit mode, we want to see all available series (not just the instructor's)
-      // Pass undefined for instructorId to get all series
+      // Show all available series regardless of edit mode
+      // In both create and edit mode, instructors should see all series they can use
       const result = await getTestSeries({ 
-        instructorId: isEditMode ? undefined : instructorId 
+        instructorId: undefined  // Pass undefined to get all series
       });
       console.log('📚 Test series result:', result);
       if (result.success && result.data) {
@@ -576,7 +576,7 @@ export function SeriesTestForm({ initialData, onSuccess }: SeriesTestFormProps) 
                   control={form.control}
                   name="isSeriesTest"
                   render={({ field }) => (
-                    <FormItem className="flex items-center justify-between border rounded-lg p-4 bg-slate-50">
+                    <FormItem className="flex items-center justify-between border rounded-lg p-4 bg-slate-50 dark:bg-slate-800 dark:border-slate-700">
                       <div className="space-y-0.5">
                         <FormLabel>Part of a Series?</FormLabel>
                         <FormDescription>
@@ -594,7 +594,7 @@ export function SeriesTestForm({ initialData, onSuccess }: SeriesTestFormProps) 
                 />
 
                 {watchIsSeriesTest && (
-                  <div className="space-y-4 border rounded-lg p-4 bg-blue-50">
+                  <div className="space-y-4 border rounded-lg p-4 bg-blue-50 dark:bg-slate-800 dark:border-slate-700">
                     {/* Series Selection */}
                     <FormField
                       control={form.control}
@@ -636,7 +636,7 @@ export function SeriesTestForm({ initialData, onSuccess }: SeriesTestFormProps) 
                                 </Button>
                               </>
                             ) : (
-                              <div className="space-y-3 p-3 bg-white rounded border">
+                              <div className="space-y-3 p-3 bg-white dark:bg-slate-900 rounded border dark:border-slate-700">
                                 <Input
                                   placeholder="Series Title (e.g., Campus Recruitment Training)"
                                   value={newSeriesData.title}

@@ -10,6 +10,7 @@ import {
   BookOpen, IndianRupee, Clock, Users, ChevronRight, Search, 
   TrendingUp, Award, Briefcase, Globe, Brain, Target
 } from 'lucide-react';
+import { QuantitativeAptitudeGuide } from '@/components/quantitative-aptitude-guide';
 import type { Test, DifficultyLevel } from '@/types';
 
 interface FilterOptions {
@@ -152,6 +153,9 @@ export function MockTestPageClient({
             </section>
 
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                {/* Quantitative Aptitude Guide */}
+                <QuantitativeAptitudeGuide />
+
                 {/* Topic Categories Section */}
                 {!selectedTopic && !searchQuery && (
                     <>
