@@ -403,6 +403,7 @@ export async function addTestQuestion(testId: string, questionData: Omit<TestQue
 
 export async function updateTestQuestion(questionId: string, questionData: Partial<TestQuestion>) {
     try {
+        console.log('🔍 DEBUG updateTestQuestion: negativeMarks =', questionData.negativeMarks, 'Type:', typeof questionData.negativeMarks);
         const updateData: any = {};
         
         if (questionData.text) updateData.question_text = questionData.text;
@@ -410,8 +411,14 @@ export async function updateTestQuestion(questionId: string, questionData: Parti
         if (questionData.correctOption !== undefined) updateData.correct_answer = questionData.correctOption;
         if (questionData.solution !== undefined) updateData.explanation = questionData.solution;
         if (questionData.marks !== undefined) updateData.points = questionData.marks;
-        if (questionData.negativeMarks !== undefined) updateData.negative_marks = questionData.negativeMarks;
+        if (questionData.negativeMarks !== undefined) {
+            console.log('🔍 DEBUG: Setting negative_marks to:', questionData.negativeMarks);
+            updateData.negative_marks = questionData.negativeMarks;
+        } else {
+            console.log('🔍 DEBUG: negativeMarks is UNDEFINED - NOT included in update');
+        }
         if (questionData.order !== undefined) updateData.order_number = questionData.order;
+        console.log('🔍 DEBUG: updateData =', updateData);
         if ((questionData as any).type !== undefined) {
             // Map form type values to database enum values
             const typeMap: Record<string, string> = {
@@ -429,9 +436,10 @@ export async function updateTestQuestion(questionId: string, questionData: Parti
             .eq('id', questionId);
 
         if (error) {
-            console.error('Error updating question:', error);
+            console.error('❌ Update error:', error);
             return { success: false, error: error.message };
         }
+        console.log('✅ Update successful, updated fields:', updateData);
 
         if (questionData.testId) {
             revalidatePath(`/instructor/tests/edit/${questionData.testId}`);

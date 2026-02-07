@@ -118,6 +118,9 @@ export function TestQuestionManager({ testId }: { testId: string }) {
                 console.log('🔍 Client: Raw database questions:', data);
                 
                 const mappedQuestions = (data || []).map((q: any) => {
+                    if (q.negative_marks !== null && q.negative_marks !== undefined && q.negative_marks !== 0) {
+                        console.log('🔍 DEBUG: Question', q.id, 'FROM DB: negative_marks =', q.negative_marks, 'Type:', typeof q.negative_marks);
+                    }
                     const mapped = {
                         id: q.id,
                         testId: q.test_id,

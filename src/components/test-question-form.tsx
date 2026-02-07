@@ -130,6 +130,7 @@ export function TestQuestionForm({ testId, existingQuestion, onSuccess, currentQ
     async function onSubmit(values: z.infer<typeof formSchema>) {
         console.log('📝 Submitting question with text:', values.text);
         console.log('📝 Text includes HTML:', values.text.includes('<') && values.text.includes('>'));
+        console.log('🔍 DEBUG: Form negativeMarks =', values.negativeMarks, 'Type:', typeof values.negativeMarks);
         const questionData: Omit<TestQuestion, 'id' | 'testId'> & { sectionId?: string | null, passageId?: string | null } = {
             type: values.type,
             text: values.text,
@@ -140,6 +141,7 @@ export function TestQuestionForm({ testId, existingQuestion, onSuccess, currentQ
             negativeMarks: values.negativeMarks || 0,
             order: isEditMode ? existingQuestion.order : currentQuestionCount,
         };
+        console.log('🔍 DEBUG: questionData.negativeMarks =', questionData.negativeMarks, 'isEditMode:', isEditMode);
         
         // Handle section assignment - convert 'no-section' to null
         const sectionId = values.sectionId && values.sectionId !== 'no-section' ? values.sectionId : null;
@@ -152,6 +154,7 @@ export function TestQuestionForm({ testId, existingQuestion, onSuccess, currentQ
         const result = isEditMode
             ? await updateTestQuestion(existingQuestion.id, questionData as any)
             : await addTestQuestion(testId, questionData as any);
+        console.log('🔍 DEBUG: Server action result:', result);
         
         if (result.success) {
             toast({ title: "Success", description: `Question ${isEditMode ? 'updated' : 'added'}.` });
