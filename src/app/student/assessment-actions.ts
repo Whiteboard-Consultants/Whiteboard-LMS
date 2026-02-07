@@ -88,25 +88,56 @@ export async function submitTest(params: {
 
     console.log('✅ Questions loaded:', questions?.length || 0);
 
-    // Calculate score
-    const correctAnswers = answers.filter((answer, index) => {
-      const question = questions?.[index];
-      // correct_answer is stored as string index ('0', '1', etc), need to parse as integer
-      const correctAnswerIndex = parseInt(question?.correct_answer as string, 10);
-      const correct = answer === correctAnswerIndex;
-      if (index < 3) { // Log first 3 for debugging
-        console.log(`  Q${index}: answer=${answer}, correct=${question?.correct_answer}, correctIndex=${correctAnswerIndex}, match=${correct}`);
-      }
-      return correct;
-    }).length;
+    // Calculate score with marks and negative marks
+    let totalScore = 0;
+    let totalMarks = 0;
+    let correctAnswers = 0;
+    let incorrectAnswers = 0;
+    let unattempted = 0;
 
-    const totalQuestions = questions?.length || 0;
-    const percentage = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
+    answers.forEach((answer, index) => {
+      const question = questions?.[index];
+      if (!question) return;
+
+      const marks = question.points || 1; // Default to 1 mark if not specified
+      const negativeMarks = question.negative_marks || 0;
+      const correctAnswerIndex = parseInt(question.correct_answer as string, 10);
+
+      totalMarks += marks; // Add to total marks for all questions
+
+      if (answer === -1 || answer === null) {
+        // Unattempted question
+        unattempted++;
+      } else if (answer === correctAnswerIndex) {
+        // Correct answer - add marks
+        totalScore += marks;
+        correctAnswers++;
+        if (index < 3) {
+          console.log(`  Q${index}: CORRECT +${marks} marks (total: ${totalScore})`);
+        }
+      } else {
+        // Incorrect answer - deduct negative marks
+        const deduction = Math.min(negativeMarks, marks); // Don't go below 0
+        totalScore -= deduction;
+        incorrectAnswers++;
+        if (index < 3) {
+          console.log(`  Q${index}: INCORRECT -${deduction} marks (total: ${totalScore})`);
+        }
+      }
+    });
+
+    // Ensure score doesn't go below 0
+    totalScore = Math.max(0, totalScore);
+
+    const percentage = totalMarks > 0 ? Math.round((totalScore / totalMarks) * 100) : 0;
     const passed = percentage >= (test.passing_score || 80);
 
     console.log('✅ Test scoring:', {
+      totalScore,
+      totalMarks,
       correctAnswers,
-      totalQuestions,
+      incorrectAnswers,
+      unattempted,
       percentage,
       passed,
       passingScore: test.passing_score || 80
@@ -120,8 +151,11 @@ export async function submitTest(params: {
         user_id: userId,
         course_id: test.course_id,
         enrollment_id: enrollment.id,
-        score: correctAnswers,
-        total_questions: totalQuestions,
+        score: totalScore,
+        total_marks: totalMarks,
+        correct_answers: correctAnswers,
+        incorrect_answers: incorrectAnswers,
+        unattempted: unattempted,
         percentage: percentage,
         passed: passed,
         answers: answers,
@@ -285,7 +319,7 @@ export async function getTestAttemptForResults(attemptId: string) {
     // Fetch test questions with answers
     const { data: questions, error: questionsError } = await supabaseAdmin
       .from('test_questions')
-      .select('id, question_text, options, correct_answer, order_number')
+      .select('id, question_text, options, correct_answer, points, negative_marks, order_number')
       .eq('test_id', attempt.test_id)
       .order('order_number', { ascending: true });
 
@@ -319,20 +353,44 @@ export async function getTestAttemptForResults(attemptId: string) {
         userAnswerIndex: userAnswer ?? -1,
         userAnswer: userAnswer !== undefined ? parsedOptions[userAnswer] : null,
         correct: userAnswer === correctAnswerIndex,
-        explanation: userAnswerDetail?.explanation || null
+        explanation: userAnswerDetail?.explanation || null,
+        points: q.points || 1,
+        negative_marks: q.negative_marks || 0
       };
     });
 
-    // Recalculate score based on actual answers vs correct answers
-    const calculatedScore = formattedQuestions.filter(q => q.correct).length;
-    const calculatedPercentage = formattedQuestions.length > 0 
-      ? Math.round((calculatedScore / formattedQuestions.length) * 100)
+    // Recalculate score based on marks and negative marks
+    let calculatedScore = 0;
+    let calculatedTotalMarks = 0;
+    
+    (formattedQuestions as any[]).forEach((q: any) => {
+      const marks = q.points || 1;
+      calculatedTotalMarks += marks;
+      
+      if (q.correct) {
+        // Correct answer: add marks
+        calculatedScore += marks;
+      } else if (q.userAnswerIndex !== -1 && q.userAnswerIndex !== null) {
+        // Incorrect answer: deduct negative marks
+        const negativeMarks = q.negative_marks || 0;
+        const deduction = Math.min(negativeMarks, marks);
+        calculatedScore -= deduction;
+      }
+      // Unattempted: no change to score
+    });
+    
+    // Ensure score doesn't go below 0
+    calculatedScore = Math.max(0, calculatedScore);
+    
+    const calculatedPercentage = calculatedTotalMarks > 0 
+      ? Math.round((calculatedScore / calculatedTotalMarks) * 100)
       : 0;
     const calculatedPassed = calculatedPercentage >= (test.passing_score || 60);
 
     console.log('✅ Test results compiled:', {
       databaseScore: attempt.score,
       calculatedScore: calculatedScore,
+      totalMarks: calculatedTotalMarks,
       totalQuestions: formattedQuestions.length,
       databasePercentage: attempt.percentage,
       calculatedPercentage: calculatedPercentage,
@@ -347,6 +405,7 @@ export async function getTestAttemptForResults(attemptId: string) {
       test_id: attempt.test_id,
       enrollment_id: attempt.enrollment_id,
       score: calculatedScore,
+      total_marks: calculatedTotalMarks,
       total_questions: formattedQuestions.length,
       percentage: calculatedPercentage,
       passed: calculatedPassed,
