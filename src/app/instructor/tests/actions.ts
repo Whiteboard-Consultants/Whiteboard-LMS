@@ -522,7 +522,7 @@ export async function getTestQuestions(testId: string) {
         
         const { data, error } = await db
             .from('test_questions')
-            .select('id, test_id, order_number, question_text, question_type, options, correct_answer, explanation, points, section_id, passage_id')
+            .select('id, test_id, order_number, question_text, question_type, options, correct_answer, explanation, points, negative_marks, section_id, passage_id')
             .eq('test_id', testId)
             .order('order_number', { ascending: true });
 
