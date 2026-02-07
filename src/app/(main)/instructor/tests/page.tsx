@@ -255,7 +255,7 @@ export default function InstructorTestsPage() {
                                   })()}
                                 </ul>
                               ) : (
-                                <div className="text-sm text-muted-foreground">{test.description}</div>
+                                <div className="text-sm text-muted-foreground line-clamp-2">{test.description}</div>
                               )}
                             </div>
                           )}

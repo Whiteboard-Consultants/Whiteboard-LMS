@@ -127,7 +127,7 @@ export function TestQuestionManager({ testId }: { testId: string }) {
                         correctOption: parseInt(q.correct_answer) || 0,
                         solution: q.explanation || '',
                         marks: q.points || 1,
-                        negativeMarks: 0
+                        negativeMarks: q.negative_marks || 0
                     };
                     console.log('📝 Mapped question:', mapped);
                     return mapped;

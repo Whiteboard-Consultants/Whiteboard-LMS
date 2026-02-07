@@ -363,6 +363,7 @@ export async function addTestQuestion(testId: string, questionData: Omit<TestQue
             correct_answer: cleanQuestionData.correctOption,
             explanation: cleanQuestionData.solution || '',
             points: cleanQuestionData.marks || 1,
+            negative_marks: cleanQuestionData.negativeMarks || 0,
             order_number: nextOrderNumber,
             question_type: typeMap[cleanQuestionData.type] || 'multiple_choice',
             section_id: (cleanQuestionData as any).sectionId || null,
@@ -409,6 +410,7 @@ export async function updateTestQuestion(questionId: string, questionData: Parti
         if (questionData.correctOption !== undefined) updateData.correct_answer = questionData.correctOption;
         if (questionData.solution !== undefined) updateData.explanation = questionData.solution;
         if (questionData.marks !== undefined) updateData.points = questionData.marks;
+        if (questionData.negativeMarks !== undefined) updateData.negative_marks = questionData.negativeMarks;
         if (questionData.order !== undefined) updateData.order_number = questionData.order;
         if ((questionData as any).type !== undefined) {
             // Map form type values to database enum values
@@ -536,7 +538,7 @@ export async function getTestQuestions(testId: string) {
                 correctOption: q.correct_answer !== null ? parseInt(q.correct_answer) : null,
                 solution: q.explanation || '',
                 marks: q.points,
-                negativeMarks: 0,
+                negativeMarks: q.negative_marks || 0,
                 sectionId: q.section_id || undefined,
                 passageId: q.passage_id || undefined,
             };

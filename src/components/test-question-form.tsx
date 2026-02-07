@@ -395,9 +395,9 @@ export function TestQuestionForm({ testId, existingQuestion, onSuccess, currentQ
                                 <FormItem>
                                 <FormLabel>Negative Marks</FormLabel>
                                 <FormControl>
-                                    <Input type="number" {...field} />
+                                    <Input type="number" step="0.25" placeholder="0" {...field} />
                                 </FormControl>
-                                <FormDescription className="text-xs">Only for MCQ</FormDescription>
+                                <FormDescription className="text-xs">MCQ only · Deduction for wrong answer (e.g., enter 1 for -1 mark, not -1)</FormDescription>
                                 <FormMessage />
                                 </FormItem>
                             )}
