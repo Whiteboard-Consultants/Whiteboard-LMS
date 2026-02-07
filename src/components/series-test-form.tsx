@@ -420,7 +420,7 @@ export function SeriesTestForm({ initialData, onSuccess }: SeriesTestFormProps) 
 
   return (
     <div className="space-y-8">
-      <Card className="dark:bg-slate-900 dark:border-slate-800">
+      <Card>
         <CardHeader>
           <CardTitle>
             {isEditMode ? 'Edit Test' : 'Create New Test'}
@@ -432,9 +432,9 @@ export function SeriesTestForm({ initialData, onSuccess }: SeriesTestFormProps) 
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="dark:bg-slate-900">
+        <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 dark:text-foreground">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               {/* Basic Information */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Basic Information</h3>
@@ -1037,11 +1037,11 @@ export function SeriesTestForm({ initialData, onSuccess }: SeriesTestFormProps) 
       </Card>
 
       {/* Help Text */}
-      <Card className="bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900">
+      <Card className="bg-blue-50 border-blue-200">
         <CardHeader>
-          <CardTitle className="text-base dark:text-blue-200">Creating Test Series</CardTitle>
+          <CardTitle className="text-base">Creating Test Series</CardTitle>
         </CardHeader>
-        <CardContent className="text-sm text-slate-700 dark:text-slate-300 space-y-2">
+        <CardContent className="text-sm text-slate-700 space-y-2">
           <p>
             <strong>What is a Test Series?</strong> A test series is a collection of tests organized by topic and difficulty level. For example, "Campus Recruitment Training" can have multiple topics (QA, VA, LRDI), each with different difficulty levels (Easy, Medium, Hard).
           </p>
