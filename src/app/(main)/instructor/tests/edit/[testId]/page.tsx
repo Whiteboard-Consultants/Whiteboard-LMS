@@ -91,7 +91,7 @@ export default function EditTestPage() {
   }, [testId]);
 
   return (
-    <div>
+    <div className="min-h-screen bg-background dark:bg-slate-950">
       <div className="mb-4">
         <Button asChild variant="outline" size="sm">
           <Link href="/instructor/tests">
@@ -104,7 +104,7 @@ export default function EditTestPage() {
         title="Edit Test"
         description="Update the details and manage questions for your test."
       />
-      <div className="max-w-4xl mx-auto space-y-8 bg-muted/40 p-4 sm:p-6 md:p-8 rounded-lg">
+      <div className="max-w-4xl mx-auto space-y-8 bg-muted/40 dark:bg-slate-900/50 border dark:border-slate-800 p-4 sm:p-6 md:p-8 rounded-lg">
         {loading && (
             <div className="space-y-4">
                 <Skeleton className="h-10 w-1/2" />
