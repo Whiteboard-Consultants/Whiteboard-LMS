@@ -190,7 +190,7 @@ export function MockTestPageClient({
                                 return (
                                     <Card
                                         key={topic}
-                                        className="overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group bg-white dark:bg-slate-800/50 border border-white/80 dark:border-slate-700/50"
+                                        className="overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group bg-white dark:bg-slate-800/50 border border-white/80 dark:border-slate-700/50 flex flex-col"
                                         onClick={() => {
                                             const seriesSlug = generateSlug(seriesName);
                                             router.push(`/mock-tests/${encodeURIComponent(seriesSlug)}`);
@@ -208,7 +208,7 @@ export function MockTestPageClient({
                                             </div>
                                         </CardHeader>
 
-                                        <CardContent className="space-y-4">
+                                        <CardContent className="space-y-4 flex-1 flex flex-col">
                                             <p className="text-sm text-foreground/70 dark:text-slate-300/70">
                                                 {metadata.description}
                                             </p>
@@ -250,15 +250,17 @@ export function MockTestPageClient({
                                             </div>
 
                                             {/* CTA Button */}
-                                            <Button 
-                                                className="w-full bg-blue-600 hover:bg-blue-700 group/btn"
-                                                onClick={() => {
-                                                    const seriesSlug = generateSlug(seriesName);
-                                                    router.push(`/mock-tests/${encodeURIComponent(seriesSlug)}`);
-                                                }}
-                                            >
-                                                Explore Tests <ChevronRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
-                                            </Button>
+                                            <div className="pt-4 mt-auto">
+                                                <Button 
+                                                    className="w-full bg-blue-600 hover:bg-blue-700 group/btn"
+                                                    onClick={() => {
+                                                        const seriesSlug = generateSlug(seriesName);
+                                                        router.push(`/mock-tests/${encodeURIComponent(seriesSlug)}`);
+                                                    }}
+                                                >
+                                                    Explore Tests <ChevronRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                                                </Button>
+                                            </div>
                                         </CardContent>
                                     </Card>
                                 );
