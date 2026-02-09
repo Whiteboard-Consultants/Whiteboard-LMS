@@ -12,7 +12,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft, BookOpen, Clock, Zap, TrendingUp } from 'lucide-react';
+import { ArrowLeft, BookOpen, Clock, Zap, TrendingUp, Target, Brain, CheckCircle } from 'lucide-react';
 
 interface Series {
     id: string;
@@ -148,37 +148,55 @@ export function SeriesDetailClient({
                 </div>
             </div>
 
-            {/* Hero Content Section */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-                <div className="rounded-2xl bg-gradient-to-br from-blue-50/70 via-white/60 to-indigo-50/70 dark:from-blue-950/30 dark:via-slate-900/40 dark:to-indigo-950/30 backdrop-blur-md border border-blue-100/40 dark:border-blue-900/40 p-8 md:p-12 shadow-lg">
+            {/* Hero Content */}
+            <section className="py-12 px-4 md:px-6 lg:px-8 bg-gradient-to-br from-blue-50/70 via-white/60 to-indigo-50/70 dark:from-blue-950/20 dark:via-slate-900/30 dark:to-indigo-950/20 border-b border-slate-200/40 dark:border-slate-700/30">
+                <div className="max-w-7xl mx-auto">
                     <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-8">
                         Ace Your Dream Company Placement
                     </h2>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <div>
-                            <h3 className="text-lg font-semibold text-blue-700 dark:text-blue-400 mb-3">Why Campus Mock Tests</h3>
-                            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {/* Why Campus Mock Tests */}
+                        <div className="bg-white/70 dark:bg-slate-800/50 rounded-xl p-6 border border-blue-100/50 dark:border-blue-900/30">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
+                                    <Target className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                                </div>
+                                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Why Campus Mock Tests</h3>
+                            </div>
+                            <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                                 Top IT companies hire based on performance, not just potential. Mock tests replicate TCS, Infosys, Wipro, Capgemini, and Accenture exam patterns, helping you compete with thousands of candidates nationwide.
                             </p>
                         </div>
 
-                        <div>
-                            <h3 className="text-lg font-semibold text-purple-700 dark:text-purple-400 mb-3">What&apos;s Inside</h3>
-                            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                        {/* What's Inside */}
+                        <div className="bg-white/70 dark:bg-slate-800/50 rounded-xl p-6 border border-purple-100/50 dark:border-purple-900/30">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-2 bg-purple-100 dark:bg-purple-900/40 rounded-lg">
+                                    <Brain className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                                </div>
+                                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">What&apos;s Inside</h3>
+                            </div>
+                            <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                                 Complete test series covering Quantitative Aptitude, Logical Reasoning, and Verbal Ability. Get 100+ questions with company-specific patterns, difficulty levels matching actual exams, and detailed solutions that teach problem-solving strategies.
                             </p>
                         </div>
 
-                        <div>
-                            <h3 className="text-lg font-semibold text-emerald-700 dark:text-emerald-400 mb-3">How to Excel</h3>
-                            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                        {/* How to Excel */}
+                        <div className="bg-white/70 dark:bg-slate-800/50 rounded-xl p-6 border border-emerald-100/50 dark:border-emerald-900/30">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-2 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg">
+                                    <CheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                                </div>
+                                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">How to Excel</h3>
+                            </div>
+                            <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                                 Practice with realistic time limits, analyze performance reports to identify weak topics, focus your revision strategically, and build the speed and accuracy that recruiters demand. Track improvement across multiple attempts until you&apos;re placement-ready.
                             </p>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
             {/* Main Content */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
