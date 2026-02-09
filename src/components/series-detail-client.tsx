@@ -48,7 +48,7 @@ interface FilterOptions {
 interface SeriesDetailClientProps {
     series: Series;
     tests: TestAttempt[];
-    filterOptions: FilterOptions | null;
+    filterOptions: FilterOptions | null | undefined;
 }
 
 export function SeriesDetailClient({
