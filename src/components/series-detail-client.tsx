@@ -13,6 +13,12 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { ArrowLeft, BookOpen, Clock, Zap, TrendingUp, Target, Brain, CheckCircle } from 'lucide-react';
+import {
+    Accordion,
+    AccordionItem,
+    AccordionTrigger,
+    AccordionContent,
+} from '@/components/ui/accordion';
 
 interface Series {
     id: string;
@@ -31,9 +37,9 @@ interface TestAttempt {
     title: string;
     description?: string | null;
     topic?: string | null;
-    difficulty?: string | null;
-    duration_minutes?: number | null;
-    total_questions?: number | null;
+    difficultyLevel?: string | null;
+    duration?: number | null;
+    questionCount?: number | null;
     price?: number | null;
     discount_percentage?: number | null;
     is_published?: boolean;
@@ -64,7 +70,7 @@ export function SeriesDetailClient({
     const filteredTests = useMemo(() => {
         return initialTests.filter((test) => {
             const difficultyMatch =
-                selectedDifficulty === 'all' || test.difficulty === selectedDifficulty;
+                selectedDifficulty === 'all' || test.difficultyLevel === selectedDifficulty;
             const topicMatch = selectedTopic === 'all' || test.topic === selectedTopic;
             return difficultyMatch && topicMatch;
         });
@@ -82,7 +88,7 @@ export function SeriesDetailClient({
     const uniqueDifficulties = useMemo(() => {
         const difficulties = new Set<string>(
             initialTests
-                .map((t) => t.difficulty)
+                .map((t) => t.difficultyLevel)
                 .filter((d): d is string => !!d && d.length > 0)
         );
         return Array.from(difficulties).sort();
@@ -253,70 +259,116 @@ export function SeriesDetailClient({
                         {filteredTests.map((test) => (
                             <Card
                                 key={test.id}
-                                className="flex flex-col overflow-hidden hover:border-primary/50 transition-colors cursor-pointer bg-white dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/40"
+                                className="flex flex-col overflow-hidden hover:shadow-lg transition-shadow cursor-pointer bg-white dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/40 border-l-4 border-l-orange-500 rounded-lg"
                                 onClick={() => handleTestClick(test.id)}
                             >
-                                <CardHeader>
-                                    <CardTitle className="text-lg line-clamp-2">
-                                        {test.title}
-                                    </CardTitle>
-                                    {test.description && (
-                                        <CardDescription className="line-clamp-2">
-                                            {test.description}
-                                        </CardDescription>
-                                    )}
-                                </CardHeader>
-
-                                <CardContent className="flex-1 flex flex-col">
-                                    <div className="space-y-3 flex-1 pb-4">
-                                        {test.total_questions && (
-                                            <div className="flex items-center justify-between text-sm">
-                                                <span className="text-muted-foreground">Questions:</span>
-                                                <span className="font-medium text-foreground">
-                                                    {test.total_questions}
-                                                </span>
-                                            </div>
-                                        )}
-                                        {test.duration_minutes && (
-                                            <div className="flex items-center justify-between text-sm">
-                                                <span className="text-muted-foreground">Duration:</span>
-                                                <span className="font-medium text-foreground">
-                                                    {test.duration_minutes} min
-                                                </span>
-                                            </div>
-                                        )}
-                                        {test.topic && (
-                                            <div className="flex items-center justify-between text-sm">
-                                                <span className="text-muted-foreground">Topic:</span>
-                                                <span className="font-medium text-foreground">
-                                                    {test.topic}
-                                                </span>
-                                            </div>
-                                        )}
-                                        {test.difficulty && (
-                                            <div className="flex items-center justify-between text-sm">
-                                                <span className="text-muted-foreground">Difficulty:</span>
-                                                <Badge
-                                                    className={`text-xs ${getDifficultyColor(
-                                                        test.difficulty
-                                                    )}`}
-                                                >
-                                                    {test.difficulty}
-                                                </Badge>
-                                            </div>
+                                {/* Header with Title and Difficulty */}
+                                <div className="px-6 pt-6 pb-4 border-b border-slate-200/60 dark:border-slate-700/40">
+                                    <div className="flex items-start justify-between gap-4 mb-2">
+                                        <h3 className="text-lg font-bold text-foreground line-clamp-2 flex-1">
+                                            {test.title}
+                                        </h3>
+                                        {test.difficultyLevel && (
+                                            <Badge
+                                                className={`text-xs whitespace-nowrap shrink-0 ${getDifficultyColor(
+                                                    test.difficultyLevel
+                                                )}`}
+                                            >
+                                                {test.difficultyLevel}
+                                            </Badge>
                                         )}
                                     </div>
+                                    {test.description && (
+                                        <p className="text-sm text-muted-foreground line-clamp-2">
+                                            {test.description}
+                                        </p>
+                                    )}
+                                </div>
 
-                                    <Button 
-                                        variant="default" 
-                                        className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleTestClick(test.id);
-                                        }}
-                                    >
-                                        Start Test
-                                    </Button>
+                                {/* Content */}
+                                <CardContent className="flex-1 flex flex-col px-6 py-4 space-y-4">
+                                    {/* Instructor Info */}
+                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                        <BookOpen className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                                        <span>Navnit Daniel Alley</span>
+                                    </div>
+
+                                    {/* Questions and Duration - Inline with better visibility */}
+                                    <div className="flex items-center gap-8 text-sm">
+                                        <div className="flex items-center gap-2">
+                                            <BookOpen className="w-5 h-5 text-slate-400" />
+                                            <div>
+                                                <span className="text-muted-foreground text-xs">Questions</span>
+                                                <div className="font-semibold text-foreground">
+                                                    {test.questionCount ? `${test.questionCount} Q` : '-'}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Clock className="w-5 h-5 text-slate-400" />
+                                            <div>
+                                                <span className="text-muted-foreground text-xs">Duration</span>
+                                                <div className="font-semibold text-foreground">
+                                                    {test.duration ? `${Math.round(test.duration / 60)}m` : '-'}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Difficulty Level Display */}
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <Zap className="w-5 h-5 text-slate-400" />
+                                        <div>
+                                            <span className="text-muted-foreground text-xs">Difficulty</span>
+                                            <div className="font-semibold text-foreground">
+                                                {test.difficultyLevel ? (
+                                                    <Badge className={`text-xs mt-1 ${getDifficultyColor(test.difficultyLevel)}`}>
+                                                        {test.difficultyLevel}
+                                                    </Badge>
+                                                ) : (
+                                                    <span>-</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Spacer */}
+                                    <div className="flex-1"></div>
+
+                                    {/* Price and Button */}
+                                    <div className="border-t border-slate-200/60 dark:border-slate-700/40 pt-4 space-y-3">
+                                        <div className="flex items-center gap-3">
+                                            {test.price && (
+                                                <>
+                                                    <span className="text-sm text-muted-foreground line-through">
+                                                        ₹{(test.price * 1.5).toFixed(0)}
+                                                    </span>
+                                                    <span className="text-2xl font-bold text-foreground">
+                                                        ₹{test.price}
+                                                    </span>
+                                                </>
+                                            )}
+                                        </div>
+
+                                        <Button 
+                                            variant="default" 
+                                            className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg h-10 font-semibold flex items-center justify-center gap-2"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleTestClick(test.id);
+                                            }}
+                                        >
+                                            Start
+                                            <ArrowLeft className="w-4 h-4 rotate-180" />
+                                        </Button>
+
+                                        {/* Series Offer Banner */}
+                                        <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-lg p-3 text-center">
+                                            <p className="text-xs text-emerald-700 dark:text-emerald-300">
+                                                Or get entire series for <span className="font-bold">₹600</span> <span className="text-emerald-600 dark:text-emerald-400">(Save 20%)</span>
+                                            </p>
+                                        </div>
+                                    </div>
                                 </CardContent>
                             </Card>
                         ))}
@@ -341,7 +393,7 @@ export function SeriesDetailClient({
                 )}
 
                 {/* How to Use This Series - Moved to bottom */}
-                <Card className="mb-8 border-border/40 bg-white dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/40">
+                <Card className="mb-8 bg-white dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/40">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <TrendingUp className="h-5 w-5 text-blue-600 dark:text-blue-400" />
@@ -380,6 +432,354 @@ export function SeriesDetailClient({
                                 </ul>
                             </div>
                         </div>
+                    </CardContent>
+                </Card>
+
+                {/* Quantitative Aptitude Mock Tests Accordion */}
+                <Card className="bg-white dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/40">
+                    <CardHeader>
+                        <CardTitle className="text-2xl">Quantitative Aptitude Mock Tests</CardTitle>
+                        <CardDescription className="text-base">
+                            For TCS/Infosys/Wipro/Capgemini/Accenture/eLitmus Campus Recruitment
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Accordion type="single" collapsible className="w-full">
+                            {/* About This Mock Test Series */}
+                            <AccordionItem value="about">
+                                <AccordionTrigger className="text-lg font-semibold hover:no-underline">
+                                    About This Mock Test Series
+                                </AccordionTrigger>
+                                <AccordionContent className="space-y-6">
+                                    <div>
+                                        <h4 className="font-semibold text-foreground mb-3 text-base">Series Overview</h4>
+                                        <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                                            This comprehensive mock test series has been meticulously designed to mirror the actual quantitative aptitude sections of leading IT companies&apos; campus recruitment tests. Based on extensive analysis of previous year question patterns from TCS NQT, Infosys HackWithInfy, Wipro NLTH, Capgemini, Accenture, and eLitmus pH Test, these mocks provide an authentic simulation of the real examination environment.
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <h4 className="font-semibold text-foreground mb-3 text-base">What&apos;s Inside:</h4>
+                                        <ul className="space-y-2 text-sm text-muted-foreground">
+                                            <li className="flex gap-3">
+                                                <span className="text-blue-600 dark:text-blue-400 font-bold">•</span>
+                                                <span><strong>5 Full-Length Mock Tests</strong> - Each containing 20 carefully curated questions</span>
+                                            </li>
+                                            <li className="flex gap-3">
+                                                <span className="text-blue-600 dark:text-blue-400 font-bold">•</span>
+                                                <span><strong>100 Unique Questions</strong> - Covering the entire quantitative aptitude syllabus</span>
+                                            </li>
+                                            <li className="flex gap-3">
+                                                <span className="text-blue-600 dark:text-blue-400 font-bold">•</span>
+                                                <span><strong>Medium to High Difficulty Level</strong> - Designed to challenge and sharpen your problem-solving skills</span>
+                                            </li>
+                                            <li className="flex gap-3">
+                                                <span className="text-blue-600 dark:text-blue-400 font-bold">•</span>
+                                                <span><strong>Complete Solutions</strong> - Step-by-step explanations for every single question</span>
+                                            </li>
+                                            <li className="flex gap-3">
+                                                <span className="text-blue-600 dark:text-blue-400 font-bold">•</span>
+                                                <span><strong>Pattern-Based Learning</strong> - Questions reflect actual company recruitment trends</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <div>
+                                        <h4 className="font-semibold text-foreground mb-3 text-base">Difficulty Distribution:</h4>
+                                        <ul className="space-y-1 text-sm text-muted-foreground pl-4">
+                                            <li>• 30% Medium Difficulty</li>
+                                            <li>• 50% Medium-High Difficulty</li>
+                                            <li>• 20% High Difficulty</li>
+                                        </ul>
+                                    </div>
+                                </AccordionContent>
+                            </AccordionItem>
+
+                            {/* Best Practices */}
+                            <AccordionItem value="practices">
+                                <AccordionTrigger className="text-lg font-semibold hover:no-underline">
+                                    Best Practices for Approaching These Tests
+                                </AccordionTrigger>
+                                <AccordionContent className="space-y-6">
+                                    <div>
+                                        <h4 className="font-semibold text-foreground mb-3 text-base flex items-center gap-2">
+                                            Before You Begin
+                                        </h4>
+                                        <ol className="space-y-3 text-sm text-muted-foreground pl-4">
+                                            <li>
+                                                <strong className="text-foreground">Create Exam-Like Conditions</strong>
+                                                <ul className="list-disc list-inside space-y-1 mt-2 ml-2 text-muted-foreground">
+                                                    <li>Find a quiet, distraction-free environment</li>
+                                                    <li>Keep a timer visible (recommend 30 minutes per mock for realistic practice)</li>
+                                                    <li>Have only a pen, paper, and calculator (if permitted in your target exam)</li>
+                                                    <li>No phones, internet, or reference materials during the test</li>
+                                                </ul>
+                                            </li>
+                                            <li className="mt-3">
+                                                <strong className="text-foreground">Prepare Your Mindset</strong>
+                                                <ul className="list-disc list-inside space-y-1 mt-2 ml-2 text-muted-foreground">
+                                                    <li>Treat each mock as a real examination</li>
+                                                    <li>Accept that you won't know all answers immediately - that's the learning opportunity</li>
+                                                    <li>Focus on accuracy over speed initially; speed will develop with practice</li>
+                                                </ul>
+                                            </li>
+                                            <li className="mt-3">
+                                                <strong className="text-foreground">Have Resources Ready</strong>
+                                                <ul className="list-disc list-inside space-y-1 mt-2 ml-2 text-muted-foreground">
+                                                    <li>Rough sheets for calculations</li>
+                                                    <li>A separate notebook to track mistakes and learnings</li>
+                                                    <li>Formula sheet (prepare one before starting the series)</li>
+                                                </ul>
+                                            </li>
+                                        </ol>
+                                    </div>
+
+                                    <div>
+                                        <h4 className="font-semibold text-foreground mb-3 text-base">During the Test</h4>
+                                        <div className="space-y-3 text-sm text-muted-foreground">
+                                            <div>
+                                                <strong className="text-foreground">Strategic Time Management (30 minutes total)</strong>
+                                                <ul className="list-disc list-inside space-y-1 mt-2 ml-2">
+                                                    <li>First 2 minutes: Quick scan of all 20 questions</li>
+                                                    <li>Identify easy wins: Mark 5-7 questions you can solve quickly (1 minute each)</li>
+                                                    <li>Tackle medium questions: Allocate 1.5-2 minutes per question</li>
+                                                    <li>Difficult questions: Attempt strategically or skip if time-pressed</li>
+                                                    <li>Last 5 minutes: Review marked questions and double-check calculations</li>
+                                                </ul>
+                                            </div>
+                                            <div>
+                                                <strong className="text-foreground">Smart Question Selection</strong>
+                                                <ul className="list-disc list-inside space-y-1 mt-2 ml-2">
+                                                    <li>Start with your strongest topics to build confidence and momentum</li>
+                                                    <li>Don't get stuck on one question for more than 3 minutes</li>
+                                                    <li>If stuck, mark for review and move on</li>
+                                                    <li>In MCQs, elimination strategy can be powerful</li>
+                                                </ul>
+                                            </div>
+                                            <div>
+                                                <strong className="text-foreground">Avoid Common Pitfalls</strong>
+                                                <ul className="list-disc list-inside space-y-1 mt-2 ml-2">
+                                                    <li>Don't assume question patterns - read each question completely</li>
+                                                    <li>Watch for tricky wording like "at least," "at most," "excluding"</li>
+                                                    <li>Be careful with negative numbers, ratios, and percentage calculations</li>
+                                                    <li>Don't rush through formula application - verify you're using the right one</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <h4 className="font-semibold text-foreground mb-3 text-base">After the Test</h4>
+                                        <div className="space-y-3 text-sm text-muted-foreground">
+                                            <div>
+                                                <strong className="text-foreground">1. Immediate Review (Within 30 Minutes)</strong>
+                                                <ul className="list-disc list-inside space-y-1 mt-2 ml-2">
+                                                    <li>Go through ALL questions, not just incorrect ones</li>
+                                                    <li>Understand why correct answers are right</li>
+                                                    <li>For wrong answers: Identify if it was a concept gap, calculation error, or time pressure</li>
+                                                </ul>
+                                            </div>
+                                            <div>
+                                                <strong className="text-foreground">2. Error Analysis (Critical Step)</strong>
+                                                <p className="mt-2">Create an error log with these columns: Question Type, Error Category, What I'll Do Differently Next Time, Related Formula/Concept to Revise</p>
+                                            </div>
+                                            <div>
+                                                <strong className="text-foreground">3. Progressive Practice</strong>
+                                                <ul className="list-disc list-inside space-y-1 mt-2 ml-2">
+                                                    <li>Mock 1-2: Take untimed to focus on accuracy and understanding</li>
+                                                    <li>Mock 3-4: Introduce time pressure (35 minutes)</li>
+                                                    <li>Mock 5: Full exam simulation (30 minutes)</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </AccordionContent>
+                            </AccordionItem>
+
+                            {/* Learning Outcomes */}
+                            <AccordionItem value="outcomes">
+                                <AccordionTrigger className="text-lg font-semibold hover:no-underline">
+                                    Learning Outcomes & Growth Trajectory
+                                </AccordionTrigger>
+                                <AccordionContent className="space-y-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                                            <h4 className="font-semibold text-foreground mb-3">Conceptual Mastery</h4>
+                                            <ul className="space-y-2 text-sm text-muted-foreground">
+                                                <li>• Command over 15+ core quantitative topics</li>
+                                                <li>• Pattern recognition within 10-15 seconds</li>
+                                                <li>• Deep understanding of fundamental formulas</li>
+                                            </ul>
+                                        </div>
+                                        <div className="bg-purple-50 dark:bg-purple-950/30 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
+                                            <h4 className="font-semibold text-foreground mb-3">Technical Skills</h4>
+                                            <ul className="space-y-2 text-sm text-muted-foreground">
+                                                <li>• Enhanced calculation speed and accuracy</li>
+                                                <li>• Proficiency in mental math</li>
+                                                <li>• Mastery of approximation techniques</li>
+                                            </ul>
+                                        </div>
+                                        <div className="bg-emerald-50 dark:bg-emerald-950/30 p-4 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                                            <h4 className="font-semibold text-foreground mb-3">Exam Skills</h4>
+                                            <ul className="space-y-2 text-sm text-muted-foreground">
+                                                <li>• Effective time allocation</li>
+                                                <li>• Smart question selection</li>
+                                                <li>• Pressure management</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <h4 className="font-semibold text-foreground mb-3">Performance Tracking</h4>
+                                        <ul className="space-y-2 text-sm text-muted-foreground pl-4">
+                                            <li>• After Mock 1: Baseline (target 60%+)</li>
+                                            <li>• After Mock 3: Progress check (target 70%+)</li>
+                                            <li>• After Mock 5: Final assessment (target 75-80%+)</li>
+                                        </ul>
+                                    </div>
+
+                                    <div>
+                                        <h4 className="font-semibold text-foreground mb-3">Expected Competency Levels</h4>
+                                        <div className="space-y-2 text-sm text-muted-foreground">
+                                            <div className="flex justify-between items-center border-b border-border/40 pb-2">
+                                                <span className="font-medium text-foreground">Mocks 1-2</span>
+                                                <span>Beginner → Intermediate: From struggling with formulas → Applying formulas correctly</span>
+                                            </div>
+                                            <div className="flex justify-between items-center border-b border-border/40 pb-2">
+                                                <span className="font-medium text-foreground">Mocks 3-4</span>
+                                                <span>Intermediate → Advanced: From formula application → Pattern recognition</span>
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                                <span className="font-medium text-foreground">Mock 5 + Revision</span>
+                                                <span>Advanced → Expert: From problem-solving → Speed problem-solving</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <h4 className="font-semibold text-foreground mb-3">Success Benchmarks by Company</h4>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                            <div className="flex justify-between p-2 bg-slate-50 dark:bg-slate-900/30 rounded"><span className="font-medium">TCS NQT</span><span className="text-muted-foreground">12-14 correct (60-70%)</span></div>
+                                            <div className="flex justify-between p-2 bg-slate-50 dark:bg-slate-900/30 rounded"><span className="font-medium">Infosys</span><span className="text-muted-foreground">13-15 correct (65-75%)</span></div>
+                                            <div className="flex justify-between p-2 bg-slate-50 dark:bg-slate-900/30 rounded"><span className="font-medium">Wipro</span><span className="text-muted-foreground">14-15 correct (70-75%)</span></div>
+                                            <div className="flex justify-between p-2 bg-slate-50 dark:bg-slate-900/30 rounded"><span className="font-medium">Capgemini</span><span className="text-muted-foreground">13-15 correct (65-75%)</span></div>
+                                            <div className="flex justify-between p-2 bg-slate-50 dark:bg-slate-900/30 rounded"><span className="font-medium">Accenture</span><span className="text-muted-foreground">12-14 correct (60-70%)</span></div>
+                                            <div className="flex justify-between p-2 bg-slate-50 dark:bg-slate-900/30 rounded"><span className="font-medium">eLitmus (&gt;85 percentile)</span><span className="text-muted-foreground">16-18 correct (80-90%)</span></div>
+                                        </div>
+                                    </div>
+                                </AccordionContent>
+                            </AccordionItem>
+
+                            {/* Key Formulas */}
+                            <AccordionItem value="formulas">
+                                <AccordionTrigger className="text-lg font-semibold hover:no-underline">
+                                    Key Formula Quick Reference
+                                </AccordionTrigger>
+                                <AccordionContent>
+                                    <p className="text-sm text-muted-foreground mb-6">
+                                        Ensure you're comfortable with these formula families before starting
+                                    </p>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <h4 className="font-semibold text-foreground mb-3">Speed, Time & Distance</h4>
+                                            <div className="space-y-2 text-sm text-muted-foreground font-mono bg-slate-50 dark:bg-slate-900/30 p-3 rounded">
+                                                <div>Speed = Distance/Time</div>
+                                                <div>Average Speed = 2xy/(x+y)</div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-semibold text-foreground mb-3">Time & Work</h4>
+                                            <div className="space-y-2 text-sm text-muted-foreground font-mono bg-slate-50 dark:bg-slate-900/30 p-3 rounded">
+                                                <div>Work = Rate × Time</div>
+                                                <div>Combined work rate = Sum of individual rates</div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-semibold text-foreground mb-3">Profit & Loss</h4>
+                                            <div className="space-y-2 text-sm text-muted-foreground font-mono bg-slate-50 dark:bg-slate-900/30 p-3 rounded">
+                                                <div>Profit% = (Profit/CP) × 100</div>
+                                                <div>SP = CP × (100 + Profit%)/100</div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-semibold text-foreground mb-3">Interest</h4>
+                                            <div className="space-y-2 text-sm text-muted-foreground font-mono bg-slate-50 dark:bg-slate-900/30 p-3 rounded">
+                                                <div>SI = (P × R × T)/100</div>
+                                                <div>CI = P(1 + R/100)^T - P</div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-semibold text-foreground mb-3">Geometry</h4>
+                                            <div className="space-y-2 text-sm text-muted-foreground font-mono bg-slate-50 dark:bg-slate-900/30 p-3 rounded">
+                                                <div>Area of circle = πr²</div>
+                                                <div>Volume of cylinder = πr²h</div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-semibold text-foreground mb-3">Algebra</h4>
+                                            <div className="space-y-2 text-sm text-muted-foreground font-mono bg-slate-50 dark:bg-slate-900/30 p-3 rounded">
+                                                <div>(a+b)² = a² + 2ab + b²</div>
+                                                <div>a² - b² = (a+b)(a-b)</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </AccordionContent>
+                            </AccordionItem>
+
+                            {/* Final Tips */}
+                            <AccordionItem value="tips">
+                                <AccordionTrigger className="text-lg font-semibold hover:no-underline">
+                                    Final Tips for Success
+                                </AccordionTrigger>
+                                <AccordionContent>
+                                    <div className="space-y-4">
+                                        <div className="border-l-4 border-blue-500 pl-4">
+                                            <h4 className="font-semibold text-foreground">Consistency Over Intensity</h4>
+                                            <p className="text-sm text-muted-foreground mt-1">Daily 1-hour practice beats 7-hour weekend marathons</p>
+                                        </div>
+                                        <div className="border-l-4 border-purple-500 pl-4">
+                                            <h4 className="font-semibold text-foreground">Learn from Every Question</h4>
+                                            <p className="text-sm text-muted-foreground mt-1">Even correct answers can teach you faster methods</p>
+                                        </div>
+                                        <div className="border-l-4 border-emerald-500 pl-4">
+                                            <h4 className="font-semibold text-foreground">Build Your Formula Sheet</h4>
+                                            <p className="text-sm text-muted-foreground mt-1">Writing formulas yourself aids memory retention</p>
+                                        </div>
+                                        <div className="border-l-4 border-amber-500 pl-4">
+                                            <h4 className="font-semibold text-foreground">Join Study Groups</h4>
+                                            <p className="text-sm text-muted-foreground mt-1">Explaining concepts to others deepens your understanding</p>
+                                        </div>
+                                        <div className="border-l-4 border-pink-500 pl-4">
+                                            <h4 className="font-semibold text-foreground">Stay Updated</h4>
+                                            <p className="text-sm text-muted-foreground mt-1">Check official company websites for latest test patterns</p>
+                                        </div>
+                                        <div className="border-l-4 border-cyan-500 pl-4">
+                                            <h4 className="font-semibold text-foreground">Physical Well-being</h4>
+                                            <p className="text-sm text-muted-foreground mt-1">Good sleep and nutrition directly impact calculation speed</p>
+                                        </div>
+                                        <div className="border-l-4 border-indigo-500 pl-4">
+                                            <h4 className="font-semibold text-foreground">Positive Self-Talk</h4>
+                                            <p className="text-sm text-muted-foreground mt-1">Replace "I can't" with "I'm learning to"</p>
+                                        </div>
+                                        <div className="border-l-4 border-green-500 pl-4">
+                                            <h4 className="font-semibold text-foreground">Celebrate Progress</h4>
+                                            <p className="text-sm text-muted-foreground mt-1">Track improvements, no matter how small</p>
+                                        </div>
+                                        <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800 mt-4">
+                                            <p className="text-sm font-semibold text-foreground mb-2">💡 Key Insight</p>
+                                            <p className="text-sm text-muted-foreground">
+                                                These mocks are not just tests; they're training tools. Every mistake is a stepping stone to mastery. Your goal isn't perfection on the first attempt—it's continuous improvement across all five mocks.
+                                            </p>
+                                        </div>
+                                        <div className="bg-emerald-50 dark:bg-emerald-950/30 p-4 rounded-lg border border-emerald-200 dark:border-emerald-800 mt-4">
+                                            <p className="text-sm text-foreground font-semibold">
+                                                Now, let's begin your journey to placement success!
+                                            </p>
+                                        </div>
+                                    </div>
+                                </AccordionContent>
+                            </AccordionItem>
+                        </Accordion>
                     </CardContent>
                 </Card>
             </div>

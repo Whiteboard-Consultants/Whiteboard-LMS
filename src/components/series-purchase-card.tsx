@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -37,7 +37,6 @@ export function SeriesPurchaseCard({
   const { userData } = useAuth();
   const { testCart, addToTestCart } = useTestCart();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
   const [purchaseType, setPurchaseType] = useState<'individual' | 'series'>('individual');
@@ -45,10 +44,6 @@ export function SeriesPurchaseCard({
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; type: 'percentage' | 'fixed'; value: number } | null>(null);
   const [couponError, setCouponError] = useState('');
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
-  
-  // Use refs to track execution - prevents re-render loops
-  const autoAddExecutedRef = useRef(false);
-  const autoPaymentExecutedRef = useRef(false);
   
   const discountPercentage = series.discountPercentage || 0;
   const testCount = series.testCount || 1;
@@ -78,48 +73,8 @@ export function SeriesPurchaseCard({
     }
   }, [isTestPurchase]);
 
-  // Check if returning from login - if so, auto-add to cart (only once)
-  useEffect(() => {
-    // Only execute once per mount using ref
-    if (autoAddExecutedRef.current) return;
-    
-    if (userData?.id && searchParams.get('returnFromAddToCart') === 'true') {
-      console.log('🔄 User returned from login, auto-adding to cart');
-      autoAddExecutedRef.current = true;
-      
-      // Clean URL FIRST to prevent effect from re-running
-      router.replace(window.location.pathname);
-      
-      // Then execute the action
-      (async () => {
-        try {
-          await handleAddToCart();
-        } catch (error) {
-          // If it's a UNIQUE constraint error (409), that means item is already in cart - ignore it
-          if (error instanceof Error && error.message.includes('already')) {
-            console.log('ℹ️ Item already in cart, skipping');
-            return;
-          }
-          // Log other errors but don't show toast
-          console.error('Auto-add to cart error (fallback used):', error);
-        }
-      })();
-    }
-  }, [userData?.id]);
-
-  // Check if returning from login - if so, auto-trigger payment (only once)
-  useEffect(() => {
-    // Only execute once per mount using ref
-    if (autoPaymentExecutedRef.current) return;
-    
-    if (userData?.id && searchParams.get('returnFromLogin') === 'true') {
-      console.log('🔄 User returned from login, auto-triggering payment');
-      autoPaymentExecutedRef.current = true;
-      setShowPayment(true);
-      // Clean up URL
-      router.replace(window.location.pathname);
-    }
-  }, [userData?.id]);
+  // Auto-add logic removed - users now redirect to dashboard after login
+  // They can manually add to cart when they return to the page
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) return;
@@ -159,20 +114,20 @@ export function SeriesPurchaseCard({
   const handleAddToCart = async () => {
     // First check if user is authenticated (same as handlePurchase)
     if (!userData?.id) {
-      // Build return URL with returnFromAddToCart parameter
-      const currentPath = window.location.pathname;
-      const returnUrl = `${currentPath}?returnFromAddToCart=true`;
-      router.push(`/login?returnUrl=${encodeURIComponent(returnUrl)}`);
+      // Redirect to login - user will go to dashboard, then can return to add to cart
+      router.push('/login');
       return;
     }
 
     try {
+      // For test purchases: id is testId, seriesId is series.id
+      // For series purchases: id is series.id, seriesId is undefined
       const cartItem = {
-        id: series.id,
+        id: isTestPurchase ? testId : series.id,
         title: series.title,
         price: purchaseType === 'individual' ? individualPrice : discountedSeriesPrice,
         type: purchaseType as 'individual' | 'series',
-        seriesId: !isTestPurchase ? series.id : undefined
+        seriesId: isTestPurchase ? series.id : undefined
       };
 
       await addToTestCart(cartItem);
@@ -196,10 +151,9 @@ export function SeriesPurchaseCard({
 
   const handlePurchase = async () => {
     if (!userData?.id) {
-      // Build return URL with returnFromLogin parameter
-      const currentPath = window.location.pathname;
-      const returnUrl = `${currentPath}?returnFromLogin=true`;
-      router.push(`/login?returnUrl=${encodeURIComponent(returnUrl)}`);
+      // Redirect to login WITHOUT returnUrl - user will go to dashboard instead
+      // This prevents the repetitive "return to purchase page" loop
+      router.push('/login');
       return;
     }
 
