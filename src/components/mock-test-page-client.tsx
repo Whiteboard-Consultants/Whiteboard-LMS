@@ -196,17 +196,6 @@ export function MockTestPageClient({
                                             router.push(`/mock-tests/${encodeURIComponent(seriesSlug)}`);
                                         }}
                                     >
-                                        {/* Gradient Header */}
-                                        <div className={`h-32 bg-gradient-to-br ${metadata.color} flex items-center justify-center text-white relative overflow-hidden`}>
-                                            <div className="absolute inset-0 opacity-10">
-                                                <div className="absolute top-0 right-0 w-20 h-20 bg-white rounded-full -mr-10 -mt-10"></div>
-                                                <div className="absolute bottom-0 left-0 w-32 h-32 bg-white rounded-full -ml-16 -mb-16"></div>
-                                            </div>
-                                            <div className="relative z-10 text-5xl group-hover:scale-110 transition-transform">
-                                                {metadata.icon}
-                                            </div>
-                                        </div>
-
                                         {/* Card Content */}
                                         <CardHeader className="pb-3">
                                             <div className="space-y-2">
