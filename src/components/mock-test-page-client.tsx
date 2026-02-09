@@ -11,6 +11,7 @@ import {
   TrendingUp, Award, Briefcase, Globe, Brain, Target
 } from 'lucide-react';
 import { QuantitativeAptitudeGuide } from '@/components/quantitative-aptitude-guide';
+import { generateSlug } from '@/lib/slug-utils';
 import type { Test, DifficultyLevel } from '@/types';
 
 interface FilterOptions {
@@ -190,7 +191,10 @@ export function MockTestPageClient({
                                     <Card
                                         key={topic}
                                         className="overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group bg-white dark:bg-slate-800/50 border border-white/80 dark:border-slate-700/50"
-                                        onClick={() => setSelectedTopic(topic)}
+                                        onClick={() => {
+                                            const seriesSlug = generateSlug(seriesName);
+                                            router.push(`/mock-tests/${encodeURIComponent(seriesSlug)}`);
+                                        }}
                                     >
                                         {/* Gradient Header */}
                                         <div className={`h-32 bg-gradient-to-br ${metadata.color} flex items-center justify-center text-white relative overflow-hidden`}>
@@ -259,7 +263,10 @@ export function MockTestPageClient({
                                             {/* CTA Button */}
                                             <Button 
                                                 className="w-full bg-blue-600 hover:bg-blue-700 group/btn"
-                                                onClick={() => setSelectedTopic(topic)}
+                                                onClick={() => {
+                                                    const seriesSlug = generateSlug(seriesName);
+                                                    router.push(`/mock-tests/${encodeURIComponent(seriesSlug)}`);
+                                                }}
                                             >
                                                 Explore Tests <ChevronRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
                                             </Button>
