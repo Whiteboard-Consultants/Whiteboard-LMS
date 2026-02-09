@@ -148,6 +148,38 @@ export function SeriesDetailClient({
                 </div>
             </div>
 
+            {/* Hero Content Section */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                <div className="rounded-2xl bg-gradient-to-br from-blue-50/70 via-white/60 to-indigo-50/70 dark:from-blue-950/30 dark:via-slate-900/40 dark:to-indigo-950/30 backdrop-blur-md border border-blue-100/40 dark:border-blue-900/40 p-8 md:p-12 shadow-lg">
+                    <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-8">
+                        Ace Your Dream Company Placement
+                    </h2>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div>
+                            <h3 className="text-lg font-semibold text-blue-700 dark:text-blue-400 mb-3">Why Campus Mock Tests</h3>
+                            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                                Top IT companies hire based on performance, not just potential. Mock tests replicate TCS, Infosys, Wipro, Capgemini, and Accenture exam patterns, helping you compete with thousands of candidates nationwide.
+                            </p>
+                        </div>
+
+                        <div>
+                            <h3 className="text-lg font-semibold text-purple-700 dark:text-purple-400 mb-3">What&apos;s Inside</h3>
+                            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                                Complete test series covering Quantitative Aptitude, Logical Reasoning, and Verbal Ability. Get 100+ questions with company-specific patterns, difficulty levels matching actual exams, and detailed solutions that teach problem-solving strategies.
+                            </p>
+                        </div>
+
+                        <div>
+                            <h3 className="text-lg font-semibold text-emerald-700 dark:text-emerald-400 mb-3">How to Excel</h3>
+                            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                                Practice with realistic time limits, analyze performance reports to identify weak topics, focus your revision strategically, and build the speed and accuracy that recruiters demand. Track improvement across multiple attempts until you&apos;re placement-ready.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {/* Main Content */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Filters */}
