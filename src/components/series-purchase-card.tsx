@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -45,9 +45,6 @@ export function SeriesPurchaseCard({
   const [couponError, setCouponError] = useState('');
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
   
-  // Track if we've already processed pending cart item to prevent re-processing
-  const pendingCartProcessedRef = useRef(false);
-  
   const discountPercentage = series.discountPercentage || 0;
   const testCount = series.testCount || 1;
   const individualPrice = series.individualTestPrice || 0;
@@ -75,51 +72,6 @@ export function SeriesPurchaseCard({
       setPurchaseType('series');
     }
   }, [isTestPurchase]);
-
-  // Handle pending cart item after login
-  useEffect(() => {
-    const processPendingCart = async () => {
-      // Only run once per mount
-      if (pendingCartProcessedRef.current) return;
-      
-      // Only run if user just logged in
-      if (!userData?.id) return;
-
-      pendingCartProcessedRef.current = true;
-
-      try {
-        const pendingItem = localStorage.getItem('pendingCartItem');
-        const pendingAction = localStorage.getItem('pendingCartAction');
-
-        if (pendingItem && pendingAction === 'add') {
-          console.log('🔄 Processing pending cart item after login');
-          const cartItem = JSON.parse(pendingItem);
-
-          // Add to cart
-          await addToTestCart(cartItem);
-
-          // Show success message
-          toast({
-            title: 'Added to Cart',
-            description: `${cartItem.title} added to your test cart.`,
-          });
-
-          // Clear localStorage
-          localStorage.removeItem('pendingCartItem');
-          localStorage.removeItem('pendingCartAction');
-
-          console.log('✅ Pending cart item processed successfully');
-        }
-      } catch (error) {
-        console.error('Error processing pending cart item:', error);
-        // Clear localStorage on error to prevent repeated attempts
-        localStorage.removeItem('pendingCartItem');
-        localStorage.removeItem('pendingCartAction');
-      }
-    };
-
-    processPendingCart();
-  }, [userData?.id]);
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) return;

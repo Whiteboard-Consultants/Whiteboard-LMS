@@ -52,6 +52,62 @@ export function TestCartProvider({ children }: { children: ReactNode }) {
     loadTestCart();
   }, [user?.id]);
 
+  // Process pending cart items after login (from unauthenticated add-to-cart)
+  useEffect(() => {
+    const processPendingCartItem = async () => {
+      // Only run if user just logged in
+      if (!user?.id) return;
+
+      try {
+        const pendingItem = localStorage.getItem('pendingCartItem');
+        const pendingAction = localStorage.getItem('pendingCartAction');
+
+        if (pendingItem && pendingAction === 'add') {
+          console.log('🔄 [TestCartProvider] Processing pending cart item after login');
+          const cartItem = JSON.parse(pendingItem) as TestCartItem;
+
+          // Add to database
+          const { error } = await supabase
+            .from('test_carts')
+            .insert({
+              user_id: user.id,
+              test_id: cartItem.id,
+              test_title: cartItem.title,
+              test_price: cartItem.price,
+              test_type: cartItem.type,
+              series_id: cartItem.seriesId || null,
+              test_image: cartItem.image || null,
+            });
+
+          if (error) {
+            if (error.code === '23505' || error.message?.includes('unique')) {
+              console.warn('⚠️ Item already in cart');
+            } else {
+              console.error('❌ Failed to add pending item to cart:', error);
+              return;
+            }
+          }
+
+          // Clear localStorage
+          localStorage.removeItem('pendingCartItem');
+          localStorage.removeItem('pendingCartAction');
+          
+          // Reload cart to show the newly added item
+          await loadTestCart();
+          
+          console.log('✅ Pending cart item processed successfully');
+        }
+      } catch (error) {
+        console.error('Error processing pending cart item:', error);
+        // Clear localStorage on error
+        localStorage.removeItem('pendingCartItem');
+        localStorage.removeItem('pendingCartAction');
+      }
+    };
+
+    processPendingCartItem();
+  }, [user?.id]);
+
   const loadTestCart = useCallback(async () => {
     setLoading(true);
 
