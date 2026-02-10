@@ -246,7 +246,7 @@ export function MockTestPageClient({
                                                         <div className="font-bold text-lg text-slate-900 dark:text-white">
                                                             {avgPrice === 0 ? 'Free' : `₹${avgPrice.toFixed(0)}`}
                                                         </div>
-                                                        <div className="text-xs text-foreground/60 dark:text-slate-400">Avg</div>
+                                                        <div className="text-xs text-foreground/60 dark:text-slate-400">Price</div>
                                                     </div>
                                                 </div>
                                             </div>
