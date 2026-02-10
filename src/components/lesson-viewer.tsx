@@ -26,6 +26,8 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { DarkModeHtmlWrapper } from '@/components/dark-mode-html-wrapper';
+import { VideoThumbnailViewer } from '@/components/video-thumbnail-viewer';
+import { detectVideoInfo } from '@/lib/video-utils';
 import type { Lesson } from '@/types';
 
 interface ContentBlock {
@@ -75,27 +77,33 @@ function SimpleContentRenderer({ content, type }: { content: string; type: Lesso
         <DarkModeHtmlWrapper html={content} />
       );
     
-    case 'video':
+    case 'video': {
+      // Check if it's an embedded video (YouTube, Vimeo, etc.)
+      const videoInfo = detectVideoInfo(content);
+      
+      if (videoInfo) {
+        // Display with thumbnail viewer for embedded videos
+        return (
+          <VideoThumbnailViewer
+            videoInfo={videoInfo}
+            originalUrl={content}
+          />
+        );
+      }
+      
+      // Direct video file or unsupported format
       return (
         <div className="aspect-video bg-black rounded-lg overflow-hidden">
-          {content.includes('youtube.com') || content.includes('youtu.be') ? (
-            <iframe
-              src={getYouTubeEmbedUrl(content)}
-              title="Lesson Video"
-              className="w-full h-full"
-              allowFullScreen
-            />
-          ) : (
-            <video
-              src={content}
-              controls
-              className="w-full h-full"
-            >
-              Your browser does not support the video tag.
-            </video>
-          )}
+          <video
+            src={content}
+            controls
+            className="w-full h-full"
+          >
+            Your browser does not support the video tag.
+          </video>
         </div>
       );
+    }
     
     case 'audio':
       return (
@@ -215,13 +223,6 @@ function MultiContentRenderer({ content }: { content: ContentBlock }) {
       </CardContent>
     </Card>
   );
-}
-
-function getYouTubeEmbedUrl(url: string): string {
-  const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
-  const match = url.match(regExp);
-  const videoId = match && match[7].length === 11 ? match[7] : false;
-  return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
 }
 
 export function LessonViewer({ 

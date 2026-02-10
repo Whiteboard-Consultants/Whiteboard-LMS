@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@supabase/supabase-js';
+import { VIDEO_COMPLETION_THRESHOLD } from '@/lib/constants';
 
 // Initialize Supabase admin client for server-side operations
 const supabaseAdmin = process.env.SUPABASE_SERVICE_ROLE_KEY 
@@ -416,6 +417,130 @@ export async function getQuizAttempt(attemptId: string) {
     };
   } catch (error) {
     console.error('❌ Error in getQuizAttempt:', error);
+    return null;
+  }
+}
+
+export async function updateVideoProgress(
+  enrollmentId: string,
+  lessonId: string,
+  watchTimeSeconds: number,
+  totalDurationSeconds: number,
+  userId: string
+) {
+  try {
+    if (!supabaseAdmin) {
+      return { success: false, error: 'Server configuration error' };
+    }
+
+    if (!enrollmentId || !lessonId || watchTimeSeconds < 0 || totalDurationSeconds <= 0) {
+      return { success: false, error: 'Invalid parameters' };
+    }
+
+    const isCompleted = watchTimeSeconds >= totalDurationSeconds * VIDEO_COMPLETION_THRESHOLD;
+
+    // Check if there's an existing record
+    const { data: existingRecord } = await supabaseAdmin
+      .from('video_progress')
+      .select('completed_at')
+      .eq('enrollment_id', enrollmentId)
+      .eq('lesson_id', lessonId)
+      .single();
+
+    // Only set completed_at if newly completing (don't overwrite existing completion)
+    const completedAt = isCompleted 
+      ? (existingRecord?.completed_at || new Date().toISOString())
+      : existingRecord?.completed_at || null;
+
+    // Upsert video progress record
+    const { data, error } = await supabaseAdmin
+      .from('video_progress')
+      .upsert(
+        {
+          enrollment_id: enrollmentId,
+          lesson_id: lessonId,
+          user_id: userId,
+          watch_time_seconds: watchTimeSeconds,
+          total_duration_seconds: totalDurationSeconds,
+          last_watched_at: new Date().toISOString(),
+          completed_at: completedAt,
+        },
+        { onConflict: 'enrollment_id,lesson_id' }
+      )
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating video progress:', error);
+      return { success: false, error: error.message };
+    }
+
+    // If video was just completed (first time), mark the lesson as complete in enrollments
+    const justCompleted = isCompleted && !existingRecord?.completed_at;
+    if (justCompleted) {
+      console.log('Video completed! Auto-marking lesson as complete...');
+      const { data: enrollment } = await supabaseAdmin
+        .from('enrollments')
+        .select('completed_lessons')
+        .eq('id', enrollmentId)
+        .single();
+
+      if (enrollment) {
+        const completedLessons = enrollment.completed_lessons || [];
+        if (!completedLessons.includes(lessonId)) {
+          completedLessons.push(lessonId);
+          
+          // Calculate progress
+          const { data: allLessons } = await supabaseAdmin
+            .from('lessons')
+            .select('id')
+            .eq('course_id', (await supabaseAdmin.from('enrollments').select('course_id').eq('id', enrollmentId).single()).data?.course_id);
+
+          const totalLessons = allLessons?.length || 1;
+          const progress = Math.round((completedLessons.length / totalLessons) * 100);
+
+          await supabaseAdmin
+            .from('enrollments')
+            .update({
+              completed_lessons: completedLessons,
+              progress: progress,
+            })
+            .eq('id', enrollmentId);
+        }
+      }
+    }
+
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error in updateVideoProgress:', error);
+    return { success: false, error: 'Failed to update video progress' };
+  }
+}
+
+export async function getVideoProgress(enrollmentId: string, lessonId: string) {
+  try {
+    if (!supabaseAdmin) {
+      return null;
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from('video_progress')
+      .select('*')
+      .eq('enrollment_id', enrollmentId)
+      .eq('lesson_id', lessonId)
+      .single();
+
+    if (error) {
+      // Not found is not an error for this use case
+      if (error.code !== 'PGRST116') {
+        console.error('Error fetching video progress:', error);
+      }
+      return null;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error in getVideoProgress:', error);
     return null;
   }
 }

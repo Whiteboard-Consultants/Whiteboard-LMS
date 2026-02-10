@@ -391,3 +391,245 @@ export async function deleteCourseCertificate(courseId: string, certificateUrl: 
     return { success: false, error: 'Failed to delete certificate.' };
   }
 }
+
+// ===== VIDEO ANALYTICS FUNCTIONS =====
+
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseAdmin = process.env.SUPABASE_SERVICE_ROLE_KEY 
+  ? createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    )
+  : null;
+
+export interface VideoProgressAnalytic {
+  enrollmentId: string;
+  studentName: string;
+  studentEmail: string;
+  lessonId: string;
+  lessonTitle: string;
+  watchTimeSeconds: number;
+  totalDurationSeconds: number;
+  progressPercentage: number;
+  lastWatchedAt: string;
+  completedAt: string | null;
+  isCompleted: boolean;
+}
+
+/**
+ * Get video progress analytics for a specific course
+ */
+export async function getCourseVideoAnalytics(courseId: string, instructorId: string) {
+  try {
+    if (!supabaseAdmin) {
+      return { success: false, error: 'Server configuration error' };
+    }
+
+    // Verify instructor owns this course
+    const { data: course, error: courseError } = await supabaseAdmin
+      .from('courses')
+      .select('id')
+      .eq('id', courseId)
+      .eq('instructor_id', instructorId)
+      .single();
+
+    if (courseError || !course) {
+      return { success: false, error: 'Course not found or access denied' };
+    }
+
+    // Get video progress data with student and lesson info
+    const { data: videoProgress, error } = await supabaseAdmin
+      .from('video_progress')
+      .select(`
+        id,
+        enrollment_id,
+        lesson_id,
+        watch_time_seconds,
+        total_duration_seconds,
+        last_watched_at,
+        completed_at,
+        enrollments:enrollment_id(
+          id,
+          user_id,
+          users:user_id(
+            name,
+            email
+          )
+        ),
+        lessons:lesson_id(
+          id,
+          title,
+          course_id
+        )
+      `)
+      .eq('lessons.course_id', courseId);
+
+    if (error) {
+      console.error('Error fetching video analytics:', error);
+      return { success: false, error: error.message };
+    }
+
+    // Transform the data
+    const analytics: VideoProgressAnalytic[] = (videoProgress || []).map((item: any) => {
+      const progressPercentage = item.total_duration_seconds > 0 
+        ? Math.round((item.watch_time_seconds / item.total_duration_seconds) * 100)
+        : 0;
+
+      return {
+        enrollmentId: item.enrollment_id,
+        studentName: item.enrollments?.users?.name || 'Unknown',
+        studentEmail: item.enrollments?.users?.email || 'Unknown',
+        lessonId: item.lesson_id,
+        lessonTitle: item.lessons?.title || 'Unknown',
+        watchTimeSeconds: item.watch_time_seconds,
+        totalDurationSeconds: item.total_duration_seconds,
+        progressPercentage,
+        lastWatchedAt: item.last_watched_at,
+        completedAt: item.completed_at,
+        isCompleted: !!item.completed_at,
+      };
+    });
+
+    return { success: true, data: analytics };
+  } catch (error) {
+    console.error('Error in getCourseVideoAnalytics:', error);
+    return { success: false, error: 'Failed to fetch video analytics' };
+  }
+}
+
+/**
+ * Get video progress for a specific student in a course
+ */
+export async function getStudentVideoProgress(courseId: string, enrollmentId: string, instructorId: string) {
+  try {
+    if (!supabaseAdmin) {
+      return { success: false, error: 'Server configuration error' };
+    }
+
+    // Verify instructor owns this course
+    const { data: course } = await supabaseAdmin
+      .from('courses')
+      .select('id')
+      .eq('id', courseId)
+      .eq('instructor_id', instructorId)
+      .single();
+
+    if (!course) {
+      return { success: false, error: 'Course not found or access denied' };
+    }
+
+    // Get video progress for this enrollment in this course
+    const { data: videoProgress, error } = await supabaseAdmin
+      .from('video_progress')
+      .select(`
+        *,
+        lessons:lesson_id(
+          id,
+          title,
+          course_id
+        )
+      `)
+      .eq('enrollment_id', enrollmentId)
+      .eq('lessons.course_id', courseId);
+
+    if (error) {
+      console.error('Error fetching student video progress:', error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data: videoProgress || [] };
+  } catch (error) {
+    console.error('Error in getStudentVideoProgress:', error);
+    return { success: false, error: 'Failed to fetch student video progress' };
+  }
+}
+
+/**
+ * Get video statistics for a lesson
+ */
+export async function getLessonVideoStats(lessonId: string, instructorId: string) {
+  try {
+    if (!supabaseAdmin) {
+      return { success: false, error: 'Server configuration error' };
+    }
+
+    // Get lesson and verify instructor ownership
+    const { data: lesson } = await supabaseAdmin
+      .from('lessons')
+      .select(`
+        id,
+        title,
+        course_id,
+        courses:course_id(
+          instructor_id
+        )
+      `)
+      .eq('id', lessonId)
+      .single();
+
+    if (!lesson || lesson.courses?.instructor_id !== instructorId) {
+      return { success: false, error: 'Lesson not found or access denied' };
+    }
+
+    // Get video progress stats
+    const { data: videoProgress, error } = await supabaseAdmin
+      .from('video_progress')
+      .select('watch_time_seconds, total_duration_seconds, completed_at')
+      .eq('lesson_id', lessonId);
+
+    if (error) {
+      console.error('Error fetching lesson video stats:', error);
+      return { success: false, error: error.message };
+    }
+
+    if (!videoProgress || videoProgress.length === 0) {
+      return {
+        success: true,
+        data: {
+          lessonId,
+          lessonTitle: lesson.title,
+          totalStudents: 0,
+          completedStudents: 0,
+          averageWatchTimeSeconds: 0,
+          averageProgressPercentage: 0,
+          completionRate: 0,
+        }
+      };
+    }
+
+    // Calculate statistics
+    const completedStudents = videoProgress.filter(p => p.completed_at).length;
+    const avgProgressPercentage = Math.round(
+      videoProgress.reduce((sum, p) => {
+        const durationSeconds = p.total_duration_seconds || 1;
+        return sum + (p.watch_time_seconds / durationSeconds);
+      }, 0) / videoProgress.length * 100
+    );
+    const avgWatchTime = Math.round(
+      videoProgress.reduce((sum, p) => sum + p.watch_time_seconds, 0) / videoProgress.length
+    );
+
+    return {
+      success: true,
+      data: {
+        lessonId,
+        lessonTitle: lesson.title,
+        totalStudents: videoProgress.length,
+        completedStudents,
+        averageWatchTimeSeconds: avgWatchTime,
+        averageProgressPercentage: avgProgressPercentage,
+        completionRate: Math.round((completedStudents / videoProgress.length) * 100),
+      }
+    };
+  } catch (error) {
+    console.error('Error in getLessonVideoStats:', error);
+    return { success: false, error: 'Failed to fetch lesson video stats' };
+  }
+}

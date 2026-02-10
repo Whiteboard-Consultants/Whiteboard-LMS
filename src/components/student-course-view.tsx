@@ -15,10 +15,13 @@ import {
 import { Card, CardContent } from './ui/card';
 import { RichTextRenderer } from './rich-text-renderer';
 import { QuizTaker } from './quiz-taker';
+import { VideoThumbnailViewer } from './video-thumbnail-viewer';
 import { updateProgress } from '@/app/student/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
+import { detectVideoInfo, isEmbeddedVideoUrl, isDirectVideoFile } from '@/lib/video-utils';
+import { useAuth } from '@/hooks/use-auth';
 
 interface StudentCourseViewProps {
   course: Course;
@@ -43,6 +46,7 @@ export function StudentCourseView({ course, enrollment: initialEnrollment }: Stu
   const [isCompleting, setIsCompleting] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
+  const { user } = useAuth();
   
   const completedLessonIds = useMemo(() => new Set(enrollment?.completedLessons || []), [enrollment]);
 
@@ -251,15 +255,21 @@ export function StudentCourseView({ course, enrollment: initialEnrollment }: Stu
     (selectedLesson.content.startsWith("http://") ||
       selectedLesson.content.startsWith("https://"));
 
+  console.log('Selected lesson:', selectedLesson);
+  console.log('Is valid URL:', isValidUrl);
+  console.log('Lesson type:', selectedLesson.type);
+  console.log('Content:', selectedLesson.content);
+
   let contentNode: React.ReactNode = null;
   if (selectedLesson.type === "text") {
     contentNode = <RichTextRenderer content={selectedLesson.content || ""} />;
   } else if (selectedLesson.type === "video") {
     const isDirectVideo =
-      isValidUrl &&
-      (selectedLesson.content.endsWith(".mp4") ||
-        selectedLesson.content.endsWith(".webm") ||
-        selectedLesson.content.endsWith(".ogg"));
+      isValidUrl && isDirectVideoFile(selectedLesson.content);
+    const isEmbedded = isValidUrl && isEmbeddedVideoUrl(selectedLesson.content);
+    
+    console.log('Video lesson - isDirectVideo:', isDirectVideo, 'isEmbedded:', isEmbedded);
+    
     if (isDirectVideo) {
       contentNode = (
         <video
@@ -269,6 +279,49 @@ export function StudentCourseView({ course, enrollment: initialEnrollment }: Stu
           className="w-full rounded-lg"
         />
       );
+    } else if (isEmbedded) {
+      // Display embedded video with thumbnail
+      const videoInfo = detectVideoInfo(selectedLesson.content);
+      console.log('Video URL:', selectedLesson.content);
+      console.log('Detected video info:', videoInfo);
+      if (videoInfo) {
+        console.log('Rendering VideoThumbnailViewer with props:', {
+          enrollmentId: enrollment?.id,
+          lessonId: selectedLesson.id,
+          userId: user?.id
+        });
+        contentNode = (
+          <VideoThumbnailViewer
+            videoInfo={videoInfo}
+            originalUrl={selectedLesson.content}
+            title={selectedLesson.title}
+            className="w-full"
+            enrollmentId={enrollment?.id}
+            lessonId={selectedLesson.id}
+            userId={user?.id}
+          />
+        );
+      } else {
+        // Fallback if video info detection fails
+        contentNode = (
+          <div className="flex flex-col items-center justify-center text-center p-8 bg-muted rounded-lg">
+            <LinkIcon className="h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-xl font-semibold">External Video</h3>
+            <p className="text-muted-foreground mb-4">
+              This lesson contains an external video. Click below to open it.
+            </p>
+            <Button asChild>
+              <a
+                href={selectedLesson.content}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Open Video
+              </a>
+            </Button>
+          </div>
+        );
+      }
     } else {
       contentNode = (
         <div className="flex flex-col items-center justify-center text-center p-8 bg-muted rounded-lg">
@@ -308,30 +361,75 @@ export function StudentCourseView({ course, enrollment: initialEnrollment }: Stu
     selectedLesson.type === "document" ||
     selectedLesson.type === "embed"
   ) {
-    contentNode = (
-      <div className="flex flex-col items-center justify-center text-center p-8 bg-muted rounded-lg">
-        <LinkIcon className="h-12 w-12 text-muted-foreground mb-4" />
-        <h3 className="text-xl font-semibold">External Content</h3>
-        <p className="text-muted-foreground mb-4">
-          This lesson contains external content like a video or document.
-        </p>
-        {isValidUrl ? (
-          <Button asChild>
-            <a
-              href={selectedLesson.content}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Open Content
-            </a>
-          </Button>
-        ) : (
-          <Button disabled variant="secondary">
-            Invalid or missing content link
-          </Button>
-        )}
-      </div>
-    );
+    // Check if embed is actually a video
+    if (isValidUrl && isEmbeddedVideoUrl(selectedLesson.content)) {
+      const videoInfo = detectVideoInfo(selectedLesson.content);
+      console.log('Embed URL:', selectedLesson.content);
+      console.log('Detected video info:', videoInfo);
+      if (videoInfo) {
+        console.log('Rendering VideoThumbnailViewer (embed) with props:', {
+          enrollmentId: enrollment?.id,
+          lessonId: selectedLesson.id,
+          userId: user?.id
+        });
+        contentNode = (
+          <VideoThumbnailViewer
+            videoInfo={videoInfo}
+            originalUrl={selectedLesson.content}
+            title={selectedLesson.title}
+            className="w-full"
+            enrollmentId={enrollment?.id}
+            lessonId={selectedLesson.id}
+            userId={user?.id}
+          />
+        );
+      } else {
+        // Fallback if video info detection fails
+        contentNode = (
+          <div className="flex flex-col items-center justify-center text-center p-8 bg-muted rounded-lg">
+            <LinkIcon className="h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-xl font-semibold">External Content</h3>
+            <p className="text-muted-foreground mb-4">
+              This lesson contains external content like a video or document.
+            </p>
+            <Button asChild>
+              <a
+                href={selectedLesson.content}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Open Content
+              </a>
+            </Button>
+          </div>
+        );
+      }
+    } else {
+      contentNode = (
+        <div className="flex flex-col items-center justify-center text-center p-8 bg-muted rounded-lg">
+          <LinkIcon className="h-12 w-12 text-muted-foreground mb-4" />
+          <h3 className="text-xl font-semibold">External Content</h3>
+          <p className="text-muted-foreground mb-4">
+            This lesson contains external content like a video or document.
+          </p>
+          {isValidUrl ? (
+            <Button asChild>
+              <a
+                href={selectedLesson.content}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Open Content
+              </a>
+            </Button>
+          ) : (
+            <Button disabled variant="secondary">
+              Invalid or missing content link
+            </Button>
+          )}
+        </div>
+      );
+    }
   } else if (
     selectedLesson.type === "quiz" ||
     selectedLesson.type === "assignment"
