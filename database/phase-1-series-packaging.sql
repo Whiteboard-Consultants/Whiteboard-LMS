@@ -98,9 +98,11 @@ CREATE POLICY "Series package purchases" ON public.enrollments
   );
 
 -- Step 7: Create view for series with stats
+-- Using security_invoker to respect RLS policies of querying user
 DROP VIEW IF EXISTS public.series_with_stats CASCADE;
 
-CREATE VIEW public.series_with_stats AS
+CREATE VIEW public.series_with_stats
+WITH (security_invoker = on) AS
 SELECT 
   ts.id,
   ts.title,
