@@ -31,6 +31,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { signUpWithEmail, signInWithGoogle } from "@/lib/supabase-auth";
 import { useState } from "react";
+import { useReCaptcha, ReCaptchaBadge } from "@/components/recaptcha";
 import type { User } from "@/types";
 
 const formSchema = z.object({
@@ -59,6 +60,7 @@ const GoogleIcon = () => (
 export function RegisterForm() {
   const router = useRouter();
   const { toast } = useToast();
+  const { executeReCaptcha, isLoaded: recaptchaLoaded } = useReCaptcha();
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -99,6 +101,35 @@ export function RegisterForm() {
     try {
       setIsLoading(true);
       setMessage("");
+
+      // Verify reCAPTCHA before registration
+      const recaptchaToken = await executeReCaptcha('register');
+      
+      if (!recaptchaToken) {
+        toast({
+          variant: "destructive",
+          title: "Verification Failed",
+          description: "Please try again. If the problem persists, refresh the page.",
+        });
+        return;
+      }
+
+      // Verify token on server
+      const verifyResponse = await fetch('/api/verify-recaptcha', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: recaptchaToken, action: 'register' }),
+      });
+      
+      const verifyResult = await verifyResponse.json();
+      if (!verifyResult.success) {
+        toast({
+          variant: "destructive",
+          title: "Security Check Failed",
+          description: verifyResult.error || "Please try again.",
+        });
+        return;
+      }
 
       // Normal registration flow
 
@@ -268,10 +299,11 @@ export function RegisterForm() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+            <Button type="submit" className="w-full" disabled={form.formState.isSubmitting || !recaptchaLoaded}>
               {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {form.formState.isSubmitting ? "Creating Account..." : "Create Account"}
             </Button>
+            <ReCaptchaBadge />
           </form>
         </Form>
         <div className="relative my-6">

@@ -15,6 +15,7 @@ import * as z from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { saveContactSubmission } from "@/app/(public)/contact/actions";
+import { useReCaptcha, ReCaptchaBadge } from "@/components/recaptcha";
 
 const formSchema = z.object({
   firstName: z.string().min(1, "First Name is required."),
@@ -27,6 +28,7 @@ const formSchema = z.object({
 
 export default function ContactPageClient() {
     const { toast } = useToast();
+    const { executeReCaptcha, isLoaded: recaptchaLoaded } = useReCaptcha();
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -42,7 +44,19 @@ export default function ContactPageClient() {
     const { isSubmitting } = form.formState;
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        const result = await saveContactSubmission(values);
+        // Execute reCAPTCHA and get token
+        const recaptchaToken = await executeReCaptcha('contact_form');
+        
+        if (!recaptchaToken) {
+            toast({
+                variant: "destructive",
+                title: "Verification Failed",
+                description: "Please try again. If the problem persists, refresh the page.",
+            });
+            return;
+        }
+        
+        const result = await saveContactSubmission(values, recaptchaToken);
         if (result.success) {
             toast({
                 title: "Message Sent!",
@@ -197,10 +211,11 @@ export default function ContactPageClient() {
                     <FormItem><FormLabel>Message</FormLabel><FormControl><Textarea placeholder="Tell us more about your inquiry..." className="min-h-[150px]" {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
                 <div>
-                  <Button type="submit" size="lg" className="w-full dark:border dark:border-white" disabled={isSubmitting}>
+                  <Button type="submit" size="lg" className="w-full dark:border dark:border-white" disabled={isSubmitting || !recaptchaLoaded}>
                     {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     {isSubmitting ? "Sending..." : "Send Message"}
                   </Button>
+                  <ReCaptchaBadge />
                 </div>
               </form>
               </Form>

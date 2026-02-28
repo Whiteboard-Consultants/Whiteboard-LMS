@@ -4,6 +4,7 @@
 import { supabase } from '@/lib/supabase';
 import { createClient } from '@supabase/supabase-js';
 import { sendAdminNotification, sendAutoReply, type ContactSubmissionData } from '@/lib/email-service';
+import { verifyReCaptchaToken } from '@/lib/recaptcha-verify';
 import type { z } from "zod";
 
 // Initialize Supabase admin client for server-side operations
@@ -39,7 +40,20 @@ type ContactFormData = z.infer<z.ZodObject<{
 }>>;
 
 
-export async function saveContactSubmission(formData: ContactFormData) {
+export async function saveContactSubmission(formData: ContactFormData, recaptchaToken?: string) {
+  // Verify reCAPTCHA token first
+  if (recaptchaToken) {
+    const recaptchaResult = await verifyReCaptchaToken(recaptchaToken, 'contact_form');
+    if (!recaptchaResult.success) {
+      console.warn('reCAPTCHA verification failed:', recaptchaResult.error);
+      return { success: false, error: 'Security verification failed. Please try again.' };
+    }
+    console.log('✅ reCAPTCHA verified, score:', recaptchaResult.score);
+  } else if (process.env.NODE_ENV === 'production') {
+    // In production, require reCAPTCHA token
+    return { success: false, error: 'Security verification required.' };
+  }
+
   // Validate required fields
   if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone || !formData.inquiryType) {
     return { success: false, error: 'All required fields must be filled out.' };

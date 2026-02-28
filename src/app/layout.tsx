@@ -12,6 +12,7 @@ import { WebVitalsTracker, PerformanceOptimizations, WebsiteSearchSchema } from 
 import { GoogleAnalyticsComponent } from '@/components/google-analytics';
 import { MetaPixelInit } from '@/components/meta-pixel';
 import { CookieConsentBanner } from '@/components/cookie-consent-banner';
+import { ReCaptchaProvider } from '@/components/recaptcha';
 import '@/lib/auth-fix'; // Auto-handle auth token issues
 import '@/lib/suppress-auth-errors'; // Suppress expected Supabase auth errors
 import type { Metadata } from 'next';
@@ -254,6 +255,11 @@ export default function RootLayout({
                         
                         {/* Meta Pixel */}
                         <MetaPixelInit />
+                        
+                        {/* reCAPTCHA Provider */}
+                        <ReCaptchaProvider>
+                          <></>
+                        </ReCaptchaProvider>
                     </TestCartProvider>
                 </CartProvider>
             </AuthProvider>
