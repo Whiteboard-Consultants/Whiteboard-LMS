@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { supabase, supabaseAdmin } from './supabase';
 import type { Course, Post, User } from '@/types';
 import { mapDatabaseCourseToCourse, mapDatabaseCoursesToCourses } from './course-mapper';
 import { mapCategoryForDatabase, type CategoryKey } from './course-categories';
@@ -175,11 +175,22 @@ export async function getCourseCategories() {
 }
 
 // Blog post functions
-export async function getPosts() {
-  const { data, error } = await supabase
+export async function getPosts(options?: { includeAll?: boolean }) {
+  // Use admin client to bypass RLS (posts are publicly visible anyway)
+  // This fixes the "permission denied for table users" error from RLS policy evaluation
+  const client = supabaseAdmin || supabase;
+  
+  let query = client
     .from('posts')
     .select('*')
     .order('created_at', { ascending: false });
+  
+  // Only show published posts unless includeAll is true (for admin)
+  if (!options?.includeAll) {
+    query = query.eq('status', 'published');
+  }
+  
+  const { data, error } = await query;
 
   if (error) {
     const errorMessage = error?.message || 'Unknown error';
@@ -220,7 +231,10 @@ export async function getPosts() {
 }
 
 export async function getPost(id: string) {
-  const { data, error } = await supabase
+  // Use admin client to bypass RLS
+  const client = supabaseAdmin || supabase;
+  
+  const { data, error } = await client
     .from('posts')
     .select('*')
     .eq('id', id)

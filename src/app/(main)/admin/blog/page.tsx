@@ -12,7 +12,8 @@ export const metadata: Metadata = {
 };
 
 export default async function BlogManagementPage() {
-  const posts = await getPosts();
+  // Show all posts (published, drafts, etc.) in admin
+  const posts = await getPosts({ includeAll: true });
 
   return (
     <div>
