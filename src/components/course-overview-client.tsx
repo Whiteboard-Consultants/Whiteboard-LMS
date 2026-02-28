@@ -141,6 +141,7 @@ export function CourseOverviewClient({ courseId, userId }: CourseOverviewClientP
           parentId: l.parent_id || null,
           order: l.order_number || index,
           createdAt: l.created_at,
+          isFreePreview: l.is_free_preview || false,
           isCompleted: false, // TODO: Get from user progress
           progress: 0, // TODO: Get from user progress
           isMultiContent,

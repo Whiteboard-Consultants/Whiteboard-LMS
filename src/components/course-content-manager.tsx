@@ -161,17 +161,22 @@ export function CourseContentManager({ courseId }: { courseId: string }) {
         if (!courseId) return;
         
         try {
+            // Debug: Check auth session
+            const { data: { session } } = await supabase.auth.getSession();
+            console.log('Auth session for lessons fetch:', session ? `User: ${session.user.id}` : 'No session');
+            
             const { data: lessonsData, error } = await supabase
                 .from('lessons')
                 .select('*')
                 .eq('course_id', courseId);
             
             if (error) {
-                console.error("Supabase fetch error:", error);
+                console.error("Supabase fetch error:", JSON.stringify(error, null, 2));
+                console.error("Error details - code:", error.code, "message:", error.message, "hint:", error.hint);
                 toast({
                     variant: 'destructive',
                     title: 'Error fetching lessons',
-                    description: 'Failed to load lessons. Please try refreshing the page.'
+                    description: error.message || 'Failed to load lessons. Please try refreshing the page.'
                 });
                 setLoading(false);
                 return;

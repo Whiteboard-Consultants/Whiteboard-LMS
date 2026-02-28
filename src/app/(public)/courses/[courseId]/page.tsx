@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { RichTextRenderer } from "@/components/rich-text-renderer";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { CoursePurchaseCard } from "@/components/course-purchase-card";
+import { CourseCurriculum } from "@/components/course-curriculum";
 
 // Cache course details for 1 hour - Improves TTFB significantly
 export const revalidate = 3600;
@@ -193,6 +194,11 @@ export default async function CoursePage({ params }: CoursePageProps) {
                                     </AccordionItem>
                                 </Accordion>
                             )}
+
+                            {/* Course Curriculum with Free Preview Lessons */}
+                            <div className="mb-8">
+                                <CourseCurriculum courseId={courseId} isEnrolled={false} />
+                            </div>
 
                             {course.faqs && (
                                 <Accordion type="single" collapsible className="w-full mb-8">

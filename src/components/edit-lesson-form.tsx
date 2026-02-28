@@ -5,19 +5,21 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Loader2, Video, FileText, Mic, Link2, BookOpen, HelpCircle } from "lucide-react";
+import { Loader2, Video, FileText, Mic, Link2, BookOpen, HelpCircle, Eye } from "lucide-react";
 import dynamic from 'next/dynamic';
 
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { updateLesson } from "@/app/instructor/lessons/actions";
 import type { Lesson } from "@/types";
@@ -34,6 +36,7 @@ const formSchema = z.object({
   type: z.enum(["text", "video", "audio", "document", "embed", "quiz", "assignment"]),
   objectives: z.string().optional(),
   content: z.string().optional(),
+  isFreePreview: z.boolean().optional(),
 });
 
 interface EditLessonFormProps {
@@ -50,6 +53,7 @@ export function EditLessonForm({ lesson }: EditLessonFormProps) {
       type: lesson.type || 'text',
       objectives: lesson.objectives || "",
       content: lesson.type === 'quiz' || lesson.type === 'assignment' ? JSON.stringify(lesson.questions || []) : lesson.content || "",
+      isFreePreview: lesson.isFreePreview || false,
     },
   });
 
@@ -209,6 +213,32 @@ export function EditLessonForm({ lesson }: EditLessonFormProps) {
         />
 
         {renderContentInput()}
+        
+        <Separator />
+        
+        <FormField
+          control={form.control}
+          name="isFreePreview"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <FormLabel className="text-base flex items-center gap-2">
+                  <Eye className="h-4 w-4" />
+                  Free Preview
+                </FormLabel>
+                <FormDescription>
+                  Allow anyone to view this lesson without enrolling in the course.
+                </FormDescription>
+              </div>
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
         
         <div className="flex justify-end">
             <Button type="submit" disabled={isSubmitting || !isDirty}>

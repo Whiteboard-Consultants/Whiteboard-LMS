@@ -66,6 +66,7 @@ export interface Course {
   enrollmentId?: string;
   enrollment?: Enrollment;
   finalAssessmentId?: string | null;
+  freeLessonsCount?: number; // Number of free preview lessons
 }
 
 export interface SubTopic {
@@ -100,6 +101,7 @@ export interface Lesson {
   createdAt?: string;
   order: number;
   questions?: Question[];
+  isFreePreview?: boolean; // Allow non-enrolled users to access this lesson
 }
 
 export type RegistrationRequest = {

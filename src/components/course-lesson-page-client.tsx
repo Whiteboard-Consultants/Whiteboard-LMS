@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, ChevronRight, List } from 'lucide-react';
+import { ChevronLeft, ChevronRight, List, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { LessonViewer } from '@/components/lesson-viewer';
 import { supabase } from '@/lib/supabase';
 import type { Lesson } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/use-auth';
 
 interface CourseLessonPageClientProps {
   courseId: string;
@@ -23,11 +24,14 @@ export function CourseLessonPageClient({
 }: CourseLessonPageClientProps) {
   const router = useRouter();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [allLessons, setAllLessons] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCompleted, setIsCompleted] = useState(false);
   const [showLessonList, setShowLessonList] = useState(false);
+  const [isEnrolled, setIsEnrolled] = useState(false);
+  const [hasAccess, setHasAccess] = useState(false);
 
   useEffect(() => {
     const fetchLessonData = async () => {
@@ -42,6 +46,25 @@ export function CourseLessonPageClient({
         if (lessonError) {
           throw lessonError;
         }
+
+        // Check enrollment if user is logged in
+        let enrolled = false;
+        if (user) {
+          const { data: enrollmentData } = await supabase
+            .from('enrollments')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('course_id', courseId)
+            .maybeSingle();
+          
+          enrolled = !!enrollmentData;
+        }
+        setIsEnrolled(enrolled);
+
+        // Check access: user is enrolled OR lesson is free preview
+        const isFreePreview = lessonData.is_free_preview === true;
+        const canAccess = enrolled || isFreePreview;
+        setHasAccess(canAccess);
 
         // Fetch all lessons for navigation
         const { data: allLessonsData, error: allLessonsError } = await supabase
@@ -66,6 +89,7 @@ export function CourseLessonPageClient({
           parentId: lessonData.parent_id,
           order: lessonData.order_number || 0,
           createdAt: lessonData.created_at,
+          isFreePreview: lessonData.is_free_preview || false,
         };
 
         const transformedAllLessons: Lesson[] = allLessonsData.map(l => ({
@@ -79,6 +103,7 @@ export function CourseLessonPageClient({
           parentId: l.parent_id,
           order: l.order_number || 0,
           createdAt: l.created_at,
+          isFreePreview: l.is_free_preview || false,
         }));
 
         setLesson(transformedLesson);
@@ -100,7 +125,7 @@ export function CourseLessonPageClient({
     };
 
     fetchLessonData();
-  }, [courseId, lessonId, toast]);
+  }, [courseId, lessonId, toast, user]);
 
   const currentLessonIndex = allLessons.findIndex(l => l.id === lessonId);
   const previousLesson = currentLessonIndex > 0 ? allLessons[currentLessonIndex - 1] : null;
@@ -159,6 +184,33 @@ export function CourseLessonPageClient({
             <Button onClick={() => router.push(`/courses/${courseId}`)}>
               Back to Course
             </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Access control: check if user can view this lesson
+  if (!hasAccess) {
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <Card>
+          <CardContent className="p-6 text-center">
+            <Lock className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+            <h1 className="text-2xl font-bold mb-2">Lesson Locked</h1>
+            <p className="text-muted-foreground mb-4">
+              You need to enroll in this course to access this lesson.
+            </p>
+            <div className="flex gap-4 justify-center">
+              <Button variant="outline" onClick={() => router.push(`/courses/${courseId}`)}>
+                View Course Details
+              </Button>
+              {!user && (
+                <Button onClick={() => router.push('/login')}>
+                  Sign In
+                </Button>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>

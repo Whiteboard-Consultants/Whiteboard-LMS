@@ -46,6 +46,7 @@ export async function createLesson(lessonData: Partial<Omit<Lesson, 'id' | 'crea
             parent_id: lessonData.parentId || null,
             order_number: currentLessonCount, // Using 'order_number' based on actual database schema
             created_at: new Date().toISOString(),
+            is_free_preview: lessonData.isFreePreview || false,
         };
         
         // Set type-specific defaults
@@ -119,6 +120,7 @@ export async function updateLesson(lessonId: string, courseId: string, data: Par
         if (data.type !== undefined) updateData.type = data.type;
         if (data.objectives !== undefined) updateData.objectives = data.objectives;
         if (data.assetUrl !== undefined) updateData.asset_url = data.assetUrl;
+        if (data.isFreePreview !== undefined) updateData.is_free_preview = data.isFreePreview;
         
         // Handle quiz/assignment questions
         if ((data.type === 'quiz' || data.type === 'assignment') && typeof data.content === 'string') {

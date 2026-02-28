@@ -2,20 +2,7 @@
 -- Run this in your Supabase SQL Editor
 
 -- Enable necessary extensions
-CREATE -- Create indexes for better performance
-CREATE INDEX IF NOT EXISTS idx_users_email ON public.users(email);
-CREATE INDEX IF NOT EXISTS idx_users_role ON public.users(role);
-CREATE INDEX IF NOT EXISTS idx_courses_instructor_id ON public.courses(instructor_id);
-CREATE INDEX IF NOT EXISTS idx_enrollments_user_id ON public.enrollments(user_id);
-CREATE INDEX IF NOT EXISTS idx_enrollments_course_id ON public.enrollments(course_id);
-CREATE INDEX IF NOT EXISTS idx_enrollments_instructor_id ON public.enrollments(instructor_id);
-CREATE INDEX IF NOT EXISTS idx_lessons_course_id ON public.lessons(course_id);
-CREATE INDEX IF NOT EXISTS idx_tests_course_id ON public.tests(course_id);
-CREATE INDEX IF NOT EXISTS idx_questions_test_id ON public.questions(test_id);
-
--- Enable Row Level Security (RLS)
-ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.courses ENABLE ROW LEVEL SECURITY;F NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Create users table for user profiles
 CREATE TABLE IF NOT EXISTS public.users (
@@ -97,7 +84,8 @@ CREATE TABLE IF NOT EXISTS public.lessons (
     parent_id UUID REFERENCES public.lessons(id),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     order_number INTEGER NOT NULL,
-    questions JSONB
+    questions JSONB,
+    is_free_preview BOOLEAN DEFAULT false
 );
 
 -- Create tests table
@@ -141,15 +129,19 @@ CREATE TABLE IF NOT EXISTS public.announcements (
 );
 
 -- Create indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_users_email ON public.users(email);
+CREATE INDEX IF NOT EXISTS idx_users_role ON public.users(role);
 CREATE INDEX IF NOT EXISTS idx_courses_instructor_id ON public.courses(instructor_id);
 CREATE INDEX IF NOT EXISTS idx_enrollments_user_id ON public.enrollments(user_id);
 CREATE INDEX IF NOT EXISTS idx_enrollments_course_id ON public.enrollments(course_id);
 CREATE INDEX IF NOT EXISTS idx_enrollments_instructor_id ON public.enrollments(instructor_id);
 CREATE INDEX IF NOT EXISTS idx_lessons_course_id ON public.lessons(course_id);
+CREATE INDEX IF NOT EXISTS idx_lessons_free_preview ON public.lessons(is_free_preview) WHERE is_free_preview = true;
 CREATE INDEX IF NOT EXISTS idx_tests_course_id ON public.tests(course_id);
 CREATE INDEX IF NOT EXISTS idx_questions_test_id ON public.questions(test_id);
 
 -- Enable Row Level Security (RLS)
+ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.courses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.enrollments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.lessons ENABLE ROW LEVEL SECURITY;
@@ -157,63 +149,99 @@ ALTER TABLE public.tests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.questions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.announcements ENABLE ROW LEVEL SECURITY;
 
+-- Grant table-level permissions (required in addition to RLS policies)
+-- RLS policies control WHICH rows can be accessed, GRANTs control IF the table is accessible at all
+GRANT SELECT, UPDATE, INSERT ON public.users TO authenticated;
+GRANT SELECT ON public.users TO anon;
+GRANT ALL ON public.courses TO authenticated;
+GRANT SELECT ON public.courses TO anon;
+GRANT ALL ON public.enrollments TO authenticated;
+GRANT ALL ON public.lessons TO authenticated;
+GRANT SELECT ON public.lessons TO anon;
+GRANT ALL ON public.tests TO authenticated;
+GRANT ALL ON public.questions TO authenticated;
+GRANT ALL ON public.announcements TO authenticated;
+GRANT SELECT ON public.announcements TO anon;
+
 -- Create RLS policies
--- Users: Users can see and update their own profile, admins can see all
+-- Users: Users can see own profile, admins see all, anyone can see instructors
+-- NOTE: We use auth.users metadata to check admin role to avoid infinite recursion
+DROP POLICY IF EXISTS "Users can view their own profile" ON public.users;
+DROP POLICY IF EXISTS "Public user profiles for instructors" ON public.users;
 CREATE POLICY "Users can view their own profile" ON public.users FOR SELECT USING (
     auth.uid() = id OR
-    EXISTS (SELECT 1 FROM public.users WHERE users.id = auth.uid() AND users.role = 'admin')
+    role = 'instructor' OR
+    EXISTS (SELECT 1 FROM auth.users WHERE auth.users.id = auth.uid() AND auth.users.raw_user_meta_data->>'role' = 'admin')
 );
-CREATE POLICY "Users can update their own profile" ON public.users FOR UPDATE USING (auth.uid() = id);
-CREATE POLICY "Public user profiles for instructors" ON public.users FOR SELECT USING (role = 'instructor');
+DROP POLICY IF EXISTS "Users can update their own profile" ON public.users;
+CREATE POLICY "Users can update their own profile" ON public.users FOR UPDATE USING (
+    auth.uid() = id OR
+    EXISTS (SELECT 1 FROM auth.users WHERE auth.users.id = auth.uid() AND auth.users.raw_user_meta_data->>'role' = 'admin')
+);
+DROP POLICY IF EXISTS "Users can insert their own profile" ON public.users;
+CREATE POLICY "Users can insert their own profile" ON public.users FOR INSERT WITH CHECK (auth.uid() = id);
 
 -- Courses: Readable by everyone, writable by instructors and admins
+DROP POLICY IF EXISTS "Anyone can view courses" ON public.courses;
 CREATE POLICY "Anyone can view courses" ON public.courses FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Instructors can manage their courses" ON public.courses;
 CREATE POLICY "Instructors can manage their courses" ON public.courses FOR ALL USING (
     auth.uid() = instructor_id OR 
     EXISTS (SELECT 1 FROM auth.users WHERE auth.users.id = auth.uid() AND auth.users.raw_user_meta_data->>'role' = 'admin')
 );
 
 -- Enrollments: Users can see their own enrollments, instructors can see enrollments for their courses
+DROP POLICY IF EXISTS "Users can view their enrollments" ON public.enrollments;
 CREATE POLICY "Users can view their enrollments" ON public.enrollments FOR SELECT USING (
     auth.uid() = user_id OR 
     EXISTS (SELECT 1 FROM public.courses WHERE courses.id = enrollments.course_id AND courses.instructor_id = auth.uid()) OR
     EXISTS (SELECT 1 FROM auth.users WHERE auth.users.id = auth.uid() AND auth.users.raw_user_meta_data->>'role' = 'admin')
 );
+DROP POLICY IF EXISTS "Users can create enrollments" ON public.enrollments;
 CREATE POLICY "Users can create enrollments" ON public.enrollments FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Instructors can update enrollments" ON public.enrollments;
 CREATE POLICY "Instructors can update enrollments" ON public.enrollments FOR UPDATE USING (
     EXISTS (SELECT 1 FROM public.courses WHERE courses.id = enrollments.course_id AND courses.instructor_id = auth.uid()) OR
     EXISTS (SELECT 1 FROM auth.users WHERE auth.users.id = auth.uid() AND auth.users.raw_user_meta_data->>'role' = 'admin')
 );
 
 -- Lessons: Readable by enrolled students and course instructors
+-- Also allows public access to free preview lessons
+DROP POLICY IF EXISTS "Course access for lessons" ON public.lessons;
 CREATE POLICY "Course access for lessons" ON public.lessons FOR SELECT USING (
+    is_free_preview = true OR
     EXISTS (SELECT 1 FROM public.enrollments WHERE enrollments.course_id = lessons.course_id AND enrollments.user_id = auth.uid() AND enrollments.status = 'approved') OR
     EXISTS (SELECT 1 FROM public.courses WHERE courses.id = lessons.course_id AND courses.instructor_id = auth.uid()) OR
     EXISTS (SELECT 1 FROM auth.users WHERE auth.users.id = auth.uid() AND auth.users.raw_user_meta_data->>'role' = 'admin')
 );
+DROP POLICY IF EXISTS "Instructors can manage lessons" ON public.lessons;
 CREATE POLICY "Instructors can manage lessons" ON public.lessons FOR ALL USING (
     EXISTS (SELECT 1 FROM public.courses WHERE courses.id = lessons.course_id AND courses.instructor_id = auth.uid()) OR
     EXISTS (SELECT 1 FROM auth.users WHERE auth.users.id = auth.uid() AND auth.users.raw_user_meta_data->>'role' = 'admin')
 );
 
 -- Tests: Similar to lessons
+DROP POLICY IF EXISTS "Course access for tests" ON public.tests;
 CREATE POLICY "Course access for tests" ON public.tests FOR SELECT USING (
     EXISTS (SELECT 1 FROM public.enrollments WHERE enrollments.course_id = tests.course_id AND enrollments.user_id = auth.uid() AND enrollments.status = 'approved') OR
     auth.uid() = instructor_id OR
     EXISTS (SELECT 1 FROM auth.users WHERE auth.users.id = auth.uid() AND auth.users.raw_user_meta_data->>'role' = 'admin')
 );
+DROP POLICY IF EXISTS "Instructors can manage tests" ON public.tests;
 CREATE POLICY "Instructors can manage tests" ON public.tests FOR ALL USING (
     auth.uid() = instructor_id OR
     EXISTS (SELECT 1 FROM auth.users WHERE auth.users.id = auth.uid() AND auth.users.raw_user_meta_data->>'role' = 'admin')
 );
 
 -- Questions: Access through tests
+DROP POLICY IF EXISTS "Test access for questions" ON public.questions;
 CREATE POLICY "Test access for questions" ON public.questions FOR SELECT USING (
     EXISTS (SELECT 1 FROM public.tests WHERE tests.id = questions.test_id AND 
         (EXISTS (SELECT 1 FROM public.enrollments WHERE enrollments.course_id = tests.course_id AND enrollments.user_id = auth.uid() AND enrollments.status = 'approved') OR
          tests.instructor_id = auth.uid() OR
          EXISTS (SELECT 1 FROM auth.users WHERE auth.users.id = auth.uid() AND auth.users.raw_user_meta_data->>'role' = 'admin')))
 );
+DROP POLICY IF EXISTS "Instructors can manage questions" ON public.questions;
 CREATE POLICY "Instructors can manage questions" ON public.questions FOR ALL USING (
     EXISTS (SELECT 1 FROM public.tests WHERE tests.id = questions.test_id AND 
         (tests.instructor_id = auth.uid() OR
@@ -221,7 +249,9 @@ CREATE POLICY "Instructors can manage questions" ON public.questions FOR ALL USI
 );
 
 -- Announcements: Readable by everyone, writable by admins
+DROP POLICY IF EXISTS "Anyone can view announcements" ON public.announcements;
 CREATE POLICY "Anyone can view announcements" ON public.announcements FOR SELECT USING (is_active = true);
+DROP POLICY IF EXISTS "Admins can manage announcements" ON public.announcements;
 CREATE POLICY "Admins can manage announcements" ON public.announcements FOR ALL USING (
     EXISTS (SELECT 1 FROM auth.users WHERE auth.users.id = auth.uid() AND auth.users.raw_user_meta_data->>'role' = 'admin')
 );

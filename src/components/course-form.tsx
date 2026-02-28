@@ -97,17 +97,14 @@ export function CourseForm({ initialData }: CourseFormProps) {
         setLoadingInstructors(true);
         const fetchInstructors = async () => {
             try {
-                const { data, error } = await supabase
-                    .from('users')
-                    .select('*')
-                    .eq('role', 'instructor')
-                    .order('name');
-                
-                if (error) {
-                    console.error('Failed to fetch instructors:', error);
-                } else {
-                    setInstructors(data || []);
+                // Use server-side API to fetch instructors (bypasses RLS)
+                const response = await fetch('/api/admin/instructors');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to fetch instructors');
                 }
+                const data = await response.json();
+                setInstructors(data || []);
             } catch (err) {
                 console.error('Failed to fetch instructors:', err);
             } finally {

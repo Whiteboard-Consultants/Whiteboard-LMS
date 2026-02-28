@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
-import { IndianRupee, ShoppingCart, Loader2 } from 'lucide-react';
+import { IndianRupee, ShoppingCart, Loader2, Gift, Award } from 'lucide-react';
 import { useCart } from '@/hooks/use-cart';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
@@ -93,6 +93,19 @@ export function CoursePurchaseCard({ course }: CoursePurchaseCardProps) {
             </span>
           )}
         </div>
+
+        {/* Freemium Badge */}
+        {(course.freeLessonsCount ?? 0) > 0 && course.type === 'paid' && (
+          <div className="mb-4 p-3 rounded-lg bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 border border-emerald-200 dark:border-emerald-800">
+            <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-semibold">
+              <Gift className="h-5 w-5" />
+              <span>Try Before You Buy!</span>
+            </div>
+            <p className="text-sm text-emerald-600 dark:text-emerald-500 mt-1">
+              First {course.freeLessonsCount} lessons are <strong>FREE</strong>. Certification available from Lesson {course.freeLessonsCount + 1} onwards.
+            </p>
+          </div>
+        )}
 
         {course.type === 'free' ? (
           <Button size="lg" className="w-full mb-2" asChild>

@@ -109,6 +109,7 @@ export interface Course {
   learningObjectives?: string[];
   modules?: CourseModule[];
   hasPracticeTests?: boolean;
+  freeLessonsCount?: number; // Number of free preview lessons
 }
 
 export interface SubTopic {
@@ -143,6 +144,7 @@ export interface Lesson {
   createdAt?: TimestampType;
   order: number;
   questions?: Question[];
+  isFreePreview?: boolean; // Allow non-enrolled users to access this lesson
 }
 
 export type RegistrationRequest = {

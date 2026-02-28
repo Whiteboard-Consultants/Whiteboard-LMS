@@ -83,7 +83,7 @@ export default function EditLessonPage() {
           router.push('/instructor/dashboard');
           return;
         }
-        setLesson({ ...lesson, courseId: lesson.course_id, parentId: lesson.parent_id, assetUrl: lesson.asset_url, order: lesson.order_number });
+        setLesson({ ...lesson, courseId: lesson.course_id, parentId: lesson.parent_id, assetUrl: lesson.asset_url, order: lesson.order_number, isFreePreview: lesson.is_free_preview || false });
       } catch (err) {
         setError('Failed to fetch lesson data.');
         console.error(err);

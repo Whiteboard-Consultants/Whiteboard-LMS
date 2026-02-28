@@ -63,8 +63,32 @@ export async function getCourses(options?: {
     });
   }
 
+  // Fetch free preview lesson counts for all courses
+  const courseIds = filteredData?.map(c => c.id) || [];
+  let freeLessonCounts: Record<string, number> = {};
+  
+  if (courseIds.length > 0) {
+    const { data: freePreviewData } = await supabase
+      .from('lessons')
+      .select('course_id')
+      .in('course_id', courseIds)
+      .eq('is_free_preview', true);
+    
+    if (freePreviewData) {
+      // Count free lessons per course
+      freePreviewData.forEach(lesson => {
+        freeLessonCounts[lesson.course_id] = (freeLessonCounts[lesson.course_id] || 0) + 1;
+      });
+    }
+  }
+
   const mapped = mapDatabaseCoursesToCourses(filteredData);
-  return mapped;
+  
+  // Add free lesson counts to mapped courses
+  return mapped.map(course => ({
+    ...course,
+    freeLessonsCount: freeLessonCounts[course.id] || 0
+  }));
 }
 
 export async function getCourse(courseId: string) {
@@ -80,7 +104,20 @@ export async function getCourse(courseId: string) {
     return null;
   }
 
-  return data ? mapDatabaseCourseToCourse(data) : null;
+  if (!data) return null;
+
+  // Get free preview lesson count
+  const { data: freeLessons } = await supabase
+    .from('lessons')
+    .select('id')
+    .eq('course_id', courseId)
+    .eq('is_free_preview', true);
+
+  const course = mapDatabaseCourseToCourse(data);
+  return {
+    ...course,
+    freeLessonsCount: freeLessons?.length || 0
+  };
 }
 
 export async function getCourseCategories() {

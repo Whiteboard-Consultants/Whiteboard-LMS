@@ -2,7 +2,7 @@
 "use client";
 
 import Image from "next/image";
-import { Star, Award, PlayCircle, IndianRupee, BookOpen, Clock, BarChart3, User, NotebookPen, ShoppingCart } from "lucide-react";
+import { Star, Award, PlayCircle, IndianRupee, BookOpen, Clock, BarChart3, User, NotebookPen, ShoppingCart, Gift } from "lucide-react";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 
@@ -141,6 +141,15 @@ export function CourseCard({ course, context = 'listing' }: CourseCardProps) {
         </div>
       </CardHeader>
       <CardContent className="flex-1 p-6">
+        {/* Freemium Badge - Centered above title */}
+        {(course.freeLessonsCount ?? 0) > 0 && !course.enrollment?.completed && (
+          <div className="flex justify-center mb-3">
+            <div className="bg-gradient-to-r from-red-500 to-rose-500 text-white px-3 py-1.5 rounded-full text-xs font-semibold shadow-lg flex items-center gap-1.5">
+              <Gift className="h-3.5 w-3.5" />
+              <span>First {course.freeLessonsCount} lessons FREE</span>
+            </div>
+          </div>
+        )}
         <CardTitle className="mb-2 text-xl font-headline line-clamp-2">{course.title}</CardTitle>
         <CardDescription className="text-sm text-muted-foreground flex items-center gap-2">
           <User className="h-4 w-4" /> By {course.instructor?.name || 'Unknown Instructor'}
