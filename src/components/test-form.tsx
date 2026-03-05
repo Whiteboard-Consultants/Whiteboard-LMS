@@ -36,6 +36,7 @@ import { supabase } from "@/lib/supabase";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Skeleton } from "./ui/skeleton";
 import { Textarea } from "./ui/textarea";
+import { RichTextEditor } from "./rich-text-editor";
 
 const formSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters."),
@@ -237,7 +238,12 @@ export function TestForm({ initialData }: TestFormProps) {
                 <FormItem>
                   <FormLabel>Test Description</FormLabel>
                   <FormControl>
-                    <Textarea className="min-h-24" {...field} />
+                    <RichTextEditor 
+                      content={field.value}
+                      onChange={field.onChange}
+                      placeholder="Describe what this test covers, instructions, and any important information for students..."
+                      height="200px"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

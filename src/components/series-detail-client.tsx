@@ -2,6 +2,31 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+
+// Helper to safely render HTML content - decode HTML entities
+const sanitizeAndRenderHTML = (html: string): string => {
+  if (!html) return '';
+  // Decode HTML entities
+  return html
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&amp;/g, '&');
+};
+
+// Helper function to decode HTML entities
+const decodeHTMLEntities = (text: string): string => {
+  // Decode HTML entities using simple string replacement
+  // Process &amp; last to avoid double-decoding
+  return text
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, '\u00A0')
+    .replace(/&amp;/g, '&');
+};
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -140,9 +165,10 @@ export function SeriesDetailClient({
                                 {series.title}
                             </h1>
                             {series.description && (
-                                <p className="text-muted-foreground text-lg">
-                                    {series.description}
-                                </p>
+                                <div 
+                                    className="text-muted-foreground text-lg"
+                                    dangerouslySetInnerHTML={{ __html: sanitizeAndRenderHTML(series.description) }}
+                                />
                             )}
                         </div>
                         {series.topic_area && (
@@ -279,9 +305,10 @@ export function SeriesDetailClient({
                                         )}
                                     </div>
                                     {test.description && (
-                                        <p className="text-sm text-muted-foreground line-clamp-2">
-                                            {test.description}
-                                        </p>
+                                        <div 
+                                            className="text-sm text-muted-foreground line-clamp-2 prose prose-sm dark:prose-invert max-w-none [&_*]:my-1 [&_*]:py-0 [&_p]:m-0 [&_h4]:m-0 [&_ul]:my-1 [&_li]:my-0"
+                                            dangerouslySetInnerHTML={{ __html: sanitizeAndRenderHTML(test.description) }}
+                                        />
                                     )}
                                 </div>
 

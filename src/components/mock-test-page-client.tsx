@@ -14,6 +14,18 @@ import { MockTestsImportanceGuide } from '@/components/mock-tests-importance-gui
 import { generateSlug } from '@/lib/slug-utils';
 import type { Test, DifficultyLevel } from '@/types';
 
+// Helper to safely render HTML content - decode HTML entities
+const sanitizeAndRenderHTML = (html: string): string => {
+  if (!html) return '';
+  // Decode HTML entities
+  return html
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&amp;/g, '&');
+};
+
 interface FilterOptions {
     series: { id: string; title: string }[];
     topics: string[];
@@ -315,9 +327,10 @@ export function MockTestPageClient({
                                         {/* Content */}
                                         <CardContent className="flex-1 py-4 space-y-4">
                                             {test.description && (
-                                                <p className="text-sm text-foreground/70 dark:text-slate-300/70 line-clamp-2">
-                                                    {test.description}
-                                                </p>
+                                                <div 
+                                                    className="text-sm text-foreground/70 dark:text-slate-300/70 line-clamp-2 prose prose-xs dark:prose-invert max-w-none [&_*]:my-1 [&_p]:m-0 [&_h4]:m-0 [&_ul]:my-1 [&_li]:my-0"
+                                                    dangerouslySetInnerHTML={{ __html: sanitizeAndRenderHTML(test.description) }}
+                                                />
                                             )}
 
                                             {/* Metadata */}

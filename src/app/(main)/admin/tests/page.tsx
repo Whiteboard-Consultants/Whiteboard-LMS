@@ -37,6 +37,18 @@ import { supabase } from '@/lib/supabase';
 import { deleteTest } from '@/app/instructor/tests/actions';
 import type { Test, TestType } from '@/types';
 
+// Helper to safely render HTML content - decode HTML entities  
+const sanitizeAndRenderHTML = (html: string): string => {
+  if (!html) return '';
+  // Decode HTML entities
+  return html
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&amp;/g, '&');
+};
+
 interface ExtendedTest extends Test {
   instructor_name?: string;
   attempt_count?: number;

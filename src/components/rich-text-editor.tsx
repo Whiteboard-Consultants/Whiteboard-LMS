@@ -196,7 +196,7 @@ const EditorToolbar = ({ editor }: { editor: Editor | null }) => {
 
 
   return (
-    <div className="border border-input bg-transparent rounded-t-lg p-2 flex flex-wrap items-center gap-2">
+    <div className="border border-input bg-background rounded-t-lg p-2 flex flex-wrap items-center gap-2">
       <input 
         ref={fileInputRef}
         type="file" 
@@ -506,7 +506,7 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
       TableHeader,
       TableCell,
     ],
-    content: content || '', // Initialize with content prop
+    content: '', // Start with empty content, we'll set it in useEffect
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
       const text = editor.getText();
@@ -545,33 +545,40 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
   });
 
   useEffect(() => {
-    if (!editor) return;
+    if (!editor) {
+      console.log('[RichTextEditor] Editor not ready yet');
+      return;
+    }
 
-    // Check if content has actually changed by comparing with current editor content
-    const currentContent = editor.getHTML();
+    if (!content) {
+      console.log('[RichTextEditor] No content to set');
+      return;
+    }
+
+    console.log('[RichTextEditor] Setting content, length:', content.length);
     
-    if (content && content !== currentContent) {
-      console.log('[RichTextEditor] Setting content, length:', content.length);
+    // Ensure editor is ready before setting content
+    const timer = setTimeout(() => {
       try {
-        // Parse HTML content - detect if it looks like HTML
-        const isHtml = /<[^>]+>/g.test(content);
-        console.log('[RichTextEditor] Content is HTML:', isHtml);
-        
-        if (isHtml) {
-          // For HTML content, use parseHtml to properly parse it
-          editor.commands.setContent(content);
+        // Try to set content multiple ways for compatibility
+        if (editor.isReady || editor.state) {
+          editor.chain().clearContent().setContent(content).run();
         } else {
-          // For plain text, set as text
-          editor.commands.setContent(content, false);
+          editor.commands.setContent(content);
         }
         console.log('[RichTextEditor] Content set successfully');
       } catch (error) {
         console.error('[RichTextEditor] Error setting content:', error);
+        // Last resort fallback
+        try {
+          editor.commands.setContent(content);
+        } catch (e) {
+          console.error('[RichTextEditor] Fallback also failed:', e);
+        }
       }
-    } else if (!content) {
-      // Only clear if content is explicitly empty (not just whitespace)
-      editor.commands.clearContent();
-    }
+    }, 250);
+
+    return () => clearTimeout(timer);
   }, [editor, content]);
 
   return (

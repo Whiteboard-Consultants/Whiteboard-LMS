@@ -32,6 +32,18 @@ import { deleteTest } from "@/app/instructor/tests/actions";
 import { getInstructors } from "@/app/instructor/test-series-actions";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 
+// Helper to safely render HTML content - decode HTML entities
+const sanitizeAndRenderHTML = (html: string): string => {
+  if (!html) return '';
+  // Decode HTML entities
+  return html
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&amp;/g, '&');
+};
+
 export default function InstructorTestsPage() {
   const { user, userData, loading: authLoading } = useAuth();
   const [tests, setTests] = useState<Test[]>([]);
@@ -99,6 +111,16 @@ export default function InstructorTestsPage() {
         })) as Test[];
 
         setTests(mappedTests);
+        
+        // Debug: Log test descriptions
+        if (mappedTests.length > 0) {
+          console.log('📝 Test description data:', {
+            title: mappedTests[0].title,
+            description: mappedTests[0].description,
+            descriptionType: typeof mappedTests[0].description,
+            isHTML: mappedTests[0].description?.includes('<')
+          });
+        }
 
         // Fetch all instructors if user is admin (using server action)
         if (userData?.role === 'admin') {
@@ -255,7 +277,10 @@ export default function InstructorTestsPage() {
                                   })()}
                                 </ul>
                               ) : (
-                                <div className="text-sm text-muted-foreground line-clamp-2">{test.description}</div>
+                                <div 
+                                  className="text-sm text-muted-foreground prose prose-sm dark:prose-invert max-w-none line-clamp-3 [&_*]:my-1 [&_p]:m-0 [&_h4]:m-0 [&_ul]:my-1 [&_li]:my-0" 
+                                  dangerouslySetInnerHTML={{ __html: sanitizeAndRenderHTML(test.description) }} 
+                                />
                               )}
                             </div>
                           )}

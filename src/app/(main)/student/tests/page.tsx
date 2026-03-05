@@ -17,6 +17,18 @@ import { supabase } from '@/lib/supabase';
 import { getStudentEnrolledTests } from '@/app/(main)/student/dashboard/actions';
 import type { Test, TestAttempt, TestType } from '@/lib/types';
 
+// Helper to safely render HTML content - decode HTML entities
+const sanitizeAndRenderHTML = (html: string): string => {
+  if (!html) return '';
+  // Decode HTML entities
+  return html
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&amp;/g, '&');
+};
+
 interface StudentTest extends Test {
   attempts: TestAttempt[];
   bestScore?: number;
@@ -360,10 +372,11 @@ function TestGrid({ tests, loading, showProgress = false }: TestGridProps) {
                           })()}
                         </ul>
                       ) : (
-                        <CardDescription className="line-clamp-3">
-                          {test.description}
-                        </CardDescription>
-                      )}
+                        <div 
+                          className="text-sm text-muted-foreground prose prose-sm dark:prose-invert max-w-none line-clamp-3 [&_*]:my-1 [&_p]:m-0 [&_h4]:m-0 [&_ul]:my-1 [&_li]:my-0"
+                          dangerouslySetInnerHTML={{ __html: sanitizeAndRenderHTML(test.description) }}
+                        />
+                      )
                     </div>
                   )}
                 </div>

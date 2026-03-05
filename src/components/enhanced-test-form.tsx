@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/rich-text-editor";
 import {
   Select,
   SelectContent,
@@ -269,10 +270,11 @@ export function EnhancedTestForm({ initialData, courses = [] }: EnhancedTestForm
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Textarea
-                        placeholder="Describe what this test covers..."
-                        className="min-h-[100px]"
-                        {...field}
+                      <RichTextEditor
+                        content={field.value}
+                        onChange={field.onChange}
+                        placeholder="Describe what this test covers, instructions, and any important information for students..."
+                        height="200px"
                       />
                     </FormControl>
                     <FormMessage />
