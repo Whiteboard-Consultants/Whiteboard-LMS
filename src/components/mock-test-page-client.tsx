@@ -330,7 +330,7 @@ export function MockTestPageClient({
                                                 <div 
                                                     className="text-sm text-foreground/70 dark:text-slate-300/70 line-clamp-2 prose prose-xs dark:prose-invert max-w-none [&_*]:my-1 [&_p]:m-0 [&_h4]:m-0 [&_ul]:my-1 [&_li]:my-0"
                                                     dangerouslySetInnerHTML={{ __html: sanitizeAndRenderHTML(test.description) }}
-                                                />
+                                                ></div>
                                             )}
 
                                             {/* Metadata */}
