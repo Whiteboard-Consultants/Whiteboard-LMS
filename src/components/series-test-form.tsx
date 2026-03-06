@@ -33,9 +33,13 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
-import { createTest, updateTest } from "@/app/instructor/tests/actions";
+import { createTest, updateTest, createBulkQuestions } from "@/app/instructor/tests/actions";
 import { getTestSeries, createTestSeries, getInstructors } from "@/app/instructor/test-series-actions";
+import { parseDocumentAction } from "@/app/instructor/tests/parse-document-action";
 import type { Test, TestType, TestSeries, DifficultyLevel } from "@/types";
+import { ParsedTest } from "@/lib/document-parsers/markdown-parser";
+import { DocumentUpload } from "./document-upload";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 const formSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters."),
@@ -84,6 +88,8 @@ export function SeriesTestForm({ initialData, onSuccess }: SeriesTestFormProps) 
   const [isLoadingInstructors, setIsLoadingInstructors] = useState(false);
   const [isLoadingCourses, setIsLoadingCourses] = useState(false);
   const [showCreateSeries, setShowCreateSeries] = useState(false);
+  const [mode, setMode] = useState<'manual' | 'upload'>('manual');
+  const [parsedTest, setParsedTest] = useState<ParsedTest | null>(null);
   const [newSeriesData, setNewSeriesData] = useState({ 
     title: '', 
     topicArea: '', 
@@ -318,6 +324,22 @@ export function SeriesTestForm({ initialData, onSuccess }: SeriesTestFormProps) 
     }
   };
 
+  const handleTestParsed = (test: ParsedTest) => {
+    // Set form values from parsed test
+    console.log('🎉 Test parsed successfully:', {
+      title: test.title,
+      description: test.description ? test.description.substring(0, 100) : '',
+      questionsCount: test.questions.length,
+      firstQuestion: test.questions[0]
+    });
+    
+    form.setValue('title', test.title);
+    form.setValue('description', test.description || '');
+    setParsedTest(test);
+    // Keep in upload mode so user can see the confirmed data
+    // They will review and then click Create Test
+  };
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       setIsSubmitting(true);
@@ -388,6 +410,41 @@ export function SeriesTestForm({ initialData, onSuccess }: SeriesTestFormProps) 
         result = await updateTest(initialData.id, testData);
       } else {
         result = await createTest(testData);
+        
+        // If questions were parsed from markdown, create them
+        console.log('🔍 After test creation:', {
+          resultSuccess: result.success,
+          resultTestId: result.testId,
+          parsedTestExists: !!parsedTest,
+          parsedTestQuestionsCount: parsedTest ? parsedTest.questions.length : 0
+        });
+
+        if (result.success && result.testId && parsedTest && parsedTest.questions.length > 0) {
+          console.log('📝 Creating bulk questions from parsed test:', {
+            testId: result.testId,
+            questionsCount: parsedTest.questions.length,
+            firstQuestion: parsedTest.questions[0]
+          });
+          const questionsResult = await createBulkQuestions(result.testId, parsedTest.questions);
+          console.log('📋 Questions creation result:', questionsResult);
+          
+          if (!questionsResult.success) {
+            console.error('⚠️ Failed to create questions:', questionsResult.error);
+            toast({
+              title: "⚠️ Warning",
+              description: `Test created (ID: ${result.testId}) but questions failed to save: ${questionsResult.error}`,
+              variant: "destructive"
+            });
+          } else {
+            console.log('✅ Questions created successfully');
+            toast({
+              title: "✅ Success",
+              description: `Test created with ${questionsResult.questionsCreated || parsedTest.questions.length} questions`
+            });
+          }
+        } else if (result.success && (!parsedTest || parsedTest.questions.length === 0)) {
+          console.log('ℹ️ Test created without questions (no parsed test data)');
+        }
       }
 
       if (result.success) {
@@ -436,8 +493,17 @@ export function SeriesTestForm({ initialData, onSuccess }: SeriesTestFormProps) 
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              {/* Basic Information */}
-              <div className="space-y-4">
+              {/* Mode Selection Tabs */}
+              <Tabs value={mode} onValueChange={(v) => setMode(v as 'manual' | 'upload')}>
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="manual">Enter Manually</TabsTrigger>
+                  <TabsTrigger value="upload">Upload Document</TabsTrigger>
+                </TabsList>
+              </Tabs>
+
+              {/* Manual Form Mode */}
+              {mode === 'manual' && (
+                <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Basic Information</h3>
                 
                 <FormField
@@ -569,6 +635,15 @@ export function SeriesTestForm({ initialData, onSuccess }: SeriesTestFormProps) 
                   />
                 )}
               </div>
+              )}
+
+              {/* Upload Mode */}
+              {mode === 'upload' && (
+                <DocumentUpload
+                  onTestParsed={handleTestParsed}
+                  onCancel={() => setMode('manual')}
+                />
+              )}
 
               <Separator />
 

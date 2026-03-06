@@ -37,6 +37,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Skeleton } from "./ui/skeleton";
 import { Textarea } from "./ui/textarea";
 import { RichTextEditor } from "./rich-text-editor";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { DocumentUpload } from "./document-upload";
+import { ParsedTest } from "@/lib/document-parsers/markdown-parser";
 
 const formSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters."),
@@ -62,6 +65,8 @@ export function TestForm({ initialData }: TestFormProps) {
   const [instructors, setInstructors] = useState<User[]>([]);
   const [loadingCourses, setLoadingCourses] = useState(false);
   const [loadingInstructors, setLoadingInstructors] = useState(false);
+  const [mode, setMode] = useState<'manual' | 'upload'>('manual');
+  const [parsedTest, setParsedTest] = useState<ParsedTest | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -171,6 +176,15 @@ export function TestForm({ initialData }: TestFormProps) {
 
   const { isSubmitting } = form.formState;
 
+  const handleTestParsed = (test: ParsedTest) => {
+    // Set form values from parsed test
+    form.setValue('title', test.title);
+    form.setValue('description', `${test.description || ''}`);
+    setParsedTest(test);
+    // Switch back to manual mode so user can review and adjust
+    setMode('manual');
+  };
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!user) {
         toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in." });
@@ -217,7 +231,22 @@ export function TestForm({ initialData }: TestFormProps) {
           <CardHeader>
             <CardTitle>{isEditMode ? "Edit Test Details" : "New Test Details"}</CardTitle>
           </CardHeader>
+
+          {/* Mode Selection Tabs */}
+          {!isEditMode && (
+            <div className="px-6">
+              <Tabs value={mode} onValueChange={(v) => setMode(v as 'manual' | 'upload')}>
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="manual">Enter Manually</TabsTrigger>
+                  <TabsTrigger value="upload">Upload Document</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+          )}
+
           <CardContent className="space-y-6">
+            {/* Manual Form Mode */}
+            {mode === 'manual' && (
             <FormField
               control={form.control}
               name="title"
@@ -410,13 +439,24 @@ export function TestForm({ initialData }: TestFormProps) {
                 />
               )}
             </div>
+            )}
+
+            {/* Document Upload Mode */}
+            {mode === 'upload' && !isEditMode && (
+              <DocumentUpload
+                onTestParsed={handleTestParsed}
+                onCancel={() => setMode('manual')}
+              />
+            )}
           </CardContent>
+          {mode === 'manual' && (
           <CardFooter className="justify-end">
             <Button type="submit" disabled={isSubmitting || (isEditMode && !form.formState.isDirty)}>
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isSubmitting ? "Saving..." : (isEditMode ? "Save Changes" : "Create Test & Add Questions")}
             </Button>
           </CardFooter>
+          )}
         </form>
       </Form>
     </Card>

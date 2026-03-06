@@ -153,6 +153,88 @@ export async function createTest(testData: any) {
     }
 }
 
+export async function createBulkQuestions(testId: string, questions: any[]) {
+    try {
+        console.log('📝 createBulkQuestions called with:', {
+            testId,
+            questionsCount: questions ? questions.length : 0,
+            questions: questions ? questions.slice(0, 2) : [] // Log first 2 for inspection
+        });
+
+        if (!testId) {
+            console.error('❌ testId is empty/null');
+            return { success: false, error: 'Test ID is required' };
+        }
+
+        if (!questions || questions.length === 0) {
+            console.log('⚠️ No questions provided');
+            return { success: true, message: 'No questions to create' };
+        }
+
+        const questionsToInsert = questions.map((q: any, index: number) => {
+            const formatted = {
+                test_id: testId,
+                question_text: (q.text || '').substring(0, 1000),
+                options: Array.isArray(q.options) ? q.options : [],
+                correct_answer: (q.correctAnswer || 'A'),
+                explanation: (q.explanation || '').substring(0, 2000),
+                points: 1,
+                negative_marks: 0,
+                order_number: index + 1,
+                question_type: 'multiple_choice'
+            };
+            console.log(`📊 Q${index + 1} formatted:`, { 
+                text: formatted.question_text.substring(0, 50), 
+                optionsCount: formatted.options.length,
+                answer: formatted.correct_answer
+            });
+            return formatted;
+        });
+
+        console.log(`💾 Inserting ${questionsToInsert.length} questions into database...`);
+
+        const { data, error } = await db
+            .from('test_questions')
+            .insert(questionsToInsert)
+            .select();
+
+        if (error) {
+            console.error('❌ Database error inserting questions:', {
+                error: error.message,
+                code: (error as any).code,
+                details: (error as any).details
+            });
+            return { success: false, error: `Failed to create questions: ${error.message}` };
+        }
+
+        console.log(`✅ Questions inserted successfully:`, {
+            inserted: data ? data.length : 0,
+            testId
+        });
+
+        // Update question count in tests table
+        const { error: countError } = await db
+            .from('tests')
+            .update({ question_count: questions.length })
+            .eq('id', testId);
+
+        if (countError) {
+            console.warn('⚠️ Failed to update question count:', countError.message);
+        } else {
+            console.log('✅ Question count updated successfully');
+        }
+
+        revalidatePath('/instructor/tests');
+        return { success: true, message: `${questions.length} questions created`, questionsCreated: data ? data.length : 0 };
+    } catch (error: any) {
+        console.error('❌ Bulk create questions error:', {
+            error: error.message,
+            stack: error.stack
+        });
+        return { success: false, error: error.message || 'Failed to create questions' };
+    }
+}
+
 export async function updateTest(testId: string, testData: any) {
     try {
         const updateData: any = {};

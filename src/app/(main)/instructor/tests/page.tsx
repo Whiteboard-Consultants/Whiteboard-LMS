@@ -281,7 +281,7 @@ export default function InstructorTestsPage() {
                                   className="text-sm text-muted-foreground prose prose-sm dark:prose-invert max-w-none line-clamp-3 [&_*]:my-1 [&_p]:m-0 [&_h4]:m-0 [&_ul]:my-1 [&_li]:my-0" 
                                   dangerouslySetInnerHTML={{ __html: sanitizeAndRenderHTML(test.description) }} 
                                 ></div>
-                              )}}
+                              )}
                             </div>
                           )}
                       </CardHeader>
