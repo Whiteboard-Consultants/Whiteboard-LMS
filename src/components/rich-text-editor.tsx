@@ -402,7 +402,7 @@ const EditorToolbar = ({ editor }: { editor: Editor | null }) => {
           {/* Add Column */}
           <button
             type="button"
-            onClick={() => editor.chain().focus().addColAfter().run()}
+            onClick={() => editor.chain().focus().addColumnAfter().run()}
             className="p-2 rounded-lg hover:bg-accent text-xs"
             title="Add column to the right"
           >
