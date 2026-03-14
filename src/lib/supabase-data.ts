@@ -133,13 +133,13 @@ export async function getCourseCategories() {
       fullDescription: 'Explore our full range of online courses designed for your success'
     },
     'Test Prep': {
-      icon: 'Briefcase', 
+      icon: 'Lightbulb', 
       items: ['IELTS Speaking & Writing', 'TOEFL iBT Complete', 'GRE Verbal & Quant', 'GMAT Practice Tests', 'SAT Subject Tests'],
       fullTitle: 'Test Preparation Excellence',
       fullDescription: 'Master standardized tests with our expert-led preparation courses'
     },
     'Career Development': {
-      icon: 'Briefcase',
+      icon: 'Target',
       items: ['Resume Writing', 'Interview Skills', 'LinkedIn Optimization', 'Professional Communication', 'Career Planning'],
       fullTitle: 'Professional Growth Programs', 
       fullDescription: 'Advance your career with practical skills and professional development'
@@ -151,7 +151,7 @@ export async function getCourseCategories() {
       fullDescription: 'Improve your English communication skills for academic and professional success'
     },
     'Free Courses': {
-      icon: 'Globe',
+      icon: 'Sparkles',
       items: ['Basic English Grammar', 'Study Abroad Guide', 'IELTS Introduction', 'Career Planning Basics', 'Interview Tips'],
       fullTitle: 'Free Learning Resources',
       fullDescription: 'Start your learning journey with our free introductory courses'

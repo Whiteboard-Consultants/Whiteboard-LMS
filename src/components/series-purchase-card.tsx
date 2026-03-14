@@ -388,11 +388,11 @@ export function SeriesPurchaseCard({
         </div>
 
         {/* CTA Button - Purchase or Add to Cart */}
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <Button
             onClick={handlePurchase}
             disabled={isLoading}
-            className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold h-12 text-base gap-2"
+            className="sm:flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold h-12 text-base gap-2 whitespace-normal"
           >
             {isLoading ? (
               <>
@@ -414,7 +414,7 @@ export function SeriesPurchaseCard({
             <Button
               variant="outline"
               size="lg"
-              className="h-12 gap-2"
+              className="h-12 gap-2 whitespace-normal"
               onClick={handleAddToCart}
             >
               <ShoppingCart className="w-4 h-4" />

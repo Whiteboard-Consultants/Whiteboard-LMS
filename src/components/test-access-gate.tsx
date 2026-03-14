@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useAuth } from '@/hooks/use-auth';
 import { getTestById } from '@/app/instructor/test-series-actions';
 import { userHasTestAccess } from '@/app/instructor/series-purchase-actions';
@@ -8,7 +9,7 @@ import TestTaker from '@/components/test-taker';
 import { SeriesPurchaseCard } from '@/components/series-purchase-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AlertCircle, Lock } from 'lucide-react';
+import { AlertCircle, Lock, ArrowLeft } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import type { Test } from '@/types';
 
@@ -164,6 +165,14 @@ export function TestAccessGate({ testId }: TestAccessGateProps) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4 md:p-8">
         <div className="max-w-2xl mx-auto">
+          <Link 
+            href="/mock-tests"
+            className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 mb-6 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Mock Tests
+          </Link>
+          
           <div className="mb-8">
             <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-2">
               {test.title}
@@ -197,6 +206,14 @@ export function TestAccessGate({ testId }: TestAccessGateProps) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
         <div className="max-w-2xl mx-auto">
+          <Link 
+            href="/mock-tests"
+            className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 mb-6 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Mock Tests
+          </Link>
+          
           <Alert variant="destructive">
             <Lock className="h-4 w-4" />
             <AlertDescription>
@@ -221,6 +238,14 @@ export function TestAccessGate({ testId }: TestAccessGateProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4 md:p-8">
       <div className="max-w-2xl mx-auto">
+        <Link 
+          href="/mock-tests"
+          className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 mb-6 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Mock Tests
+        </Link>
+        
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-2">
             {test.title}

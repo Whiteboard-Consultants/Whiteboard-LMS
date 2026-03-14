@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle2, Globe, MessageSquare, Briefcase } from "lucide-react";
+import { CheckCircle2, Globe, MessageSquare, Briefcase, Lightbulb, Target, Sparkles } from "lucide-react";
 import type { CourseCategory, CourseCategoryData } from '@/types';
 import { CourseListSkeleton } from './course-list';
 import { ProgramsTable } from './programs-table';
@@ -19,6 +19,9 @@ const iconComponents: { [key: string]: React.ElementType } = {
     Globe,
     MessageSquare,
     Briefcase,
+    Lightbulb,
+    Target,
+    Sparkles,
 };
 
 interface CoursesPageClientProps {
@@ -60,17 +63,35 @@ export default function CoursesPageClient({ categories, initialCategory, childre
                 icon: 'text-blue-600 dark:text-blue-400',
                 accent: 'bg-blue-100 dark:bg-blue-900'
             },
+            Lightbulb: {
+                bg: 'bg-amber-50 dark:bg-amber-950',
+                border: 'border-amber-200 dark:border-amber-800',
+                icon: 'text-amber-600 dark:text-amber-400',
+                accent: 'bg-amber-100 dark:bg-amber-900'
+            },
+            Target: {
+                bg: 'bg-emerald-50 dark:bg-emerald-950',
+                border: 'border-emerald-200 dark:border-emerald-800',
+                icon: 'text-emerald-600 dark:text-emerald-400',
+                accent: 'bg-emerald-100 dark:bg-emerald-900'
+            },
             MessageSquare: {
                 bg: 'bg-purple-50 dark:bg-purple-950',
                 border: 'border-purple-200 dark:border-purple-800',
                 icon: 'text-purple-600 dark:text-purple-400',
                 accent: 'bg-purple-100 dark:bg-purple-900'
             },
+            Sparkles: {
+                bg: 'bg-pink-50 dark:bg-pink-950',
+                border: 'border-pink-200 dark:border-pink-800',
+                icon: 'text-pink-600 dark:text-pink-400',
+                accent: 'bg-pink-100 dark:bg-pink-900'
+            },
             Briefcase: {
-                bg: 'bg-emerald-50 dark:bg-emerald-950',
-                border: 'border-emerald-200 dark:border-emerald-800',
-                icon: 'text-emerald-600 dark:text-emerald-400',
-                accent: 'bg-emerald-100 dark:bg-emerald-900'
+                bg: 'bg-indigo-50 dark:bg-indigo-950',
+                border: 'border-indigo-200 dark:border-indigo-800',
+                icon: 'text-indigo-600 dark:text-indigo-400',
+                accent: 'bg-indigo-100 dark:bg-indigo-900'
             }
         };
         return colorMap[iconName] || colorMap.Globe; // Default to blue
