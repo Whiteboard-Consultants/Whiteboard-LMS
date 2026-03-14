@@ -37,6 +37,7 @@ export function Footer() {
                             <ul className="space-y-2 text-sm text-primary-foreground/80">
                                 <li><Link href="/college-admissions" className="hover:underline">Indian Colleges</Link></li>
                                 <li><Link href="/admissions/uow-india" className="hover:underline">UOW India</Link></li>
+                                <li><Link href="/admissions/deakin-gift-city" className="hover:underline">Deakin GIFT City</Link></li>
                             </ul>
                         </div>
                         <div>

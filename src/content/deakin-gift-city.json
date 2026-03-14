@@ -1,0 +1,58 @@
+{
+    "programs": [
+        {
+            "title": "Master of Business Analytics",
+            "description": "In the business world, understanding and interpreting data is an integral part of decision making. The Master of Business Analytics has been developed in consultation with industry and gives you in-demand skills to help organisations achieve their strategic objectives through analytics-based solutions.",
+            "duration": "18 months",
+            "intake": "July 2026",
+            "cost": "AUD $39,600",
+            "eligibility": [
+                "Engineers and IT professionals",
+                "Business and commerce graduates",
+                "Marketing, HR, or operations professionals",
+                "Analysts and consultants",
+                "Founders and entrepreneurs",
+                "TOEFL/IELTS or equivalent English language proficiency"
+            ]
+        },
+        {
+            "title": "Master of Cyber Security (Professional)",
+            "description": "Professionals with cyber security skills are crucial for the ongoing success of our digital future and are in high demand globally. The Master of Cyber Security (Professional) equips you with sought-after skills to tackle cyber security challenges from both a technical and organisational perspective.",
+            "duration": "18 months",
+            "intake": "July 2026",
+            "cost": "AUD $39,600",
+            "eligibility": [
+                "IT and software professionals",
+                "Software developers and engineers",
+                "Cybersecurity and information security professionals",
+                "Early-career graduates in computer science or related disciplines",
+                "TOEFL/IELTS or equivalent English language proficiency"
+            ]
+        }
+    ],
+    "whyDeakinGiftCity": [
+        { "icon": "GraduationCap", "title": "Globally Recognised Deakin Degree in India", "description": "Graduate with the same Deakin University qualification and academic standards as Australia while studying closer to home. TEQSA accreditation ensures quality." },
+        { "icon": "Building", "title": "Strategic Location in GIFT City", "description": "Study in India's global financial and innovation hub with practical exposure to the industries shaping the future of business and technology." },
+        { "icon": "Zap", "title": "Career Outcomes Built Into Every Course", "description": "Combine industry projects, internships and placement support designed to help you graduate job ready with hands-on experience." },
+        { "icon": "Users", "title": "International Learning Experience", "description": "Benefit from a global curriculum, academic leaders in their field, visiting international academics and immersion programs at Deakin's Australia campuses." }
+    ],
+    "whyApplyWithUs": [
+        "Official East India Partner for Deakin GIFT City, ensuring accurate and up-to-date information.",
+        "Expert guidance on choosing the right postgraduate program for your career goals.",
+        "Step-by-step support with the entire application and documentation process.",
+        "Help with IELTS/TOEFL preparation and exam booking.",
+        "Free counseling sessions to clarify eligibility, course options, and timelines.",
+        "Post-admission support to help you transition smoothly to life at GIFT City."
+    ],
+    "industryPartners": [
+        "HSBC Bank", "BHP", "KPMG", "National Australia Bank (NAB)",
+        "Aditya Birla Group", "Bank of America", "Wadhwani AI Global",
+        "Ernst & Young", "India INX"
+    ],
+    "studentLife": [
+        { "icon": "Home", "title": "Sustainable Campus", "description": "Study at a campus reflecting Deakin's global sustainability commitments in operations, teaching, and research." },
+        { "icon": "HeartHandshake", "title": "Student Support Services", "description": "Accessible facilities, safe campus design, and comprehensive academic guidance tailored to your success." },
+        { "icon": "Users", "title": "Networking at GIFT City", "description": "Access a vibrant ecosystem of fintech companies, tech organizations, and professional networking opportunities." },
+        { "icon": "Briefcase", "title": "Career Development", "description": "Build networks and skills relevant to India's high-growth sectors in finance, technology, and sustainability." }
+    ]
+}
