@@ -97,6 +97,40 @@ export async function updateCouponStatus(id: string, isActive: boolean) {
     }
 }
 
+export async function getCoupons() {
+    try {
+        if (!supabaseAdmin) {
+            console.error("Supabase Admin client not available");
+            return { success: false, coupons: [], error: 'Service configuration error.' };
+        }
+
+        const { data, error } = await supabaseAdmin
+            .from('coupons')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error("Error fetching coupons:", error);
+            return { success: false, coupons: [], error: 'Failed to load coupons.' };
+        }
+
+        // Map database fields to frontend format
+        const mappedData = (data || []).map(item => ({
+            ...item,
+            usageLimit: item.usage_limit,
+            usageCount: item.usage_count,
+            isActive: item.is_active,
+            expiresAt: item.expires_at,
+            createdAt: item.created_at
+        })) as Coupon[];
+
+        return { success: true, coupons: mappedData, error: null };
+    } catch (error) {
+        console.error("Error fetching coupons:", error);
+        return { success: false, coupons: [], error: 'Failed to load coupons.' };
+    }
+}
+
 export async function bulkDeleteCoupons(ids: string[]) {
     if (!ids || ids.length === 0) {
         return { success: false, error: 'No coupons selected.' };

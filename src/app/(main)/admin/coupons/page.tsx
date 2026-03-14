@@ -30,7 +30,7 @@ import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
-import { createCoupon, deleteCoupon, updateCouponStatus, bulkDeleteCoupons } from './actions';
+import { createCoupon, deleteCoupon, updateCouponStatus, bulkDeleteCoupons, getCoupons } from './actions';
 
 const formSchema = z.object({
   code: z.string().min(4, 'Code must be at least 4 characters.').max(20).toUpperCase(),
@@ -68,42 +68,19 @@ export default function AdminCouponsPage() {
     // Initial fetch
     const fetchCoupons = async () => {
       try {
-        const { data, error } = await supabase
-          .from('coupons')
-          .select('*')
-          .order('created_at', { ascending: false });
+        const result = await getCoupons();
         
-        if (error) {
-          console.error("Error fetching coupons:", error);
-          // Handle the case where coupons table doesn't exist yet
-          if (error.code === 'PGRST205' || error.message?.includes('coupons')) {
-            console.warn("Coupons table doesn't exist yet. Please create it in Supabase.");
-            setCoupons([]); // Set empty array instead of showing error
-          } else {
-            toast({ variant: 'destructive', title: 'Error', description: 'Failed to load coupons.' });
-          }
+        if (!result.success) {
+          console.error("Error fetching coupons:", result.error);
+          toast({ variant: 'destructive', title: 'Error', description: result.error || 'Failed to load coupons.' });
+          setCoupons([]);
         } else {
-          // Map Supabase data to match our types
-          const mappedData = (data || []).map(item => ({
-            ...item,
-            usageLimit: item.usage_limit,
-            usageCount: item.usage_count,
-            isActive: item.is_active,
-            expiresAt: item.expires_at,
-            createdAt: item.created_at
-          })) as Coupon[];
-          setCoupons(mappedData);
+          setCoupons(result.coupons);
         }
       } catch (err) {
         console.error("Error fetching coupons:", err);
-        // Handle the case where coupons table doesn't exist yet
-        const error = err as any;
-        if (error?.code === 'PGRST205' || error?.message?.includes('coupons')) {
-          console.warn("Coupons table doesn't exist yet. Please create it in Supabase.");
-          setCoupons([]); // Set empty array instead of showing error
-        } else {
-          toast({ variant: 'destructive', title: 'Error', description: 'Failed to load coupons.' });
-        }
+        toast({ variant: 'destructive', title: 'Error', description: 'Failed to load coupons.' });
+        setCoupons([]);
       }
       setLoading(false);
     };
