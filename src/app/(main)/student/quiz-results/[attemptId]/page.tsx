@@ -14,6 +14,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { ImprovementSuggestions } from '@/components/improvement-suggestions';
+import { RichTextRenderer } from '@/components/rich-text-renderer';
 
 interface QuizAttemptData {
   id: string;
@@ -138,6 +139,9 @@ export default function QuizResultPage() {
   const mcqTotal = mcqQuestions.length;
   const percentage = mcqTotal > 0 ? Math.round((mcqScore / mcqTotal) * 100) : 0;
   
+  // Use test's passing score for pass/fail determination (should match submission & storage)
+  const passingScore = attempt.passing_score || 80;
+  
   // Only show Pass/Fail if there are MCQ questions to grade
   const hasOnlyDescriptive = mcqTotal === 0 && descriptiveQuestions.length > 0;
   const showPassFail = !hasOnlyDescriptive;
@@ -204,8 +208,8 @@ export default function QuizResultPage() {
                  <Card>
                     <CardHeader><CardTitle>Result</CardTitle></CardHeader>
                     <CardContent>
-                        <p className={cn("text-4xl font-bold", percentage >= 70 ? 'text-blue-600 dark:text-blue-400' : 'text-red-600 dark:text-red-400')}>
-                            {percentage >= 70 ? 'Pass' : 'Fail'}
+                        <p className={cn("text-4xl font-bold", percentage >= passingScore ? 'text-blue-600 dark:text-blue-400' : 'text-red-600 dark:text-red-400')}>
+                            {percentage >= passingScore ? 'Pass' : 'Fail'}
                         </p>
                     </CardContent>
                 </Card>
@@ -217,10 +221,10 @@ export default function QuizResultPage() {
                 <h2 className="text-2xl font-semibold">{hasOnlyDescriptive ? 'Your Responses' : 'Review Your Answers'}</h2>
                 {showPassFail && (
                     <>
-                        <Badge variant={percentage >= 70 ? "default" : "destructive"}>
-                            {percentage >= 70 ? "Passed Quiz" : "Failed Quiz"}
+                        <Badge variant={percentage >= passingScore ? "default" : "destructive"}>
+                            {percentage >= passingScore ? "Passed Quiz" : "Failed Quiz"}
                         </Badge>
-                        {percentage >= 70 && (
+                        {percentage >= passingScore && (
                             <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200">
                                 <Award className="h-3 w-3 mr-1" />
                                 Good Job!
@@ -340,8 +344,8 @@ export default function QuizResultPage() {
                                         Submitted for Review
                                     </Badge>
                                 </div>
-                                <div className="prose prose-sm max-w-none dark:prose-invert text-muted-foreground mt-2">
-                                    {question.questionText}
+                                <div className="mt-2">
+                                    <RichTextRenderer content={question.questionText} />
                                 </div>
                             </CardHeader>
                             <CardContent>
@@ -364,8 +368,8 @@ export default function QuizResultPage() {
                                                 <TrendingUp className="h-4 w-4 text-blue-600" />
                                                 Suggested Model Answer
                                             </h4>
-                                            <div className="text-sm text-blue-900 dark:text-blue-100 whitespace-pre-wrap">
-                                                {question.explanation}
+                                            <div className="text-sm text-blue-900 dark:text-blue-100">
+                                                <RichTextRenderer content={question.explanation} />
                                             </div>
                                         </div>
                                     )}
@@ -404,8 +408,8 @@ export default function QuizResultPage() {
                                     {isCorrect ? "Correct" : "Incorrect"}
                                 </Badge>
                             </div>
-                            <div className="prose prose-sm max-w-none dark:prose-invert text-muted-foreground">
-                                {question.questionText}
+                            <div className="mt-2">
+                                <RichTextRenderer content={question.questionText} />
                             </div>
                         </CardHeader>
                         <CardContent>
@@ -480,7 +484,9 @@ export default function QuizResultPage() {
                                            : 'bg-blue-100 dark:bg-blue-800/30 border-blue-400'
                                    )}>
                                        <h5 className={cn("font-medium text-sm mb-1", isCorrect ? 'text-green-800 dark:text-green-200' : 'text-blue-800 dark:text-blue-200')}>Explanation:</h5>
-                                       <p className={cn("text-sm", isCorrect ? 'text-green-700 dark:text-green-300' : 'text-blue-700 dark:text-blue-300')}>{question.explanation}</p>
+                                       <div className={cn("text-sm", isCorrect ? 'text-green-700 dark:text-green-300' : 'text-blue-700 dark:text-blue-300')}>
+                                           <RichTextRenderer content={question.explanation} />
+                                       </div>
                                    </div>
                                )}
                            </div>

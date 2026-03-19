@@ -101,14 +101,25 @@ export default function StudentTestsPage() {
           attempt => attempt.status === 'completed'
         );
 
-        const bestScore = completedAttempts.length > 0 
-          ? Math.max(...completedAttempts.map(attempt => {
-              // Calculate percentage: (score / total_questions) * 100
-              const score = attempt.score || 0;
-              const total = attempt.total_questions || 0;
-              return total > 0 ? Math.round((score / total) * 100) : 0;
-            }))
+        // Use the LATEST completed attempt (by submitted_at), not the best score
+        // This ensures consistency with the results page showing the most recent attempt
+        const latestAttempt = completedAttempts.length > 0
+          ? completedAttempts.sort(
+              (a, b) => new Date(b.submitted_at || b.created_at).getTime() - new Date(a.submitted_at || a.created_at).getTime()
+            )[0]
+          : null;
+
+        const bestScore = latestAttempt
+          ? (() => {
+              const score = latestAttempt.score || 0;
+              const total = latestAttempt.total_questions || 0;
+              const percentage = total > 0 ? Math.round((score / total) * 100) : 0;
+              console.log(`📊 Latest attempt for test "${test.title}": score=${score}, total=${total}, percentage=${percentage}, submitted=${latestAttempt.submitted_at}`);
+              return percentage;
+            })()
           : undefined;
+        
+        console.log(`📋 Test "${test.title}": latestScore=${bestScore}, passingScore=${test.passing_score || 80}, hasCompleted=${completedAttempts.length > 0}`);
 
         const canAttempt = test.max_attempts 
           ? testAttempts.length < test.max_attempts 
@@ -341,109 +352,85 @@ function TestGrid({ tests, loading, showProgress = false }: TestGridProps) {
         const status = getTestStatus(test);
         
         return (
-          <Card key={test.id} className="flex flex-col">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <CardTitle className="text-lg">{test.title}</CardTitle>
-                  {test.description && (
-                    <div className="mt-2">
-                      {(test.description.includes('✓') || test.description.includes('✅')) ? (
-                        // If description contains checkmarks, extract and format as bullet list
-                        <ul className="text-xs text-muted-foreground space-y-1.5 list-none">
-                          {(() => {
-                            // Split by checkmarks with various whitespace patterns
-                            const lines = test.description.split(/\n\s*✅|✅/).filter(Boolean);
-                            
-                            return lines
-                              .map((item) => {
-                                // Get the first line and clean it
-                                const firstLine = item.split('\n')[0].trim();
-                                return firstLine;
-                              })
-                              .filter((item) => item && item.length > 5 && !item.includes('Total Questions') && !item.includes('Key Features') && !item.includes('Marks'))
-                              .slice(0, 5)
-                              .map((item, idx) => (
-                                <li key={idx} className="flex items-start gap-2">
-                                  <span className="text-green-600 flex-shrink-0 mt-0.5 text-sm font-bold">✓</span>
-                                  <span className="leading-snug">{item}</span>
-                                </li>
-                              ));
-                          })()}
-                        </ul>
-                      ) : (
-                        <div 
-                          className="text-sm text-muted-foreground prose prose-sm dark:prose-invert max-w-none line-clamp-3 [&_*]:my-1 [&_p]:m-0 [&_h4]:m-0 [&_ul]:my-1 [&_li]:my-0"
-                          dangerouslySetInnerHTML={{ __html: sanitizeAndRenderHTML(test.description) }}
-                        ></div>
-                      )}
-                    </div>
-                  )}
+          <Card key={test.id} className="flex flex-col hover:shadow-lg transition-shadow h-full">
+            <CardHeader className="pb-3 border-b">
+              <div className="space-y-2">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <CardTitle className="text-base font-semibold line-clamp-2">{test.title}</CardTitle>
+                  </div>
+                  {getTestTypeBadge(test.type)}
                 </div>
-                {getTestTypeBadge(test.type)}
+                {test.description && (
+                  <p className="text-xs text-muted-foreground line-clamp-2">{test.description.replace(/<[^>]*>/g, '')}</p>
+                )}
               </div>
             </CardHeader>
             
-            <CardContent className="flex-1 space-y-4">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Clock className="h-4 w-4" />
-                  <span>{test.isTimeLimited ? formatDuration(test.duration) : 'No time limit'}</span>
+            <CardContent className="flex-1 py-4 space-y-4">
+              {/* Test Info Grid */}
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Clock className="h-4 w-4 flex-shrink-0" />
+                  <span>{test.isTimeLimited ? formatDuration(test.duration) : 'No limit'}</span>
                 </div>
                 
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Eye className="h-4 w-4" />
-                  <span>{test.questionCount} {test.questionCount === 1 ? 'Question' : 'Questions'}</span>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Eye className="h-4 w-4 flex-shrink-0" />
+                  <span>{test.questionCount} Q{test.questionCount !== 1 ? 's' : ''}</span>
                 </div>
                 
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Target className="h-4 w-4" />
-                  <span>Passing: {test.passingScore}%</span>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Target className="h-4 w-4 flex-shrink-0" />
+                  <span>Pass: {test.passingScore}%</span>
                 </div>
 
                 {test.maxAttempts && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <RotateCcw className="h-4 w-4" />
-                    <span>{test.totalAttempts}/{test.maxAttempts} attempts</span>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <RotateCcw className="h-4 w-4 flex-shrink-0" />
+                    <span>{test.totalAttempts}/{test.maxAttempts}</span>
                   </div>
                 )}
               </div>
 
-              <div className={`flex items-center gap-2 text-sm font-medium ${status.color}`}>
+              {/* Status Badge */}
+              <div className={`flex items-center gap-2 text-sm font-semibold ${status.color}`}>
                 {status.icon}
                 <span>{status.label}</span>
               </div>
 
+              {/* Progress Bar */}
               {showProgress && test.bestScore !== undefined && (
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Best Score</span>
-                    <span className="font-medium">{test.bestScore}%</span>
+                <div className="space-y-1.5 pt-2 border-t">
+                  <div className="flex justify-between text-xs">
+                    <span className="font-medium">Best Score</span>
+                    <span className="font-bold">{test.bestScore}%</span>
                   </div>
-                  <Progress value={test.bestScore} className="h-2" />
+                  <Progress value={test.bestScore} className="h-1.5" />
                 </div>
               )}
-
-              <div className="flex gap-2">
-                {test.canAttempt && (
-                  <Button asChild className="flex-1">
-                    <Link href={`/student/tests/${test.id}/take`}>
-                      <Play className="h-4 w-4 mr-2" />
-                      {test.totalAttempts === 0 ? 'Start Test' : 'Retake'}
-                    </Link>
-                  </Button>
-                )}
-                
-                {test.totalAttempts > 0 && test.allowReview && test.lastAttempt && (
-                  <Button variant="outline" asChild>
-                    <Link href={`/student/quiz-results/${test.lastAttempt.id}`}>
-                      <Eye className="h-4 w-4 mr-2" />
-                      Review
-                    </Link>
-                  </Button>
-                )}
-              </div>
             </CardContent>
+
+            {/* Action Buttons */}
+            <div className="border-t px-6 py-3 flex gap-2">
+              {test.canAttempt && (
+                <Button asChild size="sm" className="flex-1">
+                  <Link href={`/student/tests/${test.id}/take`}>
+                    <Play className="h-4 w-4 mr-1.5" />
+                    {test.totalAttempts === 0 ? 'Start Test' : 'Retake'}
+                  </Link>
+                </Button>
+              )}
+              
+              {test.totalAttempts > 0 && test.allowReview && test.lastAttempt && (
+                <Button variant="outline" size="sm" asChild>
+                  <Link href={`/student/quiz-results/${test.lastAttempt.id}`}>
+                    <Eye className="h-4 w-4 mr-1.5" />
+                    Review
+                  </Link>
+                </Button>
+              )}
+            </div>
           </Card>
         );
       })}
