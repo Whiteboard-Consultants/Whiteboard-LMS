@@ -218,35 +218,107 @@ export async function purchaseSeriesPackage(
       return { success: false, error: 'Admin client not initialized' };
     }
 
-    // First, fetch the series to get instructor_id
-    const { data: series, error: seriesError } = await supabaseAdmin
+    console.log('💳 [purchaseSeriesPackage] Starting series purchase:', { userId, seriesId, price, couponCode });
+
+    // Step 1: Try to fetch as a series first
+    let { data: series, error: seriesError } = await supabaseAdmin
       .from('test_series')
       .select('instructor_id')
       .eq('id', seriesId)
       .single();
 
+    // Step 2: If not found as series, try to find as test
+    let test: any = null;
+    let testError: any = null;
+    let actualSeriesId = seriesId; // The series ID we'll use for enrollments
+    let isPureTestPurchase = false; // True only if test has NO series
+
     if (seriesError || !series) {
-      console.error('❌ [purchaseSeriesPackage] Error fetching series:', seriesError);
-      return { success: false, error: 'Series not found' };
+      console.warn('⚠️ [purchaseSeriesPackage] Series not found, checking if it\'s a test instead...');
+      
+      const testLookup = await supabaseAdmin
+        .from('tests')
+        .select('instructor_id, series_id')
+        .eq('id', seriesId)
+        .single();
+      
+      test = testLookup.data;
+      testError = testLookup.error;
+      
+      if (!testError && test) {
+        console.log('✅ [purchaseSeriesPackage] Found test:', { testId: seriesId, hasSeries: !!test.series_id });
+        
+        // If test has a series_id, we're purchasing the whole series
+        if (test.series_id) {
+          console.log('✅ Test is part of a series, fetching series details:', test.series_id);
+          actualSeriesId = test.series_id;
+          
+          // Fetch the series details
+          const { data: seriesData, error: seriesErr } = await supabaseAdmin
+            .from('test_series')
+            .select('instructor_id')
+            .eq('id', test.series_id)
+            .single();
+          
+          if (seriesErr || !seriesData) {
+            console.error('❌ Could not fetch series details:', seriesErr?.message);
+            return { success: false, error: 'Could not fetch series details' };
+          }
+          series = seriesData;
+        } else {
+          // Pure test purchase - no series
+          console.log('✅ Test is standalone (not part of a series)');
+          isPureTestPurchase = true;
+          series = { instructor_id: test.instructor_id };
+        }
+      } else {
+        // Neither series nor test found
+        const { data: allSeries } = await supabaseAdmin
+          .from('test_series')
+          .select('id, title')
+          .limit(5);
+        
+        const { data: sampleTests } = await supabaseAdmin
+          .from('tests')
+          .select('id, title')
+          .limit(5);
+        
+        console.error('❌ [purchaseSeriesPackage] Series/test lookup failed');
+        console.error('❌ Looking for ID:', seriesId);
+        console.error('❌ Series error:', seriesError?.message);
+        console.error('❌ Test error:', testError?.message);
+        console.error('❌ Sample series:', allSeries?.length ? allSeries.map(s => s.title) : 'none');
+        console.error('❌ Sample tests:', sampleTests?.length ? sampleTests.map(t => t.title) : 'none');
+        return { success: false, error: `Series/test not found: ${seriesError?.message || testError?.message || 'Unknown error'}` };
+      }
     }
 
-    // 1. Create enrollment record for series purchase
+    // Step 3: Create enrollment record
+    let enrollmentData: any = {
+      user_id: userId,
+      instructor_id: series.instructor_id,
+      purchase_type: 'series_package',
+      amount: price,
+      status: 'approved',
+      coupon_code: couponCode || null,
+      enrolled_at: new Date().toISOString()
+    };
+
+    // For pure test purchases, set test_id; for series purchases, set series_id
+    if (isPureTestPurchase) {
+      enrollmentData.test_id = seriesId;
+    } else {
+      enrollmentData.series_id = actualSeriesId;
+    }
+
     const { data: enrollment, error: enrollmentError } = await supabaseAdmin
       .from('enrollments')
-      .insert({
-        user_id: userId,
-        series_id: seriesId,
-        instructor_id: series.instructor_id,
-        purchase_type: 'series_package',
-        amount: price,
-        status: 'approved',
-        series_purchase_date: new Date().toISOString(),
-        coupon_code: couponCode || null
-      })
+      .insert(enrollmentData)
       .select(`
         id,
         user_id,
         series_id,
+        test_id,
         test_series:series_id(title),
         amount,
         enrolled_at
@@ -254,48 +326,71 @@ export async function purchaseSeriesPackage(
       .single();
 
     if (enrollmentError) {
-      console.error('Error creating series purchase enrollment:', enrollmentError);
+      console.error('Error creating enrollment:', enrollmentError);
       return { success: false, error: enrollmentError.message };
     }
 
-    // 2. Get all tests in this series and create enrollments for them
-    const { data: tests, error: testsError } = await supabaseAdmin
-      .from('tests')
-      .select('id, price')
-      .eq('series_id', seriesId);
+    console.log(`✅ Created enrollment for ${isPureTestPurchase ? 'test' : 'series'}:`, { enrollmentId: enrollment.id, actualSeriesId, isPureTestPurchase });
 
-    if (testsError) {
-      console.error('Error fetching tests in series:', testsError);
-      // Continue anyway - at least series purchase is recorded
-    } else if (tests && tests.length > 0) {
-      // Create individual test enrollments (for analytics/tracking)
-      const testEnrollments = tests.map(test => ({
-        user_id: userId,
-        test_id: test.id,
-        purchase_type: 'series_package' as PurchaseType,
-        amount: test.price || 0,
-        status: 'active'
-      }));
+    // 2. Get all tests in this series (skip if this is a pure test purchase without a series)
+    if (!isPureTestPurchase) {
+      const { data: tests, error: testsError } = await supabaseAdmin
+        .from('tests')
+        .select('id, price')
+        .eq('series_id', actualSeriesId);
 
-      const { error: testEnrollmentError } = await supabaseAdmin
-        .from('enrollments')
-        .insert(testEnrollments);
+      if (testsError) {
+        console.error('Error fetching tests in series:', testsError);
+        // Continue anyway - at least series purchase is recorded
+      } else if (tests && tests.length > 0) {
+        // Create individual test enrollments (for analytics/tracking)
+        const testEnrollments = tests.map(test => ({
+          user_id: userId,
+          test_id: test.id,
+          instructor_id: series.instructor_id,
+          purchase_type: 'series_package' as PurchaseType,
+          amount: test.price || 0,
+          status: 'active',
+          enrolled_at: new Date().toISOString()
+        }));
 
-      if (testEnrollmentError) {
-        console.warn('Warning: Failed to create test enrollments for series purchase', testEnrollmentError);
-        // Don't fail the entire purchase for this
+        const { error: testEnrollmentError } = await supabaseAdmin
+          .from('enrollments')
+          .insert(testEnrollments);
+
+        if (testEnrollmentError) {
+          console.error('❌ Failed to create test enrollments for series purchase:', testEnrollmentError);
+          // Don't fail the entire purchase for this
+        } else {
+          console.log(`✅ Successfully created ${testEnrollments.length} test enrollments for series`);
+        }
       }
     }
 
-    const seriesData = Array.isArray(enrollment.test_series) 
-      ? enrollment.test_series[0] 
-      : enrollment.test_series;
+    // Build response - handle both series and test purchases
+    let seriesTitle = 'Unknown Series/Test';
+    
+    if (isPureTestPurchase) {
+      // For pure test purchases, try to get the test title
+      const { data: testDetails } = await supabaseAdmin
+        .from('tests')
+        .select('title')
+        .eq('id', seriesId)
+        .single();
+      seriesTitle = testDetails?.title || 'Unknown Test';
+    } else {
+      // For series purchases, use the relationship data
+      const seriesData = Array.isArray(enrollment.test_series) 
+        ? enrollment.test_series[0] 
+        : enrollment.test_series;
+      seriesTitle = seriesData?.title || 'Unknown Series';
+    }
 
     const result: SeriesPurchase = {
       id: enrollment.id,
       userId: enrollment.user_id,
-      seriesId: enrollment.series_id,
-      seriesTitle: seriesData?.title || 'Unknown Series',
+      seriesId: enrollment.series_id || enrollment.test_id || actualSeriesId,
+      seriesTitle: seriesTitle,
       price: enrollment.amount || 0,
       discount: 0,
       purchaseDate: enrollment.enrolled_at,

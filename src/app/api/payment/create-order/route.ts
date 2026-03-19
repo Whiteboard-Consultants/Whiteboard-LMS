@@ -7,12 +7,31 @@ export async function POST(request: NextRequest) {
 
     console.log('💳 [CREATE ORDER] Received:', { amount, currency, testId, seriesId, userId, isTestPurchase, couponCode });
 
-    if (!amount || !currency || !userId) {
+    if (amount === null || amount === undefined || !currency || !userId) {
       console.error('❌ [CREATE ORDER] Missing fields:', { amount, currency, userId });
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       );
+    }
+
+    // Handle free purchases (amount is 0 or negative after discount)
+    if (amount <= 0) {
+      console.log('💳 [CREATE ORDER] Free purchase detected (amount <= 0), returning order with 0 amount');
+      return NextResponse.json({
+        id: `free_ord_${Date.now()}`,
+        amount: 0,
+        currency,
+        isFreeOrder: true,
+        notes: {
+          userId,
+          testId: testId || null,
+          seriesId: seriesId || null,
+          isTestPurchase,
+          couponCode: couponCode || null,
+          description
+        }
+      });
     }
 
     const key_id = process.env.RAZORPAY_KEY_ID;

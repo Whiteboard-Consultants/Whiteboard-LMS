@@ -9,6 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { useTestCart } from '@/hooks/use-test-cart';
+import { purchaseIndividualTest, purchaseSeriesPackage } from '@/app/instructor/series-purchase-actions';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -126,6 +127,100 @@ export default function TestCartPage() {
       }
 
       const orderData = await response.json();
+
+      // Handle free purchases (100% discount applied)
+      if (orderData.isFreeOrder && orderData.amount === 0) {
+        console.log('🎉 [CHECKOUT] Free order - skipping payment, processing enrollments');
+        
+        try {
+          // Process free enrollments directly
+          const testIds = testCart.filter(t => t.type === 'individual').map(t => t.id);
+          const seriesIds = testCart.filter(t => t.type === 'series').map(t => t.id);
+
+          console.log('🛒 [CHECKOUT] Cart details:', { 
+            cartLength: testCart.length,
+            cartItems: testCart,
+            testIds, 
+            seriesIds 
+          });
+
+          // Verify free order with backend
+          const verifyResponse = await fetch('/api/payment/verify-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              isFreeOrder: true,
+              userId: user.id,
+              testIds,
+              seriesIds,
+              isTestPurchase: true,
+              couponCode: appliedCoupon?.code,
+              orderId: orderData.id,
+              amount: 0
+            })
+          });
+
+          if (!verifyResponse.ok) {
+            const error = await verifyResponse.text();
+            console.error(`🔴 Verify-payment failed with status ${verifyResponse.status}:`, error);
+            // Don't abort, continue with direct enrollment creation
+          } else {
+            const verifyResult = await verifyResponse.json();
+            console.log('✅ Verify-payment succeeded:', verifyResult);
+          }
+
+          // Create enrollment records for individual tests
+          console.log(`📚 Creating enrollments for ${testIds.length} individual tests...`);
+          for (const testId of testIds) {
+            try {
+              const result = await purchaseIndividualTest(
+                user.id,
+                testId,
+                0, // free price
+                appliedCoupon?.code || ''
+              );
+              console.log(`✅ Individual test ${testId} enrolled:`, result);
+            } catch (enrollErr) {
+              console.error(`❌ Failed to enroll in test ${testId}:`, enrollErr);
+              throw enrollErr;
+            }
+          }
+
+          // Create enrollment records for series
+          console.log(`📚 Creating enrollments for ${seriesIds.length} series...`);
+          for (const seriesId of seriesIds) {
+            try {
+              const result = await purchaseSeriesPackage(
+                user.id,
+                seriesId,
+                0, // free price
+                appliedCoupon?.code || ''
+              );
+              console.log(`✅ Series ${seriesId} enrolled:`, result);
+            } catch (enrollErr) {
+              console.error(`❌ Failed to enroll in series ${seriesId}:`, enrollErr);
+              throw enrollErr;
+            }
+          }
+
+          toast({
+            title: 'Purchase Successful! 🎉',
+            description: 'Your free purchase is complete. Redirecting to your tests...',
+          });
+
+          await clearTestCart();
+          router.push('/student/tests');
+          return;
+        } catch (err) {
+          toast({
+            variant: 'destructive',
+            title: 'Error Processing Free Purchase',
+            description: err instanceof Error ? err.message : 'Failed to process purchase',
+          });
+          setIsProcessing(false);
+          return;
+        }
+      }
 
       const razorpayKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
       if (!razorpayKey) {

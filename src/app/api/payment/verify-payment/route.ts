@@ -10,14 +10,43 @@ const razorpay = new Razorpay({
 export async function POST(request: NextRequest) {
   try {
     const {
+      isFreeOrder,
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,
       userId,
       testId,
+      testIds,
       seriesId,
-      isTestPurchase
+      seriesIds,
+      isTestPurchase,
+      couponCode,
+      orderId,
+      amount
     } = await request.json();
+
+    console.log('🔍 [VERIFY PAYMENT]', { isFreeOrder, razorpay_order_id, userId, testId, seriesId });
+
+    // Handle free orders (100% discount)
+    if (isFreeOrder) {
+      console.log('✅ [VERIFY PAYMENT] Processing free order');
+      return NextResponse.json({
+        success: true,
+        orderId: orderId || `free_${Date.now()}`,
+        paymentId: `free_${Date.now()}`,
+        isFreeOrder: true,
+        message: 'Free purchase processed successfully'
+      });
+    }
+
+    // Handle paid orders with Razorpay verification
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      console.error('❌ Missing Razorpay payment details');
+      return NextResponse.json(
+        { error: 'Missing payment details' },
+        { status: 400 }
+      );
+    }
 
     // Verify signature
     const body = razorpay_order_id + '|' + razorpay_payment_id;
@@ -27,7 +56,7 @@ export async function POST(request: NextRequest) {
       .digest('hex');
 
     if (expectedSignature !== razorpay_signature) {
-      console.error('Signature verification failed');
+      console.error('❌ Signature verification failed');
       return NextResponse.json(
         { error: 'Payment verification failed' },
         { status: 400 }
@@ -38,6 +67,7 @@ export async function POST(request: NextRequest) {
     const payment = await razorpay.payments.fetch(razorpay_payment_id);
 
     if (payment.status !== 'captured') {
+      console.error('❌ Payment not captured:', payment.status);
       return NextResponse.json(
         { error: 'Payment not completed' },
         { status: 400 }

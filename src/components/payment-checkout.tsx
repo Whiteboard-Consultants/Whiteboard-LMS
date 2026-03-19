@@ -90,6 +90,62 @@ export function PaymentCheckout({
       const orderData = await response.json();
       console.log('✅ [PAYMENT] Order created:', orderData.id);
 
+      // Handle free purchases (100% discount)
+      if (orderData.isFreeOrder && orderData.amount === 0) {
+        console.log('🎉 [PAYMENT] Free order - skipping Razorpay');
+        try {
+          const verifyResponse = await fetch('/api/payment/verify-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              isFreeOrder: true,
+              userId: userData.id,
+              testId,
+              seriesId,
+              isTestPurchase,
+              couponCode,
+              orderId: orderData.id,
+              amount: 0
+            })
+          });
+
+          if (!verifyResponse.ok) {
+            throw new Error('Failed to process free purchase');
+          }
+
+          // Record enrollment for free purchase
+          let result;
+          if (isTestPurchase && testId) {
+            result = await purchaseIndividualTest(userData.id, testId, 0, couponCode);
+          } else if (seriesId) {
+            result = await purchaseSeriesPackage(userData.id, seriesId, 0, couponCode);
+          }
+
+          if (result && result.success) {
+            toast({
+              title: 'Purchase Successful! 🎉',
+              description: `Your free purchase of "${title}" is complete!`,
+            });
+            onSuccess?.();
+          } else if (result) {
+            throw new Error(result.error || 'Failed to record purchase');
+          }
+
+          setIsProcessing(false);
+          return;
+        } catch (err) {
+          const message = err instanceof Error ? err.message : 'Failed to process free purchase';
+          setError(message);
+          toast({
+            title: 'Error',
+            description: message,
+            variant: 'destructive'
+          });
+          setIsProcessing(false);
+          return;
+        }
+      }
+
       const razorpayKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
       if (!razorpayKey) {
         throw new Error('Razorpay key not configured');
