@@ -31,10 +31,14 @@ export default function PopularDestinationsSection({ destinations }: PopularDest
               <div className="relative h-56 w-full">
                 <Image
                   src={destination.image}
-                  alt={`Studying in ${destination.name}`}
+                  alt={`Studying in ${destination.name}: Top universities, admission process, costs, and international student guide`}
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-cover"
+                  quality={85}
+                  priority={destinations.indexOf(destination) < 3}
+                  placeholder="blur"
+                  blurDataURL="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect fill='%23f0f0f0' width='400' height='300'/%3E%3C/svg%3E"
                   data-ai-hint={destination.dataAiHint}
                 />
               </div>

@@ -230,7 +230,7 @@ export default function SkillsDashboardPage() {
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Card className="dark:bg-slate-800 dark:border-slate-700">
+              <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Skills</CardTitle>
                 </CardHeader>
@@ -240,7 +240,7 @@ export default function SkillsDashboardPage() {
                 </CardContent>
               </Card>
 
-              <Card className="dark:bg-slate-800 dark:border-slate-700">
+              <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Mastered</CardTitle>
                 </CardHeader>
@@ -252,7 +252,7 @@ export default function SkillsDashboardPage() {
                 </CardContent>
               </Card>
 
-              <Card className="dark:bg-slate-800 dark:border-slate-700">
+              <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Avg Mastery</CardTitle>
                 </CardHeader>
@@ -262,8 +262,8 @@ export default function SkillsDashboardPage() {
                 </CardContent>
               </Card>
 
-              <Card className="dark:bg-slate-800 dark:border-slate-700">
-                <CardHeader className="pb-2">
+              <Card>
+              <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Categories</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -275,7 +275,7 @@ export default function SkillsDashboardPage() {
 
             {/* Top Skills */}
             {skills.length > 0 && (
-              <Card className="dark:bg-slate-800 dark:border-slate-700">
+              <Card>
                 <CardHeader>
                   <CardTitle className="dark:text-white">Top Skills by Mastery</CardTitle>
                   <CardDescription className="dark:text-gray-400">Your strongest skills</CardDescription>
@@ -305,7 +305,7 @@ export default function SkillsDashboardPage() {
           {/* Skills Tab */}
           <TabsContent value="skills" className="space-y-6">
             {/* Search and Filters */}
-            <Card className="dark:bg-slate-800 dark:border-slate-700">
+            <Card>
               <CardContent className="pt-6">
                 <div className="space-y-4">
                   <div className="relative">
@@ -376,7 +376,7 @@ export default function SkillsDashboardPage() {
                 ))}
               </div>
             ) : (
-              <Card className="dark:bg-slate-800 dark:border-slate-700">
+              <Card>
                 <CardContent className="pt-6">
                   <div className="text-center text-gray-600 dark:text-gray-400">
                     No skills match your filters. Try adjusting your search.

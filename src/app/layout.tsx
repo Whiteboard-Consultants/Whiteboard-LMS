@@ -1,6 +1,7 @@
 
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
+import { WebVitalsSetup } from '@/components/web-vitals-setup';
 import { Toaster as Sonner } from "sonner"
 import { AuthProvider } from './auth-provider';
 import { AuthErrorSuppressor } from '@/components/auth-error-suppressor';
@@ -170,14 +171,14 @@ export default function RootLayout({
             "foundingDate": "2008",
             "contactPoint": {
               "@type": "ContactPoint",
-              "telephone": "+91-85830-35656",
+              "telephone": "+91 8583 035656",
               "contactType": "Customer Service",
               "availableLanguage": ["English", "Hindi", "Bengali"],
               "areaServed": "IN"
             },
             "address": {
               "@type": "PostalAddress",
-              "streetAddress": "'My Cube', 6th Floor, Park Plaza, 71, Park Street",
+              "streetAddress": "Park Plaza, 71 Park Street, Floor 6",
               "addressLocality": "Kolkata",
               "addressRegion": "West Bengal",
               "postalCode": "700016",
@@ -228,6 +229,9 @@ export default function RootLayout({
         <WebsiteSearchSchema />
       </head>
       <body className={`${fontBody.variable} ${fontHeadline.variable} font-body`}>
+        {/* Setup Core Web Vitals monitoring */}
+        <WebVitalsSetup />
+        
         {/* Suppress expected Supabase auth errors */}
         <AuthErrorSuppressor />
         

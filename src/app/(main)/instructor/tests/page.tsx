@@ -232,12 +232,21 @@ export default function InstructorTestsPage() {
       
       {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(3)].map((_, i) => <Card key={i}><CardContent className="p-6"><div className="h-48 w-full rounded-lg bg-muted animate-pulse" /></CardContent></Card>)}
+              {[...Array(3)].map((_, i) => {
+                  const variants = ['blue', 'purple', 'green', 'orange', 'pink', 'indigo'] as const;
+                  const variant = variants[i % variants.length];
+                  return (
+                  <Card key={i} variant={variant}><CardContent className="p-6"><div className="h-48 w-full rounded-lg bg-muted animate-pulse" /></CardContent></Card>
+                  );
+              })}
           </div>
       ) : tests.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {tests.map(test => (
-                  <Card key={test.id} className="flex flex-col">
+              {tests.map((test, index) => {
+                  const variants = ['blue', 'purple', 'green', 'orange', 'pink', 'indigo'] as const;
+                  const variant = variants[index % variants.length];
+                  return (
+                  <Card key={test.id} className="flex flex-col" variant={variant}>
                       <CardHeader>
                           <div className="flex justify-between items-start">
                               <CardTitle className="text-lg">{test.title}</CardTitle>
@@ -306,7 +315,8 @@ export default function InstructorTestsPage() {
                            </Button>
                       </CardFooter>
                   </Card>
-              ))}
+                  );
+              })}
           </div>
       ) : (
           <div className="text-center py-12 border-dashed border-2 rounded-lg">

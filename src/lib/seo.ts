@@ -24,9 +24,9 @@ export const siteConfig = {
     youtube: "https://youtube.com/@whiteboardconsultants"
   },
   contact: {
-    phone: "+91-85830-35656",
+    phone: "+91 8583 035656",
     email: "info@whiteboardconsultant.com",
-    address: "'My Cube', 6th Floor, Park Plaza, 71, Park Street, Kolkata, WB 700016, India"
+    address: "Park Plaza, 71 Park Street, Floor 6, Kolkata, West Bengal 700016, India"
   }
 };
 
