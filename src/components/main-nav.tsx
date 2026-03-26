@@ -113,11 +113,15 @@ export function MainNav({ isMobileLayout = false }: MainNavProps) {
             </AccordionContent>
           </AccordionItem>
 
-          <div>
-            <Link href="/courses" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm font-medium rounded-md hover:bg-primary-foreground/10 transition-colors">
-              Online Courses
-            </Link>
-          </div>
+          <AccordionItem value="online-programs" className="border-b-0">
+            <AccordionTrigger className="px-2 py-2 text-sm font-medium hover:bg-primary-foreground/10 rounded-md">Online Programs</AccordionTrigger>
+            <AccordionContent className="pl-4 pt-2 pb-2">
+              <div className="space-y-2">
+                <Link href="/online-programs" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm font-semibold rounded-md hover:bg-primary-foreground/10 transition-colors">Online Programs</Link>
+                <Link href="/courses" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">Our Courses</Link>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
           <AccordionItem value="career-solutions" className="border-b-0">
             <AccordionTrigger className="px-2 py-2 text-sm font-medium hover:bg-primary-foreground/10 rounded-md">Career Solutions</AccordionTrigger>
             <AccordionContent className="pl-4 pt-2 pb-2">
@@ -224,9 +228,30 @@ export function MainNav({ isMobileLayout = false }: MainNavProps) {
             </NavigationMenuItem>
 
              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                    <Link href="/courses" className={cn(navigationMenuTriggerStyle(), "bg-transparent hover:bg-primary-foreground/10 text-primary-foreground hover:text-primary-foreground focus:text-primary-foreground")}>Online Courses</Link>
-                </NavigationMenuLink>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-primary-foreground/10 text-primary-foreground hover:text-primary-foreground focus:text-primary-foreground">Online Programs</NavigationMenuTrigger>
+                <NavigationMenuContent>
+                    <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
+                        <li className="row-span-2">
+                            <NavigationMenuLink asChild>
+                                <Link
+                                    href="/online-programs"
+                                    className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
+                                >
+                                    <Globe className="h-6 w-6" />
+                                    <div className="mb-2 mt-4 text-lg font-medium">
+                                        Online Programs
+                                    </div>
+                                    <p className="text-sm leading-tight text-muted-foreground">
+                                        Explore online degrees and certification programs.
+                                    </p>
+                                </Link>
+                            </NavigationMenuLink>
+                        </li>
+                        <ListItem href="/courses" title="Our Courses">
+                            Explore our comprehensive collection of online courses designed for skill development.
+                        </ListItem>
+                    </ul>
+                </NavigationMenuContent>
             </NavigationMenuItem>
             <NavigationMenuItem>
                 <NavigationMenuTrigger className="bg-transparent hover:bg-primary-foreground/10 text-primary-foreground hover:text-primary-foreground focus:text-primary-foreground">Career Solutions</NavigationMenuTrigger>
