@@ -106,8 +106,8 @@ export function MainNav({ isMobileLayout = false }: MainNavProps) {
             <AccordionTrigger className="px-2 py-2 text-sm font-medium hover:bg-primary-foreground/10 rounded-md">Admissions</AccordionTrigger>
             <AccordionContent className="pl-4 pt-2 pb-2">
               <div className="space-y-2">
-                <Link href="/admissions/uow-india" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">UOW India Partner</Link>
-                <Link href="/admissions/deakin-gift-city" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">Deakin GIFT City Partner</Link>
+                <Link href="/admissions/uow-india" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">UOW, GIFT City Campus</Link>
+                <Link href="/admissions/deakin-gift-city" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">Deakin University, GIFT City Campus</Link>
                 <Link href="/college-admissions" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">College Admissions</Link>
               </div>
             </AccordionContent>
@@ -214,10 +214,10 @@ export function MainNav({ isMobileLayout = false }: MainNavProps) {
                             </Link>
                             </NavigationMenuLink>
                         </li>
-                        <ListItem href="/admissions/uow-india" title="UOW India Partner">
-                            Official East India partner for the University of Wollongong.
+                        <ListItem href="/admissions/uow-india" title="UOW, GIFT City Campus">
+                            Official East India partner for the University of Wollongong
                         </ListItem>
-                        <ListItem href="/admissions/deakin-gift-city" title="Deakin GIFT City Partner">
+                        <ListItem href="/admissions/deakin-gift-city" title="Deakin University, GIFT City Campus">
                             Official East India partner for Deakin University GIFT City.
                         </ListItem>
                         <ListItem href="/college-admissions" title="College Admissions">

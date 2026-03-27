@@ -105,6 +105,6 @@ export const breadcrumbConfigs = {
   ],
   uowIndia: [
     { name: 'Admissions', href: '/college-admissions' },
-    { name: 'UOW India Partner', href: '/admissions/uow-india' }
+    { name: 'UOW, GIFT City Campus', href: '/admissions/uow-india' }
   ]
 }
