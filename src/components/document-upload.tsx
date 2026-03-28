@@ -37,8 +37,13 @@ export function DocumentUpload({ onTestParsed, onCancel }: DocumentUploadProps) 
     setError(null);
 
     try {
+      console.log('📤 Starting file parse:', { fileName: file.name, size: file.size, type: file.type });
+      
       const content = await file.text();
+      console.log('📄 File content read successfully:', { contentLength: content.length });
+      
       const result = await parseDocumentAction(content, file.name);
+      console.log('✅ Parse result:', { success: result.success, error: result.error, questionsCount: result.parsedTest?.questions.length });
 
       if (result.success) {
         setParsedTest(result.parsedTest!);
@@ -49,7 +54,8 @@ export function DocumentUpload({ onTestParsed, onCancel }: DocumentUploadProps) 
         }
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to read file');
+      console.error('❌ Error during file parse:', err);
+      setError(err.message || 'Failed to read file. Please check the file format and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -132,7 +138,7 @@ Explanation: 2+2=4 because...
                 id="file-input"
                 type="file"
                 className="hidden"
-                accept=".md,.txt"
+                accept=".md,.txt,text/plain,text/markdown,application/x-markdown,text/*"
                 onChange={handleFileChange}
               />
             </label>
