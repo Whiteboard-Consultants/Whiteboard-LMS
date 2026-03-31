@@ -407,6 +407,9 @@ export async function getTestsInSeries(
       query = query.lte('price', filters.maxPrice);
     }
 
+    // Default: only show published tests for public pages
+    query = query.eq('published', true);
+
     const { data, error } = await query.order('order_within_topic', { ascending: true });
 
     if (error) {
@@ -519,6 +522,14 @@ export async function searchMockTests(filters?: {
 
     if (filters?.instructorId) {
       query = query.eq('instructor_id', filters.instructorId);
+    }
+
+    // Filter by published status (for public pages, only show published tests)
+    if (filters?.isPublished !== undefined) {
+      query = query.eq('published', filters.isPublished);
+    } else {
+      // Default: for public pages, only show published tests
+      query = query.eq('published', true);
     }
 
     const { data, error } = await query.order('created_at', { ascending: false });

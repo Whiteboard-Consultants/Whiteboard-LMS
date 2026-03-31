@@ -341,3 +341,65 @@ export async function deleteCourse(courseId: string, imageUrl?: string) {
     return { success: false, error: error.message || 'Failed to delete course.' };
   }
 }
+
+export async function publishCourse(courseId: string) {
+  'use server';
+  
+  try {
+    console.log('📤 Publishing course:', courseId);
+    
+    // Use admin client to bypass RLS for instructor operations
+    const db = supabaseAdmin || supabase;
+    
+    // Update course to published = true
+    const { error } = await db
+      .from('courses')
+      .update({ published: true })
+      .eq('id', courseId);
+
+    if (error) {
+      console.error('Failed to publish course:', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('✅ Course published successfully');
+    revalidatePath('/instructor/courses');
+    revalidatePath('/instructor/dashboard');
+    
+    return { success: true, message: 'Course published successfully' };
+  } catch (error) {
+    console.error('Error publishing course:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to publish course.' };
+  }
+}
+
+export async function unpublishCourse(courseId: string) {
+  'use server';
+  
+  try {
+    console.log('🔽 Unpublishing course:', courseId);
+    
+    // Use admin client to bypass RLS for instructor operations
+    const db = supabaseAdmin || supabase;
+    
+    // Update course to published = false
+    const { error } = await db
+      .from('courses')
+      .update({ published: false })
+      .eq('id', courseId);
+
+    if (error) {
+      console.error('Failed to unpublish course:', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('✅ Course unpublished successfully');
+    revalidatePath('/instructor/courses');
+    revalidatePath('/instructor/dashboard');
+    
+    return { success: true, message: 'Course unpublished successfully' };
+  } catch (error) {
+    console.error('Error unpublishing course:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to unpublish course.' };
+  }
+}

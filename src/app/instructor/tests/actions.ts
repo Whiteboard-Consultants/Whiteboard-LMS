@@ -885,3 +885,59 @@ export async function reorderTestSections(testId: string, sections: { id: string
         return { success: false, error: 'Failed to reorder sections' };
     }
 }
+
+// ============================================================================
+// PUBLISH/UNPUBLISH ACTIONS
+// ============================================================================
+
+export async function publishTest(testId: string) {
+    try {
+        console.log('📤 Publishing test:', testId);
+        
+        const { error } = await db
+            .from('tests')
+            .update({ published: true })
+            .eq('id', testId);
+
+        if (error) {
+            console.error('Failed to publish test:', error);
+            return { success: false, error: error.message };
+        }
+
+        console.log('✅ Test published successfully');
+        revalidatePath('/instructor/tests');
+        revalidatePath('/instructor/dashboard');
+        revalidatePath('/mock-tests');
+        
+        return { success: true, message: 'Test published successfully' };
+    } catch (error) {
+        console.error('Error publishing test:', error);
+        return { success: false, error: error instanceof Error ? error.message : 'Failed to publish test.' };
+    }
+}
+
+export async function unpublishTest(testId: string) {
+    try {
+        console.log('🔽 Unpublishing test:', testId);
+        
+        const { error } = await db
+            .from('tests')
+            .update({ published: false })
+            .eq('id', testId);
+
+        if (error) {
+            console.error('Failed to unpublish test:', error);
+            return { success: false, error: error.message };
+        }
+
+        console.log('✅ Test unpublished successfully');
+        revalidatePath('/instructor/tests');
+        revalidatePath('/instructor/dashboard');
+        revalidatePath('/mock-tests');
+        
+        return { success: true, message: 'Test unpublished successfully' };
+    } catch (error) {
+        console.error('Error unpublishing test:', error);
+        return { success: false, error: error instanceof Error ? error.message : 'Failed to unpublish test.' };
+    }
+}

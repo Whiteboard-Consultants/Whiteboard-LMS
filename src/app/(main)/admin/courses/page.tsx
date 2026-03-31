@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Edit, PlusCircle, Trash2, Loader2, MoreVertical, DollarSign, Users, StarIcon, Lightbulb } from "lucide-react";
+import { Edit, PlusCircle, Trash2, Loader2, MoreVertical, DollarSign, Users, StarIcon, Lightbulb, Eye, EyeOff } from "lucide-react";
 
 import { PageHeader } from "@/components/page-header";
 import { supabase } from "@/lib/supabase";
@@ -33,10 +33,11 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 
-import { deleteCourse } from "@/app/admin/courses/actions";
+import { deleteCourse, publishCourse, unpublishCourse } from "@/app/instructor/actions-supabase";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
@@ -45,6 +46,7 @@ export default function AdminCoursesPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [isPublishing, setIsPublishing] = useState<string | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -121,6 +123,46 @@ export default function AdminCoursesPage() {
     setIsDeleting(null);
   };
 
+  const handlePublishCourse = async (courseId: string) => {
+    setIsPublishing(courseId);
+    const result = await publishCourse(courseId);
+    if (result.success) {
+      toast({
+        title: "Success",
+        description: "Course published successfully.",
+      });
+      // Update local state
+      setCourses(courses.map(c => c.id === courseId ? { ...c, published: true } : c));
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: result.error,
+      });
+    }
+    setIsPublishing(null);
+  };
+
+  const handleUnpublishCourse = async (courseId: string) => {
+    setIsPublishing(courseId);
+    const result = await unpublishCourse(courseId);
+    if (result.success) {
+      toast({
+        title: "Success",
+        description: "Course unpublished successfully.",
+      });
+      // Update local state
+      setCourses(courses.map(c => c.id === courseId ? { ...c, published: false } : c));
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: result.error,
+      });
+    }
+    setIsPublishing(null);
+  };
+
   const CourseActions = ({ course }: { course: Course }) => (
      <AlertDialog>
         <DropdownMenu>
@@ -137,6 +179,25 @@ export default function AdminCoursesPage() {
                         <span>Edit</span>
                     </Link>
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                {course.published ? (
+                  <DropdownMenuItem 
+                    onClick={() => handleUnpublishCourse(course.id)}
+                    disabled={isPublishing === course.id}
+                  >
+                    <EyeOff className="mr-2 h-4 w-4" />
+                    <span>Unpublish</span>
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem 
+                    onClick={() => handlePublishCourse(course.id)}
+                    disabled={isPublishing === course.id}
+                  >
+                    <Eye className="mr-2 h-4 w-4" />
+                    <span>Publish</span>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
                 <AlertDialogTrigger asChild>
                     <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10 dark:focus:bg-red-800/30 dark:text-red-400 dark:focus:text-red-400">
                         <Trash2 className="mr-2 h-4 w-4" />
@@ -222,7 +283,9 @@ export default function AdminCoursesPage() {
                                  </div>
                              </div>
                              <div>
-                                 <Badge variant="secondary">Published</Badge>
+                                 <Badge variant={course.published ? 'default' : 'secondary'}>
+                                   {course.published ? 'Published' : 'Draft'}
+                                 </Badge>
                              </div>
                          </CardContent>
                      </Card>
@@ -273,7 +336,9 @@ export default function AdminCoursesPage() {
                   <TableCell>{course.studentCount}</TableCell>
                   <TableCell>{course.rating}</TableCell>
                   <TableCell>
-                    <Badge variant="secondary">Published</Badge>
+                    <Badge variant={course.published ? 'default' : 'secondary'}>
+                      {course.published ? 'Published' : 'Draft'}
+                    </Badge>
                   </TableCell>
                   <TableCell className="text-right">
                     <CourseActions course={course} />

@@ -3,12 +3,13 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Edit, PlusCircle, Trash2, Loader2, MoreVertical, Clock, HelpCircle, ArrowLeft } from "lucide-react";
+import { Edit, PlusCircle, Trash2, Loader2, MoreVertical, Clock, HelpCircle, ArrowLeft, Eye, EyeOff } from "lucide-react";
 
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/use-auth";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import type { Test, User } from "@/types";
 import {
   AlertDialog,
@@ -25,10 +26,11 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
-import { deleteTest } from "@/app/instructor/tests/actions";
+import { deleteTest, publishTest, unpublishTest } from "@/app/instructor/tests/actions";
 import { getInstructors } from "@/app/instructor/test-series-actions";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 
@@ -50,6 +52,7 @@ export default function InstructorTestsPage() {
   const [instructors, setInstructors] = useState<Map<string, string>>(new Map());
   const [loading, setLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [isPublishing, setIsPublishing] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -160,6 +163,46 @@ export default function InstructorTestsPage() {
     }
     setIsDeleting(null);
   };
+
+  const handlePublishTest = async (testId: string) => {
+    setIsPublishing(testId);
+    const result = await publishTest(testId);
+    if (result.success) {
+      toast({
+        title: "Success",
+        description: "Test published successfully.",
+      });
+      // Update local state
+      setTests(tests.map(t => t.id === testId ? { ...t, published: true } : t));
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: result.error,
+      });
+    }
+    setIsPublishing(null);
+  };
+
+  const handleUnpublishTest = async (testId: string) => {
+    setIsPublishing(testId);
+    const result = await unpublishTest(testId);
+    if (result.success) {
+      toast({
+        title: "Success",
+        description: "Test unpublished successfully.",
+      });
+      // Update local state
+      setTests(tests.map(t => t.id === testId ? { ...t, published: false } : t));
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: result.error,
+      });
+    }
+    setIsPublishing(null);
+  };
   
   const TestActions = ({ test }: { test: Test }) => (
      <AlertDialog>
@@ -177,6 +220,25 @@ export default function InstructorTestsPage() {
                         <span>Edit / Add Questions</span>
                     </Link>
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                {test.published ? (
+                  <DropdownMenuItem 
+                    onClick={() => handleUnpublishTest(test.id)}
+                    disabled={isPublishing === test.id}
+                  >
+                    <EyeOff className="mr-2 h-4 w-4" />
+                    <span>Unpublish Test</span>
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem 
+                    onClick={() => handlePublishTest(test.id)}
+                    disabled={isPublishing === test.id}
+                  >
+                    <Eye className="mr-2 h-4 w-4" />
+                    <span>Publish Test</span>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
                 <AlertDialogTrigger asChild>
                     <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10">
                         <Trash2 className="mr-2 h-4 w-4" />
@@ -257,6 +319,11 @@ export default function InstructorTestsPage() {
                                     By: {instructors.get(test.instructorId) || 'Unknown Instructor'}
                                 </p>
                             )}
+                          <div className="pt-2 flex items-center gap-2">
+                            <Badge variant={test.published ? 'default' : 'secondary'}>
+                              {test.published ? 'Published' : 'Draft'}
+                            </Badge>
+                          </div>
                           {test.description && (
                             <div className="pt-2">
                               {(() => {

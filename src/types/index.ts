@@ -110,6 +110,7 @@ export interface Course {
   modules?: CourseModule[];
   hasPracticeTests?: boolean;
   freeLessonsCount?: number; // Number of free preview lessons
+  published?: boolean; // Whether course is published and visible to students
 }
 
 export interface SubTopic {
@@ -345,6 +346,7 @@ export interface Test {
     price?: number; // individual test price
     isFree?: boolean; // whether test is free
     orderWithinTopic?: number; // ordering within topic group
+    published?: boolean; // Whether test is published and visible to students
 }
 
 export type AnswerStatus = 'not-visited' | 'not-answered' | 'answered' | 'marked' | 'answered-and-marked';

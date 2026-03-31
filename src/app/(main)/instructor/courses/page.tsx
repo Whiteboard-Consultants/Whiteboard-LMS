@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Edit, PlusCircle, Trash2, Loader2, Users, MoreVertical, BarChart } from "lucide-react";
+import { Edit, PlusCircle, Trash2, Loader2, Users, MoreVertical, BarChart, Eye, EyeOff } from "lucide-react";
 
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/use-auth";
@@ -30,7 +30,7 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
-import { deleteCourse } from "@/app/instructor/actions-supabase";
+import { deleteCourse, publishCourse, unpublishCourse } from "@/app/instructor/actions-supabase";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 
 
@@ -39,6 +39,7 @@ export default function InstructorCoursesPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [isPublishing, setIsPublishing] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -124,6 +125,46 @@ export default function InstructorCoursesPage() {
     }
     setIsDeleting(null);
   };
+
+  const handlePublishCourse = async (courseId: string) => {
+    setIsPublishing(courseId);
+    const result = await publishCourse(courseId);
+    if (result.success) {
+      toast({
+        title: "Success",
+        description: "Course published successfully.",
+      });
+      // Update local state
+      setCourses(courses.map(c => c.id === courseId ? { ...c, published: true } : c));
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: result.error,
+      });
+    }
+    setIsPublishing(null);
+  };
+
+  const handleUnpublishCourse = async (courseId: string) => {
+    setIsPublishing(courseId);
+    const result = await unpublishCourse(courseId);
+    if (result.success) {
+      toast({
+        title: "Success",
+        description: "Course unpublished successfully.",
+      });
+      // Update local state
+      setCourses(courses.map(c => c.id === courseId ? { ...c, published: false } : c));
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: result.error,
+      });
+    }
+    setIsPublishing(null);
+  };
   
   const CourseActions = ({ course }: { course: Course }) => (
      <AlertDialog>
@@ -147,6 +188,24 @@ export default function InstructorCoursesPage() {
                         <span>Manage Students</span>
                     </Link>
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                {course.published ? (
+                  <DropdownMenuItem 
+                    onClick={() => handleUnpublishCourse(course.id)}
+                    disabled={isPublishing === course.id}
+                  >
+                    <EyeOff className="mr-2 h-4 w-4" />
+                    <span>Unpublish Course</span>
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem 
+                    onClick={() => handlePublishCourse(course.id)}
+                    disabled={isPublishing === course.id}
+                  >
+                    <Eye className="mr-2 h-4 w-4" />
+                    <span>Publish Course</span>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <AlertDialogTrigger asChild>
                     <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10">
@@ -223,7 +282,9 @@ export default function InstructorCoursesPage() {
                              <Badge variant={course.type === 'paid' ? 'default' : 'secondary'} className="capitalize">
                                 {course.type}
                             </Badge>
-                             <Badge variant="outline">Published</Badge>
+                             <Badge variant={course.published ? 'default' : 'secondary'}>
+                                {course.published ? 'Published' : 'Draft'}
+                             </Badge>
                           </div>
                       </CardContent>
                       <CardFooter>

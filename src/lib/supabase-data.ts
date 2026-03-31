@@ -8,6 +8,7 @@ export async function getCourses(options?: {
   searchTerm?: string;
   category?: string;
   excludeIds?: string[];
+  publishedOnly?: boolean; // If true, only fetch published courses (default for public pages)
 }) {
   let query = supabase
     .from('courses')
@@ -15,6 +16,13 @@ export async function getCourses(options?: {
 
   if (options?.searchTerm) {
     query = query.ilike('title', `%${options.searchTerm}%`);
+  }
+
+  // Filter by published status (default: true for public pages, false for admin/instructor views)
+  // The publishedOnly flag defaults to true, allowing instructors/admins to explicitly set it to false
+  const shouldFilterPublished = options?.publishedOnly !== false;
+  if (shouldFilterPublished) {
+    query = query.eq('published', true);
   }
 
   // For Free Courses, we'll fetch all courses and filter client-side
