@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next'
+import { getPosts } from '@/lib/supabase-data'
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://www.whiteboardconsultant.com'
   
   // Static pages with high priority (SEO optimized)
@@ -96,6 +97,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }
   ]
 
+  // Landing pages
+  const landingPages: MetadataRoute.Sitemap = [
+    {
+      url: `${baseUrl}/landing/resume-mastery`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7, // Good priority for landing pages
+    }
+  ]
+
   // Auth and user pages (lower priority but still indexed)
   const userPages: MetadataRoute.Sitemap = [
     {
@@ -128,10 +139,27 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }
   ]
 
+  // Fetch all published blog posts dynamically
+  let blogPostPages: MetadataRoute.Sitemap = []
+  try {
+    const posts = await getPosts()
+    blogPostPages = posts.map(post => ({
+      url: `${baseUrl}/blog/${encodeURIComponent(post.slug)}`,
+      lastModified: post.updated_at ? new Date(post.updated_at) : (post.created_at ? new Date(post.created_at) : new Date()),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7, // Good priority for blog content
+    }))
+  } catch (error) {
+    console.error('Error fetching blog posts for sitemap:', error)
+    // Continue without blog posts if there's an error
+  }
+
   return [
     ...staticPages,
     ...destinationPages,
     ...courseCategoryPages,
+    ...landingPages,
+    ...blogPostPages,
     ...userPages,
     ...supportPages
   ]
