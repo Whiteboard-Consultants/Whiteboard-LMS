@@ -8,6 +8,9 @@ import { getPosts } from "@/lib/supabase-data";
 import { PostTable } from "./_components/post-table";
 
 export const metadata: Metadata = {
+  alternates: {
+    canonical: '/admin/blog',
+  },
   title: "Blog Management | Admin",
 };
 

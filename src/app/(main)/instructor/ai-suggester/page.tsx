@@ -1,5 +1,13 @@
+import type { Metadata } from 'next';
 import { PageHeader } from "@/components/page-header";
 import { AiSuggesterForm } from "@/components/ai-suggester-form";
+
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: '/instructor/ai-suggester',
+  },
+};
 
 export default function AiSuggesterPage() {
   return (

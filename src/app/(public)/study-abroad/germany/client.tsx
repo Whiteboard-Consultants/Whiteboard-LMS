@@ -439,7 +439,15 @@ export default function GermanyPageClient({ children }: GermanyPageClientProps) 
                 {topUniversities.map((uni) => (
                     <Card key={uni.name} className="overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col">
                         <div className="relative h-56 w-full">
-                            <Image src={uni.image} alt={`Campus of ${uni.name}`} fill className="object-cover" data-ai-hint={uni.dataAiHint} />
+                            <Image 
+                                src={uni.image} 
+                                alt={`Campus of ${uni.name}`} 
+                                fill 
+                                className="object-cover" 
+                                quality={75}
+                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                data-ai-hint={uni.dataAiHint} 
+                            />
                         </div>
                         <CardHeader>
                             <h3 className="font-headline text-xl font-bold">{uni.name}</h3>
@@ -452,7 +460,7 @@ export default function GermanyPageClient({ children }: GermanyPageClientProps) 
                             </div>
                         </CardHeader>
                          <CardContent className="flex-grow flex flex-col">
-                            <Accordion type="single" collapsible className="w-full">
+                            <Accordion type="single" collapsible className="w-full" suppressHydrationWarning>
                                 {(uni.programs?.ug?.length || 0) > 0 && (
                                     <AccordionItem value="ug-programs">
                                         <AccordionTrigger className="font-semibold text-base">Popular UG Programs</AccordionTrigger>
@@ -484,7 +492,7 @@ export default function GermanyPageClient({ children }: GermanyPageClientProps) 
             <div className="grid lg:grid-cols-3 gap-12">
                 <div className="lg:col-span-2">
                     <h2 className="text-3xl font-bold tracking-tight text-foreground font-headline sm:text-4xl mb-8">Admission Requirements & Costs</h2>
-                     <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
+                     <Accordion type="single" collapsible defaultValue="item-1" className="w-full" suppressHydrationWarning>
                         <AccordionItem value="item-1"><AccordionTrigger className="text-xl font-headline">Undergraduate Requirements</AccordionTrigger><AccordionContent><ul className="space-y-3 pt-2">{admissionRequirements.undergraduate.map(req => (<li key={req} className="flex items-start"><CheckCircle2 className="h-5 w-5 text-green-500 mr-3 mt-1 flex-shrink-0" /><span>{req}</span></li>))}</ul></AccordionContent></AccordionItem>
                         <AccordionItem value="item-2"><AccordionTrigger className="text-xl font-headline">Postgraduate Requirements</AccordionTrigger><AccordionContent><ul className="space-y-3 pt-2">{admissionRequirements.postgraduate.map(req => (<li key={req} className="flex items-start"><CheckCircle2 className="h-5 w-5 text-green-500 mr-3 mt-1 flex-shrink-0" /><span>{req}</span></li>))}</ul></AccordionContent></AccordionItem>
                     </Accordion>

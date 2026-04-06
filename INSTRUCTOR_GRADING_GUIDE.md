@@ -413,7 +413,7 @@ Overall, this shows strong career planning awareness. Keep developing these narr
 ## Support
 
 For technical issues or feature requests:
-- Contact: support@whitedgelms.com
+- Contact: info@whiteboardconsultant.com
 - Reference this guide section number if reporting a problem
 - Include screenshots if possible
 

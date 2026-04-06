@@ -30,11 +30,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {
       title: lesson?.title ? `${lesson.title} - ${course?.title || 'Course'}` : 'Lesson',
       description: `Learn with this lesson from ${course?.title || 'our course'}.`,
+      alternates: {
+        canonical: `/courses/${courseId}/lessons/${lessonId}`,
+      },
     };
   } catch {
     return {
       title: 'Lesson',
       description: 'Learn with this lesson.',
+      alternates: {
+        canonical: `/courses/${courseId}/lessons/${lessonId}`,
+      },
     };
   }
 }

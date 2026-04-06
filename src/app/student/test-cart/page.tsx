@@ -342,7 +342,7 @@ export default function TestCartPage() {
                         <div className="w-24 h-24 flex-shrink-0 rounded-lg bg-slate-200 dark:bg-slate-800 overflow-hidden">
                           <Image
                             src={item.image}
-                            alt={item.title}
+                            alt={`${item.title} - Online test`}
                             width={96}
                             height={96}
                             className="w-full h-full object-cover"

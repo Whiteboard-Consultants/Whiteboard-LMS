@@ -19,7 +19,7 @@ export default async function UowIndiaPage() {
         "@context": "https://schema.org",
         "@type": "EducationalOrganization",
         "name": "University of Wollongong, India Campus",
-        "url": "https://whiteboard-consultants-mock.com/admissions/uow-india",
+        "url": "https://www.whiteboardconsultant.com/admissions/uow-india",
         "logo": "https://www.uow.edu.au/media/2023/uow-logo-primary-rgb.svg",
         "parentOrganization": {
             "@type": "CollegeOrUniversity",
@@ -30,7 +30,7 @@ export default async function UowIndiaPage() {
         "provider": {
             "@type": "EducationalOrganization",
             "name": "Whiteboard Consultants",
-            "url": "https://whiteboard-consultants-mock.com"
+            "url": "https://www.whiteboardconsultant.com"
         },
         "hasCourse": pageData.programs.map(program => ({
             "@type": "Course",

@@ -41,6 +41,9 @@ export async function generateMetadata(
     return {
         title: `${matchingSeries.title} Mock Tests | Whiteboard Consultants`,
         description: matchingSeries.description || `Practice with ${matchingSeries.title} mock tests`,
+        alternates: {
+            canonical: `/mock-tests/${encodeURIComponent(decodedSlug)}`,
+        },
         openGraph: {
             title: `${matchingSeries.title} Mock Tests`,
             description: matchingSeries.description,

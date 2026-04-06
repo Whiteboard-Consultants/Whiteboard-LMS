@@ -93,7 +93,9 @@ export default function ContactPageClient() {
                 fill
                 className="object-cover"
                 data-ai-hint="rotary telephone"
-                sizes="(max-width: 768px) 100vw, 50vw"
+                quality={75}
+                loading="lazy"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 50vw"
               />
             </div>
           </div>

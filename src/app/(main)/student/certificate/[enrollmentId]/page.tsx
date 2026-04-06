@@ -124,7 +124,7 @@ function StudentCertificatePage() {
         <div
           id="certificate-content"
           className="w-full max-w-5xl bg-white shadow-2xl aspect-[1.414/1] relative"
-          style={{ backgroundImage: `url(/certificate.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+          style={{ backgroundImage: `url(/certificate.webp)`, backgroundSize: 'cover', backgroundPosition: 'center' }}
         >
           <div className="relative z-10 flex flex-col h-full text-center p-[5%]">
             <div className="flex-grow-[3] flex flex-col justify-end items-center text-slate-800 pb-16">

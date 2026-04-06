@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { ThreadList } from '@/app/(main)/student/messaging/components/thread-list';
 import { Button } from '@/components/ui/button';
 import { Plus, ChevronRight } from 'lucide-react';
@@ -14,6 +15,13 @@ export async function generateMetadata() {
     title: 'Messages - Student Dashboard',
   };
 }
+
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: '/student/[courseId]/messaging',
+  },
+};
 
 export default async function MessagingPage({
   params,

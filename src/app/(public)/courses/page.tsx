@@ -49,13 +49,13 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
                 "@type": "ListItem",
                 "position": 1,
                 "name": "Home",
-                "item": "https://whiteboard-consultants-mock.com"
+                "item": "https://www.whiteboardconsultant.com"
             },
             {
                 "@type": "ListItem",
                 "position": 2,
                 "name": "Courses",
-                "item": "https://whiteboard-consultants-mock.com/courses"
+                "item": "https://www.whiteboardconsultant.com/courses"
             }
         ]
     };
@@ -69,14 +69,14 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
             "position": index + 1,
             "item": {
                 "@type": "Course",
-                "url": `https://whiteboard-consultants-mock.com/courses/${course.id}`,
+                "url": `https://www.whiteboardconsultant.com/courses/${course.id}`,
                 "name": course.title,
                 "description": course.description,
                 "image": course.imageUrl,
                 "provider": {
                     "@type": "Organization",
                     "name": "Whiteboard Consultants",
-                    "url": "https://whiteboard-consultants-mock.com"
+                    "url": "https://www.whiteboardconsultant.com"
                 }
             }
         }))

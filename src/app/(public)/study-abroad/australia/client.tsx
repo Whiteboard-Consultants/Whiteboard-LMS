@@ -390,7 +390,15 @@ export default function AustraliaPageClient({ children }: AustraliaPageClientPro
                         {topUniversities.map((uni) => (
                             <Card key={uni.name} className="overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col">
                                 <div className="relative h-56 w-full">
-                                    <Image src={uni.image} alt={`Campus of ${uni.name}`} fill className="object-cover" data-ai-hint={uni.dataAiHint} />
+                                    <Image 
+                                        src={uni.image} 
+                                        alt={`Campus of ${uni.name}`} 
+                                        fill 
+                                        className="object-cover" 
+                                        quality={75}
+                                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                        data-ai-hint={uni.dataAiHint} 
+                                    />
                                 </div>
                                 <CardHeader>
                                     <h3 className="font-headline text-xl font-bold">{uni.name}</h3>
@@ -399,7 +407,7 @@ export default function AustraliaPageClient({ children }: AustraliaPageClientPro
                                     <div className="flex items-center text-muted-foreground mt-1 text-sm"><BarChart className="h-4 w-4 mr-2 flex-shrink-0" /><span>Webometrics World: {uni.webometricsWorldRanking}</span></div>
                                 </CardHeader>
                                 <CardContent className="flex-grow flex flex-col">
-                                    <Accordion type="single" collapsible className="w-full">
+                                    <Accordion type="single" collapsible className="w-full" suppressHydrationWarning>
                                         <AccordionItem value="ug-programs"><AccordionTrigger className="font-semibold text-base">Popular UG Programs</AccordionTrigger><AccordionContent><ul className="space-y-3 mt-2 text-sm">{uni.programs.ug.map(p => (<li key={p.name} className="grid grid-cols-[1fr,auto] gap-x-2 items-center"><span className="truncate">{p.name}</span><span className="font-mono text-muted-foreground">{p.fee}</span></li>))}</ul></AccordionContent></AccordionItem>
                                         <AccordionItem value="pg-programs"><AccordionTrigger className="font-semibold text-base">Popular PG Programs</AccordionTrigger><AccordionContent><ul className="space-y-3 mt-2 text-sm">{uni.programs.pg.map(p => (<li key={p.name} className="grid grid-cols-[1fr,auto] gap-x-2 items-center"><span className="truncate">{p.name}</span><span className="font-mono text-muted-foreground">{p.fee}</span></li>))}</ul></AccordionContent></AccordionItem>
                                     </Accordion>

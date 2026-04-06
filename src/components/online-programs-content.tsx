@@ -133,11 +133,12 @@ export default function OnlineProgramsContent() {
             </div>
             <div className="relative h-96 w-full overflow-hidden rounded-xl shadow-lg border border-white/20 dark:border-slate-700/40 backdrop-blur-sm">
               <Image
-                src="/online_program.jpg"
+                src="/online_program.webp"
                 alt="Online learning and career development"
                 fill
                 className="object-cover"
                 priority
+                quality={75}
                 sizes="(max-width: 768px) 100vw, 50vw"
               />
             </div>
@@ -303,10 +304,11 @@ export default function OnlineProgramsContent() {
 
             <div className="relative h-96 w-full overflow-hidden rounded-lg shadow-xl">
               <Image
-                src="/student_consulting.jpg"
+                src="/student_consulting.webp"
                 alt="Career advancement and professional growth"
                 fill
                 className="object-cover"
+                quality={75}
                 sizes="(max-width: 768px) 100vw, 50vw"
               />
             </div>

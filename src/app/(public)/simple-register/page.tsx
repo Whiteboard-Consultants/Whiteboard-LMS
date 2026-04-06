@@ -1,4 +1,13 @@
+import type { Metadata } from 'next';
 import { SimpleRegisterForm } from "@/components/simple-register-form";
+
+export const metadata: Metadata = {
+  title: 'Register with Code | Whiteboard Consultants',
+  description: 'Activate your account using your registration code. Join Whiteboard Consultants for expert education guidance and test preparation.',
+  alternates: {
+    canonical: '/simple-register',
+  },
+};
 
 export default function SimpleRegisterPage() {
   return (

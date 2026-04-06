@@ -269,7 +269,7 @@ export default function CartPage() {
                       {course.image && course.image.trim() !== '' ? (
                         <Image
                           src={course.image}
-                          alt={course.title}
+                          alt={`${course.title} - Online course`}
                           fill
                           className="object-cover"
                         />

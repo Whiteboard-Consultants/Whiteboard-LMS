@@ -4,7 +4,7 @@
 
 WhitedgeLMS provides a comprehensive set of server-side actions (Next.js App Router) for frontend integration. All API operations use TypeScript with Zod validation and return structured responses.
 
-**Base URL**: `http://localhost:3000/api` (local) or `https://whiteboard-lms.vercel.app/api` (production)
+**Base URL**: `http://localhost:3000/api` (local) or `https://www.whiteboardconsultant.com/api` (production)
 
 **Authentication**: All endpoints require a valid Supabase session token (automatically managed by Next.js middleware)
 

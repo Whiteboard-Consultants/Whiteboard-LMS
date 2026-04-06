@@ -61,7 +61,8 @@ export default function HomePageClient({ whyChooseUsData }: HomePageClientProps)
                                 className="object-cover"
                                 data-ai-hint="team collaboration"
                                 priority
-                                sizes="(max-width: 768px) 100vw, 50vw"
+                                quality={75}
+                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 50vw"
                             />
                         </div>
                     </div>

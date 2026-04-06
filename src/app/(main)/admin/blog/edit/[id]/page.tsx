@@ -6,6 +6,9 @@ import { getPost } from "@/lib/supabase-data";
 import { EditPostForm } from "./_components/edit-post-form";
 
 export const metadata: Metadata = {
+  alternates: {
+    canonical: '/admin/blog/edit/[id]',
+  },
   title: "Edit Blog Post | Admin",
 };
 

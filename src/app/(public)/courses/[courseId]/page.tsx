@@ -39,6 +39,9 @@ export async function generateMetadata({ params }: CoursePageProps): Promise<Met
     return {
         title: `${course.title} | Whiteboard Consultants`,
         description: course.description,
+        alternates: {
+            canonical: `/courses/${courseId}`,
+        },
         openGraph: {
             title: course.title,
             description: course.description,
@@ -71,7 +74,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
         "provider": {
             "@type": "Organization",
             "name": "Whiteboard Consultants",
-            "sameAs": "https://whiteboard-consultants-mock.com/"
+            "sameAs": "https://www.whiteboardconsultant.com/"
         },
         "offers": {
             "@type": "Offer",

@@ -60,19 +60,19 @@ export default async function UsaPage() {
                 "@type": "ListItem",
                 "position": 1,
                 "name": "Home",
-                "item": "https://whiteboard-consultants-mock.com"
+                "item": "https://www.whiteboardconsultant.com"
             },
             {
                 "@type": "ListItem",
                 "position": 2,
                 "name": "Study Abroad",
-                "item": "https://whiteboard-consultants-mock.com/study-abroad"
+                "item": "https://www.whiteboardconsultant.com/study-abroad"
             },
             {
                 "@type": "ListItem",
                 "position": 3,
                 "name": "Study in USA",
-                "item": "https://whiteboard-consultants-mock.com/study-abroad/usa"
+                "item": "https://www.whiteboardconsultant.com/study-abroad/usa"
             }
         ]
     };
@@ -85,7 +85,7 @@ export default async function UsaPage() {
         "provider": {
             "@type": "EducationalOrganization",
             "name": "Whiteboard Consultants",
-            "sameAs": "https://whiteboard-consultants-mock.com"
+            "sameAs": "https://www.whiteboardconsultant.com"
         },
         "educationalCredentialAwarded": [
             "Bachelor's Degree",

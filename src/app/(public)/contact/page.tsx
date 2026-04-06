@@ -20,13 +20,13 @@ export default function ContactPage() {
                 "@type": "ListItem",
                 "position": 1,
                 "name": "Home",
-                "item": "https://whiteboard-consultants-mock.com"
+                "item": "https://www.whiteboardconsultant.com"
             },
             {
                 "@type": "ListItem",
                 "position": 2,
                 "name": "Contact",
-                "item": "https://whiteboard-consultants-mock.com/contact"
+                "item": "https://www.whiteboardconsultant.com/contact"
             }
         ]
     };

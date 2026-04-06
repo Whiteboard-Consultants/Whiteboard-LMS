@@ -153,7 +153,7 @@ export default function CourseDetails({ course, reviews }: CourseDetailsProps) {
                                     reviews.map(review => (
                                         <div key={review.id} className="flex gap-4">
                                             <Avatar>
-                                                <AvatarImage src={review.userAvatarUrl} />
+                                                <AvatarImage src={review.userAvatarUrl} alt={review.userName} />
                                                 <AvatarFallback>{review.userName.charAt(0)}</AvatarFallback>
                                             </Avatar>
                                             <div>
@@ -178,7 +178,15 @@ export default function CourseDetails({ course, reviews }: CourseDetailsProps) {
                         <Card className="sticky top-24">
                             <CardHeader className="p-0">
                                 {course.imageUrl && course.imageUrl.trim() !== '' ? (
-                                    <Image src={course.imageUrl} alt={course.title} width={500} height={300} className="w-full h-auto rounded-t-lg" />
+                                    <Image 
+                                        src={course.imageUrl} 
+                                        alt={`${course.title} - Online course details`} 
+                                        width={500} 
+                                        height={300} 
+                                        className="w-full h-auto rounded-t-lg"
+                                        quality={85}
+                                        sizes="(max-width: 768px) 100vw, 33vw"
+                                    />
                                 ) : (
                                     <div className="w-full h-48 bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center rounded-t-lg">
                                         <div className="text-center text-muted-foreground">

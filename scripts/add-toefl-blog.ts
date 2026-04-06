@@ -242,7 +242,7 @@ const toeflPostContent = `<div class="prose prose-lg max-w-4xl mx-auto dark:pros
 
 <div style="margin-top: 2rem; text-align: center; padding: 2rem; background-color: #f3f4f6; border-radius: 0.5rem;">
 <p style="color: #6b7280; margin-bottom: 1rem;">Still have questions?</p>
-<a href="mailto:support@whitedgelms.com" style="color: #2563eb; font-weight: bold; text-decoration: none;">✉️ Contact us at support@whitedgelms.com</a>
+<a href="mailto:info@whiteboardconsultant.com" style="color: #2563eb; font-weight: bold; text-decoration: none;">✉️ Contact us at info@whiteboardconsultant.com</a>
 <p style="font-size: 0.875rem; color: #9ca3af; margin-top: 1rem;">Response time: Usually within 2 hours during business hours</p>
 </div>
 </div>`;

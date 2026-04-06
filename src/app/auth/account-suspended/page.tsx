@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 "use client";
 
 import { useRouter } from "next/navigation";
@@ -5,6 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
 import { signOut } from "@/lib/supabase-auth";
+
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: '/auth/account-suspended',
+  },
+};
 
 export default function AccountSuspendedPage() {
   const router = useRouter();
@@ -51,7 +59,7 @@ export default function AccountSuspendedPage() {
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
             <p className="text-xs text-blue-800">
-              <strong>Need Help?</strong> Email us at <a href="mailto:support@whiteboard-consultants.com" className="underline font-medium">support@whiteboard-consultants.com</a> to discuss your account status.
+              <strong>Need Help?</strong> Email us at <a href="mailto:info@whiteboardconsultant.com" className="underline font-medium">info@whiteboardconsultant.com</a> to discuss your account status.
             </p>
           </div>
 

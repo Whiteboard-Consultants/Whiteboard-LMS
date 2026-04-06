@@ -529,7 +529,7 @@ Display Results Page
 ## Deployment
 
 ### Current Deployment
-- **URL**: https://whiteboard-lms.vercel.app/
+- **URL**: https://www.whiteboardconsultant.com/
 - **Platform**: Vercel (Serverless Functions + CDN)
 - **Region**: Global with edge caching
 
@@ -619,7 +619,7 @@ npm start
 ## Support & Contact
 
 **Organization**: Whiteboard Consultants  
-**Website**: https://whiteboard-lms.vercel.app/  
+**Website**: https://www.whiteboardconsultant.com/  
 **Repository**: https://github.com/Whiteboard-Consultants/Whiteboard-LMS  
 
 ---

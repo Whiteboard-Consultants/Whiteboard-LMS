@@ -82,7 +82,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({ studentName, courseTitl
   <Document>
     <Page size="A4" style={styles.page}>
       {/* Background image */}
-  <Image src="public/certificate.png" style={styles.background} />
+      <Image src="public/certificate.png" alt="Certificate of completion template background" style={styles.background} />
       {/* Overlay text */}
       <View style={styles.overlay}>
         <Text style={styles.studentName}>{studentName}</Text>

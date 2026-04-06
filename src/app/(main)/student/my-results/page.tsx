@@ -1,8 +1,16 @@
+import type { Metadata } from 'next';
 import { supabaseAdmin } from '@/lib/supabase';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: '/student/my-results',
+  },
+};
 
 export default async function QuizResultsListPage() {
   // Get all quiz attempts

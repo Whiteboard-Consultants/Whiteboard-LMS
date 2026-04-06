@@ -49,7 +49,7 @@ resume-mastery.whiteboardconsultant.com
 - Professional appearance
 
 **Setup:**
-1. Add DNS CNAME record: `resume-mastery` → `whiteboard-lms.vercel.app`
+1. Add DNS CNAME record: `resume-mastery` → `www.whiteboardconsultant.com`
 2. Configure custom domain in Vercel dashboard
 3. Deploy with `next.config.ts` redirects if needed
 
@@ -68,7 +68,7 @@ courses.whiteboardconsultant.com/resume-mastery-2026
 
 #### Option 3: Direct Path Integration
 ```
-whiteboard-lms.vercel.app/landing/resume-mastery
+www.whiteboardconsultant.com/landing/resume-mastery
 ```
 **Pros:**
 - Simple deployment (no DNS setup)

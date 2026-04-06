@@ -71,7 +71,14 @@ export default function WhyChooseUsSection({ id, data }: WhyChooseUsSectionProps
                                                     <DialogTitle>TOEFL iBT Market Ambassador Certificate</DialogTitle>
                                                     <DialogDescription>An image of the official certificate recognizing Whiteboard Consultants as TOEFL iBT Market Ambassadors.</DialogDescription>
                                                 </DialogHeader>
-                                                <Image src="/ETS.png" alt="TOEFL iBT Certificate" width={800} height={600} layout="responsive" />
+                                                <Image 
+                                                    src="/ETS.webp" 
+                                                    alt="TOEFL iBT Certificate" 
+                                                    width={800} 
+                                                    height={600} 
+                                                    className="w-full h-auto"
+                                                    quality={85}
+                                                />
                                             </DialogContent>
                                         </Dialog>
                                     );
@@ -97,6 +104,8 @@ export default function WhyChooseUsSection({ id, data }: WhyChooseUsSectionProps
                             alt={data.image.alt}
                             fill
                             className="object-cover"
+                            quality={85}
+                            sizes="(max-width: 768px) 100vw, 50vw"
                             data-ai-hint={data.image.ai_hint}
                         />
                     </div>

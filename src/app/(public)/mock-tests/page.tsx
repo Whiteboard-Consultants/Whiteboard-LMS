@@ -58,13 +58,13 @@ export default async function MockTestsPage({ searchParams }: MockTestsPageProps
                 "@type": "ListItem",
                 "position": 1,
                 "name": "Home",
-                "item": "https://whiteboard-consultants-mock.com"
+                "item": "https://www.whiteboardconsultant.com"
             },
             {
                 "@type": "ListItem",
                 "position": 2,
                 "name": "Mock Tests",
-                "item": "https://whiteboard-consultants-mock.com/mock-tests"
+                "item": "https://www.whiteboardconsultant.com/mock-tests"
             }
         ]
     };

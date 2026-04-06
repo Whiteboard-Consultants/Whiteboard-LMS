@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button";
 import { NewPostForm } from "./_components/new-post-form";
 
 export const metadata: Metadata = {
+  alternates: {
+    canonical: '/admin/blog/new',
+  },
   title: "New Blog Post | Admin",
 };
 

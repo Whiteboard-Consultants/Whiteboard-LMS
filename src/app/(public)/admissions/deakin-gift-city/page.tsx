@@ -33,7 +33,7 @@ export default async function DeakinGiftCityPage() {
         "@context": "https://schema.org",
         "@type": "EducationalOrganization",
         "name": "Deakin University, GIFT City India Campus",
-        "url": "https://whiteboard-consultants-mock.com/admissions/deakin-gift-city",
+        "url": "https://www.whiteboardconsultant.com/admissions/deakin-gift-city",
         "logo": "https://www.deakin.edu.au/etc.clientlibs/deakin/responsive/images/logo.svg",
         "parentOrganization": {
             "@type": "CollegeOrUniversity",
@@ -44,7 +44,7 @@ export default async function DeakinGiftCityPage() {
         "provider": {
             "@type": "EducationalOrganization",
             "name": "Whiteboard Consultants",
-            "url": "https://whiteboard-consultants-mock.com"
+            "url": "https://www.whiteboardconsultant.com"
         },
         "hasCourse": pageData.programs.map((program: any) => ({
             "@type": "Course",

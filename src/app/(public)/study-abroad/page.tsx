@@ -36,7 +36,7 @@ export default async function StudyAbroadPage() {
       "provider": {
         "@type": "EducationalOrganization",
         "name": "Whiteboard Consultants",
-         "url": "https://whiteboard-consultants-mock.com"
+         "url": "https://www.whiteboardconsultant.com"
       },
       "areaServed": {
         "@type": "City",
@@ -67,13 +67,13 @@ export default async function StudyAbroadPage() {
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": "https://whiteboard-consultants-mock.com"
+          "item": "https://www.whiteboardconsultant.com"
         },
         {
           "@type": "ListItem",
           "position": 2,
           "name": "Study Abroad",
-          "item": "https://whiteboard-consultants-mock.com/study-abroad"
+          "item": "https://www.whiteboardconsultant.com/study-abroad"
         }
       ]
     };

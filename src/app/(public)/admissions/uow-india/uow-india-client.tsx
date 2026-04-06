@@ -50,11 +50,6 @@ export default function UowIndiaClient({ data }: UowIndiaClientProps) {
                             </>
                           </Link>
                         </Button>
-                        <Button asChild size="lg" variant="outline" className="w-full sm:w-auto">
-                           <Link href="#">
-                                Download Brochure
-                           </Link>
-                        </Button>
                     </div>
                   </div>
                   <div className="relative h-96 w-full overflow-hidden rounded-lg shadow-xl">

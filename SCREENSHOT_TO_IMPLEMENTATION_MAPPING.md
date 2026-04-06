@@ -324,7 +324,7 @@ After payment              → Payment verified
 
 The reference URL provided was:
 ```
-https://whiteboard-lms.vercel.app/student/tests/7351dd2e-bc7b-49d7-9432-8330c075c548/take
+https://www.whiteboardconsultant.com/student/tests/7351dd2e-bc7b-49d7-9432-8330c075c548/take
 ```
 
 This shows what students see **after** successful purchase - the test taking interface.

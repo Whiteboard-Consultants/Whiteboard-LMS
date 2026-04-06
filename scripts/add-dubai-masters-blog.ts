@@ -249,7 +249,7 @@ const dubaiMastersContent = `<div class="prose prose-lg max-w-4xl mx-auto dark:p
 
 <div style="text-align: center; margin-top: 32px;">
 <p style="color: #6b7280; margin-bottom: 8px;">Still have questions?</p>
-<a href="mailto:support@whitedgelms.com" style="color: #2563eb; font-weight: bold; text-decoration: none;">Contact us at support@whitedgelms.com</a>
+<a href="mailto:info@whiteboardconsultant.com" style="color: #2563eb; font-weight: bold; text-decoration: none;">Contact us at info@whiteboardconsultant.com</a>
 <p style="color: #9ca3af; font-size: 14px; margin-top: 8px; margin-bottom: 0;">Response time: Usually within 2 hours during business hours</p>
 </div>
 </div>`;

@@ -6,7 +6,7 @@ import { URL } from "url";
 
 export const metadata: Metadata = {
   // IMPORTANT: Replace with your actual production domain
-  metadataBase: new URL('https://whiteboard-consultants-mock.com'), 
+  metadataBase: new URL('https://www.whiteboardconsultant.com'), 
   title: {
     default: 'Whiteboard Consultants - Study Abroad & Test Prep Experts in Kolkata',
     template: '%s | Whiteboard Consultants',

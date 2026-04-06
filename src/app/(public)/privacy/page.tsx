@@ -11,6 +11,9 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  alternates: {
+    canonical: '/privacy',
+  },
   openGraph: {
     type: 'website',
     url: '/privacy',

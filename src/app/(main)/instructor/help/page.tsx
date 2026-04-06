@@ -948,7 +948,7 @@ export default function InstructorHelpPage() {
                   <AccordionItem value="faq11">
                     <AccordionTrigger>How do I contact support?</AccordionTrigger>
                     <AccordionContent>
-                      <p className="text-sm">For technical issues or feature requests, email support@whitedgelms.com with a detailed description. Include screenshots if possible. Response time is typically 24-48 hours.</p>
+                      <p className="text-sm">For technical issues or feature requests, email info@whiteboardconsultant.com with a detailed description. Include screenshots if possible. Response time is typically 24-48 hours.</p>
                     </AccordionContent>
                   </AccordionItem>
 
@@ -965,7 +965,7 @@ export default function InstructorHelpPage() {
             <Card className="border-blue-200 bg-blue-50">
               <CardContent className="pt-6">
                 <p className="text-sm text-blue-900">
-                  <strong>💡 Need more help?</strong> Check the Grading tab for step-by-step walkthrough of the complete grading process, or reach out to support@whitedgelms.com for technical assistance.
+                  <strong>💡 Need more help?</strong> Check the Grading tab for step-by-step walkthrough of the complete grading process, or reach out to info@whiteboardconsultant.com for technical assistance.
                 </p>
               </CardContent>
             </Card>

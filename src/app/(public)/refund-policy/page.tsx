@@ -11,6 +11,9 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  alternates: {
+    canonical: '/refund-policy',
+  },
   openGraph: {
     type: 'website',
     url: '/refund-policy',

@@ -58,6 +58,13 @@ const trainingHighlights = [
     participants: 'For Everyone',
     gradient: 'indigo' as const,
   },
+  {
+    title: 'Resume & Cover Letter Mastery',
+    description: 'Master ATS, quantification, and professional branding for job search success',
+    participants: 'For Job Seekers',
+    gradient: 'blue' as const,
+    link: '/landing/resume-mastery',
+  },
 ];
 
 function TabButton({
@@ -260,7 +267,7 @@ export default function CareerSolutionsHub() {
                     <p className="text-sm text-foreground/70 dark:text-slate-300/70 mb-6">
                       {program.description}
                     </p>
-                    <Link href="/career-solutions/skill-development" className="no-underline">
+                    <Link href={program.link || "/career-solutions/skill-development"} className="no-underline">
                       <Button variant="outline" className="w-full">
                         Learn More
                         <ArrowRight className="ml-2 h-4 w-4" />

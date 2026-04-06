@@ -12,6 +12,9 @@ import Link from 'next/link';
 export const metadata: Metadata = {
   title: 'About Us',
   description: 'Meet Whiteboard Consultants - Kolkata\'s top education consultant since 2022. 1000+ students guided to global universities. Expert test prep & admissions support.',
+  alternates: {
+    canonical: '/about',
+  },
 };
 
 const stats: AboutStatProps[] = [

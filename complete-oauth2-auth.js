@@ -87,7 +87,7 @@ rl.question('📝 Enter authorization code (from the callback URL): ', (authCode
         console.log('2. Go to Vercel Dashboard → Project Settings → Environment Variables');
         console.log('3. Find GMAIL_REFRESH_TOKEN and update it with the new value');
         console.log('4. Redeploy the application');
-        console.log('5. Test the contact form at https://whiteboard-lms.vercel.app/contact\n');
+        console.log('5. Test the contact form at https://www.whiteboardconsultant.com/contact\n');
 
         rl.close();
       } catch (error) {

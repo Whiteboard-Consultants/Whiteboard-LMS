@@ -50,6 +50,9 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
     return {
         title: `${post.title} | Whiteboard Consultants Blog`,
         description: post.excerpt,
+        alternates: {
+            canonical: `/blog/${post.slug}`,
+        },
         openGraph: {
             title: post.title,
             description: post.excerpt,
@@ -170,6 +173,8 @@ export default async function PostPage({ params }: PostPageProps) {
                                         fill
                                         className="object-cover scale-110 transition-transform duration-700 hover:scale-105"
                                         priority
+                                        quality={75}
+                                        sizes="100vw"
                                     />
                                     {/* Enhanced overlay for better text readability */}
                                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/40 to-slate-900/60" />

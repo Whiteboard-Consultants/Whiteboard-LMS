@@ -422,7 +422,15 @@ function TopUniversities() {
           {topUniversities.map((uni) => (
             <Card key={uni.name} className="overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col">
               <div className="relative h-56 w-full">
-                <Image src={uni.image} alt={`Campus of ${uni.name}, a top university to study in Ireland for Indian students`} fill className="object-cover" data-ai-hint={uni.dataAiHint} />
+                <Image 
+                  src={uni.image} 
+                  alt={`Campus of ${uni.name}, a top university to study in Ireland for Indian students`} 
+                  fill 
+                  className="object-cover" 
+                  quality={75}
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  data-ai-hint={uni.dataAiHint} 
+                />
               </div>
               <CardHeader>
                 <h3 className="font-headline text-xl font-bold">{uni.name}</h3>
@@ -438,7 +446,7 @@ function TopUniversities() {
                   <div className="flex items-center"><Book className="h-4 w-4 mr-2 flex-shrink-0" /><span>Webometrics National: {uni.webometricsNational}</span></div>
                 </div>
                 <div className="mt-4 flex-grow">
-                  <Accordion type="single" collapsible className="w-full">
+                  <Accordion type="single" collapsible className="w-full" suppressHydrationWarning>
                     {uni.programs?.ug && uni.programs.ug.length > 0 && (
                         <AccordionItem value="ug-programs">
                             <AccordionTrigger className="font-semibold text-base py-2">Popular UG Programs</AccordionTrigger>
@@ -580,7 +588,7 @@ export default function IrelandPageClient({ children }: IrelandPageClientProps) 
             <div className="grid lg:grid-cols-3 gap-12">
                 <div className="lg:col-span-2">
                     <h2 className="text-3xl font-bold tracking-tight text-foreground font-headline sm:text-4xl mb-8">Admission &amp; Costs for Studying in Ireland</h2>
-                    <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
+                    <Accordion type="single" collapsible defaultValue="item-1" className="w-full" suppressHydrationWarning>
                         <AccordionItem value="item-1">
                             <AccordionTrigger className="text-xl font-headline">Undergraduate Requirements</AccordionTrigger>
                             <AccordionContent>
@@ -811,7 +819,7 @@ export default function IrelandPageClient({ children }: IrelandPageClientProps) 
                             </div>
                         </div>
                         <p className="text-center text-muted-foreground mb-4">Minimum Pay: <span className="font-bold text-foreground">€9.15 - €10 per hour</span></p>
-                         <Accordion type="single" collapsible className="w-full">
+                         <Accordion type="single" collapsible className="w-full" suppressHydrationWarning>
                             <AccordionItem value="eligibility">
                                 <AccordionTrigger>Eligibility Criteria</AccordionTrigger>
                                 <AccordionContent>

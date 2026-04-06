@@ -369,7 +369,15 @@ export default function CanadaPageClient({ children }: CanadaPageClientProps) {
                         {topUniversities.map((uni) => (
                             <Card key={uni.name} className="overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col">
                                 <div className="relative h-56 w-full">
-                                    <Image src={uni.image} alt={`Campus of ${uni.name}, a top university to study in Canada for Indian students`} width={600} height={400} className="object-cover w-full h-full" data-ai-hint={uni.dataAiHint} />
+                                    <Image 
+                                        src={uni.image} 
+                                        alt={`Campus of ${uni.name}, a top university to study in Canada for Indian students`} 
+                                        width={600} 
+                                        height={400} 
+                                        className="object-cover w-full h-full" 
+                                        quality={75}
+                                        data-ai-hint={uni.dataAiHint} 
+                                    />
                                 </div>
                                 <CardHeader>
                                     <h3 className="font-headline text-xl font-bold">{uni.name}</h3>
@@ -391,7 +399,7 @@ export default function CanadaPageClient({ children }: CanadaPageClientProps) {
                                     </div>
                                 </CardHeader>
                                 <CardContent className="flex-grow flex flex-col">
-                                    <Accordion type="single" collapsible className="w-full">
+                                    <Accordion type="single" collapsible className="w-full" suppressHydrationWarning>
                                         {uni.programs.ug.length > 0 && (
                                             <AccordionItem value="ug-programs">
                                                 <AccordionTrigger className="font-semibold text-base">Popular UG Programs</AccordionTrigger>

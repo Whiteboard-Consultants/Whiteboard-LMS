@@ -27,13 +27,13 @@ export default async function CollegeAdmissionsPage() {
                 "@type": "ListItem",
                 "position": 1,
                 "name": "Home",
-                "item": "https://whiteboard-consultants-mock.com"
+                "item": "https://www.whiteboardconsultant.com"
             },
             {
                 "@type": "ListItem",
                 "position": 2,
                 "name": "College Admissions",
-                "item": "https://whiteboard-consultants-mock.com/college-admissions"
+                "item": "https://www.whiteboardconsultant.com/college-admissions"
             }
         ]
     };
