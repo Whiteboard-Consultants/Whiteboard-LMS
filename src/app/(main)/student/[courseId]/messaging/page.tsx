@@ -10,13 +10,6 @@ interface MessagingPageProps {
   }>;
 }
 
-export async function generateMetadata() {
-  return {
-    title: 'Messages - Student Dashboard',
-  };
-}
-
-
 export const metadata: Metadata = {
   alternates: {
     canonical: '/student/[courseId]/messaging',

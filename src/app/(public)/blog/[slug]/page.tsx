@@ -10,6 +10,7 @@ import { convertToDate } from "@/lib/date-utils";
 import { format } from "date-fns";
 import { parseSlugFromUrl, generateSlug } from "@/lib/slug-utils";
 import { Breadcrumb } from "@/components/breadcrumb";
+import { generateBlogPostSchema, generateBreadcrumbSchema, cleanSchema } from "@/lib/schema-markup";
 
 
 type PostPageProps = {
@@ -79,71 +80,25 @@ export default async function PostPage({ params }: PostPageProps) {
     const createdDate = convertToDate(post.createdAt);
     const updatedDate = convertToDate(post.updatedAt);
     
-    const jsonLd = {
-        "@context": "https://schema.org",
-        "@type": "BlogPosting",
-        "mainEntityOfPage": {
-            "@type": "WebPage",
-            "@id": `https://www.whiteboardconsultant.com/blog/${post.slug}`
-        },
-        "headline": post.title,
-        "description": post.excerpt,
-        "image": {
-            "@type": "ImageObject",
-            "url": post.imageUrl,
-            "width": 1200,
-            "height": 630,
-            "caption": post.featuredImageAlt || post.title
-        },
-        "author": {
-            "@type": "Person",
-            "name": post.author.name,
-            "url": "https://www.whiteboardconsultant.com"
-        },
-        "publisher": {
-            "@type": "Organization",
-            "name": "Whiteboard Consultants",
-            "url": "https://www.whiteboardconsultant.com",
-            "logo": {
-                "@type": "ImageObject",
-                "url": "https://www.whiteboardconsultant.com/logo.png",
-                "width": 250,
-                "height": 60
-            }
-        },
-        "datePublished": createdDate?.toISOString() || new Date().toISOString(),
-        "dateModified": updatedDate?.toISOString() || new Date().toISOString(),
-        "articleBody": post.content,
-        "keywords": post.category,
-        "wordCount": post.content ? post.content.split(/\s+/).length : 0,
-        "articleSection": post.category,
-        "inLanguage": "en-US"
-    };
+    const jsonLd = cleanSchema(generateBlogPostSchema({
+        title: post.title,
+        excerpt: post.excerpt,
+        content: post.content,
+        imageUrl: post.imageUrl,
+        authorName: post.author?.name || "Whiteboard Consultants",
+        authorUrl: "https://www.whiteboardconsultant.com",
+        datePublished: createdDate || new Date(),
+        dateModified: updatedDate || new Date(),
+        slug: post.slug,
+        category: post.category,
+        tags: post.tags ? (typeof post.tags === 'string' ? post.tags.split(',') : post.tags) : undefined,
+    }));
 
-    const breadcrumbSchema = {
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-            {
-                "@type": "ListItem",
-                "position": 1,
-                "name": "Home",
-                "item": "https://www.whiteboardconsultant.com"
-            },
-            {
-                "@type": "ListItem",
-                "position": 2,
-                "name": "Blog",
-                "item": "https://www.whiteboardconsultant.com/blog"
-            },
-            {
-                "@type": "ListItem",
-                "position": 3,
-                "name": post.title,
-                "item": `https://www.whiteboardconsultant.com/blog/${post.slug}`
-            }
-        ]
-    };
+    const breadcrumbSchema = generateBreadcrumbSchema([
+        { name: "Home", url: "https://www.whiteboardconsultant.com" },
+        { name: "Blog", url: "https://www.whiteboardconsultant.com/blog" },
+        { name: post.title, url: `https://www.whiteboardconsultant.com/blog/${post.slug}` }
+    ]);
 
     return (
         <>

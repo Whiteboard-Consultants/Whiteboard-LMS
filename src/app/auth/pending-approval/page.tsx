@@ -1,4 +1,3 @@
-import type { Metadata } from 'next';
 "use client";
 
 import { useRouter } from "next/navigation";
@@ -6,13 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock } from "lucide-react";
 import { signOut } from "@/lib/supabase-auth";
-
-
-export const metadata: Metadata = {
-  alternates: {
-    canonical: '/auth/pending-approval',
-  },
-};
 
 export default function PendingApprovalPage() {
   const router = useRouter();

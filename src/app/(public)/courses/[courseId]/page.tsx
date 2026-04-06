@@ -13,6 +13,7 @@ import { RichTextRenderer } from "@/components/rich-text-renderer";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { CoursePurchaseCard } from "@/components/course-purchase-card";
 import { CourseCurriculum } from "@/components/course-curriculum";
+import { generateCourseSchema, generateBreadcrumbSchema, cleanSchema } from "@/lib/schema-markup";
 
 // Cache course details for 1 hour - Improves TTFB significantly
 export const revalidate = 3600;
@@ -65,54 +66,26 @@ export default async function CoursePage({ params }: CoursePageProps) {
         notFound();
     }
 
-    const jsonLd = {
-        "@context": "https://schema.org",
-        "@type": "Course",
-        "name": course.title,
-        "description": course.description,
-        "image": course.imageUrl,
-        "provider": {
-            "@type": "Organization",
-            "name": "Whiteboard Consultants",
-            "sameAs": "https://www.whiteboardconsultant.com/"
-        },
-        "offers": {
-            "@type": "Offer",
-            "price": course.price ? course.price.toString() : "0",
-            "priceCurrency": "INR",
-            "category": course.category
-        },
-        "aggregateRating": course.rating ? {
-            "@type": "AggregateRating",
-            "ratingValue": course.rating.toFixed(1),
-            "reviewCount": course.studentCount.toString()
-        } : undefined,
-    };
+    const jsonLd = cleanSchema(generateCourseSchema({
+        id: course.id,
+        title: course.title,
+        description: course.description,
+        imageUrl: course.imageUrl,
+        price: course.price,
+        category: course.category,
+        rating: course.rating,
+        reviewCount: course.ratingCount,
+        studentCount: course.studentCount,
+        instructorName: course.instructor?.name,
+        instructorId: course.instructor?.id,
+        educationalLevel: "BeginnerLevel",
+    }));
 
-    const breadcrumbSchema = {
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-            {
-                "@type": "ListItem",
-                "position": 1,
-                "name": "Home",
-                "item": "https://www.whiteboardconsultant.com"
-            },
-            {
-                "@type": "ListItem",
-                "position": 2,
-                "name": "Courses",
-                "item": "https://www.whiteboardconsultant.com/courses"
-            },
-            {
-                "@type": "ListItem",
-                "position": 3,
-                "name": course.title,
-                "item": `https://www.whiteboardconsultant.com/courses/${course.id}`
-            }
-        ]
-    };
+    const breadcrumbSchema = generateBreadcrumbSchema([
+        { name: "Home", url: "https://www.whiteboardconsultant.com" },
+        { name: "Courses", url: "https://www.whiteboardconsultant.com/courses" },
+        { name: course.title, url: `https://www.whiteboardconsultant.com/courses/${course.id}` }
+    ]);
 
     return (
         <>
