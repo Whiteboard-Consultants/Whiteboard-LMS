@@ -72,7 +72,7 @@ export function generateCourseSchema({
     "aggregateRating": rating ? {
       "@type": "AggregateRating",
       "ratingValue": rating.toFixed(1),
-      "reviewCount": (reviewCount || studentCount || 0).toString(),
+      "reviewCount": (reviewCount || studentCount || 0),
       "bestRating": "5",
       "worstRating": "1"
     } : undefined,

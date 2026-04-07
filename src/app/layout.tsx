@@ -197,7 +197,7 @@ export default function RootLayout({
             "aggregateRating": {
               "@type": "AggregateRating",
               "ratingValue": "4.8",
-              "reviewCount": "500+",
+              "reviewCount": 500,
               "bestRating": "5"
             },
             "sameAs": [

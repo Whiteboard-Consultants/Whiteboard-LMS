@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 import { getPosts } from '@/lib/supabase-data'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://www.whiteboardconsultant.com'
+  const baseUrl = 'https://whiteboardconsultant.com'
   
   // Static pages with high priority (SEO optimized)
   const staticPages: MetadataRoute.Sitemap = [
