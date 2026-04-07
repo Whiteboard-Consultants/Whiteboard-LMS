@@ -5,6 +5,7 @@ import { Briefcase, ArrowRight, BookOpen } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { RIASECButton } from '@/components/riasec';
 
 const internshipHighlights = [
   {
@@ -209,12 +210,7 @@ export default function CareerSolutionsHub() {
                 Join our next internship cohort and gain real-world experience with industry mentorship.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/career-solutions/internship-programs">
-                  <Button size="lg" variant="secondary">
-                    Explore All Programs
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
+                <RIASECButton />
                 <Link href="/simple-register">
                   <Button
                     size="lg"

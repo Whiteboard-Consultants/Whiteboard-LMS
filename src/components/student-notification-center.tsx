@@ -75,37 +75,11 @@ export function StudentNotificationCenter() {
 
     fetchNotifications();
 
-    // Only set up real-time subscription if we don't have table errors
-    let channel: any = null;
+    // Skip realtime subscriptions for now to avoid channel conflicts
+    // The synchronous fetch above is sufficient
     
-    // Test if table exists before setting up real-time subscription
-    supabase
-      .from('notifications')
-      .select('id')
-      .limit(1)
-      .then(({ error }) => {
-        if (!error) {
-          // Table exists, safe to set up subscription
-          channel = supabase
-            .channel(`user_${user.id}_notifications`)
-            .on('postgres_changes', {
-              event: '*',
-              schema: 'public',
-              table: 'notifications',
-              filter: `receiver_id=eq.${user.id}`  // Fixed: use snake_case column name
-            }, (payload) => {
-              fetchNotifications(); // Refetch notifications when changes occur
-            })
-            .subscribe();
-        } else {
-          console.log("Skipping real-time subscription - notifications table not available");
-        }
-      });
-
     return () => {
-      if (channel) {
-        supabase.removeChannel(channel);
-      }
+      // Cleanup handled by dependencies
     };
   }, [user]);
 

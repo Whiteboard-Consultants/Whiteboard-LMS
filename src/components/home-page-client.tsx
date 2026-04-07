@@ -13,6 +13,7 @@ import { ServiceCard } from "@/components/service-card";
 import { services } from "@/lib/services";
 import FutureProofCareerSection from "./sections/FutureProofCareerSection";
 import JobTrendsChartSection from "./sections/JobTrendsChartSection";
+import RIASECCTASection from "@/components/sections/RIASECCTASection";
 import ResumeEvaluationSection from "./sections/ResumeEvaluationSection";
 import { WhyChooseUsData } from "@/lib/content";
 
@@ -95,6 +96,7 @@ export default function HomePageClient({ whyChooseUsData }: HomePageClientProps)
 
             <FutureProofCareerSection />
             <JobTrendsChartSection />
+            <RIASECCTASection />
             <ResumeEvaluationSection />
              
              <section className="py-16 sm:py-24 bg-[#005CB4] dark:bg-black">

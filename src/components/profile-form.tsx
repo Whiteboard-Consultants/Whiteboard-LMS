@@ -32,6 +32,7 @@ import { Textarea } from "./ui/textarea";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { useRouter } from "next/navigation";
 import { Checkbox } from "./ui/checkbox";
+import { AddressGroupField } from "./form-fields/address-group-field";
 import type { CourseCategory } from "@/types";
 
 const improvementItems: { id: CourseCategory; label: string }[] = [
@@ -52,6 +53,13 @@ const formSchema = z.object({
     needsInterviewSupport: z.enum(['yes', 'no'], {
         required_error: "Please select an option.",
     }),
+    // Address fields
+    address: z.string().min(5, { message: "Please enter a valid address." }).optional().or(z.literal('')),
+    apartment: z.string().optional().or(z.literal('')),
+    city: z.string().optional().or(z.literal('')),
+    state: z.string().optional().or(z.literal('')),
+    postalCode: z.string().optional().or(z.literal('')),
+    country: z.string().optional().or(z.literal('')),
 });
 
 interface ProfileFormProps {
@@ -74,6 +82,12 @@ export function ProfileForm({ onSave, isMandatory = false }: ProfileFormProps) {
       improvementAreas: [],
       careerPlan: "",
       needsInterviewSupport: "no",
+      address: "",
+      apartment: "",
+      city: "",
+      state: "",
+      postalCode: "",
+      country: "",
     },
   });
 
@@ -88,6 +102,12 @@ export function ProfileForm({ onSave, isMandatory = false }: ProfileFormProps) {
         improvementAreas: userData.improvementAreas || [],
         careerPlan: userData.careerPlan || "",
         needsInterviewSupport: userData.needsInterviewSupport ? 'yes' : 'no',
+        address: userData.address || "",
+        apartment: userData.apartment || "",
+        city: userData.city || "",
+        state: userData.state || "",
+        postalCode: userData.postalCode || "",
+        country: userData.country || "",
       });
     }
   }, [userData, form]);
@@ -124,6 +144,13 @@ export function ProfileForm({ onSave, isMandatory = false }: ProfileFormProps) {
             improvement_areas: values.improvementAreas,
             career_plan: values.careerPlan,
             needs_interview_support: values.needsInterviewSupport === 'yes',
+            // Address fields
+            address: values.address || null,
+            apartment: values.apartment || null,
+            city: values.city || null,
+            state: values.state || null,
+            postal_code: values.postalCode || null,
+            country: values.country || null,
             is_profile_complete: true,
             updated_at: new Date().toISOString()
         };
@@ -289,6 +316,20 @@ export function ProfileForm({ onSave, isMandatory = false }: ProfileFormProps) {
                 </FormItem>
               )}
             />
+            {/* Address Information Section */}
+            <div className="space-y-4 pt-4 border-t">
+              <h3 className="text-lg font-semibold">Address Information</h3>
+              <AddressGroupField
+                control={form.control}
+                addressField="address"
+                apartmentField="apartment"
+                cityField="city"
+                stateField="state"
+                postalCodeField="postalCode"
+                countryField="country"
+                disabled={isSubmitting}
+              />
+            </div>
              <FormField
               control={form.control}
               name="needsInterviewSupport"

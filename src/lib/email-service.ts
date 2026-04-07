@@ -71,7 +71,7 @@ async function getGmailAccessToken(): Promise<string | null> {
 // Email configuration - Smart routing based on account type
 // Primary: SMTP2GO (proven reliable for Google Workspace accounts)
 // Fallback: Gmail OAuth2 (if configured for personal Gmail)
-const createTransporter = async () => {
+export const createTransporter = async () => {
   // Try SMTP2GO first (primary service for workspace accounts)
   if (process.env.SMTP_USER && process.env.SMTP_PASSWORD) {
     try {
