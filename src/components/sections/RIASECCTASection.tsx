@@ -3,7 +3,11 @@
 import { RIASECButton } from '@/components/riasec';
 import { Sparkles, TrendingUp, Lightbulb } from 'lucide-react';
 
-export default function RIASECCTASection() {
+interface RIASECCTASectionProps {
+  autoOpen?: boolean;
+}
+
+export default function RIASECCTASection({ autoOpen = false }: RIASECCTASectionProps) {
   return (
     <section className="py-16 sm:py-24 bg-gradient-to-b from-blue-500/10 to-indigo-500/10 dark:from-slate-900/50 dark:to-blue-900/50 backdrop-blur-md">
       <div className="container">
@@ -61,7 +65,7 @@ export default function RIASECCTASection() {
 
             {/* CTA Button */}
             <div className="flex items-center justify-center">
-              <RIASECButton />
+              <RIASECButton autoOpen={autoOpen} />
             </div>
 
             {/* Info Text */}

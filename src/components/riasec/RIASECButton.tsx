@@ -5,12 +5,22 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sparkles } from 'lucide-react';
 import { RIASECModal } from './RIASECModal';
 
-export function RIASECButton() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+interface RIASECButtonProps {
+  autoOpen?: boolean;
+}
+
+export function RIASECButton({ autoOpen = false }: RIASECButtonProps) {
+  const [isModalOpen, setIsModalOpen] = useState(autoOpen);
+
+  useEffect(() => {
+    if (autoOpen) {
+      setIsModalOpen(true);
+    }
+  }, [autoOpen]);
 
   return (
     <>

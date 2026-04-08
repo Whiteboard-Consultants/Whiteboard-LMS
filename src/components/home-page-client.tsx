@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 import StudyAbroadCtaSection from "@/components/sections/StudyAbroadCtaSection";
 import WhyChooseUsSection from "@/components/sections/why-choose-us-section";
 import StudyAbroadTestimonials from "@/components/sections/StudyAbroadTestimonials";
@@ -13,7 +14,7 @@ import { ServiceCard } from "@/components/service-card";
 import { services } from "@/lib/services";
 import FutureProofCareerSection from "./sections/FutureProofCareerSection";
 import JobTrendsChartSection from "./sections/JobTrendsChartSection";
-import RIASECCTASection from "@/components/sections/RIASECCTASection";
+import RIASECCTASectionWrapper from "@/components/sections/RIASECCTASectionWrapper";
 import ResumeEvaluationSection from "./sections/ResumeEvaluationSection";
 import { WhyChooseUsData } from "@/lib/content";
 
@@ -96,7 +97,9 @@ export default function HomePageClient({ whyChooseUsData }: HomePageClientProps)
 
             <FutureProofCareerSection />
             <JobTrendsChartSection />
-            <RIASECCTASection />
+            <Suspense fallback={<div className="h-64" />}>
+              <RIASECCTASectionWrapper />
+            </Suspense>
             <ResumeEvaluationSection />
              
              <section className="py-16 sm:py-24 bg-[#005CB4] dark:bg-black">
