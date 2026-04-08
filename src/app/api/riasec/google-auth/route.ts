@@ -17,11 +17,22 @@ export async function POST(request: NextRequest) {
     }
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const clientId = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     
+    if (!clientId) {
+      return NextResponse.json(
+        { error: 'Supabase client ID not configured' },
+        { status: 500 }
+      );
+    }
+
     // Build Google OAuth URL with Supabase
     const params = new URLSearchParams({
+      client_id: clientId,
       provider: 'google',
       redirect_to: redirectUrl,
+      response_type: 'code',
+      scopes: 'profile email',
     });
 
     const url = `${supabaseUrl}/auth/v1/oauth2/authorize?${params.toString()}`;

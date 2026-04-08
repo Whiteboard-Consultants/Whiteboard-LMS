@@ -7,6 +7,7 @@
 
 import React, { useState } from 'react';
 import { Mail, Lock, User, Check, LogIn } from 'lucide-react';
+import { createClient } from '@supabase/supabase-js';
 
 interface RIASECRegistrationProps {
   onComplete: (data: {
@@ -201,26 +202,29 @@ export function RIASECRegistration({
   const handleGoogleSignIn = async () => {
     setIsSubmitting(true);
     try {
-      // Call Google OAuth endpoint
-      const response = await fetch('/api/riasec/google-auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          mode: mode,
-          redirectUrl: `${window.location.origin}/auth/callback`,
-        }),
+      // Initialize Supabase client
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+
+      // Use Supabase's built-in OAuth handler
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        },
       });
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to initiate Google sign in');
+      if (error) {
+        throw new Error(error.message || 'Failed to initiate Google sign in');
       }
 
-      const data = await response.json();
-      // Redirect to Supabase Google OAuth
-      if (data.url) {
-        window.location.href = data.url;
-      }
+      // Supabase handles the redirect automatically
     } catch (err) {
       setValidationErrors({
         submit: err instanceof Error ? err.message : 'Google sign in failed',
