@@ -107,6 +107,7 @@ export default function WhyChooseUsSection({ id, data }: WhyChooseUsSectionProps
                             quality={85}
                             sizes="(max-width: 768px) 100vw, 50vw"
                             data-ai-hint={data.image.ai_hint}
+                            priority
                         />
                     </div>
                 </div>
