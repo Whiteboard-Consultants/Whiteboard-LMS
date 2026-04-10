@@ -215,3 +215,147 @@ export async function deleteUserEnrollment(enrollmentId: string) {
     };
   }
 }
+
+export async function approveUser(userId: string) {
+  try {
+    if (!supabaseAdmin) {
+      throw new Error('Supabase admin client not configured');
+    }
+
+    console.log('✅ [SERVER ACTION] Approving user:', userId);
+
+    const { data, error } = await supabaseAdmin
+      .from('users')
+      .update({ status: 'approved' })
+      .eq('id', userId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error approving user:', error);
+      throw error;
+    }
+
+    console.log('✅ [SERVER ACTION] User approved successfully:', userId);
+
+    return {
+      success: true,
+      message: 'User approved successfully',
+      data
+    };
+  } catch (error) {
+    console.error('❌ [SERVER ACTION] Error approving user:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to approve user'
+    };
+  }
+}
+
+export async function rejectUser(userId: string) {
+  try {
+    if (!supabaseAdmin) {
+      throw new Error('Supabase admin client not configured');
+    }
+
+    console.log('🚫 [SERVER ACTION] Rejecting user:', userId);
+
+    const { data, error } = await supabaseAdmin
+      .from('users')
+      .update({ status: 'rejected' })
+      .eq('id', userId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error rejecting user:', error);
+      throw error;
+    }
+
+    console.log('✅ [SERVER ACTION] User rejected successfully:', userId);
+
+    return {
+      success: true,
+      message: 'User rejected successfully',
+      data
+    };
+  } catch (error) {
+    console.error('❌ [SERVER ACTION] Error rejecting user:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to reject user'
+    };
+  }
+}
+
+export async function suspendUser(userId: string) {
+  try {
+    if (!supabaseAdmin) {
+      throw new Error('Supabase admin client not configured');
+    }
+
+    console.log('⏸️ [SERVER ACTION] Suspending user:', userId);
+
+    const { data, error } = await supabaseAdmin
+      .from('users')
+      .update({ status: 'suspended' })
+      .eq('id', userId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error suspending user:', error);
+      throw error;
+    }
+
+    console.log('✅ [SERVER ACTION] User suspended successfully:', userId);
+
+    return {
+      success: true,
+      message: 'User suspended successfully',
+      data
+    };
+  } catch (error) {
+    console.error('❌ [SERVER ACTION] Error suspending user:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to suspend user'
+    };
+  }
+}
+
+export async function reinstateUser(userId: string) {
+  try {
+    if (!supabaseAdmin) {
+      throw new Error('Supabase admin client not configured');
+    }
+
+    console.log('🔄 [SERVER ACTION] Reinstating user:', userId);
+
+    const { data, error } = await supabaseAdmin
+      .from('users')
+      .update({ status: 'approved' })
+      .eq('id', userId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error reinstating user:', error);
+      throw error;
+    }
+
+    console.log('✅ [SERVER ACTION] User reinstated successfully:', userId);
+
+    return {
+      success: true,
+      message: 'User reinstated successfully',
+      data
+    };
+  } catch (error) {
+    console.error('❌ [SERVER ACTION] Error reinstating user:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to reinstate user'
+    };
+  }
+}

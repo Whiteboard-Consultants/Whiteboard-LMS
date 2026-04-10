@@ -5,10 +5,11 @@ import { useEffect, useState, useId, useRef, useCallback } from 'react';
 import { useEditor, EditorContent, Editor, ReactNodeViewRenderer, NodeViewWrapper } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { TextStyle } from '@tiptap/extension-text-style';
+import Link from '@tiptap/extension-link';
 import BaseImage from '@tiptap/extension-image';
 import { Table, TableRow, TableHeader, TableCell } from '@tiptap/extension-table';
 import {
-  Bold, Italic, Strikethrough, Heading1, Heading2, Heading3, Pilcrow, List, ListOrdered, Quote, Minus, Undo, Redo, ImageIcon, Loader2, ChevronDown, Grid3x3
+  Bold, Italic, Strikethrough, Heading1, Heading2, Heading3, Pilcrow, List, ListOrdered, Quote, Minus, Undo, Redo, ImageIcon, Loader2, ChevronDown, Grid3x3, Link as LinkIcon
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
@@ -54,11 +55,81 @@ const EditorToolbar = ({ editor }: { editor: Editor | null }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [currentFontSize, setCurrentFontSize] = useState('16px');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [showLinkModal, setShowLinkModal] = useState(false);
+  const [linkUrl, setLinkUrl] = useState('');
+  const [linkText, setLinkText] = useState('');
   const { toast } = useToast();
   const { accessToken } = useAuth();
   const fontSizeId = useId();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const linkInputRef = useRef<HTMLInputElement>(null);
+
+  // Handle link insertion
+  const handleAddLink = useCallback(() => {
+    if (!editor) return;
+    
+    if (!linkUrl.trim()) {
+      toast({
+        variant: 'destructive',
+        title: 'Invalid link',
+        description: 'Please enter a URL.'
+      });
+      return;
+    }
+
+    // Ensure URL has a protocol
+    let url = linkUrl.trim();
+    if (!url.match(/^https?:\/\//)) {
+      url = 'https://' + url;
+    }
+
+    // Set link on selected text or insert new link
+    editor.chain().focus().setLink({ href: url }).run();
+    setLinkUrl('');
+    setLinkText('');
+    setShowLinkModal(false);
+    toast({
+      title: 'Success',
+      description: 'Link added successfully.'
+    });
+  }, [editor, linkUrl, toast]);
+
+  // Remove link
+  const handleRemoveLink = useCallback(() => {
+    if (!editor) return;
+    editor.chain().focus().unsetLink().run();
+    toast({
+      title: 'Success',
+      description: 'Link removed successfully.'
+    });
+  }, [editor, toast]);
+
+  // Open link modal
+  const handleOpenLinkModal = useCallback(() => {
+    if (!editor) return;
+    
+    const { from, to } = editor.state.selection;
+    if (from === to) {
+      toast({
+        variant: 'destructive',
+        title: 'No text selected',
+        description: 'Please select text to add a link.'
+      });
+      return;
+    }
+
+    const selectedText = editor.state.doc.textBetween(from, to);
+    const currentLink = editor.getAttributes('link').href;
+    
+    setLinkText(selectedText);
+    setLinkUrl(currentLink || '');
+    setShowLinkModal(true);
+    
+    setTimeout(() => {
+      linkInputRef.current?.focus();
+    }, 0);
+  }, [editor, toast]);
 
   // Memoized font size change handler
   const handleFontSizeChange = useCallback((fontSize: string) => {
@@ -233,6 +304,26 @@ const EditorToolbar = ({ editor }: { editor: Editor | null }) => {
       >
         <Strikethrough className="h-4 w-4" />
       </button>
+      <button
+        type="button"
+        onClick={handleOpenLinkModal}
+        className={`p-2 rounded-lg ${editor.isActive('link') ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'}`}
+        aria-label="Add Link"
+        title="Select text and click to add a link"
+      >
+        <LinkIcon className="h-4 w-4" />
+      </button>
+      {editor.isActive('link') && (
+        <button
+          type="button"
+          onClick={handleRemoveLink}
+          className="p-2 rounded-lg hover:bg-red-100"
+          aria-label="Remove Link"
+          title="Remove link"
+        >
+          <span className="text-xs text-red-600 font-semibold">Remove Link</span>
+        </button>
+      )}
        <button
         type="button"
         onClick={() => editor.chain().focus().setParagraph().run()}
@@ -459,6 +550,60 @@ const EditorToolbar = ({ editor }: { editor: Editor | null }) => {
       >
         <Redo className="h-4 w-4" />
       </button>
+      
+      {/* Link Modal */}
+      {showLinkModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-background border border-input rounded-lg p-6 w-96 shadow-lg">
+            <h3 className="text-lg font-semibold mb-4">Add Link</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Selected Text:</label>
+                <input
+                  type="text"
+                  value={linkText}
+                  disabled
+                  className="w-full px-3 py-2 border border-input rounded-lg bg-muted text-muted-foreground text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">URL:</label>
+                <input
+                  ref={linkInputRef}
+                  type="text"
+                  placeholder="https://example.com"
+                  value={linkUrl}
+                  onChange={(e) => setLinkUrl(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleAddLink();
+                    } else if (e.key === 'Escape') {
+                      setShowLinkModal(false);
+                    }
+                  }}
+                  className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm"
+                />
+              </div>
+              <div className="flex gap-2 justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowLinkModal(false)}
+                  className="px-4 py-2 text-sm font-medium border border-input rounded-lg hover:bg-accent"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAddLink}
+                  className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
+                >
+                  Add Link
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -505,6 +650,11 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
       TableRow,
       TableHeader,
       TableCell,
+      Link.configure({
+        openOnClick: false,
+        linkOnPaste: true,
+        autolink: true,
+      }),
     ],
     content: '', // Start with empty content, we'll set it in useEffect
     onUpdate: ({ editor }) => {

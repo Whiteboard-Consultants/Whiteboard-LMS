@@ -40,70 +40,105 @@ export default function AdminEnrollmentsPage() {
         return;
     }
 
-    const fetchEnrollments = async (status: 'pending' | 'approved', setter: React.Dispatch<React.SetStateAction<Enrollment[]>>) => {
+    const subscriptions: { unsubscribe: () => Promise<void> }[] = [];
+    let isMounted = true;
+
+    const setupSubscription = async (status: 'pending' | 'approved', setter: React.Dispatch<React.SetStateAction<Enrollment[]>>) => {
+        if (!isMounted) return;
+
         try {
             // Fetch enrollments using server action (bypasses RLS)
             const result = await fetchEnrollmentsByStatus(status);
 
             if (!result.success) {
                 console.error(`Error fetching ${status} enrollments:`, result.error);
-                toast({ variant: 'destructive', title: 'Error', description: `Failed to load ${status} enrollments.`});
-                setLoading(false);
+                if (isMounted) {
+                    toast({ variant: 'destructive', title: 'Error', description: `Failed to load ${status} enrollments.`});
+                }
                 return;
             }
 
-            setter(result.data);
-            setLoading(false);
+            if (isMounted) {
+                setter(result.data);
+            }
 
             // Set up real-time subscription
-            const subscription = supabase
-                .channel(`enrollments_${status}`)
-                .on('postgres_changes', 
-                    { 
-                        event: '*', 
-                        schema: 'public', 
-                        table: 'enrollments',
-                        filter: `status=eq.${status}`
-                    }, 
-                    async (payload) => {
-                        // Refetch data when changes occur
-                        const refreshResult = await fetchEnrollmentsByStatus(status);
-                        if (refreshResult.success) {
-                            setter(refreshResult.data);
-                        }
-                    }
-                )
-                .subscribe();
+            if (isMounted) {
+                try {
+                    // Use unique channel name with timestamp to avoid conflicts
+                    const channelName = `enrollments_${status}_${Date.now()}`;
+                    const channel = supabase.channel(channelName, {
+                        config: {
+                            presence: {
+                                key: `${status}_${Date.now()}`,
+                            },
+                        },
+                    });
 
-            return () => {
-                subscription.unsubscribe();
-            };
+                    channel.on(
+                        'postgres_changes',
+                        {
+                            event: '*',
+                            schema: 'public',
+                            table: 'enrollments',
+                            filter: `status=eq.${status}`,
+                        },
+                        async (payload) => {
+                            if (!isMounted) return;
+                            // Refetch data when changes occur
+                            const refreshResult = await fetchEnrollmentsByStatus(status);
+                            if (refreshResult.success && isMounted) {
+                                setter(refreshResult.data);
+                            }
+                        }
+                    );
+
+                    channel.subscribe((status, err) => {
+                        if (err) {
+                            console.warn(`Subscription status for ${status} enrollments:`, status, err);
+                        }
+                    });
+
+                    subscriptions.push(channel);
+                } catch (subError) {
+                    console.error(`Error subscribing to ${status} enrollments:`, subError);
+                }
+            }
         } catch (error) {
             console.error(`Error setting up ${status} enrollments:`, error);
-            toast({ variant: 'destructive', title: 'Error', description: `Failed to load ${status} enrollments.`});
+            if (isMounted) {
+                toast({ variant: 'destructive', title: 'Error', description: `Failed to load ${status} enrollments.`});
+            }
+        }
+    };
+
+    const init = async () => {
+        if (!isMounted) return;
+        setLoading(true);
+        
+        // Set up both subscriptions sequentially
+        await setupSubscription('pending', setPendingEnrollments);
+        if (isMounted) {
+            await setupSubscription('approved', setApprovedEnrollments);
+        }
+        
+        if (isMounted) {
             setLoading(false);
         }
     };
 
-    const setupSubscriptions = async () => {
-        const unsubPending = await fetchEnrollments('pending', setPendingEnrollments);
-        const unsubApproved = await fetchEnrollments('approved', setApprovedEnrollments);
-
-        return () => {
-            if (unsubPending) unsubPending();
-            if (unsubApproved) unsubApproved();
-        };
-    };
-
-    let cleanup: (() => void) | undefined;
-    setupSubscriptions().then(cleanupFn => {
-        cleanup = cleanupFn;
-    });
+    init();
 
     return () => {
-        if (cleanup) cleanup();
+        isMounted = false;
+        // Cleanup all subscriptions
+        subscriptions.forEach(sub => {
+            sub.unsubscribe().catch(err => {
+                console.warn('Error unsubscribing:', err);
+            });
+        });
     };
-  }, [toast, user]);
+  }, [user]);
 
   const handleApprove = async (enrollmentId: string) => {
     setUpdatingId(enrollmentId);

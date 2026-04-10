@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { supabase } from "@/lib/supabase";
-import { sendPasswordResetEmail, setTemporaryPassword, fetchUserEnrollments, deleteUserEnrollment } from './actions';
+import { sendPasswordResetEmail, setTemporaryPassword, fetchUserEnrollments, deleteUserEnrollment, approveUser, rejectUser, suspendUser, reinstateUser } from './actions';
 import { getAllUsers, getPendingUsers } from './data-actions';
 import { PageHeader } from "@/components/page-header";
 import { convertToDate } from "@/lib/date-utils";
@@ -229,12 +229,11 @@ export default function AdminUsersPage() {
   const handleApprove = async (userId: string) => {
     setUpdatingId(userId);
     try {
-      const { error } = await supabase
-        .from('users')
-        .update({ status: 'approved' })
-        .eq('id', userId);
+      const result = await approveUser(userId);
 
-      if (error) throw error;
+      if (!result.success) {
+        throw new Error(result.error);
+      }
 
       toast({ title: "Success", description: "User approved successfully" });
       await fetchUsers();
@@ -244,7 +243,7 @@ export default function AdminUsersPage() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to approve user"
+        description: error instanceof Error ? error.message : "Failed to approve user"
       });
     }
     setUpdatingId(null);
@@ -253,12 +252,11 @@ export default function AdminUsersPage() {
   const handleReject = async (userId: string) => {
     setUpdatingId(userId);
     try {
-      const { error } = await supabase
-        .from('users')
-        .update({ status: 'rejected' })
-        .eq('id', userId);
+      const result = await rejectUser(userId);
 
-      if (error) throw error;
+      if (!result.success) {
+        throw new Error(result.error);
+      }
 
       toast({ title: "Success", description: "User rejected successfully" });
       await fetchUsers();
@@ -268,7 +266,7 @@ export default function AdminUsersPage() {
       toast({
         variant: "destructive",
         title: "Error", 
-        description: "Failed to reject user"
+        description: error instanceof Error ? error.message : "Failed to reject user"
       });
     }
     setUpdatingId(null);
@@ -277,12 +275,11 @@ export default function AdminUsersPage() {
   const handleSuspend = async (userId: string) => {
     setUpdatingId(userId);
     try {
-      const { error } = await supabase
-        .from('users')
-        .update({ status: 'suspended' })
-        .eq('id', userId);
+      const result = await suspendUser(userId);
 
-      if (error) throw error;
+      if (!result.success) {
+        throw new Error(result.error);
+      }
 
       toast({ title: "Success", description: "User suspended successfully" });
       await fetchUsers();
@@ -291,7 +288,7 @@ export default function AdminUsersPage() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to suspend user"
+        description: error instanceof Error ? error.message : "Failed to suspend user"
       });
     }
     setUpdatingId(null);
@@ -300,12 +297,11 @@ export default function AdminUsersPage() {
   const handleReinstate = async (userId: string) => {
     setUpdatingId(userId);
     try {
-      const { error } = await supabase
-        .from('users')
-        .update({ status: 'approved' })
-        .eq('id', userId);
+      const result = await reinstateUser(userId);
 
-      if (error) throw error;
+      if (!result.success) {
+        throw new Error(result.error);
+      }
 
       toast({ title: "Success", description: "User reinstated successfully" });
       await fetchUsers();
@@ -314,7 +310,7 @@ export default function AdminUsersPage() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to reinstate user"
+        description: error instanceof Error ? error.message : "Failed to reinstate user"
       });
     }
     setUpdatingId(null);
