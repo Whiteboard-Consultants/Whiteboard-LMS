@@ -705,28 +705,48 @@ export const RichTextEditor = ({ content, onChange, ...props }: RichTextEditorPr
       return;
     }
 
+    // Get current cursor position before updating
+    const currentContent = editor.getHTML();
+    
+    // Only update if content actually changed to avoid unnecessary resets
+    if (currentContent === content) {
+      console.log('[RichTextEditor] Content unchanged, skipping update');
+      return;
+    }
+
     console.log('[RichTextEditor] Setting content, length:', content.length);
+    
+    // Save cursor position
+    const { from, to } = editor.state.selection;
+    const cursorPos = from;
     
     // Ensure editor is ready before setting content
     const timer = setTimeout(() => {
       try {
-        // Try to set content multiple ways for compatibility
         if (editor.isReady || editor.state) {
-          editor.chain().clearContent().setContent(content).run();
+          // Set content without clearing to preserve some state
+          editor.commands.setContent(content, false);
+          
+          // Restore cursor position if possible
+          const docLength = editor.state.doc.content.size;
+          const newPos = Math.min(cursorPos, docLength - 2);
+          
+          editor.chain()
+            .setTextSelection(Math.max(1, newPos))
+            .run();
         } else {
           editor.commands.setContent(content);
         }
-        console.log('[RichTextEditor] Content set successfully');
+        console.log('[RichTextEditor] Content set successfully, cursor position restored');
       } catch (error) {
         console.error('[RichTextEditor] Error setting content:', error);
-        // Last resort fallback
         try {
           editor.commands.setContent(content);
         } catch (e) {
           console.error('[RichTextEditor] Fallback also failed:', e);
         }
       }
-    }, 250);
+    }, 0);
 
     return () => clearTimeout(timer);
   }, [editor, content]);
