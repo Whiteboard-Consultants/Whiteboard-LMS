@@ -105,25 +105,73 @@
       --tw-prose-td-borders: hsl(var(--border));
   }
 
-  /* Dark mode table styling with actual colors */
+  /* Light mode table styling */
+  .prose table,
+  table {
+    background-color: hsl(var(--card)) !important;
+    border-collapse: collapse !important;
+    color: hsl(var(--foreground)) !important;
+    border: 1px solid hsl(var(--border)) !important;
+  }
+
+  .prose thead,
+  thead {
+    background-color: hsl(var(--secondary)) !important;
+    border-bottom: 2px solid hsl(var(--border)) !important;
+  }
+
+  .prose th,
+  th {
+    color: hsl(var(--foreground)) !important;
+    background-color: hsl(var(--secondary)) !important;
+    border: 1px solid hsl(var(--border)) !important;
+    padding: 0.75rem !important;
+    text-align: left !important;
+    font-weight: 600 !important;
+  }
+
+  .prose td,
+  td {
+    color: hsl(var(--foreground)) !important;
+    background-color: hsl(var(--card)) !important;
+    border: 1px solid hsl(var(--border)) !important;
+    padding: 0.75rem !important;
+  }
+
+  .prose tbody tr,
+  tbody tr {
+    border-bottom: 1px solid hsl(var(--border)) !important;
+  }
+
+  .prose tbody tr:nth-child(even),
+  tbody tr:nth-child(even) {
+    background-color: hsl(210 40% 96% / 0.5) !important;
+  }
+
+  .prose tbody tr:last-child,
+  tbody tr:last-child {
+    border-bottom: none !important;
+  }
+
   .dark .prose table,
   .dark table {
     background-color: hsl(222.2, 84%, 4.9%) !important;
     border-collapse: collapse !important;
     color: hsl(210, 40%, 98%) !important;
+    border: 1px solid hsl(217.2, 32.6%, 25%) !important;
   }
 
   .dark .prose thead,
   .dark thead {
-    background-color: hsl(217.2, 32.6%, 17.5%) !important;
-    border-bottom: 2px solid hsl(217.2, 32.6%, 17.5%) !important;
+    background-color: hsl(217.2, 32.6%, 22%) !important;
+    border-bottom: 2px solid hsl(217.2, 32.6%, 35%) !important;
   }
 
   .dark .prose th,
   .dark th {
     color: hsl(210, 40%, 98%) !important;
-    background-color: hsl(217.2, 32.6%, 17.5%) !important;
-    border: 1px solid hsl(217.2, 32.6%, 17.5%) !important;
+    background-color: hsl(217.2, 32.6%, 22%) !important;
+    border: 1px solid hsl(217.2, 32.6%, 35%) !important;
     padding: 0.75rem !important;
     text-align: left !important;
     font-weight: 600 !important;
@@ -133,18 +181,162 @@
   .dark td {
     color: hsl(210, 40%, 98%) !important;
     background-color: hsl(222.2, 84%, 4.9%) !important;
-    border: 1px solid hsl(217.2, 32.6%, 17.5%) !important;
+    border: 1px solid hsl(217.2, 32.6%, 25%) !important;
     padding: 0.75rem !important;
+    font-weight: 500 !important;
+    opacity: 1 !important;
   }
 
   .dark .prose tbody tr,
   .dark tbody tr {
-    border-bottom: 1px solid hsl(217.2, 32.6%, 17.5%) !important;
+    border-bottom: 1px solid hsl(217.2, 32.6%, 25%) !important;
+  }
+
+  .dark .prose tbody tr:nth-child(even),
+  .dark tbody tr:nth-child(even) {
+    background-color: hsl(222.2, 84%, 8%) !important;
   }
 
   .dark .prose tbody tr:last-child,
   .dark tbody tr:last-child {
     border-bottom: none !important;
+  }
+
+  /* MOBILE RESPONSIVE TABLE STYLING */
+  /* Wrap tables in scrollable container on mobile */
+  .prose table,
+  table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 1.5rem 0 !important;
+  }
+
+  .prose table tbody,
+  table tbody {
+    display: table;
+    width: 100%;
+  }
+
+  .prose table thead,
+  table thead {
+    display: table;
+    width: 100%;
+  }
+
+  .prose table tr,
+  table tr {
+    display: table-row;
+  }
+
+  .prose table th,
+  .prose table td,
+  table th,
+  table td {
+    display: table-cell;
+    white-space: nowrap;
+  }
+
+  /* Mobile specific table adjustments */
+  @media (max-width: 768px) {
+    .prose table,
+    table {
+      font-size: 0.875rem;
+      margin: 1rem 0 !important;
+    }
+
+    .prose table th,
+    .prose table td,
+    table th,
+    table td {
+      padding: 0.5rem 0.75rem !important;
+      word-break: break-word;
+      white-space: normal;
+      visibility: visible !important;
+      opacity: 1 !important;
+      color: hsl(var(--foreground)) !important;
+      font-weight: 500 !important;
+    }
+
+    .prose table th,
+    table th {
+      font-size: 0.8125rem;
+      font-weight: 700;
+    }
+
+    /* Make table scrollable indicator visible */
+    .prose table::after,
+    table::after {
+      content: "← Scroll for more →";
+      display: block;
+      font-size: 0.75rem;
+      color: hsl(215.4 16.3% 46.9%);
+      text-align: center;
+      padding: 0.5rem 0;
+      margin-top: 0.5rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .prose table,
+    table {
+      font-size: 0.8125rem;
+    }
+
+    .prose table th,
+    .prose table td,
+    table th,
+    table td {
+      padding: 0.375rem 0.5rem !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+
+    .dark .prose table th,
+    .dark .prose table td,
+    .dark table th,
+    .dark table td {
+      color: hsl(210, 40%, 98%) !important;
+      font-weight: 500 !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+  }
+
+  /* Dark mode responsive table adjustments */
+  .dark .prose table,
+  .dark table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  @media (max-width: 768px) {
+    .dark .prose table th,
+    .dark .prose table td,
+    .dark table th,
+    .dark table td {
+      padding: 0.5rem 0.75rem !important;
+      word-break: break-word;
+      white-space: normal;
+      color: hsl(210, 40%, 98%) !important;
+      font-weight: 500 !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+
+    .dark .prose table::after,
+    .dark table::after {
+      content: "← Scroll for more →";
+      display: block;
+      font-size: 0.75rem;
+      color: hsl(215 20.2% 65.1%);
+      text-align: center;
+      padding: 0.5rem 0;
+      margin-top: 0.5rem;
+    }
   }
 
   /* AGGRESSIVE IMAGE FIXES - Force visibility */
@@ -205,17 +397,18 @@
     color: hsl(210, 40%, 98%) !important;
     margin: 1rem 0 !important;
     width: 100% !important;
+    border: 1px solid hsl(217.2, 32.6%, 25%) !important;
   }
 
   .dark .tiptap table thead {
-    background-color: hsl(217.2, 32.6%, 17.5%) !important;
-    border-bottom: 2px solid hsl(217.2, 32.6%, 17.5%) !important;
+    background-color: hsl(217.2, 32.6%, 22%) !important;
+    border-bottom: 2px solid hsl(217.2, 32.6%, 35%) !important;
   }
 
   .dark .tiptap table th {
     color: hsl(210, 40%, 98%) !important;
-    background-color: hsl(217.2, 32.6%, 17.5%) !important;
-    border: 1px solid hsl(217.2, 32.6%, 17.5%) !important;
+    background-color: hsl(217.2, 32.6%, 22%) !important;
+    border: 1px solid hsl(217.2, 32.6%, 35%) !important;
     padding: 0.75rem !important;
     text-align: left !important;
     font-weight: 600 !important;
@@ -224,8 +417,14 @@
   .dark .tiptap table td {
     color: hsl(210, 40%, 98%) !important;
     background-color: hsl(222.2, 84%, 4.9%) !important;
-    border: 1px solid hsl(217.2, 32.6%, 17.5%) !important;
+    border: 1px solid hsl(217.2, 32.6%, 25%) !important;
     padding: 0.75rem !important;
+    font-weight: 500 !important;
+    opacity: 1 !important;
+  }
+
+  .dark .tiptap table tbody tr:nth-child(even) {
+    background-color: hsl(222.2, 84%, 8%) !important;
   }
 
   .dark .tiptap table tbody tr {

@@ -30,7 +30,7 @@ export function BlogPostDetail({ post, relatedPosts = [] }: BlogPostDetailProps)
             <CardContent className="p-6 md:p-8">
               {/* Content with proper typography */}
               <div 
-                className="prose prose-gray max-w-none
+                className="prose prose-gray max-w-none overflow-x-auto
                            prose-headings:font-bold prose-headings:text-foreground
                            prose-h1:text-3xl prose-h1:mb-6
                            prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4
@@ -38,7 +38,11 @@ export function BlogPostDetail({ post, relatedPosts = [] }: BlogPostDetailProps)
                            prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-4
                            prose-li:text-muted-foreground
                            prose-strong:text-foreground prose-strong:font-semibold
-                           prose-a:text-primary prose-a:no-underline hover:prose-a:underline"
+                           prose-a:text-primary prose-a:no-underline hover:prose-a:underline
+                           prose-table:block prose-table:overflow-x-auto prose-table:max-w-full
+                           prose-table:text-sm md:prose-table:text-base prose-table:my-4
+                           prose-th:bg-gray-100 prose-th:px-3 prose-th:py-2 prose-th:text-left prose-th:font-semibold
+                           prose-td:border prose-td:border-gray-300 prose-td:px-3 prose-td:py-2"
                 dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '<br>') }}
               />
 
