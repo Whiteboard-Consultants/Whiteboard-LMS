@@ -7,7 +7,6 @@ import { NewThreadForm } from '@/app/(main)/student/messaging/components/new-thr
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
 
 interface NewThreadPageProps {
   params: Promise<{
@@ -19,7 +18,7 @@ export default function NewThreadPage({
   params,
 }: NewThreadPageProps) {
   const { courseId } = use(params);
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, accessToken } = useAuth();
   const router = useRouter();
   const [enrollmentId, setEnrollmentId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,22 +35,24 @@ export default function NewThreadPage({
       try {
         console.log('[NewThreadPage] Fetching enrollment for user:', user.id, 'courseId:', courseId);
 
-        const { data: enrollment, error: enrollmentError } = await supabase
-          .from('enrollments')
-          .select('id')
-          .eq('user_id', user.id)
-          .eq('course_id', courseId)
-          .single();
+        // Use the API endpoint instead of client-side Supabase to bypass RLS policies
+        const response = await fetch(`/api/enrollments?courseId=${courseId}`, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+          },
+        });
 
-        console.log('[NewThreadPage] Enrollment query result:', { enrollment, enrollmentError });
-
-        if (enrollmentError) {
-          console.error('[NewThreadPage] Enrollment error:', enrollmentError);
-          if (enrollmentError.code === 'PGRST116') {
-            // No rows returned
-            console.warn('[NewThreadPage] No enrollment found for user in this course');
-          }
+        if (!response.ok) {
+          console.error('[NewThreadPage] Enrollment API error:', response.status);
+          console.warn('[NewThreadPage] No enrollment found, redirecting to dashboard');
+          router.push('/student/dashboard');
+          return;
         }
+
+        const data = await response.json();
+        const enrollment = data.enrollment;
+
+        console.log('[NewThreadPage] Enrollment query result:', { enrollment });
 
         if (enrollment) {
           console.log('[NewThreadPage] Enrollment found:', enrollment.id);
@@ -69,7 +70,7 @@ export default function NewThreadPage({
     };
 
     getEnrollmentId();
-  }, [courseId, user, authLoading]);
+  }, [courseId, user, authLoading, accessToken]);
 
   if (isLoading || !enrollmentId) {
     return (

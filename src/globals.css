@@ -490,6 +490,144 @@
   }
 }
 
+/* GLOBAL TABLE STYLES - APPLY TO ALL TABLES */
+table {
+  display: block !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  margin: 1.5rem 0 !important;
+  border-collapse: collapse !important;
+  min-width: 100% !important;
+}
+
+table tbody,
+table thead {
+  display: table !important;
+  width: 100% !important;
+  min-width: 600px !important;
+}
+
+table tr {
+  display: table-row !important;
+  border-bottom: 1px solid #d1d5db !important;
+}
+
+table th,
+table td {
+  display: table-cell !important;
+  border: 1px solid #d1d5db !important;
+  padding: 0.75rem !important;
+  text-align: left !important;
+  min-width: 120px !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+table th {
+  background-color: #3b82f6 !important;
+  color: white !important;
+  font-weight: 700 !important;
+  font-size: 0.95rem !important;
+}
+
+table td {
+  background-color: white !important;
+  color: #1f2937 !important;
+  font-size: 0.9rem !important;
+}
+
+table tbody tr:nth-child(even) {
+  background-color: #f9fafb !important;
+}
+
+table tbody tr:nth-child(even) td {
+  background-color: #f9fafb !important;
+}
+
+/* Mobile responsive tables */
+@media (max-width: 768px) {
+  table {
+    font-size: 0.875rem !important;
+    margin: 1rem 0 !important;
+    overflow-x: scroll !important;
+  }
+
+  table tbody,
+  table thead {
+    min-width: 500px !important;
+  }
+
+  table th,
+  table td {
+    padding: 0.5rem !important;
+    min-width: 100px !important;
+    font-size: 0.8rem !important;
+  }
+
+  table th {
+    font-size: 0.75rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  table {
+    font-size: 0.75rem !important;
+  }
+
+  table tbody,
+  table thead {
+    min-width: 400px !important;
+  }
+
+  table th,
+  table td {
+    padding: 0.375rem !important;
+    min-width: 80px !important;
+  }
+}
+
+/* Dark mode global table styles */
+.dark table {
+  background-color: hsl(222.2, 84%, 4.9%) !important;
+  border: 1px solid hsl(217.2, 32.6%, 25%) !important;
+}
+
+.dark table th {
+  background-color: hsl(217.2, 32.6%, 22%) !important;
+  color: hsl(210, 40%, 98%) !important;
+  border: 1px solid hsl(217.2, 32.6%, 35%) !important;
+  font-weight: 700 !important;
+}
+
+.dark table td {
+  background-color: hsl(222.2, 84%, 4.9%) !important;
+  color: hsl(210, 40%, 98%) !important;
+  border: 1px solid hsl(217.2, 32.6%, 25%) !important;
+  font-weight: 500 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.dark table tbody tr {
+  border-bottom: 1px solid hsl(217.2, 32.6%, 25%) !important;
+}
+
+.dark table tbody tr:nth-child(even) {
+  background-color: hsl(222.2, 84%, 8%) !important;
+}
+
+.dark table tbody tr:nth-child(even) td {
+  background-color: hsl(222.2, 84%, 8%) !important;
+}
+
+.dark table tbody tr:last-child {
+  border-bottom: none !important;
+}
+
 .dark .dark\:bg-slate-dark {
     background-color: #1A2A3A;
 }

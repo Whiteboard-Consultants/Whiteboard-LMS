@@ -27,24 +27,147 @@ export function BlogPostDetail({ post, relatedPosts = [] }: BlogPostDetailProps)
         <div className="lg:col-span-3">
           {/* Article Content */}
           <Card>
-            <CardContent className="p-6 md:p-8">
-              {/* Content with proper typography */}
-              <div 
-                className="prose prose-gray max-w-none overflow-x-auto
-                           prose-headings:font-bold prose-headings:text-foreground
-                           prose-h1:text-3xl prose-h1:mb-6
-                           prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4
-                           prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-3
-                           prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-4
-                           prose-li:text-muted-foreground
-                           prose-strong:text-foreground prose-strong:font-semibold
-                           prose-a:text-primary prose-a:no-underline hover:prose-a:underline
-                           prose-table:block prose-table:overflow-x-auto prose-table:max-w-full
-                           prose-table:text-sm md:prose-table:text-base prose-table:my-4
-                           prose-th:bg-gray-100 prose-th:px-3 prose-th:py-2 prose-th:text-left prose-th:font-semibold
-                           prose-td:border prose-td:border-gray-300 prose-td:px-3 prose-td:py-2"
-                dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '<br>') }}
-              />
+            <CardContent className="p-6 md:p-8 overflow-x-auto">
+              <style>{`
+                /* Table Scrolling Container */
+                .blog-content-wrapper {
+                  overflow-x: auto !important;
+                  -webkit-overflow-scrolling: touch !important;
+                  width: 100% !important;
+                }
+
+                .blog-content-wrapper table {
+                  display: block !important;
+                  overflow-x: auto !important;
+                  -webkit-overflow-scrolling: touch !important;
+                  max-width: 100% !important;
+                  width: 100% !important;
+                  margin: 1.5rem 0 !important;
+                  border-collapse: collapse !important;
+                  min-width: 600px !important;
+                }
+
+                .blog-content-wrapper table tbody,
+                .blog-content-wrapper table thead {
+                  display: table !important;
+                  width: 100% !important;
+                }
+
+                .blog-content-wrapper table tr {
+                  display: table-row !important;
+                  border-bottom: 1px solid #d1d5db !important;
+                }
+
+                .blog-content-wrapper table th,
+                .blog-content-wrapper table td {
+                  display: table-cell !important;
+                  border: 1px solid #d1d5db !important;
+                  padding: 0.75rem !important;
+                  text-align: left !important;
+                  min-width: 120px !important;
+                  white-space: normal !important;
+                  word-break: break-word !important;
+                }
+
+                .blog-content-wrapper table th {
+                  background-color: #3b82f6 !important;
+                  color: white !important;
+                  font-weight: 700 !important;
+                  font-size: 0.95rem !important;
+                }
+
+                .blog-content-wrapper table td {
+                  background-color: white !important;
+                  color: #1f2937 !important;
+                  font-size: 0.9rem !important;
+                }
+
+                .blog-content-wrapper table tbody tr:nth-child(even) {
+                  background-color: #f9fafb !important;
+                }
+
+                /* Mobile adjustments - PRIORITY */
+                @media (max-width: 768px) {
+                  .blog-content-wrapper {
+                    overflow-x: scroll !important;
+                  }
+
+                  .blog-content-wrapper table {
+                    font-size: 0.8rem !important;
+                    margin: 1rem 0 !important;
+                    min-width: 500px !important;
+                  }
+
+                  .blog-content-wrapper table th,
+                  .blog-content-wrapper table td {
+                    padding: 0.5rem !important;
+                    min-width: 100px !important;
+                    font-size: 0.75rem !important;
+                  }
+
+                  .blog-content-wrapper table th {
+                    font-size: 0.7rem !important;
+                  }
+                }
+
+                @media (max-width: 480px) {
+                  .blog-content-wrapper table {
+                    font-size: 0.7rem !important;
+                    min-width: 400px !important;
+                  }
+
+                  .blog-content-wrapper table th,
+                  .blog-content-wrapper table td {
+                    padding: 0.375rem !important;
+                    min-width: 80px !important;
+                  }
+                }
+
+                /* Dark mode */
+                .dark .blog-content-wrapper table {
+                  background-color: hsl(222.2, 84%, 4.9%) !important;
+                }
+
+                .dark .blog-content-wrapper table th {
+                  background-color: hsl(217.2, 32.6%, 22%) !important;
+                  color: hsl(210, 40%, 98%) !important;
+                  border-color: hsl(217.2, 32.6%, 35%) !important;
+                }
+
+                .dark .blog-content-wrapper table td {
+                  background-color: hsl(222.2, 84%, 4.9%) !important;
+                  color: hsl(210, 40%, 98%) !important;
+                  border-color: hsl(217.2, 32.6%, 25%) !important;
+                }
+
+                .dark .blog-content-wrapper table tbody tr {
+                  border-bottom-color: hsl(217.2, 32.6%, 25%) !important;
+                }
+
+                .dark .blog-content-wrapper table tbody tr:nth-child(even) {
+                  background-color: hsl(222.2, 84%, 8%) !important;
+                }
+
+                .dark .blog-content-wrapper table tbody tr:nth-child(even) td {
+                  background-color: hsl(222.2, 84%, 8%) !important;
+                }
+              `}</style>
+
+              <div className="blog-content-wrapper">
+                {/* Content with proper typography */}
+                <div 
+                  className="prose prose-gray max-w-none
+                             prose-headings:font-bold prose-headings:text-foreground
+                             prose-h1:text-3xl prose-h1:mb-6
+                             prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4
+                             prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-3
+                             prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-4
+                             prose-li:text-muted-foreground
+                             prose-strong:text-foreground prose-strong:font-semibold
+                             prose-a:text-primary prose-a:no-underline hover:prose-a:underline"
+                  dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '<br>') }}
+                />
+              </div>
 
               {/* Call-to-Action Section (MetaApply style) */}
               <div className="mt-8 p-6 bg-primary/5 rounded-lg border">
