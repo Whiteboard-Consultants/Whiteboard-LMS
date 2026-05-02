@@ -1,0 +1,155 @@
+/* COMPREHENSIVE MOBILE TABLE FIX */
+/* This file provides complete mobile responsiveness for RTE embedded tables */
+
+/* Desktop - ensure tables are visible */
+.prose table,
+table {
+  display: table !important;
+  width: 100% !important;
+  border-collapse: collapse;
+  margin: 1.5rem 0 !important;
+}
+
+/* Mobile (all devices) */
+@media (max-width: 768px) {
+  /* Container wrapping */
+  .prose {
+    overflow-x: auto;
+  }
+
+  .prose table,
+  table {
+    display: table !important;
+    width: 100% !important;
+    min-width: 100%;
+    table-layout: auto;
+    margin: 1rem 0 !important;
+    font-size: 0.75rem;
+    border-radius: 0.375rem;
+  }
+
+  /* Table structure */
+  .prose table tbody,
+  table tbody {
+    display: table-row-group;
+  }
+
+  .prose table thead,
+  table thead {
+    display: table-header-group;
+  }
+
+  .prose table tr,
+  table tr {
+    display: table-row;
+  }
+
+  /* Cell styling - ALL cells */
+  .prose table td,
+  .prose table td[style],
+  .prose table th,
+  .prose table th[style],
+  table td,
+  table td[style],
+  table th,
+  table th[style] {
+    display: table-cell !important;
+    padding: 0.5rem 0.375rem !important;
+    border: 1px solid hsl(var(--border)) !important;
+    text-align: left !important;
+    vertical-align: middle !important;
+    word-break: break-word !important;
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+  }
+
+  /* Header cells */
+  .prose table th,
+  .prose table th[style],
+  table th,
+  table th[style] {
+    background-color: #0066cc !important;
+    color: white !important;
+    font-weight: 700 !important;
+    border: 1px solid #0052a3 !important;
+  }
+
+  /* Data cells - light mode */
+  .prose table td,
+  .prose table td[style],
+  table td,
+  table td[style] {
+    background-color: hsl(var(--card)) !important;
+    color: hsl(var(--foreground)) !important;
+  }
+
+  .prose table tbody tr:nth-child(even) td,
+  .prose table tbody tr:nth-child(even) td[style],
+  table tbody tr:nth-child(even) td,
+  table tbody tr:nth-child(even) td[style] {
+    background-color: hsl(210 40% 96% / 0.5) !important;
+  }
+
+  /* Dark mode - data cells */
+  .dark .prose table td,
+  .dark .prose table td[style],
+  .dark table td,
+  .dark table td[style] {
+    background-color: #1a1f2e !important;
+    color: #e3e8ef !important;
+    border: 1px solid #2d3544 !important;
+  }
+
+  /* Dark mode - header cells */
+  .dark .prose table th,
+  .dark .prose table th[style],
+  .dark table th,
+  .dark table th[style] {
+    background-color: #0066cc !important;
+    color: #ffffff !important;
+    border: 1px solid #0052a3 !important;
+  }
+
+  /* Dark mode - alternating rows */
+  .dark .prose table tbody tr:nth-child(even) td,
+  .dark .prose table tbody tr:nth-child(even) td[style],
+  .dark table tbody tr:nth-child(even) td,
+  .dark table tbody tr:nth-child(even) td[style] {
+    background-color: #22293a !important;
+  }
+}
+
+/* Extra small mobile (480px and below) */
+@media (max-width: 480px) {
+  .prose table,
+  table {
+    font-size: 0.65rem;
+    margin: 0.75rem -1rem !important;
+  }
+
+  .prose table td,
+  .prose table td[style],
+  .prose table th,
+  .prose table th[style],
+  table td,
+  table td[style],
+  table th,
+  table th[style] {
+    padding: 0.375rem 0.25rem !important;
+    max-width: 100px;
+  }
+
+  .prose table th,
+  .prose table th[style],
+  table th,
+  table th[style] {
+    font-size: 0.6rem;
+  }
+
+  .prose table td,
+  .prose table td[style],
+  table td,
+  table td[style] {
+    font-size: 0.65rem;
+  }
+}

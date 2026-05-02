@@ -1,5 +1,6 @@
 
 import './globals.css';
+import '@/table-mobile-fix.css';
 import { Toaster } from "@/components/ui/toaster"
 import { WebVitalsSetup } from '@/components/web-vitals-setup';
 import { Toaster as Sonner } from "sonner"

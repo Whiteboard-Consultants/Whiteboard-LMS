@@ -105,47 +105,75 @@
       --tw-prose-td-borders: hsl(var(--border));
   }
 
-  /* Light mode table styling */
+  /* Light mode table styling - BASE RULES */
   .prose table,
   table {
     background-color: hsl(var(--card)) !important;
     border-collapse: collapse !important;
     color: hsl(var(--foreground)) !important;
     border: 1px solid hsl(var(--border)) !important;
+    width: 100% !important;
   }
 
-  .prose thead,
-  thead {
-    background-color: hsl(var(--secondary)) !important;
-    border-bottom: 2px solid hsl(var(--border)) !important;
-  }
-
-  .prose th,
-  th {
-    color: hsl(var(--foreground)) !important;
-    background-color: hsl(var(--secondary)) !important;
-    border: 1px solid hsl(var(--border)) !important;
-    padding: 0.75rem !important;
-    text-align: left !important;
-    font-weight: 600 !important;
-  }
-
-  .prose td,
-  td {
-    color: hsl(var(--foreground)) !important;
-    background-color: hsl(var(--card)) !important;
-    border: 1px solid hsl(var(--border)) !important;
-    padding: 0.75rem !important;
-  }
-
+  /* Override ALL tr inline styles */
   .prose tbody tr,
-  tbody tr {
+  .prose tbody tr[style],
+  tbody tr,
+  tbody tr[style] {
+    background-color: hsl(var(--card)) !important;
     border-bottom: 1px solid hsl(var(--border)) !important;
   }
 
   .prose tbody tr:nth-child(even),
-  tbody tr:nth-child(even) {
+  .prose tbody tr:nth-child(even)[style],
+  tbody tr:nth-child(even),
+  tbody tr:nth-child(even)[style] {
     background-color: hsl(210 40% 96% / 0.5) !important;
+  }
+
+  /* Override ALL td inline styles */
+  .prose td,
+  .prose td[style],
+  td,
+  td[style] {
+    color: hsl(var(--foreground)) !important;
+    background-color: hsl(var(--card)) !important;
+    border: 1px solid hsl(var(--border)) !important;
+    padding: 0.75rem !important;
+    word-break: break-word;
+    white-space: normal;
+  }
+
+  /* Header styles - override thead */
+  .prose thead,
+  thead {
+    background-color: #0066cc !important;
+  }
+
+  .prose thead tr,
+  .prose thead tr[style],
+  thead tr,
+  thead tr[style] {
+    background-color: #0066cc !important;
+  }
+
+  /* Override ALL th inline styles */
+  .prose th,
+  .prose th[style],
+  .prose thead th,
+  .prose thead th[style],
+  th,
+  th[style],
+  thead th,
+  thead th[style] {
+    color: white !important;
+    background-color: #0066cc !important;
+    border: 1px solid #0052a3 !important;
+    padding: 0.75rem !important;
+    text-align: left !important;
+    font-weight: 600 !important;
+    word-break: break-word;
+    white-space: normal;
   }
 
   .prose tbody tr:last-child,
@@ -153,48 +181,75 @@
     border-bottom: none !important;
   }
 
+  /* Dark mode table styling */
   .dark .prose table,
   .dark table {
-    background-color: hsl(222.2, 84%, 4.9%) !important;
+    background-color: #1a1f2e !important;
     border-collapse: collapse !important;
-    color: hsl(210, 40%, 98%) !important;
-    border: 1px solid hsl(217.2, 32.6%, 25%) !important;
+    color: #e3e8ef !important;
+    border: 1px solid #2d3544 !important;
+    width: 100% !important;
   }
 
-  .dark .prose thead,
-  .dark thead {
-    background-color: hsl(217.2, 32.6%, 22%) !important;
-    border-bottom: 2px solid hsl(217.2, 32.6%, 35%) !important;
-  }
-
-  .dark .prose th,
-  .dark th {
-    color: hsl(210, 40%, 98%) !important;
-    background-color: hsl(217.2, 32.6%, 22%) !important;
-    border: 1px solid hsl(217.2, 32.6%, 35%) !important;
-    padding: 0.75rem !important;
-    text-align: left !important;
-    font-weight: 600 !important;
-  }
-
-  .dark .prose td,
-  .dark td {
-    color: hsl(210, 40%, 98%) !important;
-    background-color: hsl(222.2, 84%, 4.9%) !important;
-    border: 1px solid hsl(217.2, 32.6%, 25%) !important;
-    padding: 0.75rem !important;
-    font-weight: 500 !important;
-    opacity: 1 !important;
-  }
-
+  /* Dark mode - override ALL tr inline styles */
   .dark .prose tbody tr,
-  .dark tbody tr {
-    border-bottom: 1px solid hsl(217.2, 32.6%, 25%) !important;
+  .dark .prose tbody tr[style],
+  .dark tbody tr,
+  .dark tbody tr[style] {
+    background-color: #1a1f2e !important;
+    border-bottom: 1px solid #2d3544 !important;
   }
 
   .dark .prose tbody tr:nth-child(even),
-  .dark tbody tr:nth-child(even) {
-    background-color: hsl(222.2, 84%, 8%) !important;
+  .dark .prose tbody tr:nth-child(even)[style],
+  .dark tbody tr:nth-child(even),
+  .dark tbody tr:nth-child(even)[style] {
+    background-color: #22293a !important;
+  }
+
+  /* Dark mode - override ALL td inline styles */
+  .dark .prose td,
+  .dark .prose td[style],
+  .dark td,
+  .dark td[style] {
+    color: #e3e8ef !important;
+    background-color: #1a1f2e !important;
+    border: 1px solid #2d3544 !important;
+    padding: 0.75rem !important;
+    word-break: break-word;
+    white-space: normal;
+  }
+
+  /* Dark mode header styles */
+  .dark .prose thead,
+  .dark thead {
+    background-color: #0066cc !important;
+  }
+
+  .dark .prose thead tr,
+  .dark .prose thead tr[style],
+  .dark thead tr,
+  .dark thead tr[style] {
+    background-color: #0066cc !important;
+  }
+
+  /* Dark mode - override ALL th inline styles */
+  .dark .prose th,
+  .dark .prose th[style],
+  .dark .prose thead th,
+  .dark .prose thead th[style],
+  .dark th,
+  .dark th[style],
+  .dark thead th,
+  .dark thead th[style] {
+    color: #ffffff !important;
+    background-color: #0066cc !important;
+    border: 1px solid #0052a3 !important;
+    padding: 0.75rem !important;
+    text-align: left !important;
+    font-weight: 600 !important;
+    word-break: break-word;
+    white-space: normal;
   }
 
   .dark .prose tbody tr:last-child,
@@ -203,7 +258,7 @@
   }
 
   /* MOBILE RESPONSIVE TABLE STYLING */
-  /* Wrap tables in scrollable container on mobile */
+  /* Horizontal scrollable container */
   .prose table,
   table {
     display: block;
@@ -211,6 +266,8 @@
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     margin: 1.5rem 0 !important;
+    border-radius: 0.375rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   .prose table tbody,
@@ -235,72 +292,172 @@
   table th,
   table td {
     display: table-cell;
-    white-space: nowrap;
+    word-break: break-word;
+    white-space: normal;
   }
 
-  /* Mobile specific table adjustments */
+  /* Mobile tablet - 768px and below */
   @media (max-width: 768px) {
     .prose table,
     table {
-      font-size: 0.875rem;
+      font-size: 0.8rem;
       margin: 1rem 0 !important;
     }
 
     .prose table th,
     .prose table td,
+    .prose table th[style],
+    .prose table td[style],
     table th,
-    table td {
-      padding: 0.5rem 0.75rem !important;
+    table td,
+    table th[style],
+    table td[style] {
+      padding: 0.5rem !important;
       word-break: break-word;
-      white-space: normal;
+      white-space: normal !important;
       visibility: visible !important;
       opacity: 1 !important;
-      color: hsl(var(--foreground)) !important;
-      font-weight: 500 !important;
+      display: table-cell !important;
+      border: 1px solid hsl(var(--border)) !important;
     }
 
+    .dark .prose table th,
+    .dark .prose table td,
+    .dark .prose table th[style],
+    .dark .prose table td[style],
+    .dark table th,
+    .dark table td,
+    .dark table th[style],
+    .dark table td[style] {
+      border: 1px solid #2d3544 !important;
+    }
+
+    /* Headers on mobile */
     .prose table th,
-    table th {
-      font-size: 0.8125rem;
+    .prose table th[style],
+    table th,
+    table th[style] {
+      font-size: 0.75rem;
       font-weight: 700;
+      background-color: #0066cc !important;
+      color: white !important;
+      padding: 0.625rem !important;
+      text-align: left;
     }
 
-    /* Make table scrollable indicator visible */
+    /* Data cells on mobile */
+    .prose table td,
+    .prose table td[style],
+    table td,
+    table td[style] {
+      font-size: 0.75rem;
+      background-color: hsl(var(--card)) !important;
+      color: hsl(var(--foreground)) !important;
+    }
+
+    .dark .prose table td,
+    .dark .prose table td[style],
+    .dark table td,
+    .dark table td[style] {
+      background-color: #1a1f2e !important;
+      color: #e3e8ef !important;
+    }
+
+    .dark .prose table tbody tr:nth-child(even) td,
+    .dark .prose table tbody tr:nth-child(even) td[style],
+    .dark table tbody tr:nth-child(even) td,
+    .dark table tbody tr:nth-child(even) td[style] {
+      background-color: #22293a !important;
+    }
+
+    .prose table tbody tr:nth-child(even) td,
+    .prose table tbody tr:nth-child(even) td[style],
+    table tbody tr:nth-child(even) td,
+    table tbody tr:nth-child(even) td[style] {
+      background-color: hsl(210 40% 96% / 0.5) !important;
+    }
+
     .prose table::after,
     table::after {
-      content: "← Scroll for more →";
+      content: "← Scroll →";
       display: block;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       color: hsl(215.4 16.3% 46.9%);
       text-align: center;
       padding: 0.5rem 0;
       margin-top: 0.5rem;
     }
+
+    .dark .prose table::after,
+    .dark table::after {
+      color: hsl(215 20.2% 65.1%);
+    }
   }
 
+  /* Mobile small - 480px and below */
   @media (max-width: 480px) {
     .prose table,
     table {
-      font-size: 0.8125rem;
+      font-size: 0.7rem;
+      margin: 0.75rem 0 !important;
     }
 
     .prose table th,
     .prose table td,
+    .prose table th[style],
+    .prose table td[style],
     table th,
-    table td {
+    table td,
+    table th[style],
+    table td[style] {
       padding: 0.375rem 0.5rem !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      display: table-cell !important;
+    }
+
+    .prose table th,
+    .prose table th[style],
+    table th,
+    table th[style] {
+      font-size: 0.65rem;
+      font-weight: 700;
+      background-color: #0066cc !important;
+      color: white !important;
+      padding: 0.5rem !important;
+    }
+
+    .prose table td,
+    .prose table td[style],
+    table td,
+    table td[style] {
+      font-size: 0.65rem;
+    }
+
+    .dark .prose table th,
+    .dark .prose table th[style],
+    .dark table th,
+    .dark table th[style] {
+      background-color: #0066cc !important;
+      color: #ffffff !important;
+      border: 1px solid #0052a3 !important;
+    }
+
+    .dark .prose table td,
+    .dark .prose table td[style],
+    .dark table td,
+    .dark table td[style] {
+      color: #e3e8ef !important;
+      font-weight: 500 !important;
       visibility: visible !important;
       opacity: 1 !important;
     }
 
-    .dark .prose table th,
-    .dark .prose table td,
-    .dark table th,
-    .dark table td {
-      color: hsl(210, 40%, 98%) !important;
-      font-weight: 500 !important;
-      visibility: visible !important;
-      opacity: 1 !important;
+    .prose table::after,
+    table::after {
+      font-size: 0.6rem;
+      padding: 0.375rem 0;
+      margin-top: 0.375rem;
     }
   }
 
@@ -311,32 +468,6 @@
     max-width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-  }
-
-  @media (max-width: 768px) {
-    .dark .prose table th,
-    .dark .prose table td,
-    .dark table th,
-    .dark table td {
-      padding: 0.5rem 0.75rem !important;
-      word-break: break-word;
-      white-space: normal;
-      color: hsl(210, 40%, 98%) !important;
-      font-weight: 500 !important;
-      visibility: visible !important;
-      opacity: 1 !important;
-    }
-
-    .dark .prose table::after,
-    .dark table::after {
-      content: "← Scroll for more →";
-      display: block;
-      font-size: 0.75rem;
-      color: hsl(215 20.2% 65.1%);
-      text-align: center;
-      padding: 0.5rem 0;
-      margin-top: 0.5rem;
-    }
   }
 
   /* AGGRESSIVE IMAGE FIXES - Force visibility */
