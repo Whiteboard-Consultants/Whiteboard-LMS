@@ -12,9 +12,9 @@ table {
 
 /* Mobile (all devices) */
 @media (max-width: 768px) {
-  /* Container wrapping */
+  /* Container wrapping - ensure proper scrolling */
   .prose {
-    overflow-x: auto;
+    overflow: visible;
   }
 
   .prose table,
@@ -26,6 +26,14 @@ table {
     margin: 1rem 0 !important;
     font-size: 0.75rem;
     border-radius: 0.375rem;
+    overflow: visible !important;
+  }
+
+  /* Wrap table in scrollable parent */
+  .prose > table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   /* Table structure */
@@ -61,6 +69,20 @@ table {
     word-break: break-word !important;
     white-space: normal !important;
     overflow-wrap: break-word !important;
+    min-width: 70px !important;
+    overflow: visible !important;
+  }
+
+  /* First column gets extra width */
+  .prose table td:first-child,
+  .prose table td[style]:first-child,
+  .prose table th:first-child,
+  .prose table th[style]:first-child,
+  table td:first-child,
+  table td[style]:first-child,
+  table th:first-child,
+  table th[style]:first-child {
+    min-width: 100px !important;
   }
 
   /* Header cells */
@@ -124,7 +146,7 @@ table {
   .prose table,
   table {
     font-size: 0.65rem;
-    margin: 0.75rem -1rem !important;
+    margin: 0.75rem 0 !important;
   }
 
   .prose table td,
@@ -136,7 +158,20 @@ table {
   table th,
   table th[style] {
     padding: 0.375rem 0.25rem !important;
-    max-width: 100px;
+    min-width: 60px !important;
+    overflow: visible !important;
+  }
+
+  /* First column extra width on small mobile */
+  .prose table td:first-child,
+  .prose table td[style]:first-child,
+  .prose table th:first-child,
+  .prose table th[style]:first-child,
+  table td:first-child,
+  table td[style]:first-child,
+  table th:first-child,
+  table th[style]:first-child {
+    min-width: 80px !important;
   }
 
   .prose table th,
