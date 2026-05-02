@@ -29,11 +29,11 @@ export function Breadcrumb({ items, className = '' }: BreadcrumbProps) {
       <BreadcrumbStructuredData items={breadcrumbItems} />
       <nav 
         aria-label="Breadcrumb" 
-        className={`flex items-center space-x-1 text-sm text-muted-foreground mb-6 ${className}`}
+        className={`flex items-center space-x-1 text-sm mb-6 ${className}`}
       >
         <Link 
           href="/" 
-          className="flex items-center hover:text-foreground transition-colors"
+          className="flex items-center text-white hover:text-white/80 transition-colors"
           aria-label="Go to homepage"
         >
           <Home className="h-4 w-4" />
@@ -42,11 +42,11 @@ export function Breadcrumb({ items, className = '' }: BreadcrumbProps) {
         
         {items.map((item, index) => (
           <div key={item.href} className="flex items-center">
-            <ChevronRight className="h-4 w-4 mx-1 text-muted-foreground/50" />
+            <ChevronRight className="h-4 w-4 mx-1 text-white/50" />
             {index === items.length - 1 ? (
               // Last item - current page (not clickable)
               <span 
-                className="text-foreground font-medium"
+                className="text-white font-medium"
                 aria-current="page"
               >
                 {item.name}
@@ -55,7 +55,7 @@ export function Breadcrumb({ items, className = '' }: BreadcrumbProps) {
               // Intermediate items - clickable
               <Link 
                 href={item.href}
-                className="hover:text-foreground transition-colors"
+                className="text-white hover:text-white/80 transition-colors"
               >
                 {item.name}
               </Link>
