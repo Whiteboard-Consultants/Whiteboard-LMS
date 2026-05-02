@@ -1,7 +1,7 @@
-
 import type { Metadata } from 'next';
 import { getWhyChooseUsData, WhyChooseUsData } from "@/lib/content";
 import HomePageClient from "@/components/home-page-client";
+import Script from "next/script";
 
 // Cache homepage for 1 hour - Improves TTFB significantly
 export const revalidate = 3600;
@@ -119,7 +119,8 @@ export default async function Page() {
 
     return (
         <>
-            <script
+            <Script
+                id="home-page-schema"
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />

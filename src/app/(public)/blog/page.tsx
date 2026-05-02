@@ -2,6 +2,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
+import Script from "next/script";
 import { ArrowRight, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { getPosts } from "@/lib/supabase-data";
@@ -72,11 +73,13 @@ export default async function BlogPage() {
 
   return (
     <>
-      <script
+      <Script
+        id="blog-collection-schema"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
       />
-      <script
+      <Script
+        id="blog-breadcrumb-schema"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />

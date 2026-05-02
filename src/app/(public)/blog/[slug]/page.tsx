@@ -10,7 +10,8 @@ import { convertToDate } from "@/lib/date-utils";
 import { format } from "date-fns";
 import { parseSlugFromUrl, generateSlug } from "@/lib/slug-utils";
 import { Breadcrumb } from "@/components/breadcrumb";
-import { generateBlogPostSchema, generateBreadcrumbSchema, cleanSchema } from "@/lib/schema-markup";
+import { BlogFAQSection } from "@/components/blog/blog-faq-section";
+import { generateBlogPostSchema, generateBreadcrumbSchema, generateFAQSchema, cleanSchema } from "@/lib/schema-markup";
 
 
 type PostPageProps = {
@@ -48,6 +49,64 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
             title: "Post Not Found",
         };
     }
+
+    const createdDate = convertToDate(post.createdAt);
+    const updatedDate = convertToDate(post.updatedAt);
+    
+    const jsonLd = cleanSchema(generateBlogPostSchema({
+        title: post.title,
+        excerpt: post.excerpt,
+        content: post.content,
+        imageUrl: post.imageUrl,
+        authorName: post.author?.name || "Whiteboard Consultants",
+        authorUrl: "https://www.whiteboardconsultant.com",
+        datePublished: createdDate || new Date(),
+        dateModified: updatedDate || new Date(),
+        slug: post.slug,
+        category: post.category,
+        tags: post.tags ? (Array.isArray(post.tags) ? post.tags : []) : undefined,
+    }));
+
+    const breadcrumbSchema = generateBreadcrumbSchema([
+        { name: "Home", url: "https://www.whiteboardconsultant.com" },
+        { name: "Blog", url: "https://www.whiteboardconsultant.com/blog" },
+        { name: post.title, url: `https://www.whiteboardconsultant.com/blog/${post.slug}` }
+    ]);
+
+    // Add FAQ schema for the specific hustle culture blog post
+    let faqSchema = null;
+    if (post.slug === 'hustle-culture-gen-z-student-burnout-2026' || 
+        post.slug === 'hustle-culture-gen-z-student-burnout-2026' ||
+        post.title.toLowerCase().includes('hustle culture')) {
+        faqSchema = generateFAQSchema([
+            {
+                question: "How does Hustle Culture affect Gen Z students in India?",
+                answer: "Hustle Culture pushes Gen Z students in India to constantly optimise their time with extra courses, test prep and side projects, often at the cost of sleep, rest and mental health, which increases the risk of academic burnout."
+            },
+            {
+                question: "What are signs of student burnout among Indian college students?",
+                answer: "Common signs include chronic exhaustion, loss of motivation, increased irritability, declining performance despite long study hours and feeling guilty whenever you rest or say no to new commitments."
+            },
+            {
+                question: "How can Gen Z students in India protect themselves from burnout?",
+                answer: "Setting realistic limits, building tech-free time into each day, talking honestly about stress and seeking support from counsellors or education consultants can help students balance ambition with well-being."
+            },
+            {
+                question: "How can Whiteboard Consultants help students facing burnout?",
+                answer: "Whiteboard Consultants in Kolkata offers personalised counselling, test preparation and admissions guidance to help students across India create sustainable study plans and career paths without relying on Hustle Culture overload."
+            }
+        ]);
+    }
+
+    const other: Record<string, string> = {
+        'application/ld+json': JSON.stringify(jsonLd),
+        'application/ld+json:breadcrumb': JSON.stringify(breadcrumbSchema),
+    };
+
+    if (faqSchema) {
+        other['application/ld+json:faq'] = JSON.stringify(cleanSchema(faqSchema));
+    }
+
     return {
         title: `${post.title} | Whiteboard Consultants Blog`,
         description: post.excerpt,
@@ -66,6 +125,7 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
                 },
             ] : [],
         },
+        other,
     };
 }
 
@@ -79,38 +139,34 @@ export default async function PostPage({ params }: PostPageProps) {
 
     const createdDate = convertToDate(post.createdAt);
     const updatedDate = convertToDate(post.updatedAt);
-    
-    const jsonLd = cleanSchema(generateBlogPostSchema({
-        title: post.title,
-        excerpt: post.excerpt,
-        content: post.content,
-        imageUrl: post.imageUrl,
-        authorName: post.author?.name || "Whiteboard Consultants",
-        authorUrl: "https://www.whiteboardconsultant.com",
-        datePublished: createdDate || new Date(),
-        dateModified: updatedDate || new Date(),
-        slug: post.slug,
-        category: post.category,
-        tags: post.tags ? (typeof post.tags === 'string' ? post.tags.split(',') : post.tags) : undefined,
-    }));
 
-    const breadcrumbSchema = generateBreadcrumbSchema([
-        { name: "Home", url: "https://www.whiteboardconsultant.com" },
-        { name: "Blog", url: "https://www.whiteboardconsultant.com/blog" },
-        { name: post.title, url: `https://www.whiteboardconsultant.com/blog/${post.slug}` }
-    ]);
+    // Add FAQ section for the specific hustle culture blog post
+    let faqData = null;
+    if (post.slug === 'hustle-culture-gen-z-student-burnout-2026' || 
+        post.slug === 'hustle-culture-gen-z-student-burnout-2026' ||
+        post.title.toLowerCase().includes('hustle culture')) {
+        faqData = [
+            {
+                question: "How does Hustle Culture affect Gen Z students in India?",
+                answer: "Hustle Culture pushes Gen Z students in India to constantly optimise their time with extra courses, test prep and side projects, often at the cost of sleep, rest and mental health, which increases the risk of academic burnout."
+            },
+            {
+                question: "What are signs of student burnout among Indian college students?",
+                answer: "Common signs include chronic exhaustion, loss of motivation, increased irritability, declining performance despite long study hours and feeling guilty whenever you rest or say no to new commitments."
+            },
+            {
+                question: "How can Gen Z students in India protect themselves from burnout?",
+                answer: "Setting realistic limits, building tech-free time into each day, talking honestly about stress and seeking support from counsellors or education consultants can help students balance ambition with well-being."
+            },
+            {
+                question: "How can Whiteboard Consultants help students facing burnout?",
+                answer: "Whiteboard Consultants in Kolkata offers personalised counselling, test preparation and admissions guidance to help students across India create sustainable study plans and career paths without relying on Hustle Culture overload."
+            }
+        ];
+    }
 
     return (
-        <>
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-            />
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-            />
-            <div className="bg-background text-foreground">
+        <div className="bg-background text-foreground">
                 <article>
                     <header className="relative py-24 md:py-40 bg-slate-900 text-white overflow-hidden">
                         <div className="container mx-auto px-4 relative z-10 mb-8">
@@ -180,7 +236,13 @@ export default async function PostPage({ params }: PostPageProps) {
                         <div className="prose dark:prose-invert lg:prose-xl max-w-4xl mx-auto" dangerouslySetInnerHTML={{ __html: post.content }} />
                     </div>
                 </article>
+                
+                {/* FAQ Section */}
+                {faqData && (
+                    <div className="container mx-auto px-4 py-12">
+                        <BlogFAQSection faqs={faqData} />
+                    </div>
+                )}
             </div>
-        </>
     );
 }
