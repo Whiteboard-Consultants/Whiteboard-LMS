@@ -67,10 +67,9 @@ export const metadata: Metadata = {
     ],
     shortcut: '/favicon.ico',
   },
-  // TODO: Add your Google Search Console verification code
-  // verification: {
-  //   google: 'your-google-verification-code',
-  // }
+  verification: {
+    google: 'b82vd6_2UJQUyMumAwaDxX_UuoK1Glq8CtQwgPdTilA',
+  }
 };
 
 export default function PublicLayout({
