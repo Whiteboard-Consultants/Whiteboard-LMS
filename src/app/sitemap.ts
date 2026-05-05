@@ -113,6 +113,44 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   ]
 
+  // Career solutions pages
+  const careerSolutionsPages: MetadataRoute.Sitemap = [
+    {
+      url: `${baseUrl}/career-solutions`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.7, // Career solutions important for business
+    },
+    {
+      url: `${baseUrl}/career-solutions/skill-development`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.6, // Sub-page with medium priority
+    },
+    {
+      url: `${baseUrl}/career-solutions/internship-programs`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.6, // Sub-page with medium priority
+    }
+  ]
+
+  // Test and assessment pages
+  const testPages: MetadataRoute.Sitemap = [
+    {
+      url: `${baseUrl}/mock-tests`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8, // High priority for student services
+    },
+    {
+      url: `${baseUrl}/online-programs`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.7, // Important for program discovery
+    }
+  ]
+
   // Auth and user pages (lower priority but still indexed)
   const userPages: MetadataRoute.Sitemap = [
     {
@@ -132,14 +170,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // FAQ and legal pages for completeness
   const supportPages: MetadataRoute.Sitemap = [
     {
-      url: `${baseUrl}/privacy-policy`,
+      url: `${baseUrl}/faqs`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.6, // FAQ page important for user support
+    },
+    {
+      url: `${baseUrl}/privacy`,
       lastModified: new Date(),
       changeFrequency: 'yearly',
       priority: 0.4,
     },
     {
-      url: `${baseUrl}/terms-of-service`,
-      lastModified: new Date(), 
+      url: `${baseUrl}/refund-policy`,
+      lastModified: new Date(),
       changeFrequency: 'yearly',
       priority: 0.4,
     }
@@ -165,6 +209,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...destinationPages,
     ...courseCategoryPages,
     ...landingPages,
+    ...careerSolutionsPages,
+    ...testPages,
     ...blogPostPages,
     ...userPages,
     ...supportPages
