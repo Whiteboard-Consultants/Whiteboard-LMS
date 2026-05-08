@@ -488,58 +488,6 @@ export default function PartnerProgramsClient() {
               </CardContent>
             </Card>
 
-            <Card className="group bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border-white/60 dark:border-slate-700/60 hover:border-white/80 dark:hover:border-slate-600/80 hover:bg-white/50 dark:hover:bg-slate-900/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 h-full flex flex-col">
-              <CardHeader>
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-12 h-12 bg-rose-100 rounded-lg flex items-center justify-center">
-                    <FileText className="w-6 h-6 text-rose-600" />
-                  </div>
-                  <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-semibold">
-                    FREE
-                  </span>
-                </div>
-                <CardTitle className="text-xl mb-2">Data Processing and Analysis with Excel</CardTitle>
-                <CardDescription className="text-base leading-relaxed">
-                  Master essential Excel skills to organize, clean, and analyze data effectively, creating actionable insights for informed decision-making.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-0 flex-1">
-                <div className="space-y-4 flex-1">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Duration:</span>
-                    <span className="font-medium">2.0 Hours</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Level:</span>
-                    <span className="font-medium">Intermediate</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Certificate:</span>
-                    <span className="font-medium text-green-600">Yes</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm gap-2">
-                    <span className="font-bold text-foreground">Provider:</span>
-                    <span className="font-bold bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950 dark:to-amber-900 text-amber-700 dark:text-amber-200 px-3 py-2 rounded-lg shadow-md border border-amber-200 dark:border-amber-800 transform hover:scale-105 transition-transform">Rochester Institute of Technology</span>
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-2">
-                    <strong>What you'll learn:</strong>
-                    <ul className="mt-1 space-y-1">
-                      <li>• Master advanced Excel functions including pivot tables and vlookup</li>
-                      <li>• Learn effective data organization and cleaning techniques</li>
-                      <li>• Develop skills in creating various types of Excel charts and visualizations</li>
-                      <li>• Understand how to identify and handle outliers in datasets</li>
-                    </ul>
-                  </div>
-                  <Link href="https://www.riseupp.com/course/rochester-institute-of-technology/data-processing-and-analysis-with-excel?ref=CP112" target="_blank">
-                  <Button className="w-full mt-8 h-12">
-                    Enroll Now
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-                </div>
-              </CardContent>
-            </Card>
-
             <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 h-full flex flex-col">
               <CardHeader>
                 <div className="flex items-center gap-3 mb-3">
@@ -635,6 +583,162 @@ export default function PartnerProgramsClient() {
                     </ul>
                   </div>
                   <Link href="https://www.riseupp.com/course/microsoft/data-analysis-and-visualization-with-power-bi?ref=CP112" target="_blank">
+                  <Button className="w-full mt-8 h-12">
+                    Enroll Now
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="group bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border-white/60 dark:border-slate-700/60 hover:border-white/80 dark:hover:border-slate-600/80 hover:bg-white/50 dark:hover:bg-slate-900/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 h-full flex flex-col">
+              <CardHeader>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <BarChart className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-semibold">
+                    FREE
+                  </span>
+                </div>
+                <CardTitle className="text-xl mb-2">Artificial Intelligence on Microsoft Azure</CardTitle>
+                <CardDescription className="text-base leading-relaxed">
+                  Master AI fundamentals on Microsoft Azure platform. Learn to build, deploy, and manage intelligent cloud solutions with cutting-edge AI services.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-0 flex-1">
+                <div className="space-y-4 flex-1">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Duration:</span>
+                    <span className="font-medium">6.2 Hours</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Level:</span>
+                    <span className="font-medium">Intermediate</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Certificate:</span>
+                    <span className="font-medium text-green-600">Yes</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm gap-2">
+                    <span className="font-bold text-foreground">Provider:</span>
+                    <span className="font-bold bg-gradient-to-br from-sky-50 to-sky-100 dark:from-sky-950 dark:to-sky-900 text-sky-700 dark:text-sky-200 px-3 py-2 rounded-lg shadow-md border border-sky-200 dark:border-sky-800 transform hover:scale-105 transition-transform">Microsoft</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-2">
+                    <strong>What you'll learn:</strong>
+                    <ul className="mt-1 space-y-1">
+                      <li>• Understand Azure AI services and their applications</li>
+                      <li>• Build and deploy machine learning models</li>
+                      <li>• Implement AI solutions for business problems</li>
+                      <li>• Master Azure AI tools and frameworks</li>
+                    </ul>
+                  </div>
+                  <Link href="https://www.riseupp.com/course/microsoft/artificial-intelligence-on-microsoft-azure?ref=CP112" target="_blank">
+                  <Button className="w-full mt-8 h-12">
+                    Enroll Now
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="group bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border-white/60 dark:border-slate-700/60 hover:border-white/80 dark:hover:border-slate-600/80 hover:bg-white/50 dark:hover:bg-slate-900/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 h-full flex flex-col">
+              <CardHeader>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                    <BarChart className="w-6 h-6 text-red-600" />
+                  </div>
+                  <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-semibold">
+                    FREE
+                  </span>
+                </div>
+                <CardTitle className="text-xl mb-2">Artificial Intelligence Essentials</CardTitle>
+                <CardDescription className="text-base leading-relaxed">
+                  Explore AI fundamentals and applications in business. Learn machine learning basics, neural networks, and practical AI implementation strategies.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-0 flex-1">
+                <div className="space-y-4 flex-1">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Duration:</span>
+                    <span className="font-medium">4.5 Hours</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Level:</span>
+                    <span className="font-medium">Beginner</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Certificate:</span>
+                    <span className="font-medium text-green-600">Yes</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm gap-2">
+                    <span className="font-bold text-foreground">Provider:</span>
+                    <span className="font-bold bg-gradient-to-br from-red-50 to-red-100 dark:from-red-950 dark:to-red-900 text-red-700 dark:text-red-200 px-3 py-2 rounded-lg shadow-md border border-red-200 dark:border-red-800 transform hover:scale-105 transition-transform">University of Pennsylvania</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-2">
+                    <strong>What you'll learn:</strong>
+                    <ul className="mt-1 space-y-1">
+                      <li>• Understand core AI concepts and terminology</li>
+                      <li>• Learn machine learning fundamentals</li>
+                      <li>• Explore neural networks and deep learning</li>
+                      <li>• Apply AI to real-world business scenarios</li>
+                    </ul>
+                  </div>
+                  <Link href="https://www.riseupp.com/course/university-of-pennsylvania/artificial-intelligence-essentials?ref=CP112" target="_blank">
+                  <Button className="w-full mt-8 h-12">
+                    Enroll Now
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="group bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border-white/60 dark:border-slate-700/60 hover:border-white/80 dark:hover:border-slate-600/80 hover:bg-white/50 dark:hover:bg-slate-900/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 h-full flex flex-col">
+              <CardHeader>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <BarChart className="w-6 h-6 text-orange-600" />
+                  </div>
+                  <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-semibold">
+                    FREE
+                  </span>
+                </div>
+                <CardTitle className="text-xl mb-2">Artificial Intelligence</CardTitle>
+                <CardDescription className="text-base leading-relaxed">
+                  Comprehensive AI course covering machine learning, deep learning, and neural networks. Build practical AI applications for real-world scenarios.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-0 flex-1">
+                <div className="space-y-4 flex-1">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Duration:</span>
+                    <span className="font-medium">8.3 Hours</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Level:</span>
+                    <span className="font-medium">Intermediate</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Certificate:</span>
+                    <span className="font-medium text-green-600">Yes</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm gap-2">
+                    <span className="font-bold text-foreground">Provider:</span>
+                    <span className="font-bold bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900 text-orange-700 dark:text-orange-200 px-3 py-2 rounded-lg shadow-md border border-orange-200 dark:border-orange-800 transform hover:scale-105 transition-transform">Illinois Tech</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-2">
+                    <strong>What you'll learn:</strong>
+                    <ul className="mt-1 space-y-1">
+                      <li>• Master machine learning algorithms and techniques</li>
+                      <li>• Build and train neural network models</li>
+                      <li>• Apply deep learning to solve complex problems</li>
+                      <li>• Develop AI-powered applications and systems</li>
+                    </ul>
+                  </div>
+                  <Link href="https://www.riseupp.com/course/illinois-tech/artificial-intelligence?ref=CP112" target="_blank">
                   <Button className="w-full mt-8 h-12">
                     Enroll Now
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -1051,58 +1155,6 @@ export default function PartnerProgramsClient() {
                     </ul>
                   </div>
                   <Link href="https://www.riseupp.com/course/new-york-institute-of-finance/fundamentals-of-financial-risk-management?ref=CP112" target="_blank">
-                  <Button className="w-full mt-8 h-12">
-                    Enroll Now
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="group bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border-white/60 dark:border-slate-700/60 hover:border-white/80 dark:hover:border-slate-600/80 hover:bg-white/50 dark:hover:bg-slate-900/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 h-full flex flex-col">
-              <CardHeader>
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <Shield className="w-6 h-6 text-orange-600" />
-                  </div>
-                  <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-semibold">
-                    FREE
-                  </span>
-                </div>
-                <CardTitle className="text-xl mb-2">Financial Risk Management Essentials</CardTitle>
-                <CardDescription className="text-base leading-relaxed">
-                  Master fundamental principles of risk management in financial services with practical insights and strategies.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-0 flex-1">
-                <div className="space-y-4 flex-1">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Duration:</span>
-                    <span className="font-medium">Self-paced</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Level:</span>
-                    <span className="font-medium">Intermediate</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Certificate:</span>
-                    <span className="font-medium text-green-600">Yes</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm gap-2">
-                    <span className="font-bold text-foreground">Provider:</span>
-                    <span className="font-bold bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900 text-orange-700 dark:text-orange-200 px-3 py-2 rounded-lg shadow-md border border-orange-200 dark:border-orange-800 transform hover:scale-105 transition-transform">State Bank of India</span>
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-2">
-                    <strong>What you'll learn:</strong>
-                    <ul className="mt-1 space-y-1">
-                      <li>• Understand fundamental principles of risk management in financial services</li>
-                      <li>• Identify and assess various types of financial risks including credit and market risks</li>
-                      <li>• Implement effective risk management frameworks and strategies</li>
-                      <li>• Apply risk governance principles and enterprise risk management</li>
-                    </ul>
-                  </div>
-                  <Link href="https://www.riseupp.com/course/state-bank-of-india/financial-risk-management-essentials?ref=CP112" target="_blank">
                   <Button className="w-full mt-8 h-12">
                     Enroll Now
                     <ArrowRight className="ml-2 h-4 w-4" />
