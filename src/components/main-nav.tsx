@@ -119,6 +119,7 @@ export function MainNav({ isMobileLayout = false }: MainNavProps) {
               <div className="space-y-2">
                 <Link href="/online-programs" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm font-semibold rounded-md hover:bg-primary-foreground/10 transition-colors">Online Programs</Link>
                 <Link href="/courses" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">Our Courses</Link>
+                <Link href="/partner-programs" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">Partner Programs</Link>
               </div>
             </AccordionContent>
           </AccordionItem>
@@ -249,6 +250,9 @@ export function MainNav({ isMobileLayout = false }: MainNavProps) {
                         </li>
                         <ListItem href="/courses" title="Our Courses">
                             Explore our comprehensive collection of online courses designed for skill development.
+                        </ListItem>
+                        <ListItem href="/partner-programs" title="Partner Programs">
+                            Collaborative programs with leading universities and institutions worldwide.
                         </ListItem>
                     </ul>
                 </NavigationMenuContent>

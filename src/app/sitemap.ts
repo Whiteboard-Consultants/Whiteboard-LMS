@@ -148,6 +148,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.7, // Important for program discovery
+    },
+    {
+      url: `${baseUrl}/partner-programs`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8, // High priority for partnership programs
     }
   ]
 
