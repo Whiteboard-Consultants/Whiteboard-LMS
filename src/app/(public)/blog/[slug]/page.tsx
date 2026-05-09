@@ -111,7 +111,7 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
         title: `${post.title} | Whiteboard Consultants Blog`,
         description: post.excerpt,
         alternates: {
-            canonical: `/blog/${post.slug}`,
+            canonical: `https://www.whiteboardconsultant.com/blog/${post.slug}`,
         },
         openGraph: {
             title: post.title,

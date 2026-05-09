@@ -149,6 +149,17 @@ const nextConfig: NextConfig = {
       }
     ],
   },
+  // Fix for broken UOW India GIFT City redirect
+  async redirects() {
+    return [
+      {
+        source: '/uow-india-gift-city',
+        destination: '/admissions/uow-india',
+        permanent: true,
+      },
+    ];
+  },
+
   env: {
     NEXT_PUBLIC_FIREBASE_API_KEY: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
     NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
