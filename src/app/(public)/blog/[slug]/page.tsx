@@ -13,6 +13,38 @@ import { Breadcrumb } from "@/components/breadcrumb";
 import { BlogFAQSection } from "@/components/blog/blog-faq-section";
 import { generateBlogPostSchema, generateBreadcrumbSchema, generateFAQSchema, cleanSchema } from "@/lib/schema-markup";
 
+const HUSTLE_CULTURE_SLUG = "hustle-culture-gen-z-student-burnout-2026";
+
+const HUSTLE_CULTURE_FAQS = [
+    {
+        question: "How does Hustle Culture affect Gen Z students in India?",
+        answer: "Hustle Culture pushes Gen Z students in India to constantly optimise their time with extra courses, test prep and side projects, often at the cost of sleep, rest and mental health, which increases the risk of academic burnout."
+    },
+    {
+        question: "What are signs of student burnout among Indian college students?",
+        answer: "Common signs include chronic exhaustion, loss of motivation, increased irritability, declining performance despite long study hours and feeling guilty whenever you rest or say no to new commitments."
+    },
+    {
+        question: "How can Gen Z students in India protect themselves from burnout?",
+        answer: "Setting realistic limits, building tech-free time into each day, talking honestly about stress and seeking support from counsellors or education consultants can help students balance ambition with well-being."
+    },
+    {
+        question: "How can Whiteboard Consultants help students facing burnout?",
+        answer: "Whiteboard Consultants in Kolkata offers personalised counselling, test preparation and admissions guidance to help students across India create sustainable study plans and career paths without relying on Hustle Culture overload."
+    }
+] as const;
+
+function isHustleCulturePost(post: Post): boolean {
+    return (
+        post.slug === HUSTLE_CULTURE_SLUG ||
+        post.title.toLowerCase().includes("hustle culture")
+    );
+}
+
+function normalizeTags(tags: Post["tags"]): string[] | undefined {
+    if (!tags) return undefined;
+    return Array.isArray(tags) ? tags : undefined;
+}
 
 type PostPageProps = {
     params: {
@@ -64,7 +96,7 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
         dateModified: updatedDate || new Date(),
         slug: post.slug,
         category: post.category,
-        tags: post.tags ? (Array.isArray(post.tags) ? post.tags : []) : undefined,
+        tags: normalizeTags(post.tags),
     }));
 
     const breadcrumbSchema = generateBreadcrumbSchema([
@@ -73,30 +105,9 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
         { name: post.title, url: `https://www.whiteboardconsultant.com/blog/${post.slug}` }
     ]);
 
-    // Add FAQ schema for the specific hustle culture blog post
-    let faqSchema = null;
-    if (post.slug === 'hustle-culture-gen-z-student-burnout-2026' || 
-        post.slug === 'hustle-culture-gen-z-student-burnout-2026' ||
-        post.title.toLowerCase().includes('hustle culture')) {
-        faqSchema = generateFAQSchema([
-            {
-                question: "How does Hustle Culture affect Gen Z students in India?",
-                answer: "Hustle Culture pushes Gen Z students in India to constantly optimise their time with extra courses, test prep and side projects, often at the cost of sleep, rest and mental health, which increases the risk of academic burnout."
-            },
-            {
-                question: "What are signs of student burnout among Indian college students?",
-                answer: "Common signs include chronic exhaustion, loss of motivation, increased irritability, declining performance despite long study hours and feeling guilty whenever you rest or say no to new commitments."
-            },
-            {
-                question: "How can Gen Z students in India protect themselves from burnout?",
-                answer: "Setting realistic limits, building tech-free time into each day, talking honestly about stress and seeking support from counsellors or education consultants can help students balance ambition with well-being."
-            },
-            {
-                question: "How can Whiteboard Consultants help students facing burnout?",
-                answer: "Whiteboard Consultants in Kolkata offers personalised counselling, test preparation and admissions guidance to help students across India create sustainable study plans and career paths without relying on Hustle Culture overload."
-            }
-        ]);
-    }
+    const faqSchema = isHustleCulturePost(post)
+        ? cleanSchema(generateFAQSchema([...HUSTLE_CULTURE_FAQS]))
+        : null;
 
     const other: Record<string, string> = {
         'application/ld+json': JSON.stringify(jsonLd),
@@ -104,7 +115,7 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
     };
 
     if (faqSchema) {
-        other['application/ld+json:faq'] = JSON.stringify(cleanSchema(faqSchema));
+        other['application/ld+json:faq'] = JSON.stringify(faqSchema);
     }
 
     return {
@@ -140,33 +151,49 @@ export default async function PostPage({ params }: PostPageProps) {
     const createdDate = convertToDate(post.createdAt);
     const updatedDate = convertToDate(post.updatedAt);
 
-    // Add FAQ section for the specific hustle culture blog post
-    let faqData = null;
-    if (post.slug === 'hustle-culture-gen-z-student-burnout-2026' || 
-        post.slug === 'hustle-culture-gen-z-student-burnout-2026' ||
-        post.title.toLowerCase().includes('hustle culture')) {
-        faqData = [
-            {
-                question: "How does Hustle Culture affect Gen Z students in India?",
-                answer: "Hustle Culture pushes Gen Z students in India to constantly optimise their time with extra courses, test prep and side projects, often at the cost of sleep, rest and mental health, which increases the risk of academic burnout."
-            },
-            {
-                question: "What are signs of student burnout among Indian college students?",
-                answer: "Common signs include chronic exhaustion, loss of motivation, increased irritability, declining performance despite long study hours and feeling guilty whenever you rest or say no to new commitments."
-            },
-            {
-                question: "How can Gen Z students in India protect themselves from burnout?",
-                answer: "Setting realistic limits, building tech-free time into each day, talking honestly about stress and seeking support from counsellors or education consultants can help students balance ambition with well-being."
-            },
-            {
-                question: "How can Whiteboard Consultants help students facing burnout?",
-                answer: "Whiteboard Consultants in Kolkata offers personalised counselling, test preparation and admissions guidance to help students across India create sustainable study plans and career paths without relying on Hustle Culture overload."
-            }
-        ];
-    }
+    const jsonLd = cleanSchema(generateBlogPostSchema({
+        title: post.title,
+        excerpt: post.excerpt,
+        content: post.content,
+        imageUrl: post.imageUrl,
+        authorName: post.author?.name || "Whiteboard Consultants",
+        authorUrl: "https://www.whiteboardconsultant.com",
+        datePublished: createdDate || new Date(),
+        dateModified: updatedDate || new Date(),
+        slug: post.slug,
+        category: post.category,
+        tags: normalizeTags(post.tags),
+    }));
+
+    const breadcrumbSchema = generateBreadcrumbSchema([
+        { name: "Home", url: "https://www.whiteboardconsultant.com" },
+        { name: "Blog", url: "https://www.whiteboardconsultant.com/blog" },
+        { name: post.title, url: `https://www.whiteboardconsultant.com/blog/${post.slug}` }
+    ]);
+
+    const faqSchema = isHustleCulturePost(post)
+        ? cleanSchema(generateFAQSchema([...HUSTLE_CULTURE_FAQS]))
+        : null;
+
+    const faqData = isHustleCulturePost(post) ? [...HUSTLE_CULTURE_FAQS] : null;
 
     return (
-        <div className="bg-background text-foreground">
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+            />
+            {faqSchema && (
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+                />
+            )}
+            <div className="bg-background text-foreground">
                 <article>
                     <header className="relative py-24 md:py-40 bg-slate-900 text-white overflow-hidden">
                         <div className="container mx-auto px-4 relative z-10 mb-8">
@@ -187,7 +214,6 @@ export default async function PostPage({ params }: PostPageProps) {
                                         quality={75}
                                         sizes="100vw"
                                     />
-                                    {/* Enhanced overlay for better text readability */}
                                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/40 to-slate-900/60" />
                                 </>
                             ) : (
@@ -218,7 +244,6 @@ export default async function PostPage({ params }: PostPageProps) {
                     </header>
 
                     <div className="container mx-auto px-4 py-12 md:py-20">
-                        {/* Optional: Show featured image again in content if desired */}
                         {post.imageUrl && post.featuredImageAlt && (
                             <div className="mb-12 text-center">
                                 <Image 
@@ -236,13 +261,13 @@ export default async function PostPage({ params }: PostPageProps) {
                         <div className="prose dark:prose-invert lg:prose-xl max-w-4xl mx-auto" dangerouslySetInnerHTML={{ __html: post.content }} />
                     </div>
                 </article>
-                
-                {/* FAQ Section */}
+
                 {faqData && (
                     <div className="container mx-auto px-4 py-12">
                         <BlogFAQSection faqs={faqData} />
                     </div>
                 )}
             </div>
+        </>
     );
 }

@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { google } from 'googleapis';
+import { siteConfig } from '@/lib/seo';
 
 // Token cache to avoid unnecessary API calls
 class TokenCache {
@@ -144,6 +145,33 @@ export const createTransporter = async () => {
 
   throw new Error('No email service configured (SMTP2GO, Gmail OAuth2, or Gmail App Password required)');
 };
+
+/** Whether outbound email can be sent (credentials come from environment variables only). */
+export function isEmailServiceConfigured(): boolean {
+  if (process.env.GMAIL_CLIENT_ID && process.env.GMAIL_REFRESH_TOKEN) {
+    return true;
+  }
+  if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
+    return true;
+  }
+  if (process.env.SMTP_USER && process.env.SMTP_PASSWORD) {
+    return true;
+  }
+  return false;
+}
+
+export function getOutboundFromAddress(): string {
+  return (
+    process.env.SMTP_FROM_EMAIL ||
+    process.env.SMTP_USER ||
+    process.env.GMAIL_USER ||
+    siteConfig.contact.email
+  );
+}
+
+export function getAdminNotificationAddress(): string {
+  return process.env.ADMIN_EMAIL || siteConfig.contact.email;
+}
 
 export interface ContactSubmissionData {
   firstName: string;
