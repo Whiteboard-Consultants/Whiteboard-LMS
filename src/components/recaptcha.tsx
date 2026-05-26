@@ -34,8 +34,13 @@ export function ReCaptchaProvider({ children }: ReCaptchaProviderProps) {
       <Script
         src={`https://www.google.com/recaptcha/api.js?render=${siteKey}`}
         strategy="afterInteractive"
-        onLoad={() => console.log('✅ reCAPTCHA script loaded')}
-        onError={() => console.error('❌ reCAPTCHA script failed to load')}
+        onLoad={() => {
+          console.log('✅ reCAPTCHA script loaded successfully');
+          console.log('window.grecaptcha:', typeof window !== 'undefined' ? window.grecaptcha : 'N/A');
+        }}
+        onError={(error) => {
+          console.error('❌ reCAPTCHA script failed to load:', error);
+        }}
       />
       {children}
     </>
