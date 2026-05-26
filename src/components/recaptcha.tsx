@@ -34,6 +34,8 @@ export function ReCaptchaProvider({ children }: ReCaptchaProviderProps) {
       <Script
         src={`https://www.google.com/recaptcha/api.js?render=${siteKey}`}
         strategy="afterInteractive"
+        onLoad={() => console.log('✅ reCAPTCHA script loaded')}
+        onError={() => console.error('❌ reCAPTCHA script failed to load')}
       />
       {children}
     </>
@@ -53,18 +55,29 @@ export function useReCaptcha() {
   useEffect(() => {
     if (!siteKey) {
       setError('reCAPTCHA site key not configured');
+      console.error('reCAPTCHA site key not configured');
       return;
     }
 
-    // Check if grecaptcha is already loaded
+    // Check if grecaptcha is already loaded with retries
+    let retries = 0;
+    const maxRetries = 50; // 5 seconds max
     const checkLoaded = () => {
       if (typeof window !== 'undefined' && window.grecaptcha) {
+        console.log('✅ grecaptcha object found, calling ready()');
         window.grecaptcha.ready(() => {
+          console.log('✅ grecaptcha ready callback executed');
           setIsLoaded(true);
         });
       } else {
-        // Retry after a short delay if not yet loaded
-        setTimeout(checkLoaded, 100);
+        retries++;
+        if (retries < maxRetries) {
+          console.log(`⏳ grecaptcha not ready yet, retrying... (${retries}/${maxRetries})`);
+          setTimeout(checkLoaded, 100);
+        } else {
+          console.error('❌ grecaptcha failed to load after retries');
+          setError('reCAPTCHA failed to load');
+        }
       }
     };
 
@@ -78,16 +91,28 @@ export function useReCaptcha() {
         return null;
       }
 
-      if (!isLoaded || typeof window === 'undefined' || !window.grecaptcha) {
-        console.error('reCAPTCHA not loaded yet');
+      if (typeof window === 'undefined') {
+        console.error('Window is undefined');
+        return null;
+      }
+
+      if (!window.grecaptcha) {
+        console.error('❌ grecaptcha object not available', { isLoaded });
+        return null;
+      }
+
+      if (!isLoaded) {
+        console.error('❌ grecaptcha not loaded yet');
         return null;
       }
 
       try {
+        console.log(`🔄 Executing reCAPTCHA for action: ${action}`);
         const token = await window.grecaptcha.execute(siteKey, { action });
+        console.log(`✅ reCAPTCHA token generated (${token?.length} chars)`);
         return token;
       } catch (err) {
-        console.error('reCAPTCHA execution failed:', err);
+        console.error('❌ reCAPTCHA execution failed:', err);
         setError('reCAPTCHA verification failed');
         return null;
       }

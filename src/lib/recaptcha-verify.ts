@@ -149,10 +149,24 @@ export async function verifyReCaptchaV3Token(
       }),
     });
 
+    console.log('reCAPTCHA API response status:', response.status);
     const data: ReCaptchaVerifyResponse = await response.json();
+    
+    console.log('reCAPTCHA API response:', {
+      success: data.success,
+      errorCodes: data['error-codes'],
+      score: data.score,
+      action: data.action,
+      hostname: data.hostname,
+    });
 
     if (!data.success) {
-      console.error('reCAPTCHA verification failed:', data['error-codes']);
+      console.error('reCAPTCHA verification failed:', {
+        errorCodes: data['error-codes'],
+        response: data,
+        secretKeyExists: !!secretKey,
+        secretKeyLength: secretKey?.length
+      });
       return { success: false, error: 'Verification failed' };
     }
 

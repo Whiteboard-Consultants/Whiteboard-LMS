@@ -6,6 +6,12 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { token, action } = body;
 
+    console.log('verify-recaptcha route called with:', { 
+      tokenLength: token?.length, 
+      action,
+      hasToken: !!token 
+    });
+
     if (!token) {
       return NextResponse.json(
         { success: false, error: 'No token provided' },
@@ -14,6 +20,8 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await verifyReCaptchaV3Token(token, action);
+    
+    console.log('reCAPTCHA verification result:', result);
 
     if (!result.success) {
       return NextResponse.json(
