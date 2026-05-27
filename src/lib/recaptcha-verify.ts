@@ -23,6 +23,38 @@ interface VerificationResult {
 // Lower scores indicate more likely bot behavior
 const MINIMUM_SCORE = 0.5;
 
+function isEnterpriseConfigured(): boolean {
+  return !!(
+    process.env.RECAPTCHA_ENTERPRISE_API_KEY &&
+    process.env.RECAPTCHA_ENTERPRISE_PROJECT_ID &&
+    process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+  );
+}
+
+function isV3Configured(): boolean {
+  return !!process.env.RECAPTCHA_SECRET_KEY;
+}
+
+/**
+ * Verify reCAPTCHA using whichever backend is configured (Enterprise preferred).
+ */
+export async function verifyReCaptcha(
+  token: string,
+  expectedAction?: string
+): Promise<VerificationResult> {
+  if (isEnterpriseConfigured()) {
+    return verifyReCaptchaToken(token, expectedAction);
+  }
+  if (isV3Configured()) {
+    return verifyReCaptchaV3Token(token, expectedAction);
+  }
+  if (process.env.NODE_ENV === 'development') {
+    console.warn('reCAPTCHA not configured, skipping verification in development');
+    return { success: true, score: 1.0 };
+  }
+  return { success: false, error: 'reCAPTCHA not configured' };
+}
+
 /**
  * Verify a reCAPTCHA token on the server
  * @param token - The reCAPTCHA token from the client

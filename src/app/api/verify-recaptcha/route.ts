@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyReCaptchaV3Token } from '@/lib/recaptcha-verify';
+import { verifyReCaptcha } from '@/lib/recaptcha-verify';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const result = await verifyReCaptchaV3Token(token, action);
+    const result = await verifyReCaptcha(token, action);
     
     console.log('reCAPTCHA verification result:', result);
 

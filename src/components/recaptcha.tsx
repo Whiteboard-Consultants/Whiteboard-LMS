@@ -23,16 +23,21 @@ interface ReCaptchaProviderProps {
  */
 export function ReCaptchaProvider({ children }: ReCaptchaProviderProps) {
   const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+  const useEnterprise = process.env.NEXT_PUBLIC_RECAPTCHA_USE_ENTERPRISE === 'false';
 
   if (!siteKey) {
     console.warn('NEXT_PUBLIC_RECAPTCHA_SITE_KEY is not configured');
     return <>{children}</>;
   }
 
+  const scriptSrc = useEnterprise
+    ? `https://www.google.com/recaptcha/enterprise.js?render=${siteKey}`
+    : `https://www.google.com/recaptcha/api.js?render=${siteKey}`;
+
   return (
     <>
       <Script
-        src={`https://www.google.com/recaptcha/api.js?render=${siteKey}`}
+        src={scriptSrc}
         strategy="afterInteractive"
         onLoad={() => {
           console.log('✅ reCAPTCHA script loaded successfully');
