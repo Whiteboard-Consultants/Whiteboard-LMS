@@ -112,7 +112,19 @@ export async function verifyReCaptchaToken(
     if (!response.ok) {
       const errorText = await response.text();
       console.error('reCAPTCHA Enterprise API error:', errorText);
-      return { success: false, error: 'reCAPTCHA verification failed' };
+      let errorMessage = 'reCAPTCHA verification failed';
+      try {
+        const errJson = JSON.parse(errorText) as {
+          error?: { message?: string; status?: string };
+        };
+        const googleMessage = errJson.error?.message;
+        if (googleMessage) {
+          errorMessage = googleMessage;
+        }
+      } catch {
+        // use default message
+      }
+      return { success: false, error: errorMessage };
     }
 
     const data = await response.json();
