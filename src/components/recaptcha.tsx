@@ -23,7 +23,8 @@ interface ReCaptchaProviderProps {
  */
 export function ReCaptchaProvider({ children }: ReCaptchaProviderProps) {
   const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
-  const useEnterprise = process.env.NEXT_PUBLIC_RECAPTCHA_USE_ENTERPRISE === 'true';
+  // Keys created in Google Cloud reCAPTCHA require enterprise.js (api.js tokens fail verification)
+  const useEnterprise = process.env.NEXT_PUBLIC_RECAPTCHA_USE_ENTERPRISE !== 'false';
 
   if (!siteKey) {
     console.warn('NEXT_PUBLIC_RECAPTCHA_SITE_KEY is not configured');
@@ -40,8 +41,9 @@ export function ReCaptchaProvider({ children }: ReCaptchaProviderProps) {
         src={scriptSrc}
         strategy="afterInteractive"
         onLoad={() => {
-          console.log('✅ reCAPTCHA script loaded successfully');
-          console.log('window.grecaptcha:', typeof window !== 'undefined' ? window.grecaptcha : 'N/A');
+          console.log(
+            `✅ reCAPTCHA script loaded (${useEnterprise ? 'enterprise' : 'standard'})`
+          );
         }}
         onError={(error) => {
           console.error('❌ reCAPTCHA script failed to load:', error);

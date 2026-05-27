@@ -30,7 +30,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { signUpWithEmail, signInWithGoogle } from "@/lib/supabase-auth";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useReCaptcha, ReCaptchaBadge } from "@/components/recaptcha";
 import type { User } from "@/types";
 
@@ -65,6 +65,7 @@ export function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const isSubmittingRef = useRef(false);
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -98,6 +99,9 @@ export function RegisterForm() {
 
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+
     try {
       setIsLoading(true);
       setMessage("");
@@ -122,11 +126,11 @@ export function RegisterForm() {
       });
       
       const verifyResult = await verifyResponse.json();
-      if (!verifyResult.success) {
+      if (!verifyResponse.ok || !verifyResult.success) {
         toast({
           variant: "destructive",
           title: "Security Check Failed",
-          description: verifyResult.error || "Please try again.",
+          description: verifyResult.error || "Please refresh the page and try again.",
         });
         return;
       }
@@ -196,6 +200,7 @@ export function RegisterForm() {
       });
     } finally {
       setIsLoading(false);
+      isSubmittingRef.current = false;
     }
   }
 
