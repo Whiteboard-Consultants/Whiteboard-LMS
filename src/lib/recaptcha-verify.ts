@@ -35,14 +35,21 @@ function isV3Configured(): boolean {
   return !!process.env.RECAPTCHA_SECRET_KEY;
 }
 
+function useEnterpriseClient(): boolean {
+  return process.env.NEXT_PUBLIC_RECAPTCHA_USE_ENTERPRISE !== 'false';
+}
+
 /**
  * Verify reCAPTCHA using whichever backend is configured.
- * Standard v3 is preferred when RECAPTCHA_SECRET_KEY is set.
+ * When using enterprise.js on the client, prefer CreateAssessment API.
  */
 export async function verifyReCaptcha(
   token: string,
   expectedAction?: string
 ): Promise<VerificationResult> {
+  if (useEnterpriseClient() && isEnterpriseConfigured()) {
+    return verifyReCaptchaToken(token, expectedAction);
+  }
   if (isV3Configured()) {
     return verifyReCaptchaV3Token(token, expectedAction);
   }
@@ -66,8 +73,8 @@ export async function verifyReCaptchaToken(
   token: string,
   expectedAction?: string
 ): Promise<VerificationResult> {
-  const secretKey = process.env.RECAPTCHA_ENTERPRISE_API_KEY;
-  const projectId = process.env.RECAPTCHA_ENTERPRISE_PROJECT_ID;
+  const secretKey = process.env.RECAPTCHA_ENTERPRISE_API_KEY?.trim();
+  const projectId = process.env.RECAPTCHA_ENTERPRISE_PROJECT_ID?.trim();
   const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
   // If reCAPTCHA is not configured, skip verification in development
