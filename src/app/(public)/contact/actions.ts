@@ -4,7 +4,7 @@
 import { supabase } from '@/lib/supabase';
 import { createClient } from '@supabase/supabase-js';
 import { sendAdminNotification, sendAutoReply, type ContactSubmissionData } from '@/lib/email-service';
-import { verifyReCaptchaToken } from '@/lib/recaptcha-verify';
+import { verifyReCaptcha } from '@/lib/recaptcha-verify';
 import type { z } from "zod";
 
 // Initialize Supabase admin client for server-side operations
@@ -43,7 +43,7 @@ type ContactFormData = z.infer<z.ZodObject<{
 export async function saveContactSubmission(formData: ContactFormData, recaptchaToken?: string) {
   // Verify reCAPTCHA token first
   if (recaptchaToken) {
-    const recaptchaResult = await verifyReCaptchaToken(recaptchaToken, 'contact_form');
+    const recaptchaResult = await verifyReCaptcha(recaptchaToken, 'contact_form');
     if (!recaptchaResult.success) {
       console.warn('reCAPTCHA verification failed:', recaptchaResult.error);
       return { success: false, error: 'Security verification failed. Please try again.' };

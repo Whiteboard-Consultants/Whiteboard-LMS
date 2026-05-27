@@ -23,6 +23,39 @@ interface VerificationResult {
 // Lower scores indicate more likely bot behavior
 const MINIMUM_SCORE = 0.5;
 
+function isEnterpriseConfigured(): boolean {
+  return !!(
+    process.env.RECAPTCHA_ENTERPRISE_API_KEY &&
+    process.env.RECAPTCHA_ENTERPRISE_PROJECT_ID &&
+    process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+  );
+}
+
+function isV3Configured(): boolean {
+  return !!process.env.RECAPTCHA_SECRET_KEY;
+}
+
+/**
+ * Verify reCAPTCHA using whichever backend is configured.
+ * Standard v3 is preferred when RECAPTCHA_SECRET_KEY is set.
+ */
+export async function verifyReCaptcha(
+  token: string,
+  expectedAction?: string
+): Promise<VerificationResult> {
+  if (isV3Configured()) {
+    return verifyReCaptchaV3Token(token, expectedAction);
+  }
+  if (isEnterpriseConfigured()) {
+    return verifyReCaptchaToken(token, expectedAction);
+  }
+  if (process.env.NODE_ENV === 'development') {
+    console.warn('reCAPTCHA not configured, skipping verification in development');
+    return { success: true, score: 1.0 };
+  }
+  return { success: false, error: 'reCAPTCHA not configured' };
+}
+
 /**
  * Verify a reCAPTCHA token on the server
  * @param token - The reCAPTCHA token from the client
@@ -123,7 +156,7 @@ export async function verifyReCaptchaV3Token(
   token: string,
   expectedAction?: string
 ): Promise<VerificationResult> {
-  const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+  const secretKey = process.env.RECAPTCHA_SECRET_KEY?.trim();
 
   if (!secretKey) {
     if (process.env.NODE_ENV === 'development') {
@@ -149,22 +182,51 @@ export async function verifyReCaptchaV3Token(
       }),
     });
 
+    console.log('reCAPTCHA API response status:', response.status);
     const data: ReCaptchaVerifyResponse = await response.json();
+    
+    console.log('reCAPTCHA API response:', {
+      success: data.success,
+      errorCodes: data['error-codes'],
+      score: data.score,
+      action: data.action,
+      hostname: data.hostname,
+    });
 
     if (!data.success) {
-      console.error('reCAPTCHA verification failed:', data['error-codes']);
-      return { success: false, error: 'Verification failed' };
+      const errorCodes = data['error-codes'] ?? [];
+      console.error('reCAPTCHA verification failed:', {
+        errorCodes,
+        hostname: data.hostname,
+        action: data.action,
+      });
+      const errorMessage =
+        errorCodes.includes('browser-error')
+          ? 'Domain not allowed in reCAPTCHA settings'
+          : errorCodes.includes('invalid-input-secret')
+            ? 'Invalid reCAPTCHA secret key'
+            : errorCodes.includes('timeout-or-duplicate')
+              ? 'reCAPTCHA expired — please try again'
+              : errorCodes.length > 0
+                ? `Verification failed: ${errorCodes.join(', ')}`
+                : 'Verification failed';
+      return { success: false, error: errorMessage };
     }
 
-    // Check action matches
-    if (expectedAction && data.action !== expectedAction) {
+    // Check action matches (log only — some clients omit action on first load)
+    if (expectedAction && data.action && data.action !== expectedAction) {
+      console.warn('reCAPTCHA action mismatch:', {
+        expected: expectedAction,
+        received: data.action,
+      });
       return { success: false, error: 'Action mismatch' };
     }
 
     // Check score threshold
     const score = data.score ?? 0;
     if (score < MINIMUM_SCORE) {
-      return { success: false, score, error: 'Low score - possible bot' };
+      console.warn('Low reCAPTCHA score:', score, 'hostname:', data.hostname);
+      return { success: false, score, error: 'Low score - please try again' };
     }
 
     return { success: true, score };

@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyReCaptchaToken } from '@/lib/recaptcha-verify';
+import { verifyReCaptcha } from '@/lib/recaptcha-verify';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { token, action } = body;
+
+    console.log('verify-recaptcha route called with:', { 
+      tokenLength: token?.length, 
+      action,
+      hasToken: !!token 
+    });
 
     if (!token) {
       return NextResponse.json(
@@ -13,7 +19,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const result = await verifyReCaptchaToken(token, action);
+    const result = await verifyReCaptcha(token, action);
+    
+    console.log('reCAPTCHA verification result:', result);
 
     if (!result.success) {
       return NextResponse.json(
