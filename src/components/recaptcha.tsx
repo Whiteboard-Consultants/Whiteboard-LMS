@@ -3,14 +3,43 @@
 import Script from 'next/script';
 import { useCallback, useEffect, useState } from 'react';
 
+interface GrecaptchaClient {
+  ready: (callback: () => void) => void;
+  execute: (siteKey: string, options: { action: string }) => Promise<string>;
+}
+
 declare global {
   interface Window {
-    grecaptcha: {
-      ready: (callback: () => void) => void;
-      execute: (siteKey: string, options: { action: string }) => Promise<string>;
-      render: (container: HTMLElement | string, options: object) => number;
+    grecaptcha?: {
+      ready?: (callback: () => void) => void;
+      execute?: (siteKey: string, options: { action: string }) => Promise<string>;
+      enterprise?: GrecaptchaClient;
     };
   }
+}
+
+/** Keys from Google Cloud reCAPTCHA require enterprise.js */
+export function useRecaptchaEnterprise(): boolean {
+  return process.env.NEXT_PUBLIC_RECAPTCHA_USE_ENTERPRISE !== 'false';
+}
+
+function getRecaptchaClient(useEnterprise: boolean): GrecaptchaClient | null {
+  if (typeof window === 'undefined' || !window.grecaptcha) {
+    return null;
+  }
+
+  if (useEnterprise) {
+    return window.grecaptcha.enterprise ?? null;
+  }
+
+  if (window.grecaptcha.ready && window.grecaptcha.execute) {
+    return {
+      ready: window.grecaptcha.ready.bind(window.grecaptcha),
+      execute: window.grecaptcha.execute.bind(window.grecaptcha),
+    };
+  }
+
+  return null;
 }
 
 interface ReCaptchaProviderProps {
@@ -23,8 +52,7 @@ interface ReCaptchaProviderProps {
  */
 export function ReCaptchaProvider({ children }: ReCaptchaProviderProps) {
   const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
-  // Keys created in Google Cloud reCAPTCHA require enterprise.js (api.js tokens fail verification)
-  const useEnterprise = process.env.NEXT_PUBLIC_RECAPTCHA_USE_ENTERPRISE !== 'false';
+  const useEnterprise = useRecaptchaEnterprise();
 
   if (!siteKey) {
     console.warn('NEXT_PUBLIC_RECAPTCHA_SITE_KEY is not configured');
@@ -63,73 +91,63 @@ export function useReCaptcha() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+  const useEnterprise = useRecaptchaEnterprise();
 
   useEffect(() => {
     if (!siteKey) {
       setError('reCAPTCHA site key not configured');
-      console.error('reCAPTCHA site key not configured');
       return;
     }
 
-    // Check if grecaptcha is already loaded with retries
     let retries = 0;
-    const maxRetries = 50; // 5 seconds max
+    const maxRetries = 50;
+
     const checkLoaded = () => {
-      if (typeof window !== 'undefined' && window.grecaptcha) {
-        console.log('✅ grecaptcha object found, calling ready()');
-        window.grecaptcha.ready(() => {
-          console.log('✅ grecaptcha ready callback executed');
+      const client = getRecaptchaClient(useEnterprise);
+
+      if (client?.ready) {
+        client.ready(() => {
           setIsLoaded(true);
         });
+        return;
+      }
+
+      retries++;
+      if (retries < maxRetries) {
+        setTimeout(checkLoaded, 100);
       } else {
-        retries++;
-        if (retries < maxRetries) {
-          console.log(`⏳ grecaptcha not ready yet, retrying... (${retries}/${maxRetries})`);
-          setTimeout(checkLoaded, 100);
-        } else {
-          console.error('❌ grecaptcha failed to load after retries');
-          setError('reCAPTCHA failed to load');
-        }
+        setError('reCAPTCHA failed to load');
       }
     };
 
     checkLoaded();
-  }, [siteKey]);
+  }, [siteKey, useEnterprise]);
 
   const executeReCaptcha = useCallback(
     async (action: string): Promise<string | null> => {
       if (!siteKey) {
-        console.error('reCAPTCHA site key not configured');
-        return null;
-      }
-
-      if (typeof window === 'undefined') {
-        console.error('Window is undefined');
-        return null;
-      }
-
-      if (!window.grecaptcha) {
-        console.error('❌ grecaptcha object not available', { isLoaded });
         return null;
       }
 
       if (!isLoaded) {
-        console.error('❌ grecaptcha not loaded yet');
+        return null;
+      }
+
+      const client = getRecaptchaClient(useEnterprise);
+      if (!client?.execute) {
         return null;
       }
 
       try {
-        console.log(`🔄 Executing reCAPTCHA for action: ${action}`);
-        const token = await window.grecaptcha.execute(siteKey, { action });
-        console.log(`✅ reCAPTCHA token generated (${token?.length} chars)`);
+        const token = await client.execute(siteKey, { action });
         return token;
       } catch (err) {
-        console.error('❌ reCAPTCHA execution failed:', err);
+        console.error('reCAPTCHA execution failed:', err);
         setError('reCAPTCHA verification failed');
         return null;
       }
     },
-    [siteKey, isLoaded]
+    [siteKey, isLoaded, useEnterprise]
   );
 
   return {
@@ -141,7 +159,6 @@ export function useReCaptcha() {
 
 /**
  * ReCaptcha Badge - displays the reCAPTCHA badge (required by Google ToS)
- * You can hide it with CSS but must include the required text attribution
  */
 export function ReCaptchaBadge() {
   return (
