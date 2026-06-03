@@ -14,6 +14,7 @@ export async function POST(req: NextRequest) {
     const file = formData.get("file") as File;
     const name = formData.get("name") as string;
     const email = formData.get("email") as string;
+    const careerObjective = formData.get("careerObjective") as string;
 
     if (!file) {
         return NextResponse.json({error: "No file provided"}, {status: 400});
@@ -21,6 +22,14 @@ export async function POST(req: NextRequest) {
 
     if (!name || !email) {
         return NextResponse.json({error: "Name and email are required"}, {status: 400});
+    }
+
+    const trimmedCareerObjective = careerObjective?.trim() ?? "";
+    if (!trimmedCareerObjective || trimmedCareerObjective.length < 10) {
+        return NextResponse.json(
+            { error: "Your career objective is required (at least 10 characters)." },
+            { status: 400 }
+        );
     }
 
     // Validate file type and size
@@ -71,6 +80,7 @@ export async function POST(req: NextRequest) {
             .insert({
                 name: name.trim(),
                 email: email.trim().toLowerCase(),
+                career_objective: trimmedCareerObjective,
                 file_name: fileName,
                 file_url: publicUrlData.publicUrl,
                 file_size: file.size,
@@ -96,6 +106,7 @@ export async function POST(req: NextRequest) {
             id: submissionData.id,
             name: name.trim(),
             email: email.trim().toLowerCase(),
+            careerObjective: trimmedCareerObjective,
             fileName: fileName,
             fileUrl: publicUrlData.publicUrl,
             fileSize: file.size,

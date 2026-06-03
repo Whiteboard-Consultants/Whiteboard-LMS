@@ -1,3 +1,1 @@
-export default function ResumeEvaluationSection() {
-  return null;
-}
+export { default } from '@/components/sections/ResumeEvaluationSection';

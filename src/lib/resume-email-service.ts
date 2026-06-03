@@ -33,11 +33,20 @@ export interface ResumeSubmissionData {
   id: string;
   name: string;
   email: string;
+  careerObjective: string;
   fileName: string;
   fileUrl: string;
   fileSize: number;
   fileType: string;
   submittedAt: string;
+}
+
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 export async function sendResumeAdminNotification(submission: ResumeSubmissionData): Promise<boolean> {
@@ -82,6 +91,11 @@ export async function sendResumeAdminNotification(submission: ResumeSubmissionDa
           <p><strong>Name:</strong> ${submission.name}</p>
           <p><strong>Email:</strong> <a href="mailto:${submission.email}">${submission.email}</a></p>
           <p><strong>Submitted:</strong> ${new Date(submission.submittedAt).toLocaleString()}</p>
+        </div>
+
+        <div style="background-color: #fffbeb; padding: 15px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
+          <h3 style="margin: 0 0 10px 0; color: #1e40af;">🎯 Career Objective</h3>
+          <p style="margin: 0; white-space: pre-wrap;">${escapeHtml(submission.careerObjective)}</p>
         </div>
 
         <div style="background-color: #f1f5f9; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
@@ -130,6 +144,9 @@ Applicant Details:
 Name: ${submission.name}
 Email: ${submission.email}
 Submitted: ${new Date(submission.submittedAt).toLocaleString()}
+
+Career Objective:
+${submission.careerObjective}
 
 Resume File Details:
 File Name: ${submission.fileName}

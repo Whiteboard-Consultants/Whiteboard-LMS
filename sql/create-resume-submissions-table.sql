@@ -3,6 +3,7 @@ CREATE TABLE resume_submissions (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
   email VARCHAR(255) NOT NULL,
+  career_objective TEXT,
   file_name VARCHAR(500) NOT NULL,
   file_url TEXT NOT NULL,
   file_size BIGINT,

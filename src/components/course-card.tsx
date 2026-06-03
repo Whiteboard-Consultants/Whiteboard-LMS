@@ -110,35 +110,32 @@ export function CourseCard({ course, context = 'listing' }: CourseCardProps) {
 
   return (
     <Card className="flex flex-col overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2 bg-card text-card-foreground border-0 dark:border dark:border-primary/10">
-      <CardHeader className="p-0">
-        <div className="relative h-[180px] w-full bg-gradient-to-br from-primary/5 to-primary/10">
-          {course.imageUrl && course.imageUrl.trim() !== '' ? (
-            <Image
-              src={course.imageUrl}
-              alt={`${course.title} - Online course thumbnail`}
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="object-cover"
-              data-ai-hint="course thumbnail"
-              priority
-            />
-          ) : (
-            <div className="w-full h-full glass dark:glass-card flex items-center justify-center" aria-label={`No image available for ${course.title}`}>
-              <div className="text-center text-muted-foreground">
-                <BookOpen className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                <p className="text-sm font-medium">Course Image</p>
-              </div>
+      <CardHeader className="relative h-[180px] w-full overflow-hidden p-0 bg-gradient-to-br from-primary/5 to-primary/10">
+        {course.imageUrl && course.imageUrl.trim() !== '' ? (
+          <Image
+            src={course.imageUrl}
+            alt={`${course.title} - Online course thumbnail`}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover"
+            data-ai-hint="course thumbnail"
+          />
+        ) : (
+          <div className="absolute inset-0 glass dark:glass-card flex items-center justify-center" aria-label={`No image available for ${course.title}`}>
+            <div className="text-center text-muted-foreground">
+              <BookOpen className="h-12 w-12 mx-auto mb-2 opacity-50" />
+              <p className="text-sm font-medium">Course Image</p>
             </div>
-          )}
-           {course.enrollment?.completed && (
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-black/30 flex items-center justify-center">
-                <div className="flex flex-col items-center text-center text-white p-4">
-                    <Award className="h-12 w-12 text-amber-400" />
-                    <span className="text-xl font-bold mt-2">Completed</span>
-                </div>
+          </div>
+        )}
+        {course.enrollment?.completed && (
+          <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/60 to-black/30 flex items-center justify-center">
+            <div className="flex flex-col items-center text-center text-white p-4">
+              <Award className="h-12 w-12 text-amber-400" />
+              <span className="text-xl font-bold mt-2">Completed</span>
             </div>
-           )}
-        </div>
+          </div>
+        )}
       </CardHeader>
       <CardContent className="flex-1 p-6">
         {/* Freemium Badge - Centered above title */}

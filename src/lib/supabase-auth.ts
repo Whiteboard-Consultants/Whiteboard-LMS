@@ -9,11 +9,16 @@ export async function signUpWithEmail(email: string, password: string, userData:
   try {
     console.log('Starting user registration for:', email);
     
-    // Try a more minimal signup approach to avoid triggers
-    console.log('Creating auth user with minimal data...');
+    console.log('Creating auth user...');
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
-      password
+      password,
+      options: {
+        data: {
+          name: userData.name,
+          role: userData.role,
+        },
+      },
     });
 
     if (authError) {
@@ -40,31 +45,26 @@ export async function signUpWithEmail(email: string, password: string, userData:
 
     console.log('Auth user created successfully:', authData.user.id);
 
-    // Step 2: Wait a moment for Supabase to complete its internal setup
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    const profileResponse = await fetch('/api/auth/register-profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: authData.user.id,
+        email,
+        name: userData.name,
+        role: userData.role,
+      }),
+    });
 
-  // Step 3: Wait for auth trigger to create user, then update with additional info
-  console.log('Waiting for auth trigger to create user record...');
-  
-  // Wait a moment for the trigger to complete
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Update the user record with additional information
-  const { error: updateError } = await supabase
-    .from('users')
-    .update({ 
-      name: userData.name,
-      role: userData.role,
-      status: userData.role === 'instructor' ? 'pending' : 'approved'
-    })
-    .eq('id', authData.user.id);
+    if (!profileResponse.ok) {
+      const profileError = await profileResponse.json().catch(() => ({}));
+      const message =
+        profileError.error || 'Failed to update user profile';
+      console.error('Failed to update user profile:', profileError);
+      throw new Error(`Failed to update user profile: ${message}`);
+    }
 
-  if (updateError) {
-    console.error('Failed to update user profile:', updateError);
-    throw new Error(`Failed to update user profile: ${updateError.message}`);
-  }
-  
-  console.log('User profile updated successfully');
+    console.log('User profile updated successfully');
 
     // TODO: Implement instructor approval workflow
     if (userData.role === 'instructor') {

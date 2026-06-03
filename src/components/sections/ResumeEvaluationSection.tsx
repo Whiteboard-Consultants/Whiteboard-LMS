@@ -10,11 +10,16 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, UploadCloud } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
+import { Textarea } from '../ui/textarea';
 import { Skeleton } from '../ui/skeleton';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   email: z.string().email({ message: "Please enter a valid email address." }),
+  careerObjective: z
+    .string()
+    .min(10, { message: "Please describe your career objective (at least 10 characters)." })
+    .max(2000, { message: "Career objective must be 2000 characters or less." }),
   resume: z.any().refine(file => file?.length == 1, 'Resume is required.'),
 });
 
@@ -32,6 +37,7 @@ export default function ResumeEvaluationSection() {
     defaultValues: {
       name: "",
       email: "",
+      careerObjective: "",
     },
   });
 
@@ -40,6 +46,7 @@ export default function ResumeEvaluationSection() {
     const formData = new FormData();
     formData.append('name', values.name);
     formData.append('email', values.email);
+    formData.append('careerObjective', values.careerObjective);
     formData.append('file', values.resume[0]);
 
     try {
@@ -87,6 +94,7 @@ export default function ResumeEvaluationSection() {
                         <Skeleton className="h-10" />
                     </div>
                     <Skeleton className="h-10" />
+                    <Skeleton className="h-24" />
                     <Skeleton className="h-12" />
                 </div>
             </div>
@@ -136,6 +144,23 @@ export default function ResumeEvaluationSection() {
                   )}
                 />
               </div>
+              <FormField
+                control={form.control}
+                name="careerObjective"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Your Career Objective</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Describe your career goals, target role, or what you hope to achieve..."
+                        className="min-h-[100px] resize-y"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="resume"

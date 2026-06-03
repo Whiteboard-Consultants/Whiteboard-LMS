@@ -122,8 +122,8 @@ export default async function CoursePage({ params }: CoursePageProps) {
                                 </div>
                                 <p className="text-sm text-muted-foreground mb-4">Created by {course.instructor?.name || 'Unknown Instructor'}</p>
                             </div>
-                            <div className="order-1 md:order-2 relative group">
-                                <div className="aspect-video rounded-lg overflow-hidden shadow-2xl">
+                            <div className="order-1 md:order-2 group">
+                                <div className="relative aspect-video rounded-lg overflow-hidden shadow-2xl">
                                     <Image
                                         src={course.imageUrl}
                                         alt={course.title}

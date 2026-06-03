@@ -37,6 +37,7 @@ interface ResumeSubmission {
   id: string;
   name: string;
   email: string;
+  career_objective?: string;
   file_name: string;
   file_url: string;
   file_size: number;
@@ -186,6 +187,7 @@ export default function ResumeSubmissionsPage() {
               <TableRow>
                 <TableHead>Applicant</TableHead>
                 <TableHead>Contact</TableHead>
+                <TableHead>Career Objective</TableHead>
                 <TableHead>File Details</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Submitted</TableHead>
@@ -213,6 +215,14 @@ export default function ResumeSubmissionsPage() {
                         {submission.email}
                       </a>
                     </div>
+                  </TableCell>
+                  <TableCell className="max-w-xs">
+                    <p
+                      className="text-sm text-muted-foreground line-clamp-3 whitespace-pre-wrap"
+                      title={submission.career_objective || '—'}
+                    >
+                      {submission.career_objective || '—'}
+                    </p>
                   </TableCell>
                   <TableCell>
                     <div className="space-y-1">

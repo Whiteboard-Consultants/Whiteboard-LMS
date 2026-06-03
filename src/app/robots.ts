@@ -1,89 +1,82 @@
 import { MetadataRoute } from 'next'
 
+const baseUrl = 'https://www.whiteboardconsultant.com'
+
+/** Public marketing & content paths — kept in sync with sitemap.ts */
+const publicAllow = [
+  '/',
+  '/about',
+  '/contact',
+  '/apply',
+  '/courses',
+  '/courses/*',
+  '/study-abroad',
+  '/study-abroad/*',
+  '/blog',
+  '/blog/*',
+  '/college-admissions',
+  '/admissions/*',
+  '/mock-tests',
+  '/mock-tests/*',
+  '/online-programs',
+  '/partner-programs',
+  '/career-solutions',
+  '/career-solutions/*',
+  '/landing/*',
+  '/faqs',
+  '/privacy',
+  '/refund-policy',
+  '/login',
+  '/register',
+]
+
+/** App, transactional, and non-production routes */
+const disallow = [
+  '/admin/*',
+  '/api/*',
+  '/student/*',
+  '/instructor/*',
+  '/settings/*',
+  '/cart',
+  '/cart/*',
+  '/auth/*',
+  '/private/*',
+  '/tmp/*',
+  '/demo/*',
+  '/courses/*/learn',
+  '/courses/*/lessons/*',
+  '/category-demo',
+  '/test-upload',
+  '/test-simple-upload',
+  '/debug-upload',
+  '/auth-diagnostic',
+  '/direct-test',
+  '/logout-test',
+  '/test-env',
+  '/*.json$',
+]
+
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = 'https://www.whiteboardconsultant.com'
-  
   return {
     rules: [
       {
         userAgent: '*',
-        allow: [
-          '/',
-          '/about',
-          '/courses',
-          '/study-abroad',
-          '/study-abroad/*',
-          '/contact',
-          '/blog',
-          '/blog/*',
-          '/college-admissions',
-          '/admissions/*'
-        ],
-        disallow: [
-          '/admin/*',
-          '/api/*',
-          '/student/*',
-          '/instructor/*',
-          '/auth/*',
-          '/settings/*',
-          '/cart/*',
-          '/*.json$',
-          '/private/*',
-          '/tmp/*'
-        ],
-        crawlDelay: 1, // Be respectful to servers
+        allow: publicAllow,
+        disallow,
+        crawlDelay: 1,
       },
-      // Special rules for search engine bots
       {
         userAgent: 'Googlebot',
-        allow: [
-          '/',
-          '/about',
-          '/courses',
-          '/study-abroad',
-          '/study-abroad/*',
-          '/contact', 
-          '/blog',
-          '/blog/*',
-          '/college-admissions',
-          '/admissions/*'
-        ],
-        disallow: [
-          '/admin/*',
-          '/api/*',
-          '/student/*',
-          '/instructor/*',
-          '/auth/*',
-          '/settings/*',
-          '/cart/*',
-          '/private/*'
-        ]
+        allow: publicAllow,
+        disallow,
       },
       {
         userAgent: 'Bingbot',
-        allow: [
-          '/',
-          '/about',
-          '/courses', 
-          '/study-abroad',
-          '/study-abroad/*',
-          '/contact',
-          '/blog',
-          '/blog/*',
-          '/college-admissions'
-        ],
-        disallow: [
-          '/admin/*',
-          '/api/*',
-          '/student/*', 
-          '/instructor/*',
-          '/auth/*',
-          '/settings/*',
-          '/cart/*'
-        ]
-      }
+        allow: publicAllow,
+        disallow,
+      },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,
-    host: baseUrl
+    host: baseUrl,
   }
 }

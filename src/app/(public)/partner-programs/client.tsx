@@ -123,6 +123,7 @@ export default function PartnerProgramsClient() {
                 src="/images/courses/Partner-Programs.png"
                 alt="Partner Programs Platform"
                 fill
+                priority
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className="object-cover"
                 data-ai-hint="partner programs platform"

@@ -1,8 +1,10 @@
 import { MetadataRoute } from 'next'
-import { getPosts } from '@/lib/supabase-data'
+import { getCourses, getPosts } from '@/lib/supabase-data'
+import { getTestSeries } from '@/app/instructor/test-series-actions'
+import { generateSlug } from '@/lib/slug-utils'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://whiteboardconsultant.com'
+  const baseUrl = 'https://www.whiteboardconsultant.com'
   
   // Static pages with high priority (SEO optimized)
   const staticPages: MetadataRoute.Sitemap = [
@@ -86,28 +88,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: 'weekly' as const,
     priority: 0.8, // High priority for destination-specific SEO
   }))
-
-  // Course category pages for better content discovery
-  const courseCategoryPages: MetadataRoute.Sitemap = [
-    {
-      url: `${baseUrl}/courses/test-prep`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/courses/career-development`, 
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/courses/language-skills`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    }
-  ]
 
   // Landing pages
   const landingPages: MetadataRoute.Sitemap = [
@@ -201,6 +181,40 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   ]
 
+  // Published course detail pages
+  let coursePages: MetadataRoute.Sitemap = []
+  try {
+    const courses = await getCourses({ publishedOnly: true })
+    coursePages = courses.map((course) => ({
+      url: `${baseUrl}/courses/${course.id}`,
+      lastModified: course.createdAt ? new Date(course.createdAt) : new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }))
+  } catch (error) {
+    console.error('Error fetching courses for sitemap:', error)
+  }
+
+  // Published mock test series pages
+  let mockTestSeriesPages: MetadataRoute.Sitemap = []
+  try {
+    const seriesResult = await getTestSeries({ isPublished: true })
+    if (seriesResult.success && seriesResult.data) {
+      mockTestSeriesPages = seriesResult.data.map((series) => ({
+        url: `${baseUrl}/mock-tests/${encodeURIComponent(generateSlug(series.title))}`,
+        lastModified: series.updatedAt
+          ? new Date(series.updatedAt)
+          : series.createdAt
+            ? new Date(series.createdAt)
+            : new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
+      }))
+    }
+  } catch (error) {
+    console.error('Error fetching mock test series for sitemap:', error)
+  }
+
   // Fetch all published blog posts dynamically
   let blogPostPages: MetadataRoute.Sitemap = []
   try {
@@ -219,10 +233,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...staticPages,
     ...destinationPages,
-    ...courseCategoryPages,
     ...landingPages,
     ...careerSolutionsPages,
     ...testPages,
+    ...coursePages,
+    ...mockTestSeriesPages,
     ...blogPostPages,
     ...userPages,
     ...supportPages
