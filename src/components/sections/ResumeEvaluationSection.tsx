@@ -78,7 +78,10 @@ export default function ResumeEvaluationSection() {
 
   if (!isClient) {
     return (
-        <section className="py-16 sm:py-24 bg-background dark:bg-black">
+        <section
+          id="resume"
+          className="py-16 sm:py-24 bg-background dark:bg-black scroll-mt-24"
+        >
             <div className="container">
                 <div className="max-w-2xl mx-auto text-center mb-12">
                     <h2 className="text-3xl font-bold tracking-tight text-foreground font-headline sm:text-4xl">
@@ -103,7 +106,10 @@ export default function ResumeEvaluationSection() {
   }
 
   return (
-    <section className="py-16 sm:py-24 bg-background dark:bg-black">
+    <section
+      id="resume"
+      className="py-16 sm:py-24 bg-background dark:bg-black scroll-mt-24"
+    >
       <div className="container">
         <div className="max-w-2xl mx-auto text-center mb-12">
           <h2 className="text-3xl font-bold tracking-tight text-foreground font-headline sm:text-4xl">

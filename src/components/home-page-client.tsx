@@ -16,6 +16,7 @@ import FutureProofCareerSection from "./sections/FutureProofCareerSection";
 import JobTrendsChartSection from "./sections/JobTrendsChartSection";
 import RIASECCTASectionWrapper from "@/components/sections/RIASECCTASectionWrapper";
 import ResumeEvaluationSection from "./sections/ResumeEvaluationSection";
+import { HomeHashScroll } from "@/components/home-hash-scroll";
 import { WhyChooseUsData } from "@/lib/content";
 
 
@@ -33,6 +34,7 @@ interface HomePageClientProps {
 export default function HomePageClient({ whyChooseUsData }: HomePageClientProps) {
     return (
         <>
+            <HomeHashScroll />
             <section className="bg-slate-100 dark:bg-slate-dark py-16 sm:py-24">
                 <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">

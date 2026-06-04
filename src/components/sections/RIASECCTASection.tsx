@@ -9,7 +9,10 @@ interface RIASECCTASectionProps {
 
 export default function RIASECCTASection({ autoOpen = false }: RIASECCTASectionProps) {
   return (
-    <section className="py-16 sm:py-24 bg-gradient-to-b from-blue-500/10 to-indigo-500/10 dark:from-slate-900/50 dark:to-blue-900/50 backdrop-blur-md">
+    <section
+      id="RIASEC"
+      className="py-16 sm:py-24 bg-gradient-to-b from-blue-500/10 to-indigo-500/10 dark:from-slate-900/50 dark:to-blue-900/50 backdrop-blur-md scroll-mt-24"
+    >
       <div className="container">
         <div className="max-w-4xl mx-auto">
           {/* Glass Container */}

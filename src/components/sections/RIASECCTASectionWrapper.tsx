@@ -20,8 +20,9 @@ export default function RIASECCTASectionWrapper() {
     if (oauth === 'true' && from === 'riasec') {
       setRiasecAutoOpen(true);
       
-      // Clean up URL to remove query params
-      window.history.replaceState({}, document.title, window.location.pathname);
+      // Clean up URL to remove query params; preserve hash anchors (e.g. /#RIASEC)
+      const path = window.location.pathname + window.location.hash;
+      window.history.replaceState({}, document.title, path);
     }
   }, [searchParams]);
 
