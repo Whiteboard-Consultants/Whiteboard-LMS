@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import { notFound } from 'next/navigation';
 import { CourseLessonPageClient } from '@/components/course-lesson-page-client';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
@@ -27,21 +28,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       .eq('id', courseId)
       .single();
 
-    return {
+    return pageMetadata({
       title: lesson?.title ? `${lesson.title} - ${course?.title || 'Course'}` : 'Lesson',
       description: `Learn with this lesson from ${course?.title || 'our course'}.`,
-      alternates: {
-        canonical: `/courses/${courseId}/lessons/${lessonId}`,
-      },
-    };
+      path: `/courses/${courseId}/lessons/${lessonId}`,
+    });
   } catch {
-    return {
+    return pageMetadata({
       title: 'Lesson',
       description: 'Learn with this lesson.',
-      alternates: {
-        canonical: `/courses/${courseId}/lessons/${lessonId}`,
-      },
-    };
+      path: `/courses/${courseId}/lessons/${lessonId}`,
+    });
   }
 }
 

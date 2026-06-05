@@ -9,14 +9,14 @@ import { getPosts } from "@/lib/supabase-data";
 import { format } from "date-fns";
 import { convertToDate } from "@/lib/date-utils";
 import BlogTabs from "@/components/blog-tabs";
+import { pageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: "Education Blog | Study Abroad, Test Prep & Career Tips | Whiteboard Consultants",
-  description: "Expert education blog on study abroad, IELTS/TOEFL/GMAT/GRE prep, and career development. Get free tips from Kolkata's leading education consultants.",
-  alternates: {
-      canonical: '/blog',
-  },
-};
+export const metadata: Metadata = pageMetadata({
+  title: 'Education Blog | Study Abroad, Test Prep & Career Tips | Whiteboard Consultants',
+  description:
+    "Expert education blog on study abroad, IELTS/TOEFL/aptitude test prep, and career development. Get free tips from Kolkata's leading education consultants.",
+  path: '/blog',
+});
 
 export default async function BlogPage() {
   const posts = await getPosts();

@@ -76,13 +76,9 @@ export const metadata: Metadata = {
     'max-snippet': -1,
     'max-video-preview': -1,
   },
-  alternates: {
-    canonical: '/',
-  },
   openGraph: {
     type: 'website',
     locale: 'en_IN',
-    url: '/',
     siteName: 'Whiteboard Consultants',
     title: 'Whiteboard Consultants | #1 Study Abroad & Test Prep Expert in Kolkata',
     description: siteConfig.description,

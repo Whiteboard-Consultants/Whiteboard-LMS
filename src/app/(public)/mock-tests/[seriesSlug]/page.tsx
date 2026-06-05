@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { generateSlug } from '@/lib/slug-utils';
 import { getTestSeries, searchMockTests, getMockTestFilterOptions } from '@/app/instructor/test-series-actions';
 import { SeriesDetailClient } from '@/components/series-detail-client';
+import { pageMetadata } from '@/lib/seo';
 
 type SeriesPageProps = {
     params: Promise<{
@@ -38,18 +39,14 @@ export async function generateMetadata(
         };
     }
 
-    return {
+    const path = `/mock-tests/${encodeURIComponent(decodedSlug)}`;
+    return pageMetadata({
         title: `${matchingSeries.title} Mock Tests | Whiteboard Consultants`,
         description: matchingSeries.description || `Practice with ${matchingSeries.title} mock tests`,
-        alternates: {
-            canonical: `/mock-tests/${encodeURIComponent(decodedSlug)}`,
-        },
-        openGraph: {
-            title: `${matchingSeries.title} Mock Tests`,
-            description: matchingSeries.description,
-            url: `/mock-tests/${encodeURIComponent(decodedSlug)}`,
-        },
-    };
+        path,
+        openGraphTitle: `${matchingSeries.title} Mock Tests`,
+        openGraphDescription: matchingSeries.description,
+    });
 }
 
 export default async function SeriesPage({ params }: SeriesPageProps) {

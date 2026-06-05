@@ -2,25 +2,20 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
+import { pageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Privacy Policy | Whiteboard Consultants',
-  description: 'Learn how Whiteboard Consultants collects, uses, and protects your personal information. Comprehensive privacy policy for our educational services and online courses.',
+  description:
+    'Learn how Whiteboard Consultants collects, uses, and protects your personal information. Comprehensive privacy policy for our educational services and online courses.',
+  path: '/privacy',
   keywords: 'privacy policy, data protection, personal information, GDPR, data security',
-  robots: {
-    index: true,
-    follow: true,
-  },
-  alternates: {
-    canonical: '/privacy',
-  },
+  robots: { index: true, follow: true },
   openGraph: {
     type: 'website',
-    url: '/privacy',
-    title: 'Privacy Policy | Whiteboard Consultants',
     description: 'Learn how Whiteboard Consultants collects, uses, and protects your personal information.',
   },
-};
+});
 
 export default function PrivacyPolicyPage() {
   return (

@@ -4,13 +4,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { HelpCircle, Lightbulb, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
-export const metadata: Metadata = {
-  title: "FAQs | Study Abroad, Test Prep & Career Tips | Whiteboard Consultants",
-  description: "Answers to FAQs on study abroad, IELTS/TOEFL/GMAT/GRE prep, work permits, and career growth from expert education consultants in Kolkata.",
-  alternates: {
-    canonical: '/faqs',
-  },
-};
+import { pageMetadata } from '@/lib/seo';
+
+export const metadata: Metadata = pageMetadata({
+  title: 'FAQs | Study Abroad, Test Prep & Career Tips | Whiteboard Consultants',
+  description:
+    'Answers to FAQs on study abroad, IELTS/TOEFL/aptitude test prep, work permits, and career growth from expert education consultants in Kolkata.',
+  path: '/faqs',
+});
 
 const faqCategories = [
   {

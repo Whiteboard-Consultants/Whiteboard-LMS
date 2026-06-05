@@ -4,14 +4,14 @@ import { UowApplyForm } from "@/components/uow-apply-form";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { pageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Apply to University of Wollongong, India | Whiteboard Consultants',
-  description: 'Submit your application to University of Wollongong with expert guidance from Whiteboard Consultants. Get assistance throughout the application process.',
-  alternates: {
-    canonical: '/admissions/uow-india/apply',
-  },
-};
+  description:
+    'Submit your application to University of Wollongong with expert guidance from Whiteboard Consultants. Get assistance throughout the application process.',
+  path: '/admissions/uow-india/apply',
+});
 
 export default function UowApplyPage() {
     return (

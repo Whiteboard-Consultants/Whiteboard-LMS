@@ -8,16 +8,15 @@ import { ExpertCard } from '@/components/expert-card';
 import DomesticCtaSection from '@/components/sections/DomesticCtaSection';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { siteConfig } from '@/lib/seo';
 import { organizationSchema } from '@/lib/organization-schema';
+import { pageMetadata, siteConfig } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'About Us',
-  description: 'Meet Whiteboard Consultants - Kolkata\'s top education consultant since 2022. 1000+ students guided to global universities. Expert test prep & admissions support.',
-  alternates: {
-    canonical: '/about',
-  },
-};
+  description:
+    "Meet Whiteboard Consultants - Kolkata's top education consultant since 2022. 1000+ students guided to global universities. Expert test prep & admissions support.",
+  path: '/about',
+});
 
 const stats: AboutStatProps[] = [
     { value: 31, label: "Countries", subLabel: "Global Reach Across Continents", suffix: "+" },

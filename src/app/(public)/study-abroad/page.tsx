@@ -12,20 +12,17 @@ import Link from "next/link";
 import type { Metadata } from 'next';
 import { getWhyChooseUsData, WhyChooseUsData, getCountriesData, Country } from "@/lib/content";
 import { QuickAnswer } from '@/components/quick-answer';
-import { siteConfig } from '@/lib/seo';
+import { siteConfig, pageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: "Expert Study Abroad Consultants in Kolkata | Whiteboard Consultants",
-  description: "Study abroad expert in Kolkata. University selection, application support, visa guidance for USA, UK, Canada, Australia & more. Free counseling available!",
-  alternates: {
-    canonical: '/study-abroad',
-  },
-  openGraph: {
-    title: "Study Abroad with Whiteboard Consultants - Kolkata's Premier Guide",
-    description: "Dreaming of studying overseas? Get expert help with university admissions, test prep, and visa applications from Kolkata's top-rated study abroad consultants.",
-    url: '/study-abroad',
-  },
-};
+export const metadata: Metadata = pageMetadata({
+  title: 'Expert Study Abroad Consultants in Kolkata | Whiteboard Consultants',
+  description:
+    'Study abroad expert in Kolkata. University selection, application support, visa guidance for USA, UK, Canada, Australia & more. Free counseling available!',
+  path: '/study-abroad',
+  openGraphTitle: "Study Abroad with Whiteboard Consultants - Kolkata's Premier Guide",
+  openGraphDescription:
+    "Dreaming of studying overseas? Get expert help with university admissions, test prep, and visa applications from Kolkata's top-rated study abroad consultants.",
+});
 
 export default async function StudyAbroadPage() {
     const whyChooseUsData: WhyChooseUsData = await getWhyChooseUsData("why-choose-us-study-abroad.json");

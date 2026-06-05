@@ -27,7 +27,6 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Whiteboard Consultants - Your Gateway to Global Education',
     description: 'Expert guidance for studying abroad and comprehensive test preparation. Unlock your potential with the best education consultants in Kolkata.',
-    url: '/',
     siteName: 'Whiteboard Consultants',
     images: [
       {
@@ -50,9 +49,6 @@ export const metadata: Metadata = {
       'max-image-preview': 'large',
       'max-snippet': -1,
     },
-  },
-  alternates: {
-    canonical: '/',
   },
   icons: {
     icon: [

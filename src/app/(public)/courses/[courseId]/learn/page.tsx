@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { CourseOverviewClient } from '@/components/course-overview-client';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
+import { pageMetadata } from '@/lib/seo';
 
 interface PageProps {
   params: Promise<{
@@ -20,21 +21,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       .eq('id', courseId)
       .single();
 
-    return {
+    return pageMetadata({
       title: course?.title ? `Learn ${course.title}` : 'Course Learning',
       description: course?.description || 'Learn with this comprehensive course.',
-      alternates: {
-        canonical: `/courses/${courseId}/learn`,
-      },
-    };
+      path: `/courses/${courseId}/learn`,
+    });
   } catch {
-    return {
+    return pageMetadata({
       title: 'Course Learning',
       description: 'Learn with this comprehensive course.',
-      alternates: {
-        canonical: `/courses/${courseId}/learn`,
-      },
-    };
+      path: `/courses/${courseId}/learn`,
+    });
   }
 }
 

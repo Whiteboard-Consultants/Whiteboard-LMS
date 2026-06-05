@@ -1,14 +1,14 @@
 import type { Metadata } from 'next';
 import { skillDevelopmentFaqs } from '@/lib/skill-development-faqs';
 import { buildFaqPageSchema } from '@/lib/faq-schema';
+import { pageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Skill Development & Corporate Training | Whiteboard Consultants',
-  description: 'Professional skill development and corporate training programs including leadership, communication, technical skills, and team building.',
-  alternates: {
-    canonical: '/career-solutions/skill-development',
-  },
-};
+  description:
+    'Professional skill development and corporate training programs including leadership, communication, technical skills, and team building.',
+  path: '/career-solutions/skill-development',
+});
 
 const faqSchema = buildFaqPageSchema(skillDevelopmentFaqs);
 

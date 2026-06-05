@@ -2,25 +2,20 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
+import { pageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Refund Policy | Whiteboard Consultants',
-  description: 'Learn about our transparent refund policy. Get details on refund eligibility, valid reasons, exclusions, and how to request a refund for our online courses.',
+  description:
+    'Learn about our transparent refund policy. Get details on refund eligibility, valid reasons, exclusions, and how to request a refund for our online courses.',
+  path: '/refund-policy',
   keywords: 'refund policy, money-back guarantee, course refund, refund conditions',
-  robots: {
-    index: true,
-    follow: true,
-  },
-  alternates: {
-    canonical: '/refund-policy',
-  },
+  robots: { index: true, follow: true },
   openGraph: {
     type: 'website',
-    url: '/refund-policy',
-    title: 'Refund Policy | Whiteboard Consultants',
     description: 'Learn about our transparent refund policy for online courses.',
   },
-};
+});
 
 export default function RefundPolicyPage() {
   return (

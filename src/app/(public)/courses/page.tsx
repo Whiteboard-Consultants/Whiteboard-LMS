@@ -7,22 +7,20 @@ import { getPrograms } from '@/app/admin/programs-actions';
 import { CourseCategory, Course } from '@/types';
 import type { Metadata } from 'next';
 import { coursesFaqs } from '@/lib/courses-faqs';
+import { pageMetadata } from '@/lib/seo';
 
 // Cache courses list for 30 minutes - Improves TTFB
 export const revalidate = 1800;
 
-export const metadata: Metadata = {
-    title: 'Test Prep & Career Courses in Kolkata | Whiteboard Consultants',
-    description: 'Expert IELTS, TOEFL, GMAT, GRE, SAT prep courses + career development programs in Kolkata. Achieve your academic goals with our proven coaching methods.',
-    alternates: {
-        canonical: '/courses',
-    },
-    openGraph: {
-        title: 'Explore All Courses | Whiteboard Consultants',
-        description: 'Find the perfect course to advance your academic or professional journey. From test prep to career skills, we have you covered.',
-        url: '/courses',
-    },
-};
+export const metadata: Metadata = pageMetadata({
+  title: 'Test Prep & Career Courses in Kolkata | Whiteboard Consultants',
+  description:
+    'Expert IELTS, TOEFL, aptitude test prep, and career development programs in Kolkata. Achieve your academic goals with our proven coaching methods.',
+  path: '/courses',
+  openGraphTitle: 'Explore All Courses | Whiteboard Consultants',
+  openGraphDescription:
+    'Find the perfect course to advance your academic or professional journey. From test prep to career skills, we have you covered.',
+});
 
 
 type CoursesPageProps = {

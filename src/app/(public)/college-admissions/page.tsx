@@ -4,19 +4,16 @@ import { getCollegeAdmissionsData } from "@/lib/content";
 import type { Metadata } from "next";
 import { collegeAdmissionsFaqs } from "@/lib/college-admissions-faqs";
 import { buildFaqPageSchema } from "@/lib/faq-schema";
+import { pageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-    title: "College Admissions India | Whiteboard Consultants",
-    description: "Secure your spot in India's top colleges with expert admission guidance from Whiteboard Consultants in Kolkata. We partner with leading institutions like IISM and EIILM, offering comprehensive application support and test preparation.",
-    alternates: {
-        canonical: '/college-admissions',
-    },
-     openGraph: {
-        title: 'College Admissions India | Whiteboard Consultants',
-        description: "Partner with Kolkata's best education consultants for direct admission into top Indian colleges. We specialize in IISM, EIILM, and more.",
-        url: '/college-admissions',
-    },
-};
+export const metadata: Metadata = pageMetadata({
+  title: 'College Admissions India | Whiteboard Consultants',
+  description:
+    "Secure your spot in India's top colleges with expert admission guidance from Whiteboard Consultants in Kolkata. We partner with leading institutions like IISM and EIILM, offering comprehensive application support and test preparation.",
+  path: '/college-admissions',
+  openGraphDescription:
+    "Partner with Kolkata's best education consultants for direct admission into top Indian colleges. We specialize in IISM, EIILM, and more.",
+});
 
 export default async function CollegeAdmissionsPage() {
     const pageData = await getCollegeAdmissionsData();

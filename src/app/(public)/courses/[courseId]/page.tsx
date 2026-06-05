@@ -46,6 +46,7 @@ export async function generateMetadata({ params }: CoursePageProps): Promise<Met
         openGraph: {
             title: course.title,
             description: course.description,
+            url: `/courses/${courseId}`,
             images: [
                 {
                     url: course.imageUrl,

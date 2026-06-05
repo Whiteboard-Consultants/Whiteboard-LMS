@@ -1,14 +1,14 @@
 import type { Metadata } from 'next';
 import { internshipProgramsFaqs } from '@/lib/internship-programs-faqs';
 import { buildFaqPageSchema } from '@/lib/faq-schema';
+import { pageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Internship Programs | Whiteboard Consultants',
-  description: 'Gain hands-on experience with our internship programs in graphic design, sales, marketing, SEO, development, and more. Launch your career today.',
-  alternates: {
-    canonical: '/career-solutions/internship-programs',
-  },
-};
+  description:
+    'Gain hands-on experience with our internship programs in graphic design, sales, marketing, SEO, development, and more. Launch your career today.',
+  path: '/career-solutions/internship-programs',
+});
 
 const faqSchema = buildFaqPageSchema(internshipProgramsFaqs);
 

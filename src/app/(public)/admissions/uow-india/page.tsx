@@ -2,15 +2,22 @@
 import { Metadata } from 'next';
 import { getUowIndiaPageData } from '@/lib/content';
 import UowIndiaClient from './uow-india-client';
+import { pageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-    title: "University of Wollongong (UOW) India Admissions | Whiteboard Consultants",
-    description: "As the official East India partner for the University of Wollongong, we provide expert guidance for admissions to the UOW campus at GIFT City, Gandhinagar. Explore programs in Computing, Data Analytics, and FinTech.",
-    keywords: ["University of Wollongong India", "UOW India", "UOW GIFT City", "study in India", "Australian university in India", "Whiteboard Consultants UOW"],
-    alternates: {
-        canonical: '/admissions/uow-india',
-    },
-};
+export const metadata: Metadata = pageMetadata({
+  title: 'University of Wollongong (UOW) India Admissions | Whiteboard Consultants',
+  description:
+    'As the official East India partner for the University of Wollongong, we provide expert guidance for admissions to the UOW campus at GIFT City, Gandhinagar. Explore programs in Computing, Data Analytics, and FinTech.',
+  path: '/admissions/uow-india',
+  keywords: [
+    'University of Wollongong India',
+    'UOW India',
+    'UOW GIFT City',
+    'study in India',
+    'Australian university in India',
+    'Whiteboard Consultants UOW',
+  ],
+});
 
 export default async function UowIndiaPage() {
     const pageData = await getUowIndiaPageData();

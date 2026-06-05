@@ -11,6 +11,39 @@ export interface SEOConfig {
   structuredData?: object;
 }
 
+/** Keep canonical and Open Graph URL in sync (fixes Ahrefs "og:url not matching canonical") */
+export function pageMetadata({
+  title,
+  description,
+  path,
+  openGraphTitle,
+  openGraphDescription,
+  openGraph,
+  ...extra
+}: {
+  title: string;
+  description: string;
+  path: string;
+  openGraphTitle?: string;
+  openGraphDescription?: string;
+  openGraph?: Omit<NonNullable<Metadata['openGraph']>, 'url'>;
+} & Omit<Metadata, 'title' | 'description' | 'alternates' | 'openGraph'>): Metadata {
+  const ogTitle = openGraphTitle ?? openGraph?.title ?? title;
+  const ogDescription = openGraphDescription ?? openGraph?.description ?? description;
+  return {
+    ...extra,
+    title,
+    description,
+    alternates: { canonical: path },
+    openGraph: {
+      ...openGraph,
+      title: typeof ogTitle === 'string' ? ogTitle : title,
+      description: ogDescription,
+      url: path,
+    },
+  };
+}
+
 export const siteConfig = {
   name: "Whiteboard Consultants",
   description: "Transform your academic future with Kolkata's top education consultant. Expert study abroad guidance, IELTS/TOEFL/Aptitude Test Prep preparation, college admissions, upskilling and career counseling.",

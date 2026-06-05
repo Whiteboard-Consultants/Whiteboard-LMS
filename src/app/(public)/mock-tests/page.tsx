@@ -2,21 +2,19 @@ import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { MockTestPageClient } from '@/components/mock-test-page-client';
 import { searchMockTests, getMockTestFilterOptions } from '@/app/instructor/test-series-actions';
+import { pageMetadata } from '@/lib/seo';
 
 export const revalidate = 1800; // Cache for 30 minutes
 
-export const metadata: Metadata = {
-    title: 'Mock Tests & Practice Series | Whiteboard Consultants',
-    description: 'Practice with our comprehensive mock test series. Quantitative Aptitude, Verbal Ability, Logical Reasoning & Data Interpretation with difficulty levels from Easy to Hard.',
-    alternates: {
-        canonical: '/mock-tests',
-    },
-    openGraph: {
-        title: 'Mock Tests & Practice Series',
-        description: 'Prepare for competitive exams with targeted mock tests across multiple difficulty levels.',
-        url: '/mock-tests',
-    },
-};
+export const metadata: Metadata = pageMetadata({
+  title: 'Mock Tests & Practice Series | Whiteboard Consultants',
+  description:
+    'Practice with our comprehensive mock test series. Quantitative Aptitude, Verbal Ability, Logical Reasoning & Data Interpretation with difficulty levels from Easy to Hard.',
+  path: '/mock-tests',
+  openGraphTitle: 'Mock Tests & Practice Series',
+  openGraphDescription:
+    'Prepare for competitive exams with targeted mock tests across multiple difficulty levels.',
+});
 
 type MockTestsPageProps = {
     searchParams?: Promise<{

@@ -1,14 +1,21 @@
 import { Metadata } from 'next';
 import DeakinGiftCityClient from './deakin-gift-city-client';
+import { pageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-    title: "Deakin University GIFT City Admissions | Whiteboard Consultants",
-    description: "As the official East India partner for Deakin University, we provide expert guidance for admissions to Deakin's GIFT City campus in Gandhinagar. Explore postgraduate programs in Business, Technology, and FinTech.",
-    keywords: ["Deakin University", "Deakin GIFT City", "Deakin India", "study in India", "Australian university in India", "Whiteboard Consultants Deakin"],
-    alternates: {
-        canonical: '/admissions/deakin-gift-city',
-    },
-};
+export const metadata: Metadata = pageMetadata({
+  title: 'Deakin University GIFT City Admissions | Whiteboard Consultants',
+  description:
+    "As the official East India partner for Deakin University, we provide expert guidance for admissions to Deakin's GIFT City campus in Gandhinagar. Explore postgraduate programs in Business, Technology, and FinTech.",
+  path: '/admissions/deakin-gift-city',
+  keywords: [
+    'Deakin University',
+    'Deakin GIFT City',
+    'Deakin India',
+    'study in India',
+    'Australian university in India',
+    'Whiteboard Consultants Deakin',
+  ],
+});
 
 async function getDeakinPageData() {
     try {

@@ -3,19 +3,17 @@ import UsaPageClient from "./client";
 import type { Metadata } from 'next';
 import { getWhyChooseUsData, WhyChooseUsData } from "@/lib/content";
 import WhyChooseUsSection from "@/components/sections/why-choose-us-section";
+import { pageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: "Study in USA from India | Top US University Consultants in Kolkata",
-  description: "Study in USA with expert consultants in Kolkata. Top universities, SAT/GRE/GMAT prep, F-1 visa, OPT, and career guidance for Indian students.",
-  alternates: {
-    canonical: '/study-abroad/usa',
-  },
-  openGraph: {
-    title: "Study in the USA: The Ultimate Guide for Indian Students | Whiteboard Consultants",
-    description: "Explore top US universities, admission processes, and post-study work options (OPT/CPT). Get free counseling from our expert USA education consultants in Kolkata.",
-    url: '/study-abroad/usa',
-  },
-};
+export const metadata: Metadata = pageMetadata({
+  title: 'Study in USA from India | Top US University Consultants in Kolkata',
+  description:
+    'Study in USA with expert consultants in Kolkata. Top universities, SAT/GRE/GMAT prep, F-1 visa, OPT, and career guidance for Indian students.',
+  path: '/study-abroad/usa',
+  openGraphTitle: 'Study in the USA: The Ultimate Guide for Indian Students | Whiteboard Consultants',
+  openGraphDescription:
+    'Explore top US universities, admission processes, and post-study work options (OPT/CPT). Get free counseling from our expert USA education consultants in Kolkata.',
+});
 
 const faqs = [
     {
