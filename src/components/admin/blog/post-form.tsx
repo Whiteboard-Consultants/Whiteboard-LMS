@@ -14,20 +14,10 @@ import { Switch } from "@/components/ui/switch";
 import { ImageUpload } from "@/components/ui/image-upload";
 import { generateSlug } from "@/lib/slug-utils";
 import { useEffect } from "react";
+import { postFormSchema } from "@/lib/blog-post-form-schema";
+import { BlogFaqFields } from "@/components/admin/blog/blog-faq-fields";
 
-const formSchema = z.object({
-  title: z.string().min(2, { message: "Title must be at least 2 characters." }),
-  slug: z.string().min(2, { message: "Slug must be at least 2 characters." }),
-  excerpt: z.string().optional(),
-  content: z.string().min(10, { message: "Content must be at least 10 characters." }),
-  imageUrl: z.string().refine((val) => val === "" || z.string().url().safeParse(val).success, {
-    message: "Please enter a valid URL or leave empty."
-  }),
-  category: z.string().min(2, { message: "Category must be at least 2 characters." }),
-  tags: z.string(),
-  featured: z.boolean(),
-  authorName: z.string().min(2, { message: "Author name must be at least 2 characters." }).default("Whiteboard Consultants"),
-});
+const formSchema = postFormSchema;
 
 interface PostFormProps {
   post?: Post;
@@ -48,6 +38,7 @@ export function PostForm({ post, onSubmit, isSubmitting }: PostFormProps) {
       tags: post?.tags?.join(", ") || "",
       featured: post?.featured || false,
       authorName: post?.author?.name || "Whiteboard Consultants",
+      faqSection: post?.faqSection?.length ? post.faqSection : [],
     },
   });
 
@@ -203,6 +194,22 @@ export function PostForm({ post, onSubmit, isSubmitting }: PostFormProps) {
               <FormLabel>Tags (comma-separated)</FormLabel>
               <FormControl>
                 <Input placeholder="study abroad, uk, ielts" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="faqSection"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <BlogFaqFields
+                  value={field.value}
+                  onChange={field.onChange}
+                  disabled={isSubmitting}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

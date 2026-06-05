@@ -11,6 +11,8 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from 'next';
 import { getWhyChooseUsData, WhyChooseUsData, getCountriesData, Country } from "@/lib/content";
+import { QuickAnswer } from '@/components/quick-answer';
+import { siteConfig } from '@/lib/seo';
 
 export const metadata: Metadata = {
   title: "Expert Study Abroad Consultants in Kolkata | Whiteboard Consultants",
@@ -36,7 +38,7 @@ export default async function StudyAbroadPage() {
       "provider": {
         "@type": "EducationalOrganization",
         "name": "Whiteboard Consultants",
-         "url": "https://www.whiteboardconsultant.com"
+         "url": siteConfig.url
       },
       "areaServed": {
         "@type": "City",
@@ -47,14 +49,14 @@ export default async function StudyAbroadPage() {
         "@type": "OfferCatalog",
         "name": "Study Abroad Destinations",
         "itemListElement": [
-          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Study in USA", "url": "/study-abroad/usa" } },
-          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Study in Canada", "url": "/study-abroad/canada" } },
-          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Study in UK", "url": "/study-abroad/uk" } },
-          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Study in Australia", "url": "/study-abroad/australia" } },
-          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Study in New Zealand", "url": "/study-abroad/new-zealand" } },
-          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Study in Ireland", "url": "/study-abroad/ireland" } },
-          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Study in Germany", "url": "/study-abroad/germany" } },
-          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Study in Dubai", "url": "/study-abroad/dubai" } }
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Study in USA", "url": `${siteConfig.url}/study-abroad/usa` } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Study in Canada", "url": `${siteConfig.url}/study-abroad/canada` } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Study in UK", "url": `${siteConfig.url}/study-abroad/uk` } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Study in Australia", "url": `${siteConfig.url}/study-abroad/australia` } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Study in New Zealand", "url": `${siteConfig.url}/study-abroad/new-zealand` } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Study in Ireland", "url": `${siteConfig.url}/study-abroad/ireland` } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Study in Germany", "url": `${siteConfig.url}/study-abroad/germany` } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Study in Dubai", "url": `${siteConfig.url}/study-abroad/dubai` } }
         ]
       }
     };
@@ -225,6 +227,11 @@ export default async function StudyAbroadPage() {
                     <p className="mt-6 text-lg text-muted-foreground">
                       Navigate the path to international education with confidence. As the best education consultant in Kolkata, we provide expert guidance for top universities worldwide, test preparation, and visa assistance.
                     </p>
+                    <QuickAnswer>
+                      <p>
+                        Whiteboard Consultants helps Indian students study abroad in the USA, UK, Canada, Australia, Ireland, Germany, New Zealand, and Dubai (UAE). From our Kolkata office, we provide university shortlisting, application and SOP support, IELTS/TOEFL/GRE/GMAT coaching, visa guidance, and pre-departure counseling.
+                      </p>
+                    </QuickAnswer>
                     <div className="mt-10 flex items-center gap-4">
                         <Button asChild size="lg" className="dark:bg-black dark:text-white dark:border dark:border-white">
                             <Link href="/contact">

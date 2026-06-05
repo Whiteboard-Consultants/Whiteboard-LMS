@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { internshipProgramsFaqs } from '@/lib/internship-programs-faqs';
+import { buildFaqPageSchema } from '@/lib/faq-schema';
 
 export const metadata: Metadata = {
   title: 'Internship Programs | Whiteboard Consultants',
@@ -8,10 +10,20 @@ export const metadata: Metadata = {
   },
 };
 
+const faqSchema = buildFaqPageSchema(internshipProgramsFaqs);
+
 export default function InternshipProgramsLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  return <>{children}</>;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+      {children}
+    </>
+  );
 }

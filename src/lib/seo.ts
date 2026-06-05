@@ -13,15 +13,15 @@ export interface SEOConfig {
 
 export const siteConfig = {
   name: "Whiteboard Consultants",
-  description: "Transform your academic future with Kolkata's top education consultant. Expert study abroad guidance, IELTS/TOEFL/GMAT/GRE preparation, college admissions, and career counseling.",
+  description: "Transform your academic future with Kolkata's top education consultant. Expert study abroad guidance, IELTS/TOEFL/Aptitude Test Prep preparation, college admissions, upskilling and career counseling.",
   url: "https://www.whiteboardconsultant.com",
   ogImage: "/og-image-home.png",
   links: {
     twitter: "https://twitter.com/whiteboardcons",
-    facebook: "https://facebook.com/whiteboardconsultants",
-    linkedin: "https://linkedin.com/company/whiteboard-consultants",
-    instagram: "https://instagram.com/whiteboardconsultants",
-    youtube: "https://youtube.com/@whiteboardconsultants"
+    facebook: "https://www.facebook.com/whiteboardconsultants",
+    linkedin: "https://www.linkedin.com/company/whiteboard-consultants",
+    instagram: "https://www.instagram.com/whiteboardconsultants",
+    youtube: "https://www.youtube.com/@whiteboardconsultants"
   },
   contact: {
     phone: "+91 8583 035656",

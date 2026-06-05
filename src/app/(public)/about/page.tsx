@@ -8,6 +8,8 @@ import { ExpertCard } from '@/components/expert-card';
 import DomesticCtaSection from '@/components/sections/DomesticCtaSection';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { siteConfig } from '@/lib/seo';
+import { organizationSchema } from '@/lib/organization-schema';
 
 export const metadata: Metadata = {
   title: 'About Us',
@@ -80,9 +82,30 @@ const experts = [
 ];
 
 
+const personSchema = {
+    '@context': 'https://schema.org',
+    '@graph': [
+        { '@id': organizationSchema['@id'] },
+        ...experts.map((expert) => ({
+            '@type': 'Person',
+            name: expert.name,
+            jobTitle: expert.title,
+            description: expert.description,
+            image: `${siteConfig.url}${expert.imageUrl}`,
+            url: expert.linkedinUrl,
+            worksFor: { '@id': organizationSchema['@id'] },
+            sameAs: [expert.linkedinUrl],
+        })),
+    ],
+};
+
 export default function AboutPage() {
     return (
         <>
+        <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
+        />
         <section className="bg-slate-100 dark:bg-slate-dark py-16 sm:py-24">
             <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">

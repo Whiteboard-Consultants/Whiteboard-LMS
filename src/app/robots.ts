@@ -2,9 +2,21 @@ import { MetadataRoute } from 'next'
 
 const baseUrl = 'https://www.whiteboardconsultant.com'
 
+/** AI crawlers — allow for generative search / citation visibility */
+const aiCrawlers = [
+  'GPTBot',
+  'ChatGPT-User',
+  'OAI-SearchBot',
+  'ClaudeBot',
+  'anthropic-ai',
+  'PerplexityBot',
+  'Google-Extended',
+] as const
+
 /** Public marketing & content paths — kept in sync with sitemap.ts */
 const publicAllow = [
   '/',
+  '/llms.txt',
   '/about',
   '/contact',
   '/apply',
@@ -75,6 +87,11 @@ export default function robots(): MetadataRoute.Robots {
         allow: publicAllow,
         disallow,
       },
+      ...aiCrawlers.map((userAgent) => ({
+        userAgent,
+        allow: publicAllow,
+        disallow,
+      })),
     ],
     sitemap: `${baseUrl}/sitemap.xml`,
     host: baseUrl,

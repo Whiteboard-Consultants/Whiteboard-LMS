@@ -8,6 +8,7 @@ import { ArrowRight, CheckCircle2, Award, BookOpen, Briefcase, Globe, HeartHands
 import Image from "next/image";
 import Link from "next/link";
 import StudyAbroadCtaSection from "@/components/sections/StudyAbroadCtaSection";
+import { QuickAnswer } from '@/components/quick-answer';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
@@ -350,6 +351,11 @@ export default function UKPageClient({ children }: UKPageClientProps) {
                             <p className="mt-6 text-lg text-muted-foreground">
                                 As the leading study in UK consultants in Kolkata, we guide you to world-leading universities, offering a first-class education, a vibrant multicultural experience, and a direct path to a global career with the Graduate Route visa.
                             </p>
+                            <QuickAnswer>
+                                <p>
+                                    Indian students can study in the UK by meeting university entry requirements, English language scores (IELTS/TOEFL/PTE), and securing a Student visa. Whiteboard Consultants in Kolkata supports UK university applications, CAS documentation, Graduate Route visa planning, and test preparation for top British institutions.
+                                </p>
+                            </QuickAnswer>
                             <div className="mt-10">
                                 <Button asChild size="lg" className="dark:bg-white dark:text-black dark:hover:bg-white/90">
                                     <Link href="/contact">

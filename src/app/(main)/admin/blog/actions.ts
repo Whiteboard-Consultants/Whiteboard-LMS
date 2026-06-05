@@ -5,21 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { supabase, supabaseAdmin } from "@/lib/supabase";
 import type { Post } from "@/types";
-
-// Define the form schema to match our Post type
-const postFormSchema = z.object({
-  title: z.string().min(2, { message: "Title must be at least 2 characters." }),
-  slug: z.string().min(2, { message: "Slug must be at least 2 characters." }),
-  excerpt: z.string().optional(),
-  content: z.string().min(10, { message: "Content must be at least 10 characters." }),
-  imageUrl: z.string().refine((val) => val === "" || z.string().url().safeParse(val).success, {
-    message: "Please enter a valid URL or leave empty."
-  }),
-  category: z.string().min(2, { message: "Category must be at least 2 characters." }),
-  tags: z.string(),
-  featured: z.boolean(),
-  authorName: z.string().min(2, { message: "Author name must be at least 2 characters." }).default("Whiteboard Consultants"),
-});
+import { postFormSchema, normalizeFaqSection } from "@/lib/blog-post-form-schema";
 
 type PostFormData = z.infer<typeof postFormSchema>;
 
@@ -96,6 +82,7 @@ export async function createPost(data: CreatePostInput) {
       author_id: data.authorId,
       author_name: validatedData.authorName, // Use the form-provided author name
       read_time_minutes: readTimeMinutes,
+      faq_section: normalizeFaqSection(validatedData.faqSection),
       published_at: new Date().toISOString(),
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -176,6 +163,7 @@ export async function updatePost(postId: string, formData: PostFormData, authorD
       featured_image_url: validatedData.imageUrl?.trim() || null,
       author_name: validatedData.authorName, // Update with form-provided author name
       read_time_minutes: readTimeMinutes,
+      faq_section: normalizeFaqSection(validatedData.faqSection),
       updated_at: new Date().toISOString(),
     };
     
@@ -203,6 +191,9 @@ export async function updatePost(postId: string, formData: PostFormData, authorD
     revalidatePath(`/admin/blog/edit/${postId}`);
     revalidatePath("/admin/blog");
     revalidatePath("/blog");
+    if (validatedData.slug) {
+      revalidatePath(`/blog/${validatedData.slug}`);
+    }
     
     return { success: true, data };
     

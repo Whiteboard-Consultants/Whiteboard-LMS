@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import Script from 'next/script'
+import { websiteSchema } from '@/lib/organization-schema'
 
 // Type definitions for Web Vitals and Google Analytics
 interface WebVitalMetric {
@@ -154,38 +155,17 @@ export function PerformanceOptimizations() {
   )
 }
 
-// Schema.org WebSite markup for site search
+// Schema.org WebSite markup for site search (AEO / AI citations)
 export function WebsiteSearchSchema() {
-  const websiteSchema = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "Whiteboard Consultants",
-    "url": "https://www.whiteboardconsultant.com/",
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": {
-        "@type": "EntryPoint", 
-        "urlTemplate": "https://www.whiteboardconsultant.com/search?q={search_term_string}"
-      },
-      "query-input": "required name=search_term_string"
-    },
-    "sameAs": [
-      "https://www.facebook.com/whiteboardconsultants",
-      "https://www.linkedin.com/company/whiteboard-consultants", 
-      "https://www.instagram.com/whiteboardconsultants",
-      "https://twitter.com/whiteboardcons"
-    ]
-  }
-
   return (
     <Script
       id="website-schema"
       type="application/ld+json"
       dangerouslySetInnerHTML={{
-        __html: JSON.stringify(websiteSchema)
+        __html: JSON.stringify(websiteSchema),
       }}
     />
-  )
+  );
 }
 
 // Critical CSS inlining helper

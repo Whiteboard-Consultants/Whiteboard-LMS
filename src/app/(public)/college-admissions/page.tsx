@@ -2,6 +2,8 @@
 import CollegeAdmissionsClient from "./client";
 import { getCollegeAdmissionsData } from "@/lib/content";
 import type { Metadata } from "next";
+import { collegeAdmissionsFaqs } from "@/lib/college-admissions-faqs";
+import { buildFaqPageSchema } from "@/lib/faq-schema";
 
 export const metadata: Metadata = {
     title: "College Admissions India | Whiteboard Consultants",
@@ -38,6 +40,8 @@ export default async function CollegeAdmissionsPage() {
         ]
     };
     
+    const faqSchema = buildFaqPageSchema(collegeAdmissionsFaqs);
+
     const serviceLd = {
       "@context": "https://schema.org",
       "@type": "Service",
@@ -63,6 +67,10 @@ export default async function CollegeAdmissionsPage() {
              <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceLd) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
             />
             <CollegeAdmissionsClient pageData={pageData} />
         </>

@@ -11,6 +11,7 @@ import { TestCartProvider } from '@/hooks/use-test-cart';
 import Script from 'next/script';
 import { ThemeProvider } from "@/components/theme-provider";
 import { WebVitalsTracker, PerformanceOptimizations, WebsiteSearchSchema } from '@/components/seo-optimizations';
+import { organizationSchema } from '@/lib/organization-schema';
 import { GoogleAnalyticsComponent } from '@/components/google-analytics';
 import { MetaPixelInit } from '@/components/meta-pixel';
 import { CookieConsentBanner } from '@/components/cookie-consent-banner';
@@ -19,6 +20,7 @@ import '@/lib/auth-fix'; // Auto-handle auth token issues
 import '@/lib/suppress-auth-errors'; // Suppress expected Supabase auth errors
 import type { Metadata } from 'next';
 import { Poppins, PT_Sans } from 'next/font/google';
+import { siteConfig } from '@/lib/seo';
 
 const fontHeadline = PT_Sans({
   subsets: ['latin'],
@@ -41,7 +43,7 @@ export const metadata: Metadata = {
     default: 'Whiteboard Consultants | #1 Study Abroad & Test Prep Expert in Kolkata',
     template: '%s | Whiteboard Consultants - Your Gateway to Global Education',
   },
-  description: 'Transform your academic future with Kolkata\'s top education consultant. Expert study abroad guidance, IELTS/TOEFL/GMAT/GRE preparation, college admissions, and career counseling. 1000+ success stories, 15+ years of experience.',
+  description: `${siteConfig.description} 1000+ success stories, 15+ years of experience.`,
   keywords: [
     // Primary Keywords
     "education consultant in Kolkata", "study abroad consultants Kolkata", "IELTS coaching Kolkata", 
@@ -49,8 +51,8 @@ export const metadata: Metadata = {
     
     // Long-tail Keywords (AEO focused)
     "best study abroad consultant in Kolkata", "top IELTS coaching center in Kolkata",
-    "how to study abroad from India", "GMAT preparation classes Kolkata", 
-    "GRE coaching institutes Kolkata", "student visa consultation Kolkata",
+    "how to study abroad from India", "aptitude test preparation Kolkata",
+    "GMAT preparation classes Kolkata", "GRE coaching institutes Kolkata", "student visa consultation Kolkata",
     
     // Location-based
     "education consultant Park Street Kolkata", "study abroad consultant near me",
@@ -83,7 +85,7 @@ export const metadata: Metadata = {
     url: '/',
     siteName: 'Whiteboard Consultants',
     title: 'Whiteboard Consultants | #1 Study Abroad & Test Prep Expert in Kolkata',
-    description: 'Transform your academic future with Kolkata\'s top education consultant. Expert study abroad guidance, IELTS/TOEFL/GMAT/GRE preparation, college admissions, and career counseling.',
+    description: siteConfig.description,
     images: [
       {
         url: '/og-image-home.png',
@@ -106,7 +108,7 @@ export const metadata: Metadata = {
     site: '@whiteboardcons',
     creator: '@whiteboardcons',
     title: 'Whiteboard Consultants | #1 Study Abroad & Test Prep Expert in Kolkata',
-    description: 'Transform your academic future with expert study abroad guidance, test prep, and career counseling in Kolkata.',
+    description: 'Transform your academic future with expert study abroad guidance, IELTS/TOEFL/aptitude test prep, upskilling, and career counseling in Kolkata.',
     images: ['/twitter-image-home.png'],
   },
   verification: {
@@ -162,71 +164,8 @@ export default function RootLayout({
         />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": ["EducationalOrganization", "LocalBusiness"],
-            "name": "Whiteboard Consultants",
-            "url": "https://www.whiteboardconsultant.com", 
-            "logo": "https://www.whiteboardconsultant.com/logo.png",
-            "description": "Premier education consultant in Kolkata specializing in study abroad guidance, IELTS/TOEFL/GMAT/GRE preparation, and career counseling with 15+ years of experience.",
-            "foundingDate": "2008",
-            "contactPoint": {
-              "@type": "ContactPoint",
-              "telephone": "+91 8583 035656",
-              "contactType": "Customer Service",
-              "availableLanguage": ["English", "Hindi", "Bengali"],
-              "areaServed": "IN"
-            },
-            "address": {
-              "@type": "PostalAddress",
-              "streetAddress": "Park Plaza, 71 Park Street, Floor 6",
-              "addressLocality": "Kolkata",
-              "addressRegion": "West Bengal",
-              "postalCode": "700016",
-              "addressCountry": "IN"
-            },
-            "geo": {
-              "@type": "GeoCoordinates",
-              "latitude": 22.5574,
-              "longitude": 88.3476
-            },
-            "openingHours": [
-              "Mo-Fr 09:00-18:00",
-              "Sa 09:00-15:00"
-            ],
-            "priceRange": "₹₹",
-            "aggregateRating": {
-              "@type": "AggregateRating",
-              "ratingValue": "4.8",
-              "reviewCount": 500,
-              "bestRating": "5"
-            },
-            "sameAs": [
-              "https://www.facebook.com/whiteboardconsultants",
-              "https://www.linkedin.com/company/whiteboard-consultants",
-              "https://www.instagram.com/whiteboardconsultants",
-              "https://twitter.com/whiteboardcons"
-            ]
-          }) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
         />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify({
-             "@context": "https://schema.org",
-             "@type": "WebSite",
-             "url": "https://www.whiteboardconsultant.com/",
-             "potentialAction": {
-               "@type": "SearchAction",
-               "target": {
-                 "@type": "EntryPoint",
-                 "urlTemplate": "https://www.whiteboardconsultant.com/courses?search={search_term_string}"
-               },
-               "query-input": "required name=search_term_string"
-             }
-          })}}
-        />
-        
-        {/* Website search schema for AEO */}
         <WebsiteSearchSchema />
       </head>
       <body className={`${fontBody.variable} ${fontHeadline.variable} font-body`}>

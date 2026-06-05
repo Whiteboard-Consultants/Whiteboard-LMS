@@ -6,6 +6,7 @@ import CoursesPageClient from '@/components/course-page-client';
 import { getPrograms } from '@/app/admin/programs-actions';
 import { CourseCategory, Course } from '@/types';
 import type { Metadata } from 'next';
+import { coursesFaqs } from '@/lib/courses-faqs';
 
 // Cache courses list for 30 minutes - Improves TTFB
 export const revalidate = 1800;
@@ -60,6 +61,19 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
         ]
     };
     
+    const faqSchema = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": coursesFaqs.map((faq) => ({
+            "@type": "Question",
+            "name": faq.question,
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": faq.answer,
+            },
+        })),
+    };
+
     const itemListLd = {
         "@context": "https://schema.org",
         "@type": "ItemList",
@@ -91,6 +105,10 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
             />
             <CoursesPageClient categories={categories} initialCategory={category} programs={programs}>
                 <Suspense fallback={<CourseListSkeleton />}>

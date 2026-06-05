@@ -42,6 +42,7 @@ export function NewPostForm() {
         featured: Boolean(values.featured),
         authorName: String(values.authorName),
         authorId: String(userData.id),
+        faqSection: values.faqSection ?? [],
       };
       
       console.log("[Client] Calling createPost with combined data");

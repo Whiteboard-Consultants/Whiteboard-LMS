@@ -3,6 +3,8 @@
  * Generates structured data in schema.org format for better search visibility
  */
 
+import { organizationSchema } from '@/lib/organization-schema';
+
 // Course Schema
 export function generateCourseSchema({
   id,
@@ -150,7 +152,7 @@ export function generateBlogPostSchema({
     "inLanguage": "en-US",
     "speakable": {
       "@type": "SpeakableSpecification",
-      "cssSelector": ["h1", "h2", "p"]
+      "cssSelector": ["h1", "[data-ai-summary='true']", "h2", "p"]
     }
   };
 }
@@ -189,27 +191,7 @@ export function generateFAQSchema(faqs: Array<{ question: string; answer: string
 
 // Organization Schema (for site-wide use)
 export function generateOrganizationSchema() {
-  return {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "Whiteboard Consultants",
-    "url": "https://www.whiteboardconsultant.com",
-    "logo": "https://www.whiteboardconsultant.com/logo.png",
-    "description": "Education consulting and online learning platform for students worldwide",
-    "contactPoint": {
-      "@type": "ContactPoint",
-      "contactType": "Customer Service",
-      "email": "info@whiteboardconsultant.com",
-      "availableLanguage": ["en"]
-    },
-    "sameAs": [
-      "https://www.whiteboardconsultant.com"
-    ],
-    "areaServed": {
-      "@type": "Country",
-      "name": ["IN", "US", "GB", "AU", "CA"]
-    }
-  };
+  return organizationSchema;
 }
 
 // Review Schema (for testimonials)

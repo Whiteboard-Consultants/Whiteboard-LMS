@@ -11,7 +11,11 @@ import { format } from "date-fns";
 import { parseSlugFromUrl, generateSlug } from "@/lib/slug-utils";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { BlogFAQSection } from "@/components/blog/blog-faq-section";
+import { BlogKeyTakeaways } from "@/components/blog/blog-key-takeaways";
+import { BlogAuthorByline } from "@/components/blog/blog-author-bylines";
 import { generateBlogPostSchema, generateBreadcrumbSchema, generateFAQSchema, cleanSchema } from "@/lib/schema-markup";
+import { getBlogAuthorUrl } from "@/lib/blog-authors";
+import { getDefaultFaqsForSlug } from "@/lib/blog-default-faqs";
 
 const HUSTLE_CULTURE_SLUG = "hustle-culture-gen-z-student-burnout-2026";
 
@@ -39,6 +43,14 @@ function isHustleCulturePost(post: Post): boolean {
         post.slug === HUSTLE_CULTURE_SLUG ||
         post.title.toLowerCase().includes("hustle culture")
     );
+}
+
+function resolvePostFaqs(post: Post): Array<{ question: string; answer: string }> | null {
+    if (post.faqSection?.length) return post.faqSection;
+    const defaultFaqs = getDefaultFaqsForSlug(post.slug);
+    if (defaultFaqs?.length) return defaultFaqs;
+    if (isHustleCulturePost(post)) return [...HUSTLE_CULTURE_FAQS];
+    return null;
 }
 
 function normalizeTags(tags: Post["tags"]): string[] | undefined {
@@ -91,7 +103,7 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
         content: post.content,
         imageUrl: post.imageUrl,
         authorName: post.author?.name || "Whiteboard Consultants",
-        authorUrl: "https://www.whiteboardconsultant.com",
+        authorUrl: getBlogAuthorUrl(post.author?.name || "Whiteboard Consultants"),
         datePublished: createdDate || new Date(),
         dateModified: updatedDate || new Date(),
         slug: post.slug,
@@ -105,9 +117,9 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
         { name: post.title, url: `https://www.whiteboardconsultant.com/blog/${post.slug}` }
     ]);
 
-    const faqSchema = isHustleCulturePost(post)
-        ? cleanSchema(generateFAQSchema([...HUSTLE_CULTURE_FAQS]))
-        : null;
+    const postFaqs = resolvePostFaqs(post);
+
+    const faqSchema = postFaqs ? cleanSchema(generateFAQSchema(postFaqs)) : null;
 
     const other: Record<string, string> = {
         'application/ld+json': JSON.stringify(jsonLd),
@@ -157,7 +169,7 @@ export default async function PostPage({ params }: PostPageProps) {
         content: post.content,
         imageUrl: post.imageUrl,
         authorName: post.author?.name || "Whiteboard Consultants",
-        authorUrl: "https://www.whiteboardconsultant.com",
+        authorUrl: getBlogAuthorUrl(post.author?.name || "Whiteboard Consultants"),
         datePublished: createdDate || new Date(),
         dateModified: updatedDate || new Date(),
         slug: post.slug,
@@ -171,11 +183,16 @@ export default async function PostPage({ params }: PostPageProps) {
         { name: post.title, url: `https://www.whiteboardconsultant.com/blog/${post.slug}` }
     ]);
 
-    const faqSchema = isHustleCulturePost(post)
-        ? cleanSchema(generateFAQSchema([...HUSTLE_CULTURE_FAQS]))
-        : null;
+    const postFaqs = resolvePostFaqs(post);
 
-    const faqData = isHustleCulturePost(post) ? [...HUSTLE_CULTURE_FAQS] : null;
+    const faqSchema = postFaqs ? cleanSchema(generateFAQSchema(postFaqs)) : null;
+
+    const faqData = postFaqs;
+
+    const showUpdatedDate =
+        updatedDate &&
+        createdDate &&
+        updatedDate.getTime() - createdDate.getTime() > 86400000;
 
     return (
         <>
@@ -232,8 +249,21 @@ export default async function PostPage({ params }: PostPageProps) {
                                 <div className="hidden sm:block w-1 h-1 bg-white/60 rounded-full"></div>
                                 <div className="flex items-center gap-2">
                                     <Calendar className="h-4 w-4 md:h-5 md:w-5" />
-                                    <time dateTime={createdDate?.toISOString() || ''}>{createdDate ? format(createdDate, 'dd MMM yyyy') : 'Unknown date'}</time>
+                                    <time dateTime={createdDate?.toISOString() || ''}>
+                                        Published {createdDate ? format(createdDate, 'dd MMM yyyy') : 'Unknown date'}
+                                    </time>
                                 </div>
+                                {showUpdatedDate && (
+                                    <>
+                                        <div className="hidden sm:block w-1 h-1 bg-white/60 rounded-full"></div>
+                                        <div className="flex items-center gap-2">
+                                            <Calendar className="h-4 w-4 md:h-5 md:w-5" />
+                                            <time dateTime={updatedDate?.toISOString() || ''}>
+                                                Updated {format(updatedDate!, 'dd MMM yyyy')}
+                                            </time>
+                                        </div>
+                                    </>
+                                )}
                                 <div className="hidden sm:block w-1 h-1 bg-white/60 rounded-full"></div>
                                 <div className="flex items-center gap-2">
                                     <Tag className="h-4 w-4 md:h-5 md:w-5" />
@@ -244,6 +274,13 @@ export default async function PostPage({ params }: PostPageProps) {
                     </header>
 
                     <div className="container mx-auto px-4 py-12 md:py-20">
+                        <div className="max-w-4xl mx-auto">
+                            <BlogAuthorByline
+                                authorName={post.author.name}
+                                authorBio={post.author.bio}
+                            />
+                            <BlogKeyTakeaways excerpt={post.excerpt} />
+                        </div>
                         {post.imageUrl && post.featuredImageAlt && (
                             <div className="mb-12 text-center">
                                 <Image 

@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { skillDevelopmentFaqs } from '@/lib/skill-development-faqs';
+import { buildFaqPageSchema } from '@/lib/faq-schema';
 
 export const metadata: Metadata = {
   title: 'Skill Development & Corporate Training | Whiteboard Consultants',
@@ -8,10 +10,20 @@ export const metadata: Metadata = {
   },
 };
 
+const faqSchema = buildFaqPageSchema(skillDevelopmentFaqs);
+
 export default function SkillDevelopmentLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  return <>{children}</>;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+      {children}
+    </>
+  );
 }

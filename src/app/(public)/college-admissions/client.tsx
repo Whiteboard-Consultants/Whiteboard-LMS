@@ -8,6 +8,7 @@ import { ArrowRight, CheckCircle2, FileText, BookOpen, Landmark, Plane, Users, U
 import Image from "next/image";
 import Link from "next/link";
 import DomesticCtaSection from "@/components/sections/DomesticCtaSection";
+import CollegeAdmissionsFaqSection from "@/components/sections/CollegeAdmissionsFaqSection";
 import { CollegeAdmissionsData } from "@/lib/content";
 import React from "react";
 import { cn } from "@/lib/utils";
@@ -196,6 +197,7 @@ export default function CollegeAdmissionsClient({ pageData }: CollegeAdmissionsC
                     </div>
                 </div>
             </section>
+            <CollegeAdmissionsFaqSection />
             <section className="bg-background dark:bg-black">
                 <DomesticCtaSection />
             </section>

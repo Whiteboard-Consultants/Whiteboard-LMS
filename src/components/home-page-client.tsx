@@ -17,6 +17,7 @@ import JobTrendsChartSection from "./sections/JobTrendsChartSection";
 import RIASECCTASectionWrapper from "@/components/sections/RIASECCTASectionWrapper";
 import ResumeEvaluationSection from "./sections/ResumeEvaluationSection";
 import { HomeHashScroll } from "@/components/home-hash-scroll";
+import { QuickAnswer } from "@/components/quick-answer";
 import { WhyChooseUsData } from "@/lib/content";
 
 
@@ -45,6 +46,11 @@ export default function HomePageClient({ whyChooseUsData }: HomePageClientProps)
                             <p className="mt-6 text-lg text-muted-foreground">
                                 As the top Education Consultant in Kolkata, we specialize in <Link href="/study-abroad" className="text-primary underline hover:underline dark:text-white">Study Abroad</Link> guidance, <Link href="/courses" className="text-primary underline hover:underline dark:text-white">TOEFL/IELTS Test Prep</Link>, and <Link href="/college-admissions" className="text-primary underline hover:underline dark:text-white">College Admissions</Link>. Get expert guidance for overseas education, competitive exam training, and career success.
                             </p>
+                            <QuickAnswer>
+                                <p>
+                                    Whiteboard Consultants is an education consultancy in Kolkata, India, offering study abroad counseling, IELTS/TOEFL/aptitude test preparation, college admissions support, upskilling, online courses, and career development. We guide students to universities in the USA, UK, Canada, Australia, Ireland, Germany, New Zealand, and Dubai.
+                                </p>
+                            </QuickAnswer>
                             <div className="mt-10 flex flex-col sm:flex-row gap-4">
                                 <Button asChild size="lg" className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 dark:bg-black dark:text-white dark:border dark:border-white">
                                     <Link href="/contact">

@@ -8,6 +8,7 @@ import { ArrowRight, CheckCircle2, Award, BookOpen, Briefcase, Building, Globe, 
 import Image from "next/image";
 import Link from "next/link";
 import StudyAbroadCtaSection from "@/components/sections/StudyAbroadCtaSection";
+import { QuickAnswer } from '@/components/quick-answer';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
@@ -465,6 +466,11 @@ export default function UsaPageClient({ children }: UsaPageClientProps) {
                     <p className="mt-6 text-lg text-muted-foreground">
                         Home to the world's top universities, the USA offers unparalleled academic excellence, cutting-edge research, and a clear path to a successful global career.
                     </p>
+                    <QuickAnswer>
+                        <p>
+                            To study in the USA from India, students apply with academic records, standardized tests (SAT/GRE/GMAT where required), English proficiency (TOEFL/IELTS/Duolingo), and complete the F-1 student visa process. Whiteboard Consultants in Kolkata helps with US university shortlisting, applications, scholarships, and test prep coaching.
+                        </p>
+                    </QuickAnswer>
                     <div className="mt-10">
                         <Button asChild size="lg" className="dark:bg-black dark:text-white dark:border dark:border-white">
                             <Link href="/contact">

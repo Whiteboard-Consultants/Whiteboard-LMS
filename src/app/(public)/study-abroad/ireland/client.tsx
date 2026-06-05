@@ -10,6 +10,7 @@ import Link from "next/link";
 import StudyAbroadCtaSection from "@/components/sections/StudyAbroadCtaSection";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { cn } from '@/lib/utils';
+import { QuickAnswer } from '@/components/quick-answer';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 
@@ -536,6 +537,11 @@ export default function IrelandPageClient({ children }: IrelandPageClientProps) 
               <p className="mt-6 text-lg text-muted-foreground">
                 Discover world-class education, vibrant culture, and unparalleled career opportunities in the heart of Europe. As the top education consultant in Kolkata, we ensure your journey to Ireland is smooth and successful.
               </p>
+              <QuickAnswer>
+                <p>
+                  To study in Ireland from India, students typically apply to Irish universities with proof of English proficiency (IELTS/TOEFL), academic transcripts, and a Statement of Purpose. Whiteboard Consultants in Kolkata provides end-to-end counseling for Irish admissions, visa filing, and post-study work pathways (including the Third Level Graduate Scheme).
+                </p>
+              </QuickAnswer>
               <div className="mt-10">
                   <Button asChild size="lg" className="dark:bg-slate-dark dark:text-white dark:border dark:border-white">
                       <Link href="/contact">

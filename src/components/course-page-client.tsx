@@ -14,6 +14,7 @@ import { CourseListSkeleton } from './course-list';
 import { ProgramsTable } from './programs-table';
 import { useAuth } from '@/hooks/use-auth';
 import type { Program } from '@/app/admin/programs-actions';
+import CoursesFaqSection from '@/components/sections/CoursesFaqSection';
 
 const iconComponents: { [key: string]: React.ElementType } = {
     Globe,
@@ -266,6 +267,7 @@ export default function CoursesPageClient({ categories, initialCategory, childre
 
                 </div>
             </section>
+            <CoursesFaqSection />
         </div>
     );
 }
