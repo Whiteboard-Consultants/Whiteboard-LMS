@@ -36,7 +36,7 @@ export function CampusPlacementHeader() {
                 e.preventDefault();
                 scrollTo(item.id);
               }}
-              className="text-sm font-medium text-gray-600 hover:text-primary transition-colors"
+              className="text-sm font-bold text-gray-700 hover:text-primary transition-colors"
             >
               {item.label}
             </a>
