@@ -96,7 +96,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.7, // Good priority for landing pages
-    }
+    },
+    {
+      url: `${baseUrl}/landing/campus_placement`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
   ]
 
   // Career solutions pages
