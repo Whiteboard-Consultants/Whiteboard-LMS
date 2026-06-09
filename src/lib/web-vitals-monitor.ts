@@ -102,6 +102,20 @@ async function sendMetricToAnalytics(payload: VitalsPayload): Promise<void> {
 /**
  * Get connection information for performance context
  */
+const IS_DEV = process.env.NODE_ENV === 'development';
+
+function logThresholdViolation(metric: string, value: number | string, target: number | string): void {
+  const unit = metric === 'CLS' ? '' : 'ms';
+  const message = `[Vitals] ${metric} ${value}${unit} exceeds target ${target}${unit}`;
+
+  if (IS_DEV) {
+    console.debug(`${message} (dev mode — on-demand compilation inflates server timing)`);
+    return;
+  }
+
+  console.warn(message);
+}
+
 function getConnectionInfo() {
   if (typeof navigator !== 'undefined' && 'connection' in navigator) {
     const conn = (navigator as any).connection;
@@ -138,7 +152,7 @@ export function setupWebVitalsMonitoring(): void {
     
     // Warn if exceeds page target
     if (pageTarget && payload.value > pageTarget.metrics.lcp) {
-      console.warn(`[Vitals] LCP ${payload.value}ms exceeds target ${pageTarget.metrics.lcp}ms`);
+      logThresholdViolation('LCP', payload.value, pageTarget.metrics.lcp);
     }
 
     sendMetricToAnalytics(payload);
@@ -162,7 +176,7 @@ export function setupWebVitalsMonitoring(): void {
         console.info('[Vitals] INP:', payload.value, `(${payload.classification})`);
         
         if (pageTarget && payload.value > pageTarget.metrics.inp) {
-          console.warn(`[Vitals] INP ${payload.value}ms exceeds target ${pageTarget.metrics.inp}ms`);
+          logThresholdViolation('INP', payload.value, pageTarget.metrics.inp);
         }
 
         sendMetricToAnalytics(payload);
@@ -187,7 +201,7 @@ export function setupWebVitalsMonitoring(): void {
     console.info('[Vitals] CLS:', payload.value, `(${payload.classification})`);
     
     if (pageTarget && payload.value > pageTarget.metrics.cls) {
-      console.warn(`[Vitals] CLS ${payload.value} exceeds target ${pageTarget.metrics.cls}`);
+      logThresholdViolation('CLS', payload.value, pageTarget.metrics.cls);
     }
 
     sendMetricToAnalytics(payload);
@@ -208,7 +222,7 @@ export function setupWebVitalsMonitoring(): void {
     console.info('[Vitals] TTFB:', payload.value, `(${payload.classification})`);
     
     if (pageTarget && payload.value > pageTarget.metrics.ttfb) {
-      console.warn(`[Vitals] TTFB ${payload.value}ms exceeds target ${pageTarget.metrics.ttfb}ms`);
+      logThresholdViolation('TTFB', payload.value, pageTarget.metrics.ttfb);
     }
 
     sendMetricToAnalytics(payload);

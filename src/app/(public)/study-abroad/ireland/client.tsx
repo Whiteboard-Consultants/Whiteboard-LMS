@@ -556,6 +556,7 @@ export default function IrelandPageClient({ children }: IrelandPageClientProps) 
                 src="/destinations/studying-in-ireland.webp"
                 alt="A scenic view of cliffs in Ireland, representing the beauty of studying in Ireland."
                 fill
+                priority
                 sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover"
                 data-ai-hint="ireland cliffs"

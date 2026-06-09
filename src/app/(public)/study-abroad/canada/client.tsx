@@ -325,6 +325,8 @@ export default function CanadaPageClient({ children }: CanadaPageClientProps) {
                                 src="/destinations/studying-in-canada.webp"
                                 alt="A scenic view of a Canadian city, a hero image for studying in Canada."
                                 fill
+                                priority
+                                sizes="(max-width: 768px) 100vw, 50vw"
                                 className="object-cover"
                                 data-ai-hint="canada city landscape"
                             />

@@ -91,10 +91,10 @@ export default function ContactPageClient() {
                 src="https://images.pexels.com/photos/209695/pexels-photo-209695.jpeg"
                 alt="A vintage gray rotary telephone on a wooden surface, symbolizing contact and communication."
                 fill
+                priority
                 className="object-cover"
                 data-ai-hint="rotary telephone"
                 quality={75}
-                loading="lazy"
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 50vw"
               />
             </div>

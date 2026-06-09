@@ -260,6 +260,8 @@ export default function DubaiPageClient({ children }: DubaiPageClientProps) {
                                 src="/destinations/studying-in-dubai.webp"
                                 alt="A modern cityscape of Dubai, a hero image for studying in Dubai."
                                 fill
+                                priority
+                                sizes="(max-width: 768px) 100vw, 50vw"
                                 className="object-cover"
                                 data-ai-hint="dubai cityscape"
                             />

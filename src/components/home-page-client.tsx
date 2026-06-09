@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import dynamic from 'next/dynamic';
 import { Suspense } from "react";
 import StudyAbroadCtaSection from "@/components/sections/StudyAbroadCtaSection";
 import WhyChooseUsSection from "@/components/sections/why-choose-us-section";
@@ -12,13 +13,25 @@ import StudyAbroadTestimonials from "@/components/sections/StudyAbroadTestimonia
 import { CounterStat, StatProps } from "@/components/counter-stat";
 import { ServiceCard } from "@/components/service-card";
 import { services } from "@/lib/services";
-import FutureProofCareerSection from "./sections/FutureProofCareerSection";
-import JobTrendsChartSection from "./sections/JobTrendsChartSection";
 import RIASECCTASectionWrapper from "@/components/sections/RIASECCTASectionWrapper";
-import ResumeEvaluationSection from "./sections/ResumeEvaluationSection";
 import { HomeHashScroll } from "@/components/home-hash-scroll";
 import { QuickAnswer } from "@/components/quick-answer";
 import { WhyChooseUsData } from "@/lib/content";
+
+const sectionFallback = () => <div className="h-64" aria-hidden />;
+
+const FutureProofCareerSection = dynamic(
+  () => import('./sections/FutureProofCareerSection'),
+  { loading: sectionFallback }
+);
+const JobTrendsChartSection = dynamic(
+  () => import('./sections/JobTrendsChartSection'),
+  { loading: sectionFallback }
+);
+const ResumeEvaluationSection = dynamic(
+  () => import('./sections/ResumeEvaluationSection'),
+  { loading: sectionFallback }
+);
 
 
 const stats: StatProps[] = [

@@ -129,6 +129,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
                                         src={course.imageUrl}
                                         alt={course.title}
                                         fill
+                                        priority
                                         className="object-cover transition-transform duration-300 group-hover:scale-105"
                                         sizes="(max-width: 768px) 100vw, 50vw"
                                     />

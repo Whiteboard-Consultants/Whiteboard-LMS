@@ -1,10 +1,12 @@
 import type { Metadata } from 'next';
-import { getWhyChooseUsData, WhyChooseUsData } from "@/lib/content";
-import HomePageClient from "@/components/home-page-client";
+import type { WhyChooseUsData } from '@/lib/content';
+import whyChooseUsHome from '@/content/why-choose-us-home.json';
+import HomePageClient from '@/components/home-page-client';
 import { pageMetadata } from '@/lib/seo';
 
-// Cache homepage for 1 hour - Improves TTFB significantly
+// Pre-render at build time; revalidate content hourly
 export const revalidate = 3600;
+export const dynamic = 'force-static';
 
 export const metadata: Metadata = {
   ...pageMetadata({
@@ -33,8 +35,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function Page() {
-    const whyChooseUsData: WhyChooseUsData = await getWhyChooseUsData("why-choose-us-home.json");
-
-    return <HomePageClient whyChooseUsData={whyChooseUsData} />;
+export default function Page() {
+    return (
+        <HomePageClient whyChooseUsData={whyChooseUsHome as WhyChooseUsData} />
+    );
 }

@@ -146,11 +146,12 @@ export default function CoursesPageClient({ categories, initialCategory, childre
                     </div>
                 </div>
                 <div className="flex items-center justify-center">
-                    <Image 
+                    <Image
                         src="/images/courses/online-course-hero.webp"
                         alt="A person studying for a test prep course with open books and writing in a notebook."
                         width={600}
                         height={450}
+                        priority
                         className="rounded-lg shadow-xl"
                         data-ai-hint="student studying"
                     />

@@ -485,6 +485,8 @@ export default function UsaPageClient({ children }: UsaPageClientProps) {
                         src="/destinations/studying-in-usa.webp"
                         alt="The Statue of Liberty, representing the opportunity to study in the USA."
                         fill
+                        priority
+                        sizes="(max-width: 768px) 100vw, 50vw"
                         className="object-cover"
                         data-ai-hint="statue of liberty"
                     />

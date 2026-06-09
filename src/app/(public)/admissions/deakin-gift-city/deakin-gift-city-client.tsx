@@ -79,6 +79,7 @@ export default function DeakinGiftCityClient({ data }: DeakinGiftCityClientProps
                       src="/deakin-india.jpg"
                       alt="Diverse students collaborating on a project at Deakin University GIFT City campus"
                       fill
+                      priority
                       className="object-cover"
                       sizes="(max-width: 768px) 100vw, 50vw"
                       data-ai-hint="students collaborating project"

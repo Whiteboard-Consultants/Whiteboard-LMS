@@ -57,6 +57,7 @@ export default function UowIndiaClient({ data }: UowIndiaClientProps) {
                       src="https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg"
                       alt="Diverse students collaborating on a project at the University of Wollongong India campus"
                       fill
+                      priority
                       className="object-cover"
                       sizes="(max-width: 768px) 100vw, 50vw"
                       data-ai-hint="students collaborating project"

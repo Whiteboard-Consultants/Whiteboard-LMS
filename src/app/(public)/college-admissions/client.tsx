@@ -67,6 +67,7 @@ export default function CollegeAdmissionsClient({ pageData }: CollegeAdmissionsC
                             src="https://images.pexels.com/photos/207691/pexels-photo-207691.jpeg"
                             alt="Students walking on a university campus in India for college admissions"
                             fill
+                            priority
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                             className="object-cover"
                             data-ai-hint="university students campus"
@@ -129,7 +130,17 @@ export default function CollegeAdmissionsClient({ pageData }: CollegeAdmissionsC
                                 />
                             </div>
                             <div className="p-8 flex flex-col justify-center">
-                                {college.logo && <Image src={college.logo} alt={`${college.name} Logo`} width={150} height={80} className="mb-4 object-contain self-start" />}
+                                {college.logo && (
+                                  <div className="relative mb-4 h-20 w-[150px] shrink-0">
+                                    <Image
+                                      src={college.logo}
+                                      alt={`${college.name} Logo`}
+                                      fill
+                                      sizes="150px"
+                                      className="object-contain object-left"
+                                    />
+                                  </div>
+                                )}
                                 <h3 className="font-headline text-2xl font-bold mb-4">{college.name}</h3>
                                 <p className="text-muted-foreground mb-6">{college.description}</p>
                                 

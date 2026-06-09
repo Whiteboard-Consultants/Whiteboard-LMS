@@ -248,6 +248,8 @@ export default async function StudyAbroadPage() {
                         src="/study-abroad/study-abroad-hero.webp"
                         alt="Students in a lecture hall"
                         fill
+                        priority
+                        sizes="(max-width: 768px) 100vw, 50vw"
                         className="object-cover"
                         data-ai-hint="university students lecture hall"
                        />

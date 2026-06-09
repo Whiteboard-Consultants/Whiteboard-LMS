@@ -58,6 +58,13 @@ export function AuthErrorSuppressor() {
     // Patch console.warn
     console.warn = function(...args: any[]) {
       const errorStr = args[0]?.toString?.() || '';
+
+      // Never intercept performance or Next.js image warnings
+      if (errorStr.includes('[Vitals]') || errorStr.includes('Image with src')) {
+        originalWarn.apply(console, args);
+        return;
+      }
+
       if (
         errorStr.includes('refresh_token') ||
         errorStr.includes('Refresh Token')

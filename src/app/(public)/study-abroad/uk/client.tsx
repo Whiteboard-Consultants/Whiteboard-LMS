@@ -372,6 +372,8 @@ export default function UKPageClient({ children }: UKPageClientProps) {
                                 src="/destinations/studying-in-uk.webp"
                                 alt="A view of the Tower Bridge in London, a hero image for studying in the UK."
                                 fill
+                                priority
+                                sizes="(max-width: 768px) 100vw, 50vw"
                                 className="object-cover"
                                 data-ai-hint="london tower bridge"
                             />

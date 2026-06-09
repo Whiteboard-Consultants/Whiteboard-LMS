@@ -332,6 +332,7 @@ export default function NewZealandPageClient({ whyChooseUsData }: NewZealandPage
                                 src="/destinations/studying-in-new-zealand.webp"
                                 alt="A scenic view of mountains in New Zealand, representing study in New Zealand."
                                 fill
+                                priority
                                 sizes="(max-width: 768px) 100vw, 50vw"
                                 className="object-cover"
                                 data-ai-hint="new zealand mountains"

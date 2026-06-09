@@ -348,6 +348,8 @@ export default function AustraliaPageClient({ children }: AustraliaPageClientPro
                                 src="/destinations/studying-in-australia.webp"
                                 alt="Scenic view of the Sydney Opera House, representing study in Australia."
                                 fill
+                                priority
+                                sizes="(max-width: 768px) 100vw, 50vw"
                                 className="object-cover"
                                 data-ai-hint="sydney opera house"
                             />

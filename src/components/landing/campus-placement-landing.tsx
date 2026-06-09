@@ -17,6 +17,7 @@ import {
 import { CampusPlacementHeader } from '@/components/landing/campus-placement-header';
 import { RIASECModal } from '@/components/riasec/RIASECModal';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 const PAIN_POINTS = [
   {
@@ -136,7 +137,14 @@ const GLASS_CARD =
 const GLASS_CARD_HOVER =
   'hover:bg-white/50 dark:hover:bg-slate-900/50 hover:border-white/80 dark:hover:border-slate-600/80 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300';
 const PRIMARY_CARD =
-  'rounded-2xl bg-primary text-white shadow-xl border border-white/20';
+  'rounded-2xl bg-primary text-white shadow-xl border border-white/20 min-w-0 overflow-hidden';
+const MOBILE_CTA =
+  'w-full max-w-full min-w-0 h-auto py-3 px-4 sm:px-6 whitespace-normal flex-wrap gap-2 text-sm sm:text-base justify-center text-center leading-snug';
+const ICON_BOX =
+  'flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 dark:bg-blue-500/25 border border-primary/20 dark:border-blue-400/40 flex items-center justify-center';
+const ICON_COLOR = 'w-5 h-5 text-primary dark:text-blue-300';
+const BADGE_BOX =
+  'flex-shrink-0 w-7 h-7 rounded-full bg-primary/10 dark:bg-blue-500/25 border border-primary/20 dark:border-blue-400/40 text-primary dark:text-blue-300 text-sm font-semibold flex items-center justify-center';
 
 const FAQS = [
   {
@@ -190,11 +198,11 @@ function CareerCompassCTA({
     <>
       <Button
         onClick={() => setIsOpen(true)}
-        className={className}
+        className={cn(MOBILE_CTA, className)}
         size={size === 'large' ? 'lg' : 'default'}
       >
-        Take the Free Career Compass Assessment
-        <ArrowRight className="ml-2 h-4 w-4" />
+        <span>Take the Free Career Compass Assessment</span>
+        <ArrowRight className="h-4 w-4 shrink-0" />
       </Button>
       <RIASECModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
     </>
@@ -205,7 +213,7 @@ export function CampusPlacementLanding() {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900">
+    <div className="w-full min-h-screen overflow-x-hidden bg-gradient-to-br from-indigo-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900">
       <CampusPlacementHeader />
 
       {/* Section 1 — Hero */}
@@ -234,18 +242,21 @@ export function CampusPlacementLanding() {
 
               <div className="flex flex-col gap-3 mb-4 max-w-xl">
                 <CareerCompassCTA
-                  className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold h-auto py-3 px-6 whitespace-normal text-left justify-center"
+                  className="bg-red-600 hover:bg-red-700 text-white font-semibold"
                   size="large"
                 />
                 <Button
                   asChild
                   variant="outline"
                   size="lg"
-                  className="w-full border-2 border-white/80 bg-white/10 text-white hover:bg-white hover:text-primary font-semibold h-auto py-3 px-6 whitespace-normal backdrop-blur-sm"
+                  className={cn(
+                    MOBILE_CTA,
+                    'border-2 border-white/80 bg-white/10 text-white hover:bg-white hover:text-primary font-semibold backdrop-blur-sm'
+                  )}
                 >
-                  <Link href="/#resume" className="flex items-center justify-center gap-2 text-center">
+                  <Link href="/#resume" className="flex flex-wrap items-center justify-center gap-2">
                     <Upload className="h-4 w-4 shrink-0" />
-                    Upload Your Resume for a FREE Assessment
+                    <span>Upload Your Resume for a FREE Assessment</span>
                   </Link>
                 </Button>
               </div>
@@ -294,8 +305,8 @@ export function CampusPlacementLanding() {
                   key={index}
                   className={`flex gap-4 items-start p-4 ${GLASS_CARD} ${GLASS_CARD_HOVER}`}
                 >
-                  <div className="flex-shrink-0 w-10 h-10 rounded-lg glass-button dark:glass-button-dark flex items-center justify-center">
-                    <Icon className="w-5 h-5 text-primary" />
+                  <div className={ICON_BOX}>
+                    <Icon className={ICON_COLOR} />
                   </div>
                   <p className="text-gray-700 dark:text-slate-300 leading-relaxed pt-1.5">{point.text}</p>
                 </li>
@@ -344,9 +355,9 @@ export function CampusPlacementLanding() {
             ))}
           </div>
 
-          <div className={`text-center p-8 ${GLASS_PANEL}`}>
+          <div className={`text-center p-8 min-w-0 ${GLASS_PANEL}`}>
             <CareerCompassCTA
-              className="bg-primary hover:bg-primary/90 text-white font-semibold h-auto py-3 px-8"
+              className="bg-primary hover:bg-primary/90 text-white font-semibold"
               size="large"
             />
             <p className="text-sm text-gray-500 mt-3">
@@ -373,7 +384,7 @@ export function CampusPlacementLanding() {
                   <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{item.title}</h3>
                   <p className="text-gray-600 dark:text-slate-300 leading-relaxed mb-2">{item.description}</p>
                   {item.detail && (
-                    <p className="text-sm text-primary font-medium">{item.detail}</p>
+                    <p className="text-sm text-primary dark:text-blue-300 font-medium">{item.detail}</p>
                   )}
                 </div>
               </div>
@@ -454,7 +465,7 @@ export function CampusPlacementLanding() {
           <ol className="space-y-3 mb-8">
             {BATCH_SESSIONS.map((session, index) => (
               <li key={index} className={`flex gap-3 text-gray-700 dark:text-slate-300 p-3 ${GLASS_CARD}`}>
-                <span className="flex-shrink-0 w-7 h-7 rounded-full glass-button dark:glass-button-dark text-primary text-sm font-semibold flex items-center justify-center">
+                <span className={BADGE_BOX}>
                   {index + 1}
                 </span>
                 <span className="pt-0.5">{session}</span>
@@ -484,11 +495,14 @@ export function CampusPlacementLanding() {
             <Button
               asChild
               size="lg"
-              className="bg-red-600 hover:bg-red-700 text-white font-semibold"
+              className={cn(MOBILE_CTA, 'bg-red-600 hover:bg-red-700 text-white font-semibold')}
             >
-              <Link href="/courses/73f0185c-b5c2-4407-8ffe-17eb6a1350e7">
-                Reserve Your Seat in Batch XII
-                <ArrowRight className="ml-2 h-4 w-4" />
+              <Link
+                href="/courses/73f0185c-b5c2-4407-8ffe-17eb6a1350e7"
+                className="flex flex-wrap items-center justify-center gap-2"
+              >
+                <span>Reserve Your Seat in Batch XII</span>
+                <ArrowRight className="h-4 w-4 shrink-0" />
               </Link>
             </Button>
             <p className="text-xs text-blue-200 mt-3">
@@ -559,7 +573,7 @@ export function CampusPlacementLanding() {
           </p>
 
           <CareerCompassCTA
-            className="bg-red-600 hover:bg-red-700 text-white font-semibold h-auto py-3 px-8 mb-4"
+            className="bg-red-600 hover:bg-red-700 text-white font-semibold mb-4"
             size="large"
           />
           <p className="text-sm text-blue-200 mb-8">
@@ -569,11 +583,17 @@ export function CampusPlacementLanding() {
           <Button
             asChild
             variant="outline"
-            className="border-2 border-white/80 bg-white/10 text-white hover:bg-white hover:text-primary font-medium backdrop-blur-sm"
+            className={cn(
+              MOBILE_CTA,
+              'border-2 border-white/80 bg-white/10 text-white hover:bg-white hover:text-primary font-medium backdrop-blur-sm'
+            )}
           >
-            <Link href="/courses/73f0185c-b5c2-4407-8ffe-17eb6a1350e7">
-              <ClipboardList className="mr-2 h-4 w-4" />
-              Already done the assessment? Reserve your seat in the Batch Program
+            <Link
+              href="/courses/73f0185c-b5c2-4407-8ffe-17eb6a1350e7"
+              className="flex flex-wrap items-center justify-center gap-2"
+            >
+              <ClipboardList className="h-4 w-4 shrink-0" />
+              <span>Already done the assessment? Reserve your seat in the Batch Program</span>
             </Link>
           </Button>
         </div>

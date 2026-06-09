@@ -260,6 +260,8 @@ export default function GermanyPageClient({ children }: GermanyPageClientProps) 
                         src="/destinations/studying-in-germany.webp"
                         alt="A student walking through a library, symbolizing education in Germany."
                         fill
+                        priority
+                        sizes="(max-width: 768px) 100vw, 50vw"
                         className="object-cover"
                         data-ai-hint="library books"
                     />
