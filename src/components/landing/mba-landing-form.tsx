@@ -228,7 +228,6 @@ export function MbaLandingForm() {
                         placeholder="Your first name"
                         {...field}
                         className="h-10"
-                        autoFocus
                       />
                     </FormControl>
                     <FormMessage />
