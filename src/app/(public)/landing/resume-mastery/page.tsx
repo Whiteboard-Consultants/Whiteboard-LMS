@@ -149,7 +149,7 @@ export default function ResumeMasteryLandingPage() {
       <CourseBenefitsSection />
 
       {/* Curriculum Preview Section */}
-      <section className="py-20 bg-slate-50 dark:bg-slate-900">
+      <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
@@ -206,18 +206,10 @@ export default function ResumeMasteryLandingPage() {
                   'Addressing career gaps and transitions',
                 ],
               },
-            ].map((module, index) => {
-              const colors = [
-                'from-blue-500/10 to-cyan-500/10 hover:from-blue-500/20 hover:to-cyan-500/20 border-blue-200/40 dark:border-blue-500/30',
-                'from-indigo-500/10 to-blue-500/10 hover:from-indigo-500/20 hover:to-blue-500/20 border-indigo-200/40 dark:border-indigo-500/30',
-                'from-purple-500/10 to-indigo-500/10 hover:from-purple-500/20 hover:to-indigo-500/20 border-purple-200/40 dark:border-purple-500/30',
-                'from-cyan-500/10 to-blue-500/10 hover:from-cyan-500/20 hover:to-blue-500/20 border-cyan-200/40 dark:border-cyan-500/30',
-              ];
-
-              return (
+            ].map((module, index) => (
               <div
                 key={index}
-                className={`p-8 rounded-xl border backdrop-blur-md transition-all duration-300 bg-gradient-to-br ${colors[index]}`}
+                className="p-8 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900/60 transition-all duration-300 hover:border-blue-300 dark:hover:border-blue-500/50 hover:shadow-md"
               >
                 <div className="mb-4">
                   <span className="text-sm font-semibold text-primary dark:text-blue-300 uppercase">
@@ -255,14 +247,13 @@ export default function ResumeMasteryLandingPage() {
                   </ul>
                 </div>
               </div>
-            );
-            })}
+            ))}
           </div>
         </div>
       </section>
 
       {/* Social Proof Section */}
-      <section className="py-20 bg-white dark:bg-slate-dark">
+      <section className="py-20 bg-muted/20 dark:bg-slate-dark">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
@@ -304,7 +295,7 @@ export default function ResumeMasteryLandingPage() {
       {/* Form Section */}
       <section
         id="course-form-section"
-        className="py-20 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-900 dark:to-slate-950 scroll-mt-16"
+        className="py-20 bg-muted/20 dark:bg-slate-dark scroll-mt-16"
       >
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
