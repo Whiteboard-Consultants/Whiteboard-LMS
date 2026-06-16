@@ -121,9 +121,9 @@ export const createTransporter = async () => {
           },
         });
       }
+      console.warn('Gmail OAuth2 configured but access token unavailable, trying fallback.');
     } catch (error) {
-      console.warn('Gmail OAuth2 unavailable:', error.message);
-      // Continue to next fallback
+      console.warn('Gmail OAuth2 unavailable:', error instanceof Error ? error.message : error);
     }
   }
 

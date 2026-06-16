@@ -11,7 +11,6 @@ export interface UowApplicationData {
   lastName: string;
   email: string;
   phone: string;
-  preferredIntake: string;
   degreeOfInterest: string;
   state: string;
   enquiryMessage?: string;
@@ -28,7 +27,6 @@ function buildFieldsHtml(data: UowApplicationData): string {
     ['Last Name', data.lastName],
     ['Email', data.email],
     ['Phone', data.phone],
-    ['Preferred Intake', data.preferredIntake],
     ['Program of Interest', data.degreeOfInterest],
     ['State', data.state],
     ['Enquiry Message', data.enquiryMessage || 'Not provided'],
@@ -49,7 +47,6 @@ First Name: ${data.firstName}
 Last Name: ${data.lastName}
 Email: ${data.email}
 Phone: ${data.phone}
-Preferred Intake: ${data.preferredIntake}
 Program of Interest: ${data.degreeOfInterest}
 State: ${data.state}
 Enquiry Message: ${data.enquiryMessage || 'Not provided'}
@@ -90,6 +87,7 @@ export async function sendUowApplicationAdminNotification(
     const info = await transporter.sendMail({
       from: `"Whiteboard Consultants" <${fromEmail}>`,
       to: adminEmail,
+      replyTo: data.email,
       subject: 'New Application for UOW-India',
       text: `New Application for UOW-India\n\n${buildFieldsText(data)}`,
       html: htmlContent,
@@ -129,7 +127,7 @@ export async function sendUowApplicationConfirmation(
           <ul style="margin: 0; padding-left: 20px;">
             <li>Our UOW India specialists will review your application</li>
             <li>We will reach out within 24 hours to guide you through the next steps</li>
-            <li>You will receive personalised support for your preferred ${data.preferredIntake} intake</li>
+            <li>You will receive personalised support throughout your application journey</li>
           </ul>
         </div>
         <p>Need help sooner? Call us at <a href="tel:+${CONTACT_PHONE_TEL}" style="color:#2563eb;">${CONTACT_PHONE}</a> or email <a href="mailto:${CONTACT_EMAIL}" style="color:#2563eb;">${CONTACT_EMAIL}</a>.</p>
@@ -149,7 +147,7 @@ We have received your application for the University of Wollongong, India progra
 What happens next?
 - Our UOW India specialists will review your application
 - We will reach out within 24 hours to guide you through the next steps
-- You will receive personalised support for your preferred ${data.preferredIntake} intake
+- You will receive personalised support throughout your application journey
 
 Need help sooner?
 Call: ${CONTACT_PHONE}

@@ -33,18 +33,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Link from "next/link";
-import { saveUowApplication } from "@/app/(application)/uow/actions";
+import { uowApplyFormSchema, UOW_PROGRAMS } from "@/lib/schemas/uow-apply-form";
 
-const formSchema = z.object({
-  firstName: z.string().min(1, "First Name is required."),
-  lastName: z.string().min(1, "Last Name is required."),
-  email: z.string().email("Invalid email address."),
-  phone: z.string().min(10, "A valid phone number is required."),
-  preferredIntake: z.string().min(1, "Preferred intake is required."),
-  degreeOfInterest: z.string().min(1, "Program of interest is required."),
-  state: z.string().min(1, "State is required."),
-  enquiryMessage: z.string().optional(),
-});
+const formSchema = uowApplyFormSchema;
 
 export function UowApplyForm() {
   const { toast } = useToast();
@@ -56,8 +47,7 @@ export function UowApplyForm() {
       lastName: "",
       email: "",
       phone: "",
-      preferredIntake: "",
-      degreeOfInterest: "",
+      degreeOfInterest: undefined,
       state: "",
       enquiryMessage: "",
     },
@@ -66,20 +56,33 @@ export function UowApplyForm() {
   const { isSubmitting } = form.formState;
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const result = await saveUowApplication(values);
+    try {
+      const response = await fetch('/api/uow/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values),
+      });
 
-    if (result.success) {
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to submit application.');
+      }
+
       toast({
         title: "Form Submitted",
         description: "Thank you for your interest! We will get back to you shortly.",
       });
       form.reset();
-    } else {
-        toast({
-            variant: "destructive",
-            title: "Submission Failed",
-            description: result.error,
-        });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Submission Failed",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Something went wrong. Please try again.",
+      });
     }
   }
 
@@ -148,54 +151,30 @@ export function UowApplyForm() {
                 </FormItem>
               )}
             />
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                    control={form.control}
-                    name="preferredIntake"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Preferred Intake <span className="text-destructive">*</span></FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select an intake session" />
-                            </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                            <SelectItem value="March">March</SelectItem>
-                            <SelectItem value="July">July</SelectItem>
-                            <SelectItem value="November">November</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="degreeOfInterest"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Program of Interest <span className="text-destructive">*</span></FormLabel>
-                         <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select a program" />
-                            </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                                <SelectItem value="GC Computing">Graduate Certificate in Computing</SelectItem>
-                                <SelectItem value="MS Computing">Master of Computing (Data Analytics)</SelectItem>
-                                <SelectItem value="GC FinTech">Graduate Certificate in Financial Technology</SelectItem>
-                                <SelectItem value="MS FinTech">Master of Financial Technology (FinTech)</SelectItem>
-                                <SelectItem value="MS FinTech Ext">Master of Financial Technology (FinTech) Extension</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                />
-            </div>
+            <FormField
+              control={form.control}
+              name="degreeOfInterest"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Program of Interest <span className="text-destructive">*</span></FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a program" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {UOW_PROGRAMS.map((program) => (
+                        <SelectItem key={program} value={program}>
+                          {program}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
              <FormField
                 control={form.control}
                 name="state"

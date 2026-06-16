@@ -1,12 +1,13 @@
 'use server';
 
-import { createClient } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase';
+import { siteConfig } from '@/lib/seo';
 import {
   sendUowApplicationAdminNotification,
   sendUowApplicationConfirmation,
   type UowApplicationData,
 } from '@/lib/uow-application-email-service';
+import { uowApplyFormSchema, type UowApplyFormData } from '@/lib/schemas/uow-apply-form';
+import { createClient } from '@supabase/supabase-js';
 
 const supabaseAdmin = process.env.SUPABASE_SERVICE_ROLE_KEY
   ? createClient(
@@ -21,86 +22,68 @@ const supabaseAdmin = process.env.SUPABASE_SERVICE_ROLE_KEY
     )
   : null;
 
-export async function saveUowApplication(formData: {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  preferredIntake: string;
-  degreeOfInterest: string;
-  state: string;
-  enquiryMessage?: string;
-}) {
-  if (
-    !formData.firstName ||
-    !formData.lastName ||
-    !formData.email ||
-    !formData.phone ||
-    !formData.preferredIntake ||
-    !formData.degreeOfInterest ||
-    !formData.state
-  ) {
+export async function saveUowApplication(formData: UowApplyFormData) {
+  const parsed = uowApplyFormSchema.safeParse(formData);
+
+  if (!parsed.success) {
     return { success: false, error: 'All required fields must be filled out.' };
   }
 
+  const data = parsed.data;
+  const submittedAt = new Date().toISOString();
+
   try {
-    const client = supabaseAdmin || supabase;
-
-    if (!client) {
-      return { success: false, error: 'Database configuration error. Please try again later.' };
-    }
-
-    const submittedAt = new Date().toISOString();
     const messageParts = [
-      `Preferred Intake: ${formData.preferredIntake}`,
-      `Program: ${formData.degreeOfInterest}`,
-      `State: ${formData.state}`,
-      formData.enquiryMessage ? `Message: ${formData.enquiryMessage}` : null,
+      `Program: ${data.degreeOfInterest}`,
+      `State: ${data.state}`,
+      data.enquiryMessage ? `Message: ${data.enquiryMessage}` : null,
     ].filter(Boolean);
 
-    const submissionData = {
-      first_name: formData.firstName.trim(),
-      last_name: formData.lastName.trim(),
-      email: formData.email.trim().toLowerCase(),
-      phone: formData.phone.trim(),
-      inquiry_type: `UOW Admission: ${formData.degreeOfInterest}`,
-      message: messageParts.join('\n'),
-      submitted_at: submittedAt,
-    };
+    if (supabaseAdmin) {
+      const { error } = await supabaseAdmin.from('contact_submissions').insert({
+        first_name: data.firstName.trim(),
+        last_name: data.lastName.trim(),
+        email: data.email.trim().toLowerCase(),
+        phone: data.phone.trim(),
+        inquiry_type: `UOW Admission: ${data.degreeOfInterest}`,
+        message: messageParts.join('\n'),
+        submitted_at: submittedAt,
+      });
 
-    const { data, error } = await client
-      .from('contact_submissions')
-      .insert(submissionData)
-      .select('id')
-      .single();
-
-    if (error) {
-      console.error('UOW application submission error:', error);
-      return { success: false, error: 'Failed to save your application. Please try again.' };
+      if (error) {
+        console.error('UOW application submission error:', error);
+      }
     }
 
     const emailData: UowApplicationData = {
-      firstName: formData.firstName.trim(),
-      lastName: formData.lastName.trim(),
-      email: formData.email.trim().toLowerCase(),
-      phone: formData.phone.trim(),
-      preferredIntake: formData.preferredIntake,
-      degreeOfInterest: formData.degreeOfInterest,
-      state: formData.state,
-      enquiryMessage: formData.enquiryMessage?.trim(),
+      firstName: data.firstName.trim(),
+      lastName: data.lastName.trim(),
+      email: data.email.trim().toLowerCase(),
+      phone: data.phone.trim(),
+      degreeOfInterest: data.degreeOfInterest,
+      state: data.state,
+      enquiryMessage: data.enquiryMessage?.trim(),
       submittedAt,
     };
 
-    try {
-      await Promise.all([
-        sendUowApplicationAdminNotification(emailData),
-        sendUowApplicationConfirmation(emailData),
-      ]);
-    } catch (emailError) {
-      console.error('UOW application email error:', emailError);
+    const [adminSent, confirmationSent] = await Promise.all([
+      sendUowApplicationAdminNotification(emailData),
+      sendUowApplicationConfirmation(emailData),
+    ]);
+
+    console.log('UOW application email status:', {
+      adminNotification: adminSent ? 'sent' : 'failed',
+      userConfirmation: confirmationSent ? 'sent' : 'failed',
+    });
+
+    if (!adminSent && !confirmationSent) {
+      return {
+        success: false,
+        error: `Your application was received but we could not send emails. Please contact us at ${siteConfig.contact.email}.`,
+      };
     }
 
-    return { success: true, id: data.id };
+    return { success: true };
   } catch (error) {
     console.error('Error saving UOW application:', error);
     return { success: false, error: 'An unexpected error occurred. Please try again later.' };
