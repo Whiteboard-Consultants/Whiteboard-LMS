@@ -2,6 +2,7 @@ import { MetadataRoute } from 'next'
 import { getCourses, getPosts } from '@/lib/supabase-data'
 import { getTestSeries } from '@/app/instructor/test-series-actions'
 import { generateSlug } from '@/lib/slug-utils'
+import { APPLICATION_BASE_URL, APPLICATION_PATHS } from '@/lib/application-subdomain'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://www.whiteboardconsultant.com'
@@ -39,12 +40,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8, // Important for conversions
     },
     {
-      url: `${baseUrl}/apply`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.85,
-    },
-    {
       url: `${baseUrl}/blog`,
       lastModified: new Date(),
       changeFrequency: 'daily', // Fresh content daily
@@ -62,12 +57,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/admissions/uow-india/apply`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8, // High priority for conversion-oriented page
     },
     {
       url: `${baseUrl}/admissions/deakin-gift-city`,
@@ -89,27 +78,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8, // High priority for destination-specific SEO
   }))
 
-  // Landing pages
-  const landingPages: MetadataRoute.Sitemap = [
-    {
-      url: `${baseUrl}/landing/resume-mastery`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.7, // Good priority for landing pages
-    },
-    {
-      url: `${baseUrl}/landing/campus_placement`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/landing/online-mba`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-  ]
+  // Application subdomain lead-gen pages (see /application-sitemap.xml)
+  const applicationPages: MetadataRoute.Sitemap = APPLICATION_PATHS.map((path) => ({
+    url: `${APPLICATION_BASE_URL}${path}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly' as const,
+    priority: path === '/apply' || path === '/uow' ? 0.85 : 0.7,
+  }))
 
   // Career solutions pages
   const careerSolutionsPages: MetadataRoute.Sitemap = [
@@ -245,7 +220,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...staticPages,
     ...destinationPages,
-    ...landingPages,
+    ...applicationPages,
     ...careerSolutionsPages,
     ...testPages,
     ...coursePages,

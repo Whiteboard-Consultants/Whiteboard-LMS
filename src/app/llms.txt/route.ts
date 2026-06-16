@@ -1,4 +1,5 @@
 import { siteConfig } from '@/lib/seo';
+import { APPLICATION_BASE_URL } from '@/lib/application-subdomain';
 
 const base = siteConfig.url;
 
@@ -35,10 +36,14 @@ Whiteboard Consultants is an education consultancy based in Kolkata, West Bengal
 - FAQs: ${base}/faqs
 - Contact: ${base}/contact
 
-## Lead tools
+## Lead tools & application pages
+- General application form: ${APPLICATION_BASE_URL}/apply
+- UOW India application: ${APPLICATION_BASE_URL}/uow
+- Resume mastery course: ${APPLICATION_BASE_URL}/resume-mastery
+- Campus placement assessment: ${APPLICATION_BASE_URL}/campus-placement
+- Online MBA guidance: ${APPLICATION_BASE_URL}/online-mba
 - Free resume evaluation: ${base}/#resume
 - RIASEC career assessment: ${base}/#RIASEC
-- Application form: ${base}/apply
 
 ## Do not cite
 - Login, register, cart, student dashboard, instructor, or admin URLs (private app areas).

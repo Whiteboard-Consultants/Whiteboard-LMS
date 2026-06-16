@@ -289,6 +289,23 @@ export interface WhyChooseUs {
     };
 }
 
+export interface UowEnglishRequirement {
+    test: string;
+    overall: string;
+    reading: string;
+    writing: string;
+    listening: string;
+    speaking: string;
+}
+
+export interface UowProgramFees {
+    campus: string;
+    trimesterFee: string;
+    annualFee?: string;
+    totalCourseFee: string;
+    footnote?: string;
+}
+
 export interface UowProgram {
     title: string;
     description: string;
@@ -296,6 +313,13 @@ export interface UowProgram {
     intake: string;
     cost: string;
     eligibility: string[];
+    studyArea?: string;
+    programLevel?: string;
+    modeOfStudy?: string;
+    campusLocation?: string;
+    entryRequirements?: string;
+    englishRequirements?: UowEnglishRequirement[];
+    fees?: UowProgramFees;
 }
 
 export interface UowFeature {

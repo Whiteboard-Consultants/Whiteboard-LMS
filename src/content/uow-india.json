@@ -2,64 +2,174 @@
 {
     "programs": [
         {
+            "title": "Bachelor of Business (Business Analytics & Finance)",
+            "description": "This innovative three-year degree blends financial expertise with data-driven insights, preparing you to lead in a world where business and technology meet. Gain a strong foundation in core business disciplines, specialise in finance and analytics, and unlock a seamless pathway into our Master of Financial Technology program.",
+            "studyArea": "Business",
+            "programLevel": "Bachelor's Degree",
+            "duration": "36 months",
+            "modeOfStudy": "On campus",
+            "intake": "July 2026/27",
+            "campusLocation": "UOW India, GIFT City",
+            "cost": "$51,000 AUD",
+            "eligibility": [],
+            "entryRequirements": "Applicants must achieve a required score in a previous qualification, equivalent to completing at least 12 years of schooling in Australia. This is equivalent to a minimum of year 12 in India. Students with a score for a competitive exam such as CAT, JEE etc. will also be considered.",
+            "englishRequirements": [
+                {
+                    "test": "IELTS Academic",
+                    "overall": "6.0",
+                    "reading": "6.0",
+                    "writing": "6.0",
+                    "listening": "5.0",
+                    "speaking": "5.0"
+                },
+                {
+                    "test": "TOEFL (Internet-based)",
+                    "overall": "79",
+                    "reading": "18",
+                    "writing": "18",
+                    "listening": "16",
+                    "speaking": "16"
+                }
+            ],
+            "fees": {
+                "campus": "UOW India campus",
+                "trimesterFee": "$6,375 AUD",
+                "annualFee": "$19,125 AUD",
+                "totalCourseFee": "$51,000 AUD",
+                "footnote": "Total course fees stated are in Australian currency (AUD) for 2026 commencement at UOW India campus only. Course fees above are only accepted if paid in Australian currency (AUD) for enrolment into UOW India Gift City."
+            }
+        },
+        {
             "title": "Graduate Certificate in Computing",
             "description": "Gain specialised knowledge in computing with a focus on system analysis and project management. This short course option is designed for those who are inspired to enter the booming industry of computing technology.",
+            "studyArea": "Computing",
+            "programLevel": "Graduate Certificate",
             "duration": "6 months",
-            "intake": "March, July, November",
-            "cost": "$9,300 AUD (2025)",
+            "modeOfStudy": "On campus",
+            "intake": "July 2026/27",
+            "campusLocation": "UOW India, GIFT City",
+            "cost": "$9,300 AUD",
             "eligibility": [
                 "Bachelor's degree in any discipline with a minimum of 50% marks.",
                 "Applicants with other qualifications and relevant work experience will be considered.",
                 "TOEFL iBT score of 79 overall, with 18 in Reading & Writing, 17 in Listening & Speaking (or equivalent) if recent qualification not in English."
-            ]
+            ],
+            "fees": {
+                "campus": "UOW India campus",
+                "trimesterFee": "$3,100 AUD",
+                "totalCourseFee": "$9,300 AUD",
+                "footnote": "Total course fees stated are in Australian currency (AUD) for 2026 commencement at UOW India campus only. Course fees above are only accepted if paid in Australian currency (AUD) for enrolment into UOW India Gift City."
+            }
         },
         {
             "title": "Master of Computing (Data Analytics)",
             "description": "Bridge computing and data analytics expertise, catering to diverse graduates, while mastering the technical and ethical dimensions of this booming field. Develop a broad knowledge and the skills to get ahead of the next generation of computing professionals.",
+            "studyArea": "Computing",
+            "programLevel": "Masters Degree",
             "duration": "18 months",
-            "intake": "March, July, November",
+            "modeOfStudy": "On campus",
+            "intake": "July 2026/27",
+            "campusLocation": "UOW India, GIFT City",
             "cost": "$27,900 AUD",
             "eligibility": [
                 "Bachelor's degree in computer science, software engineering, or IT with a minimum of 60% marks.",
                 "Or, a Graduate Certificate in Computing from UOW.",
                 "TOEFL iBT score of 86 overall, with 18 in Reading & Writing, 17 in Listening & Speaking (or equivalent) if recent qualification not in English."
-            ]
+            ],
+            "fees": {
+                "campus": "UOW India campus",
+                "trimesterFee": "$6,975 AUD",
+                "totalCourseFee": "$27,900 AUD",
+                "footnote": "Total course fees stated are in Australian currency (AUD) for 2026 commencement at UOW India campus only. Course fees above are only accepted if paid in Australian currency (AUD) for enrolment into UOW India Gift City."
+            }
+        },
+        {
+            "title": "Master of Computing (Applied Artificial Intelligence)",
+            "description": "Artificial intelligence is driving innovation across virtually every sector, from healthcare and finance to logistics, government, and digital services. Build the skills to turn complex data into actionable insights and apply AI solutions across real-world challenges.",
+            "studyArea": "Computing",
+            "programLevel": "Masters Degree",
+            "duration": "18 months",
+            "modeOfStudy": "On campus",
+            "intake": "July 2026/27",
+            "campusLocation": "UOW India, GIFT City",
+            "cost": "$27,900 AUD",
+            "eligibility": [
+                "Bachelor's degree in computer science, software engineering, or IT with a minimum of 60% marks.",
+                "Or, a Graduate Certificate in Computing from UOW.",
+                "TOEFL iBT score of 86 overall, with 18 in Reading & Writing, 17 in Listening & Speaking (or equivalent) if recent qualification not in English."
+            ],
+            "fees": {
+                "campus": "UOW India campus",
+                "trimesterFee": "$6,975 AUD",
+                "totalCourseFee": "$27,900 AUD",
+                "footnote": "Total course fees stated are in Australian currency (AUD) for 2026 commencement at UOW India campus only. Course fees above are only accepted if paid in Australian currency (AUD) for enrolment into UOW India Gift City."
+            }
         },
         {
             "title": "Graduate Certificate in Financial Technology",
             "description": "Gain a strong understanding of how technology is being applied to a range of domains such as banking and insurance. This short course option focuses on cutting-edge developments within this advancing industry.",
+            "studyArea": "Financial Technology",
+            "programLevel": "Graduate Certificate",
             "duration": "6 months",
-            "intake": "July, November",
+            "modeOfStudy": "On campus",
+            "intake": "July 2026/27",
+            "campusLocation": "UOW India, GIFT City",
             "cost": "$9,300 AUD",
             "eligibility": [
                 "Bachelor's degree in business, economics, finance, or a related field with a minimum of 50% marks.",
                 "Relevant work experience may be considered.",
                 "TOEFL iBT score of 70 overall, with 18 in Reading, 18 in Writing, 12 in Listening & 12 in Speaking (or equivalent) if recent qualification not in English."
-            ]
+            ],
+            "fees": {
+                "campus": "UOW India campus",
+                "trimesterFee": "$3,100 AUD",
+                "totalCourseFee": "$9,300 AUD",
+                "footnote": "Total course fees stated are in Australian currency (AUD) for 2026 commencement at UOW India campus only. Course fees above are only accepted if paid in Australian currency (AUD) for enrolment into UOW India Gift City."
+            }
         },
         {
             "title": "Master of Financial Technology (FinTech)",
             "description": "Develop a comprehensive understanding of the financial technology industry and its impact on the global economy. Explore the intersection of finance and technology, and equip yourself with the expertise in this rapidly growing field.",
+            "studyArea": "Financial Technology",
+            "programLevel": "Masters Degree",
             "duration": "18 months",
-            "intake": "March, July, November",
-            "cost": "$37,200 AUD",
+            "modeOfStudy": "On campus",
+            "intake": "July 2026/27",
+            "campusLocation": "UOW India, GIFT City",
+            "cost": "$27,900 AUD",
             "eligibility": [
                 "Bachelor's degree in business, finance, IT or a related field with a minimum of 60% marks.",
                 "Or, a Graduate Certificate in Financial Technology from UOW.",
                 "TOEFL iBT score of 86 overall, with 18 in Reading & Writing, 17 in Listening & Speaking (or equivalent) if recent qualification not in English."
-            ]
+            ],
+            "fees": {
+                "campus": "UOW India campus",
+                "trimesterFee": "$6,975 AUD",
+                "totalCourseFee": "$27,900 AUD",
+                "footnote": "Total course fees stated are in Australian currency (AUD) for 2026 commencement at UOW India campus only. Course fees above are only accepted if paid in Australian currency (AUD) for enrolment into UOW India Gift City."
+            }
         },
         {
             "title": "Master of Financial Technology (FinTech) Extension",
             "description": "Offering an in-depth and comprehensive exploration of FinTech, including courses in web development, system analysis, and project management. Providing a unique opportunity for students to gain industry experience through a professional workplace internship.",
+            "studyArea": "Financial Technology",
+            "programLevel": "Masters Degree",
             "duration": "24 months",
-            "intake": "March, July, November",
-            "cost": "$27,900 AUD",
+            "modeOfStudy": "On campus",
+            "intake": "July 2026/27",
+            "campusLocation": "UOW India, GIFT City",
+            "cost": "$37,200 AUD",
             "eligibility": [
                 "Bachelor's degree in business, finance, IT or a related field with a minimum of 60% marks.",
                  "Or, a Graduate Certificate in Financial Technology from UOW.",
                  "TOEFL iBT score of 86 overall, with 18 in Reading & Writing, 17 in Listening & Speaking (or equivalent) if recent qualification not in English."
-            ]
+            ],
+            "fees": {
+                "campus": "UOW India campus",
+                "trimesterFee": "$6,200 AUD",
+                "totalCourseFee": "$37,200 AUD",
+                "footnote": "Total course fees stated are in Australian currency (AUD) for 2026 commencement at UOW India campus only. Course fees above are only accepted if paid in Australian currency (AUD) for enrolment into UOW India Gift City."
+            }
         }
     ],
     "whyUowIndia": [

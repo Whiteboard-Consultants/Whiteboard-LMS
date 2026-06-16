@@ -3,7 +3,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, GraduationCap, Building, Zap, Users, CalendarDays, Award, Percent, CalendarClock, Feather, Briefcase, Home, HeartHandshake, CheckCircle2, LucideIcon } from "lucide-react";
+import { ArrowRight, GraduationCap, Building, Zap, Users, CalendarDays, Award, Percent, CalendarClock, Feather, Briefcase, Home, HeartHandshake, CheckCircle2, LucideIcon, MapPin, BookOpen } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -13,13 +13,180 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import CtaSection from "@/components/sections/CtaSection";
+import { applicationUrl } from '@/lib/application-subdomain';
 import React from "react";
-import { UowIndiaPageData } from "@/types";
+import { UowIndiaPageData, UowProgram } from "@/types";
 import FutureOfFintechAndDataSection from "@/components/sections/FutureOfFintechAndDataSection";
 
 const icons: { [key: string]: LucideIcon } = {
     GraduationCap, Building, Zap, Users, Award, Percent, CalendarClock, Feather, Briefcase, Home, HeartHandshake
 };
+
+function ProgramDetail({
+    icon: Icon,
+    label,
+    value,
+}: {
+    icon: LucideIcon;
+    label: string;
+    value: string;
+}) {
+    return (
+        <div>
+            <div className="flex items-center text-muted-foreground">
+                <Icon className="w-4 h-4 mr-2" />
+                <span>{label}</span>
+            </div>
+            <p className="font-semibold">{value}</p>
+        </div>
+    );
+}
+
+function ProgramCard({ program }: { program: UowProgram }) {
+    return (
+        <Card className="flex flex-col dark:bg-slate-dark">
+            <CardHeader className="p-6">
+                <h3 className="font-headline text-xl font-bold">{program.title}</h3>
+            </CardHeader>
+            <CardContent className="p-6 pt-0 flex-grow flex flex-col">
+                <p className="text-muted-foreground mt-2 flex-grow">{program.description}</p>
+                <div className="grid grid-cols-2 gap-4 text-sm mt-4">
+                    {program.studyArea && (
+                        <ProgramDetail icon={BookOpen} label="Study Area" value={program.studyArea} />
+                    )}
+                    {program.programLevel && (
+                        <ProgramDetail icon={GraduationCap} label="Program Level" value={program.programLevel} />
+                    )}
+                    <ProgramDetail icon={CalendarDays} label="Duration" value={program.duration} />
+                    {program.modeOfStudy && (
+                        <ProgramDetail icon={Building} label="Mode of Study" value={program.modeOfStudy} />
+                    )}
+                    <ProgramDetail icon={CalendarDays} label="Intakes" value={program.intake} />
+                    {program.campusLocation && (
+                        <ProgramDetail icon={MapPin} label="Campus Location" value={program.campusLocation} />
+                    )}
+                </div>
+                <Accordion type="single" collapsible className="w-full mt-4">
+                    {program.entryRequirements ? (
+                        <AccordionItem value="entry-requirements">
+                            <AccordionTrigger className="font-semibold">Entry Requirements</AccordionTrigger>
+                            <AccordionContent>
+                                <div className="space-y-4 text-muted-foreground">
+                                    <p>{program.entryRequirements}</p>
+                                    {program.englishRequirements && program.englishRequirements.length > 0 && (
+                                        <div>
+                                            <p className="font-semibold text-foreground mb-2">
+                                                English requirements
+                                            </p>
+                                            <p className="mb-3">
+                                                The following level of English is required to gain admission to this program:
+                                            </p>
+                                            <div className="overflow-x-auto rounded-lg border">
+                                                <table className="w-full min-w-[520px] text-sm">
+                                                    <thead className="bg-primary text-primary-foreground">
+                                                        <tr>
+                                                            <th className="p-3 text-left font-semibold">English Test</th>
+                                                            <th className="p-3 text-left font-semibold">Overall score</th>
+                                                            <th className="p-3 text-left font-semibold">Reading</th>
+                                                            <th className="p-3 text-left font-semibold">Writing</th>
+                                                            <th className="p-3 text-left font-semibold">Listening</th>
+                                                            <th className="p-3 text-left font-semibold">Speaking</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {program.englishRequirements.map((row) => (
+                                                            <tr key={row.test} className="border-t">
+                                                                <td className="p-3 font-medium text-foreground">{row.test}</td>
+                                                                <td className="p-3">{row.overall}</td>
+                                                                <td className="p-3">{row.reading}</td>
+                                                                <td className="p-3">{row.writing}</td>
+                                                                <td className="p-3">{row.listening}</td>
+                                                                <td className="p-3">{row.speaking}</td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <p className="mt-3">
+                                                Other qualifications may also be considered,{' '}
+                                                <Link href="/contact" className="text-primary underline hover:no-underline">
+                                                    make an enquiry
+                                                </Link>{' '}
+                                                to find out more.
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            </AccordionContent>
+                        </AccordionItem>
+                    ) : (
+                        <AccordionItem value="eligibility">
+                            <AccordionTrigger className="font-semibold">Eligibility</AccordionTrigger>
+                            <AccordionContent>
+                                <ul className="list-disc pl-5 space-y-2 text-muted-foreground">
+                                    {program.eligibility.map((item, index) => (
+                                        <li key={index}>{item}</li>
+                                    ))}
+                                </ul>
+                            </AccordionContent>
+                        </AccordionItem>
+                    )}
+                    {program.fees && (
+                        <AccordionItem value="fees">
+                            <AccordionTrigger className="font-semibold">Fees</AccordionTrigger>
+                            <AccordionContent>
+                                <div className="space-y-4 text-muted-foreground">
+                                    <div className="overflow-x-auto rounded-lg border">
+                                        <table className="w-full min-w-[640px] text-sm">
+                                            <thead className="bg-primary text-primary-foreground">
+                                                <tr>
+                                                    <th className="p-3 text-left font-semibold">Course</th>
+                                                    <th className="p-3 text-left font-semibold">Campus</th>
+                                                    <th className="p-3 text-left font-semibold">Trimester Fee*</th>
+                                                    {program.fees.annualFee && (
+                                                        <th className="p-3 text-left font-semibold">Annual Fee*</th>
+                                                    )}
+                                                    <th className="p-3 text-left font-semibold">Total Course Fee*</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr className="border-t">
+                                                    <td className="p-3 font-medium text-foreground">{program.title}</td>
+                                                    <td className="p-3">{program.fees.campus}</td>
+                                                    <td className="p-3">{program.fees.trimesterFee}</td>
+                                                    {program.fees.annualFee && (
+                                                        <td className="p-3">{program.fees.annualFee}</td>
+                                                    )}
+                                                    <td className="p-3">{program.fees.totalCourseFee}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {program.fees.footnote && (
+                                        <p className="text-xs leading-relaxed">*{program.fees.footnote}</p>
+                                    )}
+                                    <p className="text-sm">
+                                        For more detailed information on other student fees visit the{' '}
+                                        <Link href="/contact" className="text-primary underline hover:no-underline">
+                                            support and fees page
+                                        </Link>
+                                        .
+                                    </p>
+                                </div>
+                            </AccordionContent>
+                        </AccordionItem>
+                    )}
+                </Accordion>
+                <div className="flex items-center justify-between mt-6">
+                    <p className="text-lg font-bold text-primary">{program.cost}</p>
+                    <Button asChild className="dark:bg-black dark:text-white dark:border dark:border-white">
+                        <Link href={applicationUrl('/uow')}>Apply Now</Link>
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
 
 interface UowIndiaClientProps {
     data: UowIndiaPageData;
@@ -43,7 +210,7 @@ export default function UowIndiaClient({ data }: UowIndiaClientProps) {
                     </p>
                     <div className="mt-10 flex flex-col sm:flex-row items-center justify-start gap-4">
                         <Button asChild size="lg" className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground">
-                          <Link href="/admissions/uow-india/apply">
+                          <Link href={applicationUrl('/uow')}>
                             <>
                                 Apply Now for UOW
                                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -204,51 +371,12 @@ export default function UowIndiaClient({ data }: UowIndiaClientProps) {
                     <div className="text-center">
                         <h2 className="text-3xl font-bold tracking-tight text-foreground font-headline sm:text-4xl">Available Programs at UOW India</h2>
                         <p className="mt-4 max-w-2xl mx-auto text-lg leading-8 text-muted-foreground">
-                            Choose from a range of graduate and postgraduate programs in Computing and FinTech.
+                            Choose from undergraduate, graduate, and postgraduate programs in Business, Computing, and FinTech.
                         </p>
                     </div>
                     <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
                         {uowPrograms.map((program) => (
-                            <Card key={program.title} className="flex flex-col dark:bg-slate-dark">
-                                <CardHeader className="p-6">
-                                    <h3 className="font-headline text-xl font-bold">{program.title}</h3>
-                                </CardHeader>
-                                <CardContent className="p-6 pt-0 flex-grow flex flex-col">
-                                    <p className="text-muted-foreground mt-2 flex-grow">{program.description}</p>
-                                    <div className="grid grid-cols-2 gap-4 text-sm mt-4">
-                                        <div>
-                                            <div className="flex items-center text-muted-foreground">
-                                                <CalendarDays className="w-4 h-4 mr-2" />
-                                                <span>Duration</span>
-                                            </div>
-                                            <p className="font-semibold">{program.duration}</p>
-                                        </div>
-                                        <div>
-                                            <div className="flex items-center text-muted-foreground">
-                                                <CalendarDays className="w-4 h-4 mr-2" />
-                                                <span>Intake</span>
-                                            </div>
-                                            <p className="font-semibold">{program.intake}</p>
-                                        </div>
-                                    </div>
-                                    <Accordion type="single" collapsible className="w-full mt-4">
-                                        <AccordionItem value="item-1">
-                                            <AccordionTrigger className="font-semibold">Eligibility</AccordionTrigger>
-                                            <AccordionContent>
-                                                <ul className="list-disc pl-5 space-y-2 text-muted-foreground">
-                                                  {program.eligibility.map((item, index) => <li key={index}>{item}</li>)}
-                                                </ul>
-                                            </AccordionContent>
-                                        </AccordionItem>
-                                    </Accordion>
-                                    <div className="flex items-center justify-between mt-6">
-                                        <p className="text-lg font-bold text-primary">{program.cost}</p>
-                                        <Button asChild className="dark:bg-black dark:text-white dark:border dark:border-white">
-                                            <Link href="/admissions/uow-india/apply">Apply Now</Link>
-                                        </Button>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                            <ProgramCard key={program.title} program={program} />
                         ))}
                     </div>
                 </div>
@@ -329,7 +457,7 @@ export default function UowIndiaClient({ data }: UowIndiaClientProps) {
                             </ul>
                             <div className="mt-8 flex flex-col sm:flex-row gap-4">
                                 <Button asChild size="lg" className="dark:bg-black dark:text-white dark:border dark:border-white">
-                                    <Link href="/admissions/uow-india/apply">Apply Now for UOW</Link>
+                                    <Link href={applicationUrl('/uow')}>Apply Now for UOW</Link>
                                 </Button>
                                 <Button asChild size="lg" variant="outline">
                                     <Link href="https://www.uow.edu.au/india/courses/find-an-agent/" target="_blank">Verify Our Partnership</Link>

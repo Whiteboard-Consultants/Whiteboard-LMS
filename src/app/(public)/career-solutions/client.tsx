@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { RIASECButton } from '@/components/riasec';
 import CareerSolutionsFaqSection from '@/components/sections/CareerSolutionsFaqSection';
+import { applicationUrl } from '@/lib/application-subdomain';
 
 const internshipHighlights = [
   {
@@ -65,7 +66,7 @@ const trainingHighlights = [
     description: 'Master ATS, quantification, and professional branding for job search success',
     participants: 'For Job Seekers',
     gradient: 'blue' as const,
-    link: '/landing/resume-mastery',
+    link: applicationUrl('/resume-mastery'),
   },
 ];
 

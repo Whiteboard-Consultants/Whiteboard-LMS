@@ -1,16 +1,16 @@
 import type { Metadata } from 'next';
 import ApplicationFormClient from '@/components/application-form-client';
+import { pageMetadata } from '@/lib/seo';
+import { MAIN_SITE_URL, APPLICATION_BASE_URL } from '@/lib/application-subdomain';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Apply Now | Whiteboard Consultants',
   description:
     'Start your education journey with Whiteboard Consultants. Complete our guided application form and schedule a free counseling callback.',
-  alternates: {
-    canonical: '/apply',
-  },
-};
+  path: '/apply',
+});
 
-export default function ApplyPage() {
+export default function ApplicationApplyPage() {
   const breadcrumbLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -19,13 +19,13 @@ export default function ApplyPage() {
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://www.whiteboardconsultant.com',
+        item: MAIN_SITE_URL,
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'Apply',
-        item: 'https://www.whiteboardconsultant.com/apply',
+        item: `${APPLICATION_BASE_URL}/apply`,
       },
     ],
   };
