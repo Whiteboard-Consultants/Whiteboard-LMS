@@ -25,7 +25,7 @@ export function CourseLandingHero({
   onEnrollClick,
 }: CourseLandingHeroProps) {
   return (
-    <section className="relative bg-primary text-white overflow-hidden">
+    <section className="relative bg-primary dark:bg-[hsl(209,100%,29%)] text-white overflow-hidden">
       {/* Decorative elements */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-20 left-10 w-72 h-72 bg-white rounded-full mix-blend-multiply filter blur-3xl" />
@@ -71,7 +71,7 @@ export function CourseLandingHero({
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
               <Button
                 onClick={onEnrollClick}
-                className="bg-white hover:bg-gray-100 text-primary h-12 px-8 text-lg font-semibold rounded-lg group"
+                className="bg-white hover:bg-gray-100 text-primary dark:text-slate-900 h-12 px-8 text-lg font-semibold rounded-lg group"
               >
                 Enroll Now
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition" />

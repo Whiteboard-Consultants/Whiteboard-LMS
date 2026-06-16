@@ -154,7 +154,7 @@ export function CourseLandingForm({ courseId, courseName }: CourseLandingFormPro
             <div key={step.number} className="flex-1">
               <div
                 className={`h-1 rounded-full transition-colors ${
-                  step.number <= currentStep ? 'bg-blue-600' : 'bg-gray-200'
+                  step.number <= currentStep ? 'bg-blue-600 dark:bg-blue-400' : 'bg-gray-200 dark:bg-slate-700'
                 }`}
               />
             </div>
@@ -162,14 +162,14 @@ export function CourseLandingForm({ courseId, courseName }: CourseLandingFormPro
         </div>
         <div className="flex justify-between items-center">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
               {steps[currentStep - 1].title}
             </h2>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-sm text-gray-600 dark:text-slate-300 mt-1">
               {steps[currentStep - 1].description}
             </p>
           </div>
-          <div className="text-sm font-medium text-gray-500">
+          <div className="text-sm font-medium text-gray-500 dark:text-slate-400">
             Step {currentStep} of {steps.length}
           </div>
         </div>
@@ -285,7 +285,7 @@ export function CourseLandingForm({ courseId, courseName }: CourseLandingFormPro
                             <RadioGroupItem value={option.value} id={option.value} />
                             <label
                               htmlFor={option.value}
-                              className="text-sm font-medium text-gray-700 cursor-pointer flex-1"
+                              className="text-sm font-medium text-gray-700 dark:text-slate-300 cursor-pointer flex-1"
                             >
                               {option.label}
                             </label>
@@ -340,7 +340,7 @@ export function CourseLandingForm({ courseId, courseName }: CourseLandingFormPro
                             <RadioGroupItem value={option.value} id={option.value} />
                             <label
                               htmlFor={option.value}
-                              className="text-sm font-medium text-gray-700 cursor-pointer flex-1"
+                              className="text-sm font-medium text-gray-700 dark:text-slate-300 cursor-pointer flex-1"
                             >
                               {option.label}
                             </label>
@@ -396,7 +396,7 @@ export function CourseLandingForm({ courseId, courseName }: CourseLandingFormPro
                             <RadioGroupItem value={option.value} id={option.value} />
                             <label
                               htmlFor={option.value}
-                              className="text-sm font-medium text-gray-700 cursor-pointer flex-1"
+                              className="text-sm font-medium text-gray-700 dark:text-slate-300 cursor-pointer flex-1"
                             >
                               {option.label}
                             </label>
@@ -430,7 +430,7 @@ export function CourseLandingForm({ courseId, courseName }: CourseLandingFormPro
                             <RadioGroupItem value={option.value} id={option.value} />
                             <label
                               htmlFor={option.value}
-                              className="text-sm font-medium text-gray-700 cursor-pointer flex-1"
+                              className="text-sm font-medium text-gray-700 dark:text-slate-300 cursor-pointer flex-1"
                             >
                               {option.label}
                             </label>
@@ -461,7 +461,7 @@ export function CourseLandingForm({ courseId, courseName }: CourseLandingFormPro
                             <RadioGroupItem value={option.value} id={option.value} />
                             <label
                               htmlFor={option.value}
-                              className="text-sm font-medium text-gray-700 cursor-pointer flex-1"
+                              className="text-sm font-medium text-gray-700 dark:text-slate-300 cursor-pointer flex-1"
                             >
                               {option.label}
                             </label>
@@ -493,7 +493,7 @@ export function CourseLandingForm({ courseId, courseName }: CourseLandingFormPro
                               <RadioGroupItem value={option.value} id={option.value} />
                               <label
                                 htmlFor={option.value}
-                                className="text-sm font-medium text-gray-700 cursor-pointer flex-1"
+                                className="text-sm font-medium text-gray-700 dark:text-slate-300 cursor-pointer flex-1"
                               >
                                 {option.label}
                               </label>
@@ -577,9 +577,9 @@ export function CourseLandingForm({ courseId, courseName }: CourseLandingFormPro
       </Form>
 
       {/* Privacy Notice */}
-      <p className="text-xs text-gray-500 text-center mt-6">
+      <p className="text-xs text-gray-500 dark:text-slate-400 text-center mt-6">
         By submitting this form, you agree to our{' '}
-        <a href="/privacy" className="underline hover:text-gray-700">
+        <a href="/privacy" className="underline hover:text-gray-700 dark:hover:text-slate-200">
           Privacy Policy
         </a>
         . We'll send you course updates and helpful tips.

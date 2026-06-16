@@ -209,7 +209,7 @@ export default function UowIndiaClient({ data }: UowIndiaClientProps) {
                         Experience world-class Australian education right here in India. UOW&apos;s GIFT City campus offers internationally recognized degrees with the same quality and standards as its Australian counterpart.
                     </p>
                     <div className="mt-10 flex flex-col sm:flex-row items-center justify-start gap-4">
-                        <Button asChild size="lg" className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground">
+                        <Button asChild size="lg" className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100">
                           <Link href={applicationUrl('/uow')}>
                             <>
                                 Apply Now for UOW

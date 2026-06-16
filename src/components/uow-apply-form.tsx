@@ -87,11 +87,11 @@ export function UowApplyForm() {
   }
 
   return (
-    <Card className="max-w-3xl mx-auto">
+    <Card className="max-w-3xl mx-auto dark:bg-slate-900/60 dark:border-slate-700">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-primary">Register your interest</CardTitle>
+            <CardTitle className="text-2xl font-bold text-primary dark:text-blue-300">Register your interest</CardTitle>
             <CardDescription>
               Complete the form below to begin your application journey with the University of Wollongong in India.
             </CardDescription>

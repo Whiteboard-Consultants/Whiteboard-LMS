@@ -5,7 +5,7 @@ import { UowApplyForm } from '@/components/uow-apply-form';
 
 export function UowApplicationClient() {
   return (
-    <div className="w-full bg-white min-h-screen">
+    <div className="w-full bg-white dark:bg-slate-dark min-h-screen">
       <LandingHeader ctaLabel="Apply Now" formSectionId="uow-form-section" />
 
       <div className="pt-24 pb-16">

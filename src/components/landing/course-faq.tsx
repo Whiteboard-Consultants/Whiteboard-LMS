@@ -46,14 +46,14 @@ export function CourseFAQSection() {
   ];
 
   return (
-    <section className="py-20 bg-white">
+    <section className="py-20 bg-white dark:bg-slate-dark">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
             Frequently Asked Questions
           </h2>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl text-gray-600 dark:text-slate-300">
             Everything you need to know about the course
           </p>
         </div>
@@ -63,25 +63,25 @@ export function CourseFAQSection() {
           {faqs.map((faq, index) => (
             <div
               key={index}
-              className="border border-gray-200 rounded-lg overflow-hidden hover:border-gray-300 transition-colors"
+              className="border border-gray-200 dark:border-slate-700 rounded-lg overflow-hidden hover:border-gray-300 dark:hover:border-slate-600 transition-colors"
             >
               <button
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                className="w-full p-6 flex justify-between items-start text-left hover:bg-gray-50 transition-colors"
+                className="w-full p-6 flex justify-between items-start text-left hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors"
               >
-                <span className="text-lg font-semibold text-gray-900 pr-8">
+                <span className="text-lg font-semibold text-gray-900 dark:text-white pr-8">
                   {faq.question}
                 </span>
                 <ChevronDown
-                  className={`w-5 h-5 text-gray-500 flex-shrink-0 transition-transform duration-300 ${
+                  className={`w-5 h-5 text-gray-500 dark:text-slate-400 flex-shrink-0 transition-transform duration-300 ${
                     openIndex === index ? 'transform rotate-180' : ''
                   }`}
                 />
               </button>
 
               {openIndex === index && (
-                <div className="px-6 pb-6 bg-gray-50 border-t border-gray-200">
-                  <p className="text-gray-700 leading-relaxed">
+                <div className="px-6 pb-6 bg-gray-50 dark:bg-slate-800/50 border-t border-gray-200 dark:border-slate-700">
+                  <p className="text-gray-700 dark:text-slate-300 leading-relaxed">
                     {faq.answer}
                   </p>
                 </div>
@@ -91,11 +91,11 @@ export function CourseFAQSection() {
         </div>
 
         {/* Contact Support */}
-        <div className="mt-16 p-8 bg-blue-50 border border-blue-200 rounded-lg text-center">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+        <div className="mt-16 p-8 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/50 rounded-lg text-center">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
             Still have questions?
           </h3>
-          <p className="text-gray-600 mb-4">
+          <p className="text-gray-600 dark:text-slate-300 mb-4">
             Reach out to our support team or schedule a consultation call.
           </p>
           <a

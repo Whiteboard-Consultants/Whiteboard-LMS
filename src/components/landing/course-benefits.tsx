@@ -37,14 +37,14 @@ export function CourseBenefitsSection() {
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-b from-white to-slate-50">
+    <section className="py-20 bg-gradient-to-b from-white to-slate-50 dark:from-slate-dark dark:to-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
             What You'll Learn
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-slate-300 max-w-3xl mx-auto">
             Master the complete framework for creating resumes and cover letters that get past ATS systems and land interviews.
           </p>
         </div>
@@ -56,17 +56,17 @@ export function CourseBenefitsSection() {
             return (
               <div
                 key={index}
-                className="group p-8 rounded-lg border border-gray-200 hover:border-blue-300 bg-white hover:bg-blue-50 transition-all duration-300 shadow-sm hover:shadow-md"
+                className="group p-8 rounded-lg border border-gray-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-500/50 bg-white dark:bg-slate-900/60 hover:bg-blue-50 dark:hover:bg-slate-800/80 transition-all duration-300 shadow-sm hover:shadow-md"
               >
                 <div className="mb-4">
-                  <div className="inline-flex p-3 rounded-lg bg-blue-100 group-hover:bg-blue-600 transition-colors">
-                    <Icon className="w-6 h-6 text-blue-600 group-hover:text-white" />
+                  <div className="inline-flex p-3 rounded-lg bg-blue-100 dark:bg-blue-500/25 group-hover:bg-blue-600 transition-colors">
+                    <Icon className="w-6 h-6 text-blue-600 dark:text-blue-300 group-hover:text-white" />
                   </div>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                   {benefit.title}
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-slate-300">
                   {benefit.description}
                 </p>
               </div>

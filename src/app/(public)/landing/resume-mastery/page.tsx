@@ -130,7 +130,7 @@ export default function ResumeMasteryLandingPage() {
   };
 
   return (
-    <div className="w-full bg-white min-h-screen">
+    <div className="w-full bg-white dark:bg-slate-dark min-h-screen">
       {/* Minimal Landing Header */}
       <LandingHeader />
 
@@ -149,13 +149,13 @@ export default function ResumeMasteryLandingPage() {
       <CourseBenefitsSection />
 
       {/* Curriculum Preview Section */}
-      <section className="py-20 bg-slate-50">
+      <section className="py-20 bg-slate-50 dark:bg-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
               Course Curriculum
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 dark:text-slate-300 max-w-3xl mx-auto">
               A comprehensive path through modern resume and cover letter strategies
             </p>
           </div>
@@ -208,10 +208,10 @@ export default function ResumeMasteryLandingPage() {
               },
             ].map((module, index) => {
               const colors = [
-                'from-blue-500/10 to-cyan-500/10 hover:from-blue-500/20 hover:to-cyan-500/20 border-blue-200/40',
-                'from-indigo-500/10 to-blue-500/10 hover:from-indigo-500/20 hover:to-blue-500/20 border-indigo-200/40',
-                'from-purple-500/10 to-indigo-500/10 hover:from-purple-500/20 hover:to-indigo-500/20 border-purple-200/40',
-                'from-cyan-500/10 to-blue-500/10 hover:from-cyan-500/20 hover:to-blue-500/20 border-cyan-200/40',
+                'from-blue-500/10 to-cyan-500/10 hover:from-blue-500/20 hover:to-cyan-500/20 border-blue-200/40 dark:border-blue-500/30',
+                'from-indigo-500/10 to-blue-500/10 hover:from-indigo-500/20 hover:to-blue-500/20 border-indigo-200/40 dark:border-indigo-500/30',
+                'from-purple-500/10 to-indigo-500/10 hover:from-purple-500/20 hover:to-indigo-500/20 border-purple-200/40 dark:border-purple-500/30',
+                'from-cyan-500/10 to-blue-500/10 hover:from-cyan-500/20 hover:to-blue-500/20 border-cyan-200/40 dark:border-cyan-500/30',
               ];
 
               return (
@@ -220,34 +220,34 @@ export default function ResumeMasteryLandingPage() {
                 className={`p-8 rounded-xl border backdrop-blur-md transition-all duration-300 bg-gradient-to-br ${colors[index]}`}
               >
                 <div className="mb-4">
-                  <span className="text-sm font-semibold text-primary uppercase">
+                  <span className="text-sm font-semibold text-primary dark:text-blue-300 uppercase">
                     {module.module}
                   </span>
-                  <h3 className="text-2xl font-bold text-gray-900 mt-2">
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mt-2">
                     {module.title}
                   </h3>
                 </div>
 
-                <div className="flex gap-4 mb-6 pb-6 border-b border-gray-200/50">
+                <div className="flex gap-4 mb-6 pb-6 border-b border-gray-200/50 dark:border-slate-700/50">
                   <div>
-                    <div className="text-sm text-gray-600">Lessons</div>
-                    <div className="text-xl font-semibold text-gray-900">
+                    <div className="text-sm text-gray-600 dark:text-slate-400">Lessons</div>
+                    <div className="text-xl font-semibold text-gray-900 dark:text-white">
                       {module.lessons}
                     </div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-600">Duration</div>
-                    <div className="text-xl font-semibold text-gray-900">
+                    <div className="text-sm text-gray-600 dark:text-slate-400">Duration</div>
+                    <div className="text-xl font-semibold text-gray-900 dark:text-white">
                       {module.duration}
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <h4 className="font-semibold text-gray-900 mb-3">Topics Covered:</h4>
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Topics Covered:</h4>
                   <ul className="space-y-2">
                     {module.topics.map((topic, i) => (
-                      <li key={i} className="flex items-start gap-2 text-gray-700">
+                      <li key={i} className="flex items-start gap-2 text-gray-700 dark:text-slate-300">
                         <span className="text-primary font-bold mt-1">•</span>
                         <span>{topic}</span>
                       </li>
@@ -262,10 +262,10 @@ export default function ResumeMasteryLandingPage() {
       </section>
 
       {/* Social Proof Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white dark:bg-slate-dark">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
               Why Students Choose This Course
             </h2>
           </div>
@@ -286,10 +286,10 @@ export default function ResumeMasteryLandingPage() {
               },
             ].map((item, index) => (
               <div key={index} className="text-center">
-                <div className="text-5xl font-bold text-blue-600 mb-2">
+                <div className="text-5xl font-bold text-blue-600 dark:text-blue-400 mb-2">
                   {item.stat}
                 </div>
-                <p className="text-lg text-gray-600">{item.description}</p>
+                <p className="text-lg text-gray-600 dark:text-slate-300">{item.description}</p>
               </div>
             ))}
           </div>
@@ -304,14 +304,14 @@ export default function ResumeMasteryLandingPage() {
       {/* Form Section */}
       <section
         id="course-form-section"
-        className="py-20 bg-gradient-to-br from-blue-50 to-indigo-50 scroll-mt-16"
+        className="py-20 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-900 dark:to-slate-950 scroll-mt-16"
       >
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
               Ready to Transform Your Job Search?
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-600 dark:text-slate-300 max-w-2xl mx-auto">
               Tell us about your goals and we'll provide personalized guidance to help you succeed
             </p>
           </div>
@@ -324,7 +324,7 @@ export default function ResumeMasteryLandingPage() {
       </section>
 
       {/* CTA Footer */}
-      <section className="py-16 bg-primary text-white">
+      <section className="py-16 bg-primary dark:bg-[hsl(209,100%,29%)] text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h3 className="text-3xl md:text-4xl font-bold mb-6">
             Join Students Advancing Their Careers
@@ -335,7 +335,7 @@ export default function ResumeMasteryLandingPage() {
           </p>
           <button
             onClick={handleEnrollClick}
-            className="px-8 py-4 bg-white hover:bg-gray-100 text-primary rounded-lg font-semibold text-lg transition-colors"
+            className="px-8 py-4 bg-white hover:bg-gray-100 text-primary dark:text-slate-900 rounded-lg font-semibold text-lg transition-colors"
           >
             Enroll Now - Start Your Transformation
           </button>
