@@ -3,11 +3,13 @@ import type { NextRequest } from 'next/server';
 import {
   APPLICATION_BASE_URL,
   APPLICATION_PATHS,
+  getRequestHost,
   isApplicationHost,
   isLocalMainDevHost,
   localMainSiteUrl,
   MAIN_SITE_URL,
   MAIN_TO_APPLICATION_REDIRECTS,
+  MAIN_SITE_APPLY_PATH,
   type ApplicationPath,
 } from '@/lib/application-subdomain';
 
@@ -22,8 +24,33 @@ function shouldSkipProxy(pathname: string): boolean {
   );
 }
 
+function samePathRedirect(
+  request: NextRequest,
+  target: URL
+): NextResponse | null {
+  if (
+    request.nextUrl.pathname === target.pathname &&
+    request.nextUrl.hostname === target.hostname &&
+    request.nextUrl.protocol === target.protocol
+  ) {
+    return NextResponse.next();
+  }
+
+  return null;
+}
+
+function redirect(
+  request: NextRequest,
+  target: URL,
+  status: 301 | 302 | 307 | 308 = 301
+) {
+  const samePath = samePathRedirect(request, target);
+  if (samePath) return samePath;
+  return NextResponse.redirect(target, status);
+}
+
 function applicationOrigin(request: NextRequest): string {
-  const host = request.headers.get('host') ?? '';
+  const host = getRequestHost(request);
   if (isApplicationHost(host)) {
     return request.nextUrl.origin;
   }
@@ -36,7 +63,7 @@ function redirectToApplication(
   permanent = true
 ) {
   const url = new URL(path, applicationOrigin(request));
-  return NextResponse.redirect(url, permanent ? 301 : 302);
+  return redirect(request, url, permanent ? 301 : 302);
 }
 
 export function proxy(request: NextRequest) {
@@ -46,39 +73,43 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const host = request.headers.get('host') ?? '';
+  const host = getRequestHost(request);
   const onApplicationHost = isApplicationHost(host);
   const onLocalMainDev =
     process.env.NODE_ENV === 'development' && isLocalMainDevHost(host);
 
   if (onApplicationHost) {
     if (pathname === '/') {
-      return NextResponse.redirect(new URL('/apply', request.url), 302);
+      return redirect(request, new URL('/apply', request.url), 302);
+    }
+
+    if (APPLICATION_PATH_SET.has(pathname)) {
+      return NextResponse.next();
     }
 
     const legacyPath = MAIN_TO_APPLICATION_REDIRECTS[pathname];
-    if (legacyPath) {
-      return NextResponse.redirect(new URL(legacyPath, request.url), 301);
+    if (legacyPath && legacyPath !== pathname) {
+      return redirect(request, new URL(legacyPath, request.url), 301);
     }
 
-    if (!APPLICATION_PATH_SET.has(pathname)) {
-      const mainSiteBase =
-        process.env.NODE_ENV === 'development'
-          ? localMainSiteUrl(host)
-          : MAIN_SITE_URL;
-      return NextResponse.redirect(new URL(pathname, mainSiteBase), 302);
+    const mainSiteBase =
+      process.env.NODE_ENV === 'development'
+        ? localMainSiteUrl(host)
+        : MAIN_SITE_URL;
+    return redirect(request, new URL(pathname, mainSiteBase), 302);
+  }
+
+  if (onLocalMainDev) {
+    const legacyPath = MAIN_TO_APPLICATION_REDIRECTS[pathname];
+    if (legacyPath && legacyPath !== pathname) {
+      return redirect(request, new URL(legacyPath, request.url), 307);
     }
 
     return NextResponse.next();
   }
 
-  if (onLocalMainDev) {
-    const legacyPath = MAIN_TO_APPLICATION_REDIRECTS[pathname];
-    if (legacyPath) {
-      return NextResponse.redirect(new URL(legacyPath, request.url), 307);
-    }
-
-    return NextResponse.next();
+  if (pathname === MAIN_SITE_APPLY_PATH) {
+    return redirectToApplication(request, '/apply');
   }
 
   const applicationPath = MAIN_TO_APPLICATION_REDIRECTS[pathname];

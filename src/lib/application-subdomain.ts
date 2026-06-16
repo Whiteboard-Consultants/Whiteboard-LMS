@@ -1,5 +1,10 @@
 export const APPLICATION_HOST = 'application.whiteboardconsultant.com';
 
+export const APPLICATION_HOSTS = [
+  APPLICATION_HOST,
+  `www.${APPLICATION_HOST}`,
+] as const;
+
 export const APPLICATION_BASE_URL = `https://${APPLICATION_HOST}`;
 
 export const MAIN_SITE_URL = 'https://www.whiteboardconsultant.com';
@@ -20,17 +25,30 @@ export const MAIN_TO_APPLICATION_REDIRECTS: Record<string, ApplicationPath> = {
   '/landing/resume-mastery': '/resume-mastery',
   '/landing/campus_placement': '/campus-placement',
   '/landing/online-mba': '/online-mba',
-  '/apply': '/apply',
   '/admissions/uow-india/apply': '/uow',
 };
+
+/** Main-site /apply redirects to the application subdomain (kept separate to avoid self-redirect loops). */
+export const MAIN_SITE_APPLY_PATH = '/apply' as const;
 
 export function applicationUrl(path: ApplicationPath): string {
   return `${APPLICATION_BASE_URL}${path}`;
 }
 
+export function getRequestHost(request: {
+  headers: { get(name: string): string | null };
+  nextUrl: { hostname: string };
+}): string {
+  const headerHost = request.headers.get('host');
+  if (headerHost) return headerHost;
+  return request.nextUrl.hostname;
+}
+
 export function isApplicationHost(host: string): boolean {
   const normalized = host.split(':')[0].toLowerCase();
-  if (normalized === APPLICATION_HOST) return true;
+  if (APPLICATION_HOSTS.includes(normalized as (typeof APPLICATION_HOSTS)[number])) {
+    return true;
+  }
   if (
     process.env.NODE_ENV === 'development' &&
     normalized === 'application.localhost'
