@@ -192,7 +192,6 @@ export function CourseLandingForm({ courseId, courseName }: CourseLandingFormPro
                         placeholder="Your first name"
                         {...field}
                         className="h-10"
-                        autoFocus
                       />
                     </FormControl>
                     <FormMessage />

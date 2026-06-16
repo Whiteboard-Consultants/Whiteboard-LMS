@@ -16,6 +16,12 @@ export function LandingHeader({
   const scrollToForm = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     document.getElementById(formSectionId)?.scrollIntoView({ behavior: 'smooth' });
+    window.setTimeout(() => {
+      const firstInput = document.querySelector<HTMLInputElement>(
+        `#${formSectionId} input`
+      );
+      firstInput?.focus({ preventScroll: true });
+    }, 400);
   };
 
   return (
@@ -33,14 +39,14 @@ export function LandingHeader({
 
         <nav className="hidden md:flex gap-8">
           <a
-            href={`#${formSectionId}`}
+            href="#"
             onClick={scrollToForm}
             className="text-sm font-medium text-gray-600 dark:text-slate-300 hover:text-primary dark:hover:text-blue-300 transition-colors"
           >
             {ctaLabel}
           </a>
           <a
-            href="#faq-section"
+            href="#"
             onClick={(e) => {
               e.preventDefault();
               document.getElementById('faq-section')?.scrollIntoView({ behavior: 'smooth' });
@@ -52,7 +58,7 @@ export function LandingHeader({
         </nav>
 
         <a
-          href={`#${formSectionId}`}
+          href="#"
           onClick={scrollToForm}
           className="md:hidden px-4 py-2 bg-primary text-white dark:bg-white dark:text-slate-900 text-sm font-semibold rounded-lg hover:opacity-90 dark:hover:bg-slate-100 transition-opacity"
         >

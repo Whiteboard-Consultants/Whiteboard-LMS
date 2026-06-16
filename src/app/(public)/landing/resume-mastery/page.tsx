@@ -124,9 +124,21 @@ export default function ResumeMasteryLandingPage() {
     });
   }, []);
 
+  useEffect(() => {
+    if (!window.location.hash) {
+      window.scrollTo(0, 0);
+    }
+  }, []);
+
   const handleEnrollClick = () => {
     const formRef = document.getElementById('course-form-section');
     formRef?.scrollIntoView({ behavior: 'smooth' });
+    window.setTimeout(() => {
+      const firstInput = document.querySelector<HTMLInputElement>(
+        '#course-form-section input'
+      );
+      firstInput?.focus({ preventScroll: true });
+    }, 400);
   };
 
   return (
