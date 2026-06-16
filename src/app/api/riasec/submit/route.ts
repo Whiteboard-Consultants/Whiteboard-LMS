@@ -6,7 +6,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 import { calculateRIASECScores, getTopProfiles, getProfileDetails } from '@/lib/riasec-data';
-import { sendRIASECResultsEmail } from '@/lib/riasec-email';
+import { sendRIASECResultsEmail, getRiasecAdminSubject } from '@/lib/riasec-email';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -15,7 +15,7 @@ const supabase = createClient(
 
 export async function POST(request: NextRequest) {
   try {
-    const { assessmentId, responses } = await request.json();
+    const { assessmentId, responses, campaign } = await request.json();
 
     if (!assessmentId || !responses) {
       return NextResponse.json(
@@ -79,6 +79,7 @@ export async function POST(request: NextRequest) {
         assessment: updatedAssessment,
         scores,
         profileDetails,
+        adminSubject: getRiasecAdminSubject(campaign),
       });
 
       // Update email_sent flags

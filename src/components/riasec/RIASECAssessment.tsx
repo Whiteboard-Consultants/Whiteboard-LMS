@@ -22,7 +22,7 @@ interface AssessmentState {
   profileDetails: any[] | null;
 }
 
-export function RIASECAssessment() {
+export function RIASECAssessment({ campaign }: { campaign?: string }) {
   const [state, setState] = useState<AssessmentState>({
     step: 'registration',
     userId: null,
@@ -65,6 +65,7 @@ export function RIASECAssessment() {
         body: JSON.stringify({
           assessmentId: state.assessmentId,
           responses,
+          campaign,
         }),
       });
 

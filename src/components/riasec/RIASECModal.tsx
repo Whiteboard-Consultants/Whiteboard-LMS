@@ -12,9 +12,10 @@ import { RIASECAssessment } from './RIASECAssessment';
 interface RIASECModalProps {
   isOpen: boolean;
   onClose: () => void;
+  campaign?: string;
 }
 
-export function RIASECModal({ isOpen, onClose }: RIASECModalProps) {
+export function RIASECModal({ isOpen, onClose, campaign }: RIASECModalProps) {
   if (!isOpen) return null;
 
   return (
@@ -43,7 +44,7 @@ export function RIASECModal({ isOpen, onClose }: RIASECModalProps) {
 
           {/* Content */}
           <div className="overflow-y-auto max-h-[90vh]">
-            <RIASECAssessment />
+            <RIASECAssessment campaign={campaign} />
           </div>
         </div>
       </div>

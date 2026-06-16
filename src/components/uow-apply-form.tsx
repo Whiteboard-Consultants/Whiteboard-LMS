@@ -33,7 +33,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Link from "next/link";
-import { saveContactSubmission } from "@/app/(public)/contact/actions";
+import { saveUowApplication } from "@/app/(application)/uow/actions";
 
 const formSchema = z.object({
   firstName: z.string().min(1, "First Name is required."),
@@ -66,13 +66,7 @@ export function UowApplyForm() {
   const { isSubmitting } = form.formState;
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const submissionData = {
-        ...values,
-        inquiryType: `UOW Admission: ${values.degreeOfInterest}`,
-        message: values.enquiryMessage
-    };
-
-    const result = await saveContactSubmission(submissionData);
+    const result = await saveUowApplication(values);
 
     if (result.success) {
       toast({

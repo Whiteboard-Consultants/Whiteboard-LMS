@@ -10,6 +10,16 @@ interface RIASECEmailPayload {
   assessment: any;
   scores: Record<string, number>;
   profileDetails: (RIASECProfile | null)[];
+  adminSubject?: string;
+}
+
+const ADMIN_SUBJECT_BY_CAMPAIGN: Record<string, string> = {
+  'campus-placement': 'New Application for Campus Placement',
+};
+
+export function getRiasecAdminSubject(campaign?: string): string | undefined {
+  if (!campaign) return undefined;
+  return ADMIN_SUBJECT_BY_CAMPAIGN[campaign];
 }
 
 /**
@@ -23,7 +33,7 @@ export async function sendRIASECResultsEmail(payload: RIASECEmailPayload) {
       throw new Error('Email transporter not available');
     }
 
-    const { assessment, scores, profileDetails } = payload;
+    const { assessment, scores, profileDetails, adminSubject } = payload;
     const studentEmail = assessment.email;
     const adminEmail = process.env.ADMIN_EMAIL;
 
@@ -34,7 +44,13 @@ export async function sendRIASECResultsEmail(payload: RIASECEmailPayload) {
 
     // Send to admin
     if (adminEmail) {
-      await sendAdminSummaryEmail(transporter, assessment, scores, adminEmail);
+      await sendAdminSummaryEmail(
+        transporter,
+        assessment,
+        scores,
+        adminEmail,
+        adminSubject
+      );
     }
   } catch (error) {
     console.error('Error sending RIASEC results emails:', error);
@@ -198,7 +214,8 @@ async function sendAdminSummaryEmail(
   transporter: any,
   assessment: any,
   scores: Record<string, number>,
-  adminEmail: string
+  adminEmail: string,
+  adminSubject?: string
 ) {
   const htmlContent = `
     <div style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; padding: 20px;">
@@ -245,7 +262,7 @@ async function sendAdminSummaryEmail(
   await transporter.sendMail({
     from: fromEmail,
     to: adminEmail,
-    subject: `New RIASEC Assessment: ${assessment.full_name}`,
+    subject: adminSubject || `New RIASEC Assessment: ${assessment.full_name}`,
     html: htmlContent,
   });
 

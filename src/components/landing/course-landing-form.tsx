@@ -85,6 +85,7 @@ export function CourseLandingForm({ courseId, courseName }: CourseLandingFormPro
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           courseId,
+          courseName,
           ...data,
         }),
       });

@@ -1,5 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
+import {
+  sendResumeMasteryAdminNotification,
+  sendResumeMasteryConfirmation,
+} from '@/lib/resume-mastery-email-service';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -76,9 +80,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // TODO: Send confirmation email
-    // TODO: Send admin notification (course instructor)
-    // TODO: Add to email marketing list if opted in
+    const submittedAt = new Date().toISOString();
+    const emailPayload = {
+      courseId,
+      firstName,
+      lastName,
+      email,
+      phone,
+      careerStage,
+      currentStruggle,
+      experienceLevel,
+      jobTarget,
+      atsAwareness,
+      linkedinAlignment,
+      timeline,
+      decisionMaker,
+      outcomeExpectation,
+      courseName: body.courseName,
+      submittedAt,
+    };
+
+    try {
+      await Promise.all([
+        sendResumeMasteryAdminNotification(emailPayload),
+        sendResumeMasteryConfirmation(emailPayload),
+      ]);
+    } catch (emailError) {
+      console.error('Resume Mastery email error:', emailError);
+    }
 
     return NextResponse.json({
       success: true,

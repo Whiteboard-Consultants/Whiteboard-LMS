@@ -204,7 +204,7 @@ function CareerCompassCTA({
         <span>Take the Free Career Compass Assessment</span>
         <ArrowRight className="h-4 w-4 shrink-0" />
       </Button>
-      <RIASECModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      <RIASECModal isOpen={isOpen} onClose={() => setIsOpen(false)} campaign="campus-placement" />
     </>
   );
 }
