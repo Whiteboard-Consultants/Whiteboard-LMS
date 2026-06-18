@@ -30,6 +30,7 @@ import {
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Check, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { FacebookPixelEvents } from '@/lib/facebook-pixel';
 import {
   budgetOptions,
   careerStageOptions,
@@ -156,6 +157,8 @@ export function MbaLandingForm() {
       if (!response.ok) {
         throw new Error('Failed to submit form');
       }
+
+      FacebookPixelEvents.lead(data.email, data.phone, data.firstName, data.lastName);
 
       toast.success(
         "🎉 Thank you! We've received your enquiry. A counsellor will connect with you at your preferred time."

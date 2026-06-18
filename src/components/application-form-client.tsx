@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { submitApplication } from '@/app/(landing)/apply/actions';
+import { FacebookPixelEvents } from '@/lib/facebook-pixel';
 import type { ApplicationFormData } from '@/lib/application-email-service';
 import {
   ArrowLeft,
@@ -246,6 +247,13 @@ export default function ApplicationFormClient() {
     setIsSubmitting(false);
 
     if (result.success) {
+      const nameParts = payload.fullName.split(/\s+/);
+      FacebookPixelEvents.lead(
+        payload.email,
+        payload.whatsapp,
+        nameParts[0],
+        nameParts.slice(1).join(' ') || undefined
+      );
       setIsSuccess(true);
     } else {
       setFieldError(result.error || 'Submission failed. Please try again.');

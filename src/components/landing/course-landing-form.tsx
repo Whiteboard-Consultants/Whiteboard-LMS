@@ -21,6 +21,7 @@ import {
   RadioGroupItem,
 } from '@/components/ui/radio-group';
 import { Check, ChevronRight, ChevronLeft, Loader2 } from 'lucide-react';
+import { FacebookPixelEvents } from '@/lib/facebook-pixel';
 import {
   landingFormSchema,
   LandingFormData,
@@ -94,7 +95,7 @@ export function CourseLandingForm({ courseId, courseName }: CourseLandingFormPro
         throw new Error('Failed to submit form');
       }
 
-      const result = await response.json();
+      FacebookPixelEvents.lead(data.email, data.phone, data.firstName, data.lastName);
 
       toast.success('🎉 Form submitted successfully! We\'ll be in touch soon.');
       form.reset();

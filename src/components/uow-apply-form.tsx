@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Loader2 } from "lucide-react";
+import { FacebookPixelEvents } from '@/lib/facebook-pixel';
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import {
@@ -68,6 +69,13 @@ export function UowApplyForm() {
       if (!response.ok) {
         throw new Error(result.error || 'Failed to submit application.');
       }
+
+      FacebookPixelEvents.lead(
+        values.email,
+        values.phone,
+        values.firstName,
+        values.lastName
+      );
 
       toast({
         title: "Form Submitted",
