@@ -4,7 +4,16 @@ export function trackPixelEvent(
   eventName: string,
   eventData?: Record<string, any>
 ) {
-  if (typeof window !== 'undefined' && window.fbq) {
+  if (typeof window === 'undefined') return;
+
+  if (!window.fbq) {
+    const pixelId = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
+    if (pixelId) {
+      initMetaPixel(pixelId);
+    }
+  }
+
+  if (window.fbq) {
     window.fbq('track', eventName, eventData);
   }
 }

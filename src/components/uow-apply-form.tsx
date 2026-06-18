@@ -58,6 +58,13 @@ export function UowApplyForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
+      FacebookPixelEvents.lead(
+        values.email,
+        values.phone,
+        values.firstName,
+        values.lastName
+      );
+
       const response = await fetch('/api/uow/apply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -69,13 +76,6 @@ export function UowApplyForm() {
       if (!response.ok) {
         throw new Error(result.error || 'Failed to submit application.');
       }
-
-      FacebookPixelEvents.lead(
-        values.email,
-        values.phone,
-        values.firstName,
-        values.lastName
-      );
 
       toast({
         title: "Form Submitted",

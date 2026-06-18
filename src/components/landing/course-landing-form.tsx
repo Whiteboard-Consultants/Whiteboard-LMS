@@ -81,6 +81,8 @@ export function CourseLandingForm({ courseId, courseName }: CourseLandingFormPro
     try {
       setIsSubmitting(true);
 
+      FacebookPixelEvents.lead(data.email, data.phone, data.firstName, data.lastName);
+
       const response = await fetch('/api/landing/course-form', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -94,8 +96,6 @@ export function CourseLandingForm({ courseId, courseName }: CourseLandingFormPro
       if (!response.ok) {
         throw new Error('Failed to submit form');
       }
-
-      FacebookPixelEvents.lead(data.email, data.phone, data.firstName, data.lastName);
 
       toast.success('🎉 Form submitted successfully! We\'ll be in touch soon.');
       form.reset();

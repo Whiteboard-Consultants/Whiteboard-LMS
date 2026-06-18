@@ -148,6 +148,8 @@ export function MbaLandingForm() {
     try {
       setIsSubmitting(true);
 
+      FacebookPixelEvents.lead(data.email, data.phone, data.firstName, data.lastName);
+
       const response = await fetch('/api/landing/mba-form', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -157,8 +159,6 @@ export function MbaLandingForm() {
       if (!response.ok) {
         throw new Error('Failed to submit form');
       }
-
-      FacebookPixelEvents.lead(data.email, data.phone, data.firstName, data.lastName);
 
       toast.success(
         "🎉 Thank you! We've received your enquiry. A counsellor will connect with you at your preferred time."

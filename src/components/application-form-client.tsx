@@ -243,17 +243,18 @@ export default function ApplicationFormClient() {
       submittedAt: new Date().toISOString(),
     };
 
+    const nameParts = payload.fullName.split(/\s+/);
+    FacebookPixelEvents.lead(
+      payload.email,
+      payload.whatsapp,
+      nameParts[0],
+      nameParts.slice(1).join(' ') || undefined
+    );
+
     const result = await submitApplication(payload);
     setIsSubmitting(false);
 
     if (result.success) {
-      const nameParts = payload.fullName.split(/\s+/);
-      FacebookPixelEvents.lead(
-        payload.email,
-        payload.whatsapp,
-        nameParts[0],
-        nameParts.slice(1).join(' ') || undefined
-      );
       setIsSuccess(true);
     } else {
       setFieldError(result.error || 'Submission failed. Please try again.');

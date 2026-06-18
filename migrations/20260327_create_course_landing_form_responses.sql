@@ -25,15 +25,16 @@ CREATE TABLE IF NOT EXISTS landing_form_responses (
 );
 
 -- Create indexes for better query performance
-CREATE INDEX idx_landing_form_responses_email ON landing_form_responses(email);
-CREATE INDEX idx_landing_form_responses_course_id ON landing_form_responses(course_id);
-CREATE INDEX idx_landing_form_responses_created_at ON landing_form_responses(created_at DESC);
-CREATE INDEX idx_landing_form_responses_status ON landing_form_responses(status);
+CREATE INDEX IF NOT EXISTS idx_landing_form_responses_email ON landing_form_responses(email);
+CREATE INDEX IF NOT EXISTS idx_landing_form_responses_course_id ON landing_form_responses(course_id);
+CREATE INDEX IF NOT EXISTS idx_landing_form_responses_created_at ON landing_form_responses(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_landing_form_responses_status ON landing_form_responses(status);
 
 -- Enable RLS on the table
 ALTER TABLE landing_form_responses ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for instructors to view their course responses
+DROP POLICY IF EXISTS "Instructors can view form responses for their courses" ON landing_form_responses;
 CREATE POLICY "Instructors can view form responses for their courses"
 ON landing_form_responses FOR SELECT
 USING (
@@ -45,11 +46,13 @@ USING (
 );
 
 -- Create policy for service role to insert (for API)
+DROP POLICY IF EXISTS "Service role can insert responses" ON landing_form_responses;
 CREATE POLICY "Service role can insert responses"
 ON landing_form_responses FOR INSERT
 WITH CHECK (TRUE);
 
 -- Create policy for service role to update status
+DROP POLICY IF EXISTS "Service role can update response status" ON landing_form_responses;
 CREATE POLICY "Service role can update response status"
 ON landing_form_responses FOR UPDATE
 USING (TRUE)

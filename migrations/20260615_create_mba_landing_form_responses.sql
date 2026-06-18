@@ -21,16 +21,18 @@ CREATE TABLE IF NOT EXISTS mba_landing_form_responses (
   status VARCHAR(50) DEFAULT 'new'
 );
 
-CREATE INDEX idx_mba_landing_form_responses_email ON mba_landing_form_responses(email);
-CREATE INDEX idx_mba_landing_form_responses_created_at ON mba_landing_form_responses(created_at DESC);
-CREATE INDEX idx_mba_landing_form_responses_status ON mba_landing_form_responses(status);
+CREATE INDEX IF NOT EXISTS idx_mba_landing_form_responses_email ON mba_landing_form_responses(email);
+CREATE INDEX IF NOT EXISTS idx_mba_landing_form_responses_created_at ON mba_landing_form_responses(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_mba_landing_form_responses_status ON mba_landing_form_responses(status);
 
 ALTER TABLE mba_landing_form_responses ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Service role can insert mba landing responses" ON mba_landing_form_responses;
 CREATE POLICY "Service role can insert mba landing responses"
 ON mba_landing_form_responses FOR INSERT
 WITH CHECK (TRUE);
 
+DROP POLICY IF EXISTS "Service role can update mba landing responses" ON mba_landing_form_responses;
 CREATE POLICY "Service role can update mba landing responses"
 ON mba_landing_form_responses FOR UPDATE
 USING (TRUE)
