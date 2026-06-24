@@ -1,0 +1,17 @@
+{
+  "title": "Why Choose Whiteboard Consultants for Your Malta Journey?",
+  "description": "From Kolkata to Malta, we help you move from confusion to clarity with personalised, honest and structured guidance.",
+  "features": [
+    { "text": "Malta-specific guidance using up-to-date knowledge of education, visa rules and the job market." },
+    { "text": "End-to-end support from shortlisting universities and reviewing SOPs to structuring funds and pre-departure planning." },
+    { "text": "Transparent budgeting so you build realistic first-year and monthly cost plans." },
+    { "text": "Career-focused counselling connecting courses to Malta's real sectors — hospitality, iGaming, fintech and shared services." },
+    { "text": "India-aware documentation expertise for mark sheets, backlogs, education loans and family funding patterns." },
+    { "text": "Personalised guidance on course selection, visa filing and post-study work pathways." }
+  ],
+  "image": {
+    "src": "https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg",
+    "alt": "A team of education consultants collaborating on study in Malta applications",
+    "ai_hint": "team collaboration"
+  }
+}

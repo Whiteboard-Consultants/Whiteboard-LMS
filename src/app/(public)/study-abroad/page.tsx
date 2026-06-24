@@ -52,6 +52,7 @@ export default async function StudyAbroadPage() {
           { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Study in Australia", "url": `${siteConfig.url}/study-abroad/australia` } },
           { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Study in New Zealand", "url": `${siteConfig.url}/study-abroad/new-zealand` } },
           { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Study in Ireland", "url": `${siteConfig.url}/study-abroad/ireland` } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Study in Malta", "url": `${siteConfig.url}/study-abroad/malta` } },
           { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Study in Germany", "url": `${siteConfig.url}/study-abroad/germany` } },
           { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Study in Dubai", "url": `${siteConfig.url}/study-abroad/dubai` } }
         ]
@@ -226,7 +227,7 @@ export default async function StudyAbroadPage() {
                     </p>
                     <QuickAnswer>
                       <p>
-                        Whiteboard Consultants helps Indian students study abroad in the USA, UK, Canada, Australia, Ireland, Germany, New Zealand, and Dubai (UAE). From our Kolkata office, we provide university shortlisting, application and SOP support, IELTS/TOEFL/GRE/GMAT coaching, visa guidance, and pre-departure counseling.
+                        Whiteboard Consultants helps Indian students study abroad in the USA, UK, Canada, Australia, Ireland, Malta, Germany, New Zealand, and Dubai (UAE). From our Kolkata office, we provide university shortlisting, application and SOP support, IELTS/TOEFL/GRE/GMAT coaching, visa guidance, and pre-departure counseling.
                       </p>
                     </QuickAnswer>
                     <div className="mt-10 flex items-center gap-4">

@@ -141,6 +141,26 @@
         ]
     },
     {
+        "slug": "malta",
+        "name": "Malta",
+        "countryCode": "MT",
+        "title": "Study in Malta - EU Education & Schengen Access | Whiteboard",
+        "description": "Discover EU-recognised degrees in Malta. Whiteboard Consultants in Kolkata helps students with university applications, National D visa processes, and work opportunities in Malta.",
+        "image": "/destinations/studying-in-malta.webp",
+        "top_universities": [
+            "University of Malta",
+            "MCAST",
+            "Global College Malta",
+            "GBS Malta"
+        ],
+        "popular_courses": [
+            "Business & Management",
+            "IT & Computing",
+            "Hospitality & Tourism",
+            "Finance & Accounting"
+        ]
+    },
+    {
         "slug": "dubai",
         "name": "Dubai",
         "countryCode": "AE",

@@ -68,7 +68,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Study abroad destination pages (GEO SEO optimization)
   const studyAbroadDestinations = [
-    'ireland', 'uk', 'germany', 'usa', 'canada', 'australia', 'dubai', 'new-zealand'
+    'ireland', 'malta', 'uk', 'germany', 'usa', 'canada', 'australia', 'dubai', 'new-zealand'
   ]
   
   const destinationPages: MetadataRoute.Sitemap = studyAbroadDestinations.map(destination => ({

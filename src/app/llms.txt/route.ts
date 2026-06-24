@@ -21,6 +21,7 @@ Whiteboard Consultants is an education consultancy based in Kolkata, West Bengal
 - About: ${base}/about
 - Study abroad (hub): ${base}/study-abroad
 - Study in Ireland: ${base}/study-abroad/ireland
+- Study in Malta: ${base}/study-abroad/malta
 - Study in UK: ${base}/study-abroad/uk
 - Study in USA: ${base}/study-abroad/usa
 - Study in Canada: ${base}/study-abroad/canada

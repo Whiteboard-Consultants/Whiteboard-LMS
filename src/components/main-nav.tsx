@@ -29,6 +29,11 @@ const studyAbroadDestinations: { title: string; href: string; description: strin
         description: "Experience the rich culture and high-quality education in the Emerald Isle.",
     },
     {
+        title: "Study in Malta",
+        href: "/study-abroad/malta",
+        description: "Earn EU-recognised degrees in an English-speaking Mediterranean hub.",
+    },
+    {
         title: "Study in UK",
         href: "/study-abroad/uk",
         description: "Access world-renowned universities and a vibrant student life.",
