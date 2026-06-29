@@ -1,5 +1,12 @@
+import { artificialIntelligencePrograms } from './artificial-intelligence-programs-data';
+import { computerSciencePrograms } from './computer-science-programs-data';
+import { cybersecurityPrograms } from './cybersecurity-programs-data';
+import { dataSciencePrograms } from './data-science-programs-data';
+import { financePrograms } from './finance-programs-data';
+import { webDevelopmentPrograms } from './web-development-programs-data';
 import { freePrograms } from './free-programs-data';
 import { managementPrograms } from './management-programs-data';
+import { sortProgramsByProvider } from './provider-colors';
 import type {
   DegreeType,
   MenuNavItem,
@@ -14,6 +21,12 @@ export type { ProgramFilter, ProgramGoal, DegreeType };
 export const allPartnerPrograms: PartnerProgram[] = [
   ...freePrograms,
   ...managementPrograms,
+  ...financePrograms,
+  ...dataSciencePrograms,
+  ...computerSciencePrograms,
+  ...artificialIntelligencePrograms,
+  ...cybersecurityPrograms,
+  ...webDevelopmentPrograms,
 ];
 
 export const PREVIEW_LIMIT = 4;
@@ -54,9 +67,33 @@ export const courseSubjects: MenuNavItem[] = [
     type: 'subject',
   },
   {
+    id: 'subject-data-science',
+    label: 'Data Science',
+    filter: 'data-science',
+    type: 'subject',
+  },
+  {
+    id: 'subject-artificial-intelligence',
+    label: 'Artificial Intelligence',
+    filter: 'artificial-intelligence',
+    type: 'subject',
+  },
+  {
+    id: 'subject-cybersecurity',
+    label: 'Cybersecurity',
+    filter: 'cybersecurity',
+    type: 'subject',
+  },
+  {
     id: 'subject-computer-science',
     label: 'Computer Science',
     filter: 'computer-science',
+    type: 'subject',
+  },
+  {
+    id: 'subject-web-development',
+    label: 'Web Development',
+    filter: 'web-development',
     type: 'subject',
   },
   {
@@ -69,12 +106,6 @@ export const courseSubjects: MenuNavItem[] = [
     id: 'subject-marketing',
     label: 'Marketing',
     filter: 'marketing',
-    type: 'subject',
-  },
-  {
-    id: 'subject-web-development',
-    label: 'Web Development',
-    filter: 'web-development',
     type: 'subject',
   },
 ];
@@ -124,7 +155,7 @@ export function filterPrograms(
       );
   }
 
-  return programs;
+  return sortProgramsByProvider(programs);
 }
 
 export function getProgramCount(
@@ -175,6 +206,24 @@ export const categoryMeta: Record<
       "Compare curated online MBA and executive management degrees from India's top universities and IIMs.",
     exploreLabel: 'Explore all management programs',
   },
+  'data-science': {
+    title: 'Data Science Programs',
+    description:
+      'Explore curated online MCA and degree programmes in data science, machine learning, and analytics from leading universities.',
+    exploreLabel: 'Explore all data science programs',
+  },
+  'artificial-intelligence': {
+    title: 'Artificial Intelligence Programs',
+    description:
+      'Discover curated online degrees and certificates in artificial intelligence, generative AI, and intelligent systems from top institutions.',
+    exploreLabel: 'Explore all artificial intelligence programs',
+  },
+  cybersecurity: {
+    title: 'Cybersecurity Programs',
+    description:
+      'Build expertise in cybersecurity, ethical hacking, and information security through curated online programmes from leading providers.',
+    exploreLabel: 'Explore all cybersecurity programs',
+  },
   'computer-science': {
     title: 'Computer Science Programs',
     description:
@@ -196,22 +245,29 @@ export const categoryMeta: Record<
   'web-development': {
     title: 'Web Development Programs',
     description:
-      'Learn full-stack development, UI/UX, and modern web technologies through hand-picked online courses and degrees.',
+      'Learn web development, full-stack engineering, and modern frameworks through hand-picked online courses and degrees.',
     exploreLabel: 'Explore all web development programs',
   },
 };
 
 export function parseCategoryParam(value: string | null): ProgramFilter {
+  if (value === 'full-stack-development') {
+    return 'web-development';
+  }
+
   const valid: ProgramFilter[] = [
     'all',
     'free',
     'degree',
     'certificate',
     'management',
+    'data-science',
+    'artificial-intelligence',
+    'cybersecurity',
     'computer-science',
+    'web-development',
     'finance',
     'marketing',
-    'web-development',
   ];
   if (value && valid.includes(value as ProgramFilter)) {
     return value as ProgramFilter;

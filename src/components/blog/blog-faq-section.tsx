@@ -37,22 +37,22 @@ function FAQItem({ faq }: { faq: FAQ }) {
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <div className="border rounded-lg">
+      <div className="border rounded-lg overflow-hidden">
         <CollapsibleTrigger asChild>
           <Button
             variant="ghost"
-            className="w-full justify-between p-4 h-auto text-left font-medium"
+            className="w-full justify-between items-start gap-3 p-4 h-auto text-left font-medium whitespace-normal"
           >
-            <span className="text-sm md:text-base">{faq.question}</span>
+            <span className="text-sm md:text-base flex-1 min-w-0">{faq.question}</span>
             {isOpen ? (
-              <ChevronUp className="h-4 w-4 shrink-0" />
+              <ChevronUp className="h-4 w-4 shrink-0 mt-0.5" />
             ) : (
-              <ChevronDown className="h-4 w-4 shrink-0" />
+              <ChevronDown className="h-4 w-4 shrink-0 mt-0.5" />
             )}
           </Button>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <div className="px-4 pb-4 text-sm text-muted-foreground">
+          <div className="px-4 pb-4 text-sm text-muted-foreground break-words">
             {faq.answer}
           </div>
         </CollapsibleContent>

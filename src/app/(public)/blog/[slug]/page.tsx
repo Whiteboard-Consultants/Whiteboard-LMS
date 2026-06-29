@@ -302,7 +302,9 @@ export default async function PostPage({ params }: PostPageProps) {
 
                 {faqData && (
                     <div className="container mx-auto px-4 py-12">
-                        <BlogFAQSection faqs={faqData} />
+                        <div className="max-w-4xl mx-auto">
+                            <BlogFAQSection faqs={faqData} />
+                        </div>
                     </div>
                 )}
             </div>

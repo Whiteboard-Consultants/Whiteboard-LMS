@@ -1,10 +1,13 @@
 export type ProgramCategory =
   | 'free'
   | 'management'
+  | 'data-science'
+  | 'artificial-intelligence'
+  | 'cybersecurity'
   | 'computer-science'
+  | 'web-development'
   | 'finance'
-  | 'marketing'
-  | 'web-development';
+  | 'marketing';
 
 /** RiseUpp-style goal grouping */
 export type ProgramGoal = 'free' | 'degree' | 'certificate';

@@ -12,6 +12,10 @@ import {
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import {
+  getProviderColor,
+  iconBgClasses,
+} from './provider-colors';
+import {
   categoryMeta,
   courseSubjects,
   degreeTypeOptions,
@@ -306,7 +310,9 @@ export function ProgramMegaMenu({
 
                   {previewPrograms.length > 0 ? (
                     <div className="grid gap-3 sm:grid-cols-2">
-                      {previewPrograms.map((program) => (
+                      {previewPrograms.map((program) => {
+                        const providerColor = getProviderColor(program.provider);
+                        return (
                         <Link
                           key={program.id}
                           href={program.riseuppUrl}
@@ -314,8 +320,13 @@ export function ProgramMegaMenu({
                           className="group flex gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                           onClick={() => setIsOpen(false)}
                         >
-                          <div className="w-10 h-10 shrink-0 rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
-                            <GraduationCap className="w-5 h-5 text-blue-700 dark:text-blue-300" />
+                          <div
+                            className={cn(
+                              'w-10 h-10 shrink-0 rounded-lg flex items-center justify-center',
+                              iconBgClasses[providerColor]
+                            )}
+                          >
+                            <GraduationCap className="w-5 h-5" />
                           </div>
                           <div className="min-w-0">
                             <p className="text-xs font-medium text-slate-500 dark:text-slate-400 truncate">
@@ -326,7 +337,8 @@ export function ProgramMegaMenu({
                             </p>
                           </div>
                         </Link>
-                      ))}
+                        );
+                      })}
                     </div>
                   ) : (
                     <p className="text-sm text-slate-600 dark:text-slate-400 py-6 text-center">
