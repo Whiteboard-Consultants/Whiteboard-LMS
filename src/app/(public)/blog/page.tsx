@@ -9,7 +9,7 @@ import { getPosts } from "@/lib/supabase-data";
 import { format } from "date-fns";
 import { convertToDate } from "@/lib/date-utils";
 import BlogTabs from "@/components/blog-tabs";
-import { pageMetadata } from '@/lib/seo';
+import { pageMetadata, siteConfig } from '@/lib/seo';
 
 export const metadata: Metadata = pageMetadata({
   title: 'Education Blog | Study Abroad, Test Prep & Career Tips | Whiteboard Consultants',
@@ -29,11 +29,7 @@ export default async function BlogPage() {
     "description": "Expert insights on study abroad, test preparation, and career development",
     "url": "https://www.whiteboardconsultant.com/blog",
     "image": "https://www.whiteboardconsultant.com/blog-hero.jpg",
-    "isPartOf": {
-      "@type": "WebSite",
-      "name": "Whiteboard Consultants",
-      "url": "https://www.whiteboardconsultant.com"
-    },
+    "isPartOf": { "@id": `${siteConfig.url}/#website` },
     "mainEntity": {
       "@type": "ItemList",
       "itemListElement": posts.slice(0, 10).map((post, index) => ({

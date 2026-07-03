@@ -14,7 +14,7 @@ const phone = siteConfig.contact.phone.replace(/\s/g, '');
 
 export const organizationSchema = {
   '@context': 'https://schema.org',
-  '@type': ['EducationalOrganization', 'LocalBusiness'],
+  '@type': 'EducationalOrganization',
   '@id': `${siteConfig.url}/#organization`,
   name: siteConfig.name,
   url: siteConfig.url,
@@ -95,13 +95,6 @@ export const organizationSchema = {
     'Education Consulting',
   ],
   sameAs: [...organizationSameAs],
-  aggregateRating: {
-    '@type': 'AggregateRating',
-    ratingValue: '4.8',
-    reviewCount: 500,
-    bestRating: '5',
-    worstRating: '1',
-  },
 } as const;
 
 export const websiteSchema = {
