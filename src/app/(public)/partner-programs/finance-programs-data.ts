@@ -184,5 +184,218 @@ export const financePrograms: PartnerProgram[] = [
     "iconColor": "emerald",
     "specialization": "Finance",
     "degreeType": "masters"
-  }
+  },
+
+  // —— Bachelor's programmes ——
+  {
+    id: 'finance-upes-bba-financial-management-9',
+    title: 'BBA in Financial Management – UPES Online',
+    description:
+      'Online BBA programme in Finance / Financial Management from UPES (University of Petroleum and Energy Studies). Designed for undergraduate learners seeking a UGC-entitled bachelor’s qualification with flexible online learning in finance and accounting.',
+    duration: '3 Years',
+    level: 'Beginner',
+    certificate: 'Degree',
+    provider: 'UPES (University of Petroleum and Energy Studies)',
+    learnPoints: [
+      'Build a foundation in financial management and accounting principles',
+      'Apply budgeting, analysis, and investment concepts',
+      'Develop skills for finance and business decision-making',
+      'Prepare for entry-level finance and accounting roles',
+    ],
+    riseuppUrl:
+      'https://www.riseupp.com/degree-course/upes-university-of-petroleum-and-energy-studies/bba-in-financial-management-at-upes-online?ref=CP112',
+    isFree: false,
+    categories: ['finance'],
+    iconColor: 'amber',
+    specialization: 'Finance / Financial Management',
+    degreeType: 'bachelors',
+  },
+  {
+    id: 'finance-manipal-university-jaipur-bba-finance-accounting-10',
+    title: 'Online BBA in Finance & Accounting – MUJ',
+    description:
+      'Online BBA programme in Finance & Accounting from Manipal University Jaipur. Designed for undergraduate learners seeking a UGC-entitled bachelor’s qualification with flexible online learning in finance and accounting.',
+    duration: '3 Years',
+    level: 'Beginner',
+    certificate: 'Degree',
+    provider: 'Manipal University Jaipur',
+    learnPoints: [
+      'Build a foundation in financial management and accounting principles',
+      'Apply budgeting, analysis, and investment concepts',
+      'Develop skills for finance and business decision-making',
+      'Prepare for entry-level finance and accounting roles',
+    ],
+    riseuppUrl:
+      'https://www.riseupp.com/degree-course/manipal-university-jaipur/online-bba-in-finance-accounting?ref=CP112',
+    isFree: false,
+    categories: ['finance'],
+    iconColor: 'orange',
+    specialization: 'Finance & Accounting',
+    degreeType: 'bachelors',
+  },
+  {
+    id: 'finance-sharda-university-bba-finance-accounting-11',
+    title: 'BBA Finance and Accounting – Sharda University',
+    description:
+      'Online BBA programme in Finance and Accounting from Sharda University. Designed for undergraduate learners seeking a UGC-entitled bachelor’s qualification with flexible online learning in finance and accounting.',
+    duration: '3 Years',
+    level: 'Beginner',
+    certificate: 'Degree',
+    provider: 'Sharda University',
+    learnPoints: [
+      'Build a foundation in financial management and accounting principles',
+      'Apply budgeting, analysis, and investment concepts',
+      'Develop skills for finance and business decision-making',
+      'Prepare for entry-level finance and accounting roles',
+    ],
+    riseuppUrl:
+      'https://www.riseupp.com/degree-course/sharda-university/bba-finance-and-accounting-sharda-university?ref=CP112',
+    isFree: false,
+    categories: ['finance'],
+    iconColor: 'blue',
+    specialization: 'Finance and Accounting',
+    degreeType: 'bachelors',
+  },
+  {
+    id: 'finance-sharda-university-bba-ai-finance-12',
+    title: 'BBA AI and Finance – Sharda University',
+    description:
+      'Online BBA programme in AI and Finance from Sharda University. Designed for undergraduate learners seeking a UGC-entitled bachelor’s qualification with flexible online learning in finance and emerging technologies.',
+    duration: '3 Years',
+    level: 'Beginner',
+    certificate: 'Degree',
+    provider: 'Sharda University',
+    learnPoints: [
+      'Build a foundation in finance with applied AI concepts',
+      'Apply data-driven methods to financial analysis and decisions',
+      'Develop skills for modern finance and fintech pathways',
+      'Prepare for entry-level finance and analytics roles',
+    ],
+    riseuppUrl:
+      'https://www.riseupp.com/degree-course/sharda-university/bba-ai-and-finance-sharda-university?ref=CP112',
+    isFree: false,
+    categories: ['finance'],
+    iconColor: 'blue',
+    specialization: 'AI and Finance',
+    degreeType: 'bachelors',
+  },
+
+  // —— Doctorate programmes (DBA Finance) ——
+  {
+    id: 'finance-golden-gate-university-dba-13',
+    title: 'DBA Specialization in Finance – Golden Gate University',
+    description:
+      'Online DBA programme in Finance from Golden Gate University. Designed for senior professionals seeking a doctoral-level qualification with flexible online learning in financial leadership and research.',
+    duration: '3 Years',
+    level: 'Advanced',
+    certificate: 'Degree',
+    provider: 'Golden Gate University',
+    learnPoints: [
+      'Advance expertise in financial strategy and corporate finance',
+      'Apply research methods to complex finance challenges',
+      'Develop doctoral-level analytical and decision-making skills',
+      'Build credentials for executive and academic finance leadership roles',
+    ],
+    riseuppUrl:
+      'https://www.riseupp.com/degree-course/golden-gate-university/dba-specialization-in-finance-from-golden-gate-university?ref=CP112',
+    isFree: false,
+    categories: ['finance'],
+    iconColor: 'violet',
+    specialization: 'Finance',
+    degreeType: 'doctorate',
+  },
+  {
+    id: 'finance-golden-gate-university-dba-14',
+    title: 'DBA in Finance from GGU',
+    description:
+      'Online DBA programme in Finance from Golden Gate University. Designed for senior professionals seeking a doctoral-level qualification with flexible online learning in financial leadership and research.',
+    duration: '3 Years',
+    level: 'Advanced',
+    certificate: 'Degree',
+    provider: 'Golden Gate University',
+    learnPoints: [
+      'Advance expertise in financial strategy and corporate finance',
+      'Apply research methods to complex finance challenges',
+      'Develop doctoral-level analytical and decision-making skills',
+      'Build credentials for executive and academic finance leadership roles',
+    ],
+    riseuppUrl:
+      'https://www.riseupp.com/degree-course/golden-gate-university/dba-in-finance-from-ggu?ref=CP112',
+    isFree: false,
+    categories: ['finance'],
+    iconColor: 'violet',
+    specialization: 'Finance',
+    degreeType: 'doctorate',
+  },
+  {
+    id: 'finance-edgewood-college-dba-15',
+    title: 'DBA & MBA from Edgewood College – Specializing in Finance',
+    description:
+      'Online DBA programme in Finance from Edgewood College. Designed for senior professionals seeking a doctoral-level qualification with flexible online learning in financial leadership and research.',
+    duration: '3 Years',
+    level: 'Advanced',
+    certificate: 'Degree',
+    provider: 'Edgewood College',
+    learnPoints: [
+      'Advance expertise in financial strategy and corporate finance',
+      'Apply research methods to complex finance challenges',
+      'Develop doctoral-level analytical and decision-making skills',
+      'Build credentials for executive and academic finance leadership roles',
+    ],
+    riseuppUrl:
+      'https://www.riseupp.com/degree-course/edgewood-college/dba-mba-from-edgewood-college-specializing-in-finance?ref=CP112',
+    isFree: false,
+    categories: ['finance'],
+    iconColor: 'violet',
+    specialization: 'Finance',
+    degreeType: 'doctorate',
+  },
+  {
+    id: 'finance-rushford-business-school-dba-16',
+    title:
+      'Doctor of Business Administration – Specialization in Finance – Rushford Business School',
+    description:
+      'Online DBA programme in Finance from Rushford Business School. Designed for senior professionals seeking a doctoral-level qualification with flexible online learning in financial leadership and research.',
+    duration: '3 Years',
+    level: 'Advanced',
+    certificate: 'Degree',
+    provider: 'Rushford Business School',
+    learnPoints: [
+      'Advance expertise in financial strategy and corporate finance',
+      'Apply research methods to complex finance challenges',
+      'Develop doctoral-level analytical and decision-making skills',
+      'Build credentials for executive and academic finance leadership roles',
+    ],
+    riseuppUrl:
+      'https://www.riseupp.com/degree-course/rushford-business-school/doctor-of-business-administration-specialization-in-finance?ref=CP112',
+    isFree: false,
+    categories: ['finance'],
+    iconColor: 'violet',
+    specialization: 'Finance',
+    degreeType: 'doctorate',
+  },
+  {
+    id: 'finance-golden-gate-university-dba-immersion-17',
+    title: 'DBA in Finance (With Immersion) – GGU',
+    description:
+      'Online DBA programme in Finance with immersion from Golden Gate University. Designed for senior professionals seeking a doctoral-level qualification with flexible online learning in financial leadership and research.',
+    duration: '3 Years',
+    level: 'Advanced',
+    certificate: 'Degree',
+    provider: 'Golden Gate University',
+    learnPoints: [
+      'Advance expertise in financial strategy and corporate finance',
+      'Apply research methods to complex finance challenges',
+      'Develop doctoral-level analytical and decision-making skills',
+      'Build credentials for executive and academic finance leadership roles',
+    ],
+    riseuppUrl:
+      'https://www.riseupp.com/degree-course/golden-gate-university/dba-in-finance-with-immersion-from-ggu?ref=CP112',
+
+    isFree: false,
+    categories: ['finance'],
+    iconColor: 'violet',
+    specialization: 'Finance',
+    degreeType: 'doctorate',
+  },
 ];

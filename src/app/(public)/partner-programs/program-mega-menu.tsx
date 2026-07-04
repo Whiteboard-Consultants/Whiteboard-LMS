@@ -57,6 +57,13 @@ function sidebarChevronClass(isActive: boolean) {
   );
 }
 
+interface PanelPosition {
+  top: number;
+  left: number;
+  width: number;
+  maxHeight: number;
+}
+
 export function ProgramMegaMenu({
   activeCategory,
   activeDegreeType,
@@ -66,7 +73,10 @@ export function ProgramMegaMenu({
   const [hoveredItem, setHoveredItem] = useState<MenuNavItem>(programGoals[1]);
   const [previewDegreeType, setPreviewDegreeType] =
     useState<DegreeType | null>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
+  const [panelPosition, setPanelPosition] = useState<PanelPosition | null>(
+    null
+  );
+  const triggerRef = useRef<HTMLDivElement>(null);
 
   const previewFilter = hoveredItem.filter;
   const isDegreePanel = previewFilter === 'degree';
@@ -125,18 +135,67 @@ export function ProgramMegaMenu({
   };
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      setPanelPosition(null);
+      return;
+    }
 
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+
+    function updatePanelPosition() {
+      const trigger = triggerRef.current;
+      if (!trigger) return;
+
+      const rect = trigger.getBoundingClientRect();
+      const width = Math.min(920, window.innerWidth - 32);
+      const left = Math.max(
+        16,
+        Math.min(
+          rect.left + rect.width / 2 - width / 2,
+          window.innerWidth - width - 16
+        )
+      );
+      const gap = 12;
+      const viewportPadding = 16;
+      const spaceBelow = window.innerHeight - rect.bottom - gap - viewportPadding;
+      const spaceAbove = rect.top - gap - viewportPadding;
+      const preferredMax = 560;
+      const minHeight = 280;
+
+      let top: number;
+      let maxHeight: number;
+
+      if (spaceBelow >= minHeight || spaceBelow >= spaceAbove) {
+        top = rect.bottom + gap;
+        maxHeight = Math.min(preferredMax, Math.max(minHeight, spaceBelow));
+      } else {
+        maxHeight = Math.min(preferredMax, Math.max(minHeight, spaceAbove));
+        top = Math.max(viewportPadding, rect.top - gap - maxHeight);
+      }
+
+      // Keep the panel fully within the viewport.
+      if (top + maxHeight > window.innerHeight - viewportPadding) {
+        maxHeight = Math.max(
+          minHeight,
+          window.innerHeight - viewportPadding - top
+        );
+      }
+
+      setPanelPosition({ top, left, width, maxHeight });
+    }
+
+    updatePanelPosition();
 
     function handleEscape(event: KeyboardEvent) {
       if (event.key === 'Escape') setIsOpen(false);
     }
 
+    window.addEventListener('resize', updatePanelPosition);
     document.addEventListener('keydown', handleEscape);
     return () => {
       document.body.style.overflow = previousOverflow;
+      window.removeEventListener('resize', updatePanelPosition);
       document.removeEventListener('keydown', handleEscape);
     };
   }, [isOpen]);
@@ -169,7 +228,7 @@ export function ProgramMegaMenu({
         />
       )}
 
-      <div ref={panelRef} className="relative z-50 w-full max-w-4xl mx-auto">
+      <div ref={triggerRef} className="relative z-50 w-full max-w-4xl mx-auto">
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <Button
             size="lg"
@@ -199,141 +258,148 @@ export function ProgramMegaMenu({
             </strong>
           </span>
         </div>
+      </div>
 
-        {isOpen && (
-          <div
-            role="dialog"
-            aria-label="Browse partner programs"
-            className="absolute left-1/2 -translate-x-1/2 top-full mt-3 w-[min(920px,calc(100vw-2rem))] z-50 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl overflow-hidden"
-          >
-            <div className="flex flex-col md:flex-row min-h-[420px] max-h-[min(70vh,560px)]">
-              {/* Left sidebar */}
-              <div className="md:w-[240px] shrink-0 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 overflow-y-auto">
-                <div className="p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2 px-2">
-                    Goals
-                  </p>
-                  <ul className="space-y-0.5">
-                    {programGoals.map(renderNavItem)}
-                  </ul>
-                </div>
-
-                <div className="p-4 pt-0">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2 px-2">
-                    Courses
-                  </p>
-                  <ul className="space-y-0.5">
-                    {courseSubjects.map(renderNavItem)}
-                  </ul>
-                </div>
-
-                <div className="p-4 pt-0">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full rounded-full border-slate-300 dark:border-slate-600 bg-transparent text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
-                    onClick={() => handleExplore('all')}
-                  >
-                    Explore all subjects
-                  </Button>
-                </div>
+      {isOpen && panelPosition && (
+        <div
+          role="dialog"
+          aria-label="Browse partner programs"
+          className="fixed z-50 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl overflow-hidden flex flex-col"
+          style={{
+            top: panelPosition.top,
+            left: panelPosition.left,
+            width: panelPosition.width,
+            maxHeight: panelPosition.maxHeight,
+            height: panelPosition.maxHeight,
+          }}
+        >
+          <div className="flex flex-col md:flex-row flex-1 min-h-0 overflow-hidden">
+            {/* Left sidebar */}
+            <div className="md:w-[240px] shrink-0 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 overflow-y-auto overscroll-contain">
+              <div className="p-4">
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2 px-2">
+                  Goals
+                </p>
+                <ul className="space-y-0.5">
+                  {programGoals.map(renderNavItem)}
+                </ul>
               </div>
 
-              {/* Right preview panel */}
-              <div className="flex-1 flex flex-col overflow-hidden bg-background dark:bg-slate-900">
-                <div
-                  className={cn(
-                    'flex items-start justify-between gap-4 p-5 border-b',
-                    isDegreePanel
-                      ? 'bg-muted/60 border-border dark:bg-card dark:border-border'
-                      : 'border-slate-200 dark:border-slate-700'
-                  )}
+              <div className="p-4 pt-0">
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2 px-2">
+                  Courses
+                </p>
+                <ul className="space-y-0.5">
+                  {courseSubjects.map(renderNavItem)}
+                </ul>
+              </div>
+
+              <div className="p-4 pt-0">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full rounded-full border-slate-300 dark:border-slate-600 bg-transparent text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
+                  onClick={() => handleExplore('all')}
                 >
-                  <div className="flex-1 min-w-0">
-                    <h3
-                      className={cn(
-                        'text-xl font-bold',
-                        isDegreePanel
-                          ? 'text-foreground'
-                          : 'text-slate-900 dark:text-white'
-                      )}
-                    >
-                      {meta.title}
-                    </h3>
-                    <p
-                      className={cn(
-                        'text-sm mt-2 max-w-lg leading-relaxed',
-                        isDegreePanel
-                          ? 'text-muted-foreground'
-                          : 'text-slate-700 dark:text-slate-300'
-                      )}
-                    >
-                      {meta.description}
-                    </p>
+                  Explore all subjects
+                </Button>
+              </div>
+            </div>
 
-                    {showDegreeChips && (
-                      <div className="flex flex-wrap gap-2 mt-4">
-                        {availablePreviewDegreeTypes.map((degreeType) => (
-                          <button
-                            key={degreeType}
-                            type="button"
-                            className={degreeChipClass(
-                              degreeType,
-                              previewDegreeType === degreeType
-                            )}
-                            onClick={() => toggleDegreeType(degreeType)}
-                          >
-                            {degreeTypeOptions.find((o) => o.value === degreeType)
-                              ?.label ?? degreeTypeLabel(degreeType)}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-
-
-                    {isDegreePanel && (
-                      <Button
-                        className="rounded-lg mt-5 font-semibold px-6 bg-primary text-primary-foreground hover:bg-primary/90 dark:bg-orange-500 dark:hover:bg-orange-400 dark:text-white"
-                        onClick={() =>
-                          handleExplore('degree', previewDegreeType)
-                        }
-                      >
-                        {meta.exploreLabel}
-                        <ArrowRight className="ml-2 w-4 h-4" />
-                      </Button>
-                    )}
-                  </div>
-                  <button
-                    type="button"
+            {/* Right preview panel */}
+            <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-background dark:bg-slate-900">
+              <div
+                className={cn(
+                  'flex items-start justify-between gap-4 p-5 border-b shrink-0',
+                  isDegreePanel
+                    ? 'bg-muted/60 border-border dark:bg-card dark:border-border'
+                    : 'border-slate-200 dark:border-slate-700'
+                )}
+              >
+                <div className="flex-1 min-w-0">
+                  <h3
                     className={cn(
-                      'p-1.5 rounded-md transition-colors shrink-0',
+                      'text-xl font-bold',
                       isDegreePanel
-                        ? 'text-muted-foreground hover:bg-accent hover:text-foreground'
-                        : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                        ? 'text-foreground'
+                        : 'text-slate-900 dark:text-white'
                     )}
-                    aria-label="Close menu"
-                    onClick={() => setIsOpen(false)}
                   >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
+                    {meta.title}
+                  </h3>
+                  <p
+                    className={cn(
+                      'text-sm mt-2 max-w-lg leading-relaxed',
+                      isDegreePanel
+                        ? 'text-muted-foreground'
+                        : 'text-slate-700 dark:text-slate-300'
+                    )}
+                  >
+                    {meta.description}
+                  </p>
 
-                <div className="p-5 flex-1 overflow-y-auto">
-                  {!isDegreePanel && (
+                  {showDegreeChips && (
+                    <div className="flex flex-wrap gap-2 mt-4">
+                      {availablePreviewDegreeTypes.map((degreeType) => (
+                        <button
+                          key={degreeType}
+                          type="button"
+                          className={degreeChipClass(
+                            degreeType,
+                            previewDegreeType === degreeType
+                          )}
+                          onClick={() => toggleDegreeType(degreeType)}
+                        >
+                          {degreeTypeOptions.find((o) => o.value === degreeType)
+                            ?.label ?? degreeTypeLabel(degreeType)}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {isDegreePanel && (
                     <Button
-                      className="rounded-full mb-5 bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white"
-                      onClick={() => handleExplore(previewFilter)}
+                      className="rounded-lg mt-5 font-semibold px-6 bg-primary text-primary-foreground hover:bg-primary/90 dark:bg-orange-500 dark:hover:bg-orange-400 dark:text-white"
+                      onClick={() =>
+                        handleExplore('degree', previewDegreeType)
+                      }
                     >
                       {meta.exploreLabel}
                       <ArrowRight className="ml-2 w-4 h-4" />
                     </Button>
                   )}
+                </div>
+                <button
+                  type="button"
+                  className={cn(
+                    'p-1.5 rounded-md transition-colors shrink-0',
+                    isDegreePanel
+                      ? 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                      : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                  )}
+                  aria-label="Close menu"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
 
-                  {previewPrograms.length > 0 ? (
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      {previewPrograms.map((program) => {
-                        const providerColor = getProviderColor(program.provider);
-                        return (
+              <div className="p-5 flex-1 min-h-0 overflow-y-auto overscroll-contain">
+                {!isDegreePanel && (
+                  <Button
+                    className="rounded-full mb-5 bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white"
+                    onClick={() => handleExplore(previewFilter)}
+                  >
+                    {meta.exploreLabel}
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Button>
+                )}
+
+                {previewPrograms.length > 0 ? (
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {previewPrograms.map((program) => {
+                      const providerColor = getProviderColor(program.provider);
+                      return (
                         <Link
                           key={program.id}
                           href={program.riseuppUrl}
@@ -358,28 +424,27 @@ export function ProgramMegaMenu({
                             </p>
                           </div>
                         </Link>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-slate-600 dark:text-slate-400 py-6 text-center">
-                      {isDegreePanel && previewDegreeType
-                        ? `No ${degreeTypeOptions.find((o) => o.value === previewDegreeType)?.label} programs yet. Try another option or speak with an advisor.`
-                        : 'Programs coming soon in this category. Speak with an advisor to explore options.'}
-                    </p>
-                  )}
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-sm text-slate-600 dark:text-slate-400 py-6 text-center">
+                    {isDegreePanel && previewDegreeType
+                      ? `No ${degreeTypeOptions.find((o) => o.value === previewDegreeType)?.label} programs yet. Try another option or speak with an advisor.`
+                      : 'Programs coming soon in this category. Speak with an advisor to explore options.'}
+                  </p>
+                )}
 
-                  {totalCount > previewPrograms.length && (
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-4 text-center">
-                      + {totalCount - previewPrograms.length} more programs
-                    </p>
-                  )}
-                </div>
+                {totalCount > previewPrograms.length && (
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-4 text-center">
+                    + {totalCount - previewPrograms.length} more programs
+                  </p>
+                )}
               </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </>
   );
 }

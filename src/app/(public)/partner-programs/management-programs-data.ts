@@ -1222,4 +1222,121 @@ export const managementPrograms: PartnerProgram[] = [
     specialization: 'General Management',
     degreeType: 'bachelors',
   },
+
+  // —— Doctorate programmes (DBA) ——
+  {
+    id: 'mgmt-golden-gate-university-dba-54',
+    title: 'DBA Spec. in General Management – Golden Gate University',
+    description:
+      'Online DBA programme in General Management from Golden Gate University. Designed for senior professionals seeking a doctoral-level qualification with flexible online learning in business leadership and research.',
+    duration: '3 Years',
+    level: 'Advanced',
+    certificate: 'Degree',
+    provider: 'Golden Gate University',
+    learnPoints: [
+      'Advance expertise in strategic management and organisational leadership',
+      'Apply research methods to complex business challenges',
+      'Develop doctoral-level analytical and decision-making skills',
+      'Build credentials for executive and academic leadership roles',
+    ],
+    riseuppUrl:
+      'https://www.riseupp.com/degree-course/golden-gate-university/dba-spec-in-general-management-from-golden-gate-univ?ref=CP112',
+    isFree: false,
+    categories: ['management'],
+    iconColor: 'violet',
+    specialization: 'General Management',
+    degreeType: 'doctorate',
+  },
+  {
+    id: 'mgmt-ssbm-geneva-dba-55',
+    title: 'Doctor of Business Administration – SSBM Geneva',
+    description:
+      'Online DBA programme in General Management from SSBM Geneva. Designed for senior professionals seeking a doctoral-level qualification with flexible online learning in business leadership and research.',
+    duration: '3 Years',
+    level: 'Advanced',
+    certificate: 'Degree',
+    provider: 'SSBM Geneva',
+    learnPoints: [
+      'Advance expertise in strategic management and organisational leadership',
+      'Apply research methods to complex business challenges',
+      'Develop doctoral-level analytical and decision-making skills',
+      'Build credentials for executive and academic leadership roles',
+    ],
+    riseuppUrl:
+      'https://www.riseupp.com/degree-course/ssbm-geneva/doctor-of-business-administration-ssbm-geneva?ref=CP112',
+    isFree: false,
+    categories: ['management'],
+    iconColor: 'violet',
+    specialization: 'General Management',
+    degreeType: 'doctorate',
+  },
+  {
+    id: 'mgmt-rushford-business-school-dba-56',
+    title: 'DBA Specialization in General Management – Rushford Business School',
+    description:
+      'Online DBA programme in General Management from Rushford Business School. Designed for senior professionals seeking a doctoral-level qualification with flexible online learning in business leadership and research.',
+    duration: '3 Years',
+    level: 'Advanced',
+    certificate: 'Degree',
+    provider: 'Rushford Business School',
+    learnPoints: [
+      'Advance expertise in strategic management and organisational leadership',
+      'Apply research methods to complex business challenges',
+      'Develop doctoral-level analytical and decision-making skills',
+      'Build credentials for executive and academic leadership roles',
+    ],
+    riseuppUrl:
+      'https://www.riseupp.com/degree-course/rushford-business-school/dba-specialization-in-general-management?ref=CP112',
+    isFree: false,
+    categories: ['management'],
+    iconColor: 'violet',
+    specialization: 'General Management',
+    degreeType: 'doctorate',
+  },
+  {
+    id: 'mgmt-european-global-dba-57',
+    title: 'Doctorate of Business Administration – European Global',
+    description:
+      'Online DBA programme in General Management from European Global. Designed for senior professionals seeking a doctoral-level qualification with flexible online learning in business leadership and research.',
+    duration: '3 Years',
+    level: 'Advanced',
+    certificate: 'Degree',
+    provider: 'European Global',
+    learnPoints: [
+      'Advance expertise in strategic management and organisational leadership',
+      'Apply research methods to complex business challenges',
+      'Develop doctoral-level analytical and decision-making skills',
+      'Build credentials for executive and academic leadership roles',
+    ],
+    riseuppUrl:
+      'https://www.riseupp.com/degree-course/european-global/doctorate-of-business-administration?ref=CP112',
+    isFree: false,
+    categories: ['management'],
+    iconColor: 'violet',
+    specialization: 'General Management',
+    degreeType: 'doctorate',
+  },
+  {
+    id: 'mgmt-walsh-college-dba-58',
+    title: 'Doctor of Business Administration in General Management – Walsh College',
+    description:
+      'Online DBA programme in General Management from Walsh College. Designed for senior professionals seeking a doctoral-level qualification with flexible online learning in business leadership and research.',
+    duration: '3 Years',
+    level: 'Advanced',
+    certificate: 'Degree',
+    provider: 'Walsh College',
+    learnPoints: [
+      'Advance expertise in strategic management and organisational leadership',
+      'Apply research methods to complex business challenges',
+      'Develop doctoral-level analytical and decision-making skills',
+      'Build credentials for executive and academic leadership roles',
+    ],
+    riseuppUrl:
+      'https://www.riseupp.com/degree-course/walsh-college/doctor-of-business-administration-in-general-management?ref=CP112',
+    isFree: false,
+    categories: ['management'],
+    iconColor: 'violet',
+    specialization: 'General Management',
+    degreeType: 'doctorate',
+  },
 ];

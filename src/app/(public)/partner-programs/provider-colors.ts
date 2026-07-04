@@ -87,6 +87,7 @@ const PROVIDER_BRAND_COLORS: Record<string, ProviderColorKey> = {
   // IITs & IIIT — deep blue / indigo
   'IIT Roorkee': 'indigo',
   'IIT Jodhpur': 'indigo',
+  'IIT Guwahati': 'indigo',
   'IIT Patna': 'indigo',
   'IIIT Bangalore': 'indigo',
   'BITS Pilani': 'sky',
@@ -102,6 +103,8 @@ const PROVIDER_BRAND_COLORS: Record<string, ProviderColorKey> = {
   'KL University': 'teal',
   'Alliance University': 'violet',
   'Alliance University (Bennett University Online)': 'violet',
+  'Alliance University (Bennett Online)': 'violet',
+
 
   'Manav Rachna University': 'green',
   'Parul University': 'green',
@@ -119,6 +122,18 @@ const PROVIDER_BRAND_COLORS: Record<string, ProviderColorKey> = {
   'K. J. Somaiya Institute of Management': 'rose',
   NMIMS: 'purple',
   'Vignan University': 'sky',
+  'UPES (University of Petroleum and Energy Studies)': 'amber',
+  'Golden Gate University': 'violet',
+  'SSBM Geneva': 'violet',
+  'Rushford Business School': 'violet',
+  'Edgewood College': 'violet',
+  'European School of Data Science and Technology (ESDST)': 'violet',
+
+
+  'European Global': 'violet',
+  'Walsh College': 'violet',
+
+
 
 
   // Tech & corporate partners

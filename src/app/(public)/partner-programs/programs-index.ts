@@ -53,12 +53,6 @@ export const programGoals: MenuNavItem[] = [
     filter: 'degree',
     type: 'goal',
   },
-  {
-    id: 'goal-certificate',
-    label: 'Certificate',
-    filter: 'certificate',
-    type: 'goal',
-  },
 ];
 
 export const courseSubjects: MenuNavItem[] = [

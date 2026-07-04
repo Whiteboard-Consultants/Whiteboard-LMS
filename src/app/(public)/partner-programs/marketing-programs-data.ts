@@ -547,4 +547,98 @@ export const marketingPrograms: PartnerProgram[] = [
     specialization: 'Marketing Management',
     degreeType: 'bachelors',
   },
+
+  // —— Doctorate programmes (DBA Marketing) ——
+  {
+    id: 'marketing-golden-gate-university-dba-30',
+    title: 'DBA in Marketing – GGU',
+    description:
+      'Online DBA programme in Marketing from Golden Gate University. Designed for senior professionals seeking a doctoral-level qualification with flexible online learning in marketing leadership and research.',
+    duration: '3 Years',
+    level: 'Advanced',
+    certificate: 'Degree',
+    provider: 'Golden Gate University',
+    learnPoints: [
+      'Advance expertise in marketing strategy and brand leadership',
+      'Apply research methods to complex marketing challenges',
+      'Develop doctoral-level analytical and decision-making skills',
+      'Build credentials for executive and academic marketing leadership roles',
+    ],
+    riseuppUrl:
+      'https://www.riseupp.com/degree-course/golden-gate-university/dba-in-marketing-from-ggu?ref=CP112',
+    isFree: false,
+    categories: ['marketing'],
+    iconColor: 'violet',
+    specialization: 'Marketing',
+    degreeType: 'doctorate',
+  },
+  {
+    id: 'marketing-golden-gate-university-dba-31',
+    title: 'DBA Specialization in Marketing – Golden Gate University',
+    description:
+      'Online DBA programme in Marketing from Golden Gate University. Designed for senior professionals seeking a doctoral-level qualification with flexible online learning in marketing leadership and research.',
+    duration: '3 Years',
+    level: 'Advanced',
+    certificate: 'Degree',
+    provider: 'Golden Gate University',
+    learnPoints: [
+      'Advance expertise in marketing strategy and brand leadership',
+      'Apply research methods to complex marketing challenges',
+      'Develop doctoral-level analytical and decision-making skills',
+      'Build credentials for executive and academic marketing leadership roles',
+    ],
+    riseuppUrl:
+      'https://www.riseupp.com/degree-course/golden-gate-university/dba-specialization-in-marketing-from-golden-gate-university?ref=CP112',
+    isFree: false,
+    categories: ['marketing'],
+    iconColor: 'violet',
+    specialization: 'Marketing',
+    degreeType: 'doctorate',
+  },
+  {
+    id: 'marketing-rushford-business-school-dba-32',
+    title: 'DBA Specialization in Marketing – Rushford Business School',
+    description:
+      'Online DBA programme in Marketing from Rushford Business School. Designed for senior professionals seeking a doctoral-level qualification with flexible online learning in marketing leadership and research.',
+    duration: '3 Years',
+    level: 'Advanced',
+    certificate: 'Degree',
+    provider: 'Rushford Business School',
+    learnPoints: [
+      'Advance expertise in marketing strategy and brand leadership',
+      'Apply research methods to complex marketing challenges',
+      'Develop doctoral-level analytical and decision-making skills',
+      'Build credentials for executive and academic marketing leadership roles',
+    ],
+    riseuppUrl:
+      'https://www.riseupp.com/degree-course/rushford-business-school/dba-specialization-in-marketing?ref=CP112',
+    isFree: false,
+    categories: ['marketing'],
+    iconColor: 'violet',
+    specialization: 'Marketing',
+    degreeType: 'doctorate',
+  },
+  {
+    id: 'marketing-golden-gate-university-dba-immersion-33',
+    title: 'DBA in Marketing (With Immersion) – GGU',
+    description:
+      'Online DBA programme in Marketing with immersion from Golden Gate University. Designed for senior professionals seeking a doctoral-level qualification with flexible online learning in marketing leadership and research.',
+    duration: '3 Years',
+    level: 'Advanced',
+    certificate: 'Degree',
+    provider: 'Golden Gate University',
+    learnPoints: [
+      'Advance expertise in marketing strategy and brand leadership',
+      'Apply research methods to complex marketing challenges',
+      'Develop doctoral-level analytical and decision-making skills',
+      'Build credentials for executive and academic marketing leadership roles',
+    ],
+    riseuppUrl:
+      'https://www.riseupp.com/degree-course/golden-gate-university/dba-in-marketing-with-immersion-from-ggu?ref=CP112',
+    isFree: false,
+    categories: ['marketing'],
+    iconColor: 'violet',
+    specialization: 'Marketing',
+    degreeType: 'doctorate',
+  },
 ];
