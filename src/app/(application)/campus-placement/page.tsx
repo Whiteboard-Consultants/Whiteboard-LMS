@@ -43,7 +43,7 @@ const FAQS = [
 ] as const;
 
 export const metadata: Metadata = pageMetadata({
-  title: 'Campus Placement Prep — Free Career Compass Assessment',
+  title: 'Campus Placement Prep',
   description:
     'Final-year students: know exactly where you stand before placement season. Free Holland Code (RIASEC) assessment, personalised role-fit report, resume direction, and 1-on-1 debrief.',
   path: '/campus-placement',

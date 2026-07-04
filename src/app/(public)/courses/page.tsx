@@ -1,13 +1,17 @@
 
 import { Suspense } from 'react';
-import { getCourses, getCourseCategories } from '@/lib/supabase-data';
 import { CourseList, CourseListSkeleton } from '@/components/course-list';
 import CoursesPageClient from '@/components/course-page-client';
-import { getPrograms } from '@/app/admin/programs-actions';
-import { CourseCategory, Course } from '@/types';
+import { CourseCategory } from '@/types';
 import type { Metadata } from 'next';
 import { coursesFaqs } from '@/lib/courses-faqs';
 import { pageMetadata } from '@/lib/seo';
+import {
+  filterPublishedCourses,
+  getCachedCourseCategories,
+  getCachedPrograms,
+  getCachedPublishedCourses,
+} from '@/lib/public-page-data';
 
 // Cache courses list for 30 minutes - Improves TTFB
 export const revalidate = 1800;
@@ -35,10 +39,12 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
     const searchTerm = params?.search || '';
     const category = (params?.category || 'All Programs') as CourseCategory | 'All Programs' | 'Free Courses';
 
-    const courses: Course[] = await getCourses({ searchTerm, category });
-    const categories = await getCourseCategories();
-    const programsResult = await getPrograms();
-    const programs = programsResult.success ? programsResult.data : [];
+    const [allCourses, categories, programs] = await Promise.all([
+      getCachedPublishedCourses(),
+      getCachedCourseCategories(),
+      getCachedPrograms(),
+    ]);
+    const courses = filterPublishedCourses(allCourses, { searchTerm, category });
 
     const breadcrumbLd = {
         "@context": "https://schema.org",

@@ -20,7 +20,7 @@ import '@/lib/auth-fix'; // Auto-handle auth token issues
 import '@/lib/suppress-auth-errors'; // Suppress expected Supabase auth errors
 import type { Metadata } from 'next';
 import { Poppins, PT_Sans } from 'next/font/google';
-import { siteConfig } from '@/lib/seo';
+import { metaDescription, pageTitle, siteConfig } from '@/lib/seo';
 
 const fontHeadline = PT_Sans({
   subsets: ['latin'],
@@ -40,10 +40,13 @@ const fontBody = Poppins({
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.whiteboardconsultant.com'),
   title: {
-    default: 'Whiteboard Consultants | #1 Study Abroad & Test Prep Expert in Kolkata',
-    template: '%s | Whiteboard Consultants - Your Gateway to Global Education',
+    default: pageTitle('#1 Study Abroad & Test Prep Expert in Kolkata'),
+    // Keep template short; pages using pageMetadata set absolute titles instead
+    template: '%s | Whiteboard Consultants',
   },
-  description: `${siteConfig.description} 1000+ success stories, 15+ years of experience.`,
+  description: metaDescription(
+    `${siteConfig.description} 1000+ success stories, 15+ years of experience.`
+  ),
   keywords: [
     // Primary Keywords
     "education consultant in Kolkata", "study abroad consultants Kolkata", "IELTS coaching Kolkata", 
@@ -80,8 +83,9 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_IN',
     siteName: 'Whiteboard Consultants',
-    title: 'Whiteboard Consultants | #1 Study Abroad & Test Prep Expert in Kolkata',
-    description: siteConfig.description,
+    title: pageTitle('#1 Study Abroad & Test Prep Expert in Kolkata'),
+    description: metaDescription(siteConfig.description),
+    url: 'https://www.whiteboardconsultant.com',
     images: [
       {
         url: '/og-image-home.png',
@@ -103,8 +107,10 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     site: '@whiteboardcons',
     creator: '@whiteboardcons',
-    title: 'Whiteboard Consultants | #1 Study Abroad & Test Prep Expert in Kolkata',
-    description: 'Transform your academic future with expert study abroad guidance, IELTS/TOEFL/aptitude test prep, upskilling, and career counseling in Kolkata.',
+    title: pageTitle('#1 Study Abroad & Test Prep Expert in Kolkata'),
+    description: metaDescription(
+      'Transform your academic future with expert study abroad guidance, IELTS/TOEFL/aptitude test prep, upskilling, and career counseling in Kolkata.'
+    ),
     images: ['/twitter-image-home.png'],
   },
   verification: {

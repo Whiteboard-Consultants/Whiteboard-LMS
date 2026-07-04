@@ -1,10 +1,18 @@
 import { ResetPasswordForm } from "@/components/reset-password-form";
 import { Metadata } from "next";
 import { Suspense } from "react";
+import { pageTitle } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Reset Password | Whiteboard Consultants",
+  title: { absolute: pageTitle("Reset Password") },
   description: "Reset your password to regain access to your account",
+  alternates: {
+    canonical: "/reset-password",
+  },
+  robots: {
+    index: false,
+    follow: true,
+  },
 };
 
 function ResetPasswordContent() {

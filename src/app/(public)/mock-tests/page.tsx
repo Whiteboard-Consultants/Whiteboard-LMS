@@ -1,18 +1,22 @@
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { MockTestPageClient } from '@/components/mock-test-page-client';
-import { searchMockTests, getMockTestFilterOptions } from '@/app/instructor/test-series-actions';
 import { pageMetadata } from '@/lib/seo';
+import {
+    getCachedMockTestFilterOptions,
+    getPublishedMockTests,
+} from '@/lib/public-page-data';
+import type { Test } from '@/types';
 
 export const revalidate = 1800; // Cache for 30 minutes
 
 export const metadata: Metadata = pageMetadata({
-  title: 'Mock Tests & Practice Series | Whiteboard Consultants',
-  description:
+    title: 'Mock Tests & Practice Series | Whiteboard Consultants',
+    description:
     'Practice with our comprehensive mock test series. Quantitative Aptitude, Verbal Ability, Logical Reasoning & Data Interpretation with difficulty levels from Easy to Hard.',
-  path: '/mock-tests',
-  openGraphTitle: 'Mock Tests & Practice Series',
-  openGraphDescription:
+    path: '/mock-tests',
+    openGraphTitle: 'Mock Tests & Practice Series',
+    openGraphDescription:
     'Prepare for competitive exams with targeted mock tests across multiple difficulty levels.',
 });
 
@@ -27,25 +31,47 @@ type MockTestsPageProps = {
     }>;
 };
 
+function filterMockTests(
+    tests: Test[],
+    filters: {
+        seriesId?: string;
+        topic?: string;
+        difficultyLevel?: string;
+        minPrice?: number;
+        maxPrice?: number;
+        instructorId?: string;
+    }
+): Test[] {
+    return tests.filter((test) => {
+        if (filters.seriesId && test.seriesId !== filters.seriesId) return false;
+        if (filters.topic && test.topic !== filters.topic) return false;
+        if (filters.difficultyLevel && test.difficultyLevel !== filters.difficultyLevel) return false;
+        if (filters.minPrice !== undefined && (test.price ?? 0) < filters.minPrice) return false;
+        if (filters.maxPrice !== undefined && (test.price ?? 0) > filters.maxPrice) return false;
+        if (filters.instructorId && test.instructorId !== filters.instructorId) return false;
+        return true;
+    });
+}
+
 export default async function MockTestsPage({ searchParams }: MockTestsPageProps) {
     const params = await searchParams;
-    
-    // Build filter object from search params
-    const filters: any = {};
-    if (params?.series) filters.seriesId = params.series;
-    if (params?.topic) filters.topic = params.topic;
-    if (params?.difficulty) filters.difficultyLevel = params.difficulty;
-    if (params?.minPrice) filters.minPrice = parseInt(params.minPrice);
-    if (params?.maxPrice) filters.maxPrice = parseInt(params.maxPrice);
-    if (params?.instructor) filters.instructorId = params.instructor;
 
-    // Fetch test data and filter options
+    const filters = {
+        seriesId: params?.series,
+        topic: params?.topic,
+        difficultyLevel: params?.difficulty,
+        minPrice: params?.minPrice ? parseInt(params.minPrice, 10) : undefined,
+        maxPrice: params?.maxPrice ? parseInt(params.maxPrice, 10) : undefined,
+        instructorId: params?.instructor,
+    };
+
     const [testsResult, filterOptionsResult] = await Promise.all([
-        searchMockTests(filters),
-        getMockTestFilterOptions()
+        getPublishedMockTests(),
+        getCachedMockTestFilterOptions(),
     ]);
 
-    const tests = testsResult.success ? testsResult.data || [] : [];
+    const allTests = testsResult.success ? testsResult.data || [] : [];
+    const tests = filterMockTests(allTests, filters);
     const filterOptions = filterOptionsResult.success ? filterOptionsResult.data : null;
 
     const breadcrumbLd = {

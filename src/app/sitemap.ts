@@ -130,22 +130,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   ]
 
-  // Auth and user pages (lower priority but still indexed)
-  const userPages: MetadataRoute.Sitemap = [
-    {
-      url: `${baseUrl}/login`,
-      lastModified: new Date(),
-      changeFrequency: 'yearly',
-      priority: 0.3,
-    },
-    {
-      url: `${baseUrl}/register`, 
-      lastModified: new Date(),
-      changeFrequency: 'yearly',
-      priority: 0.3,
-    }
-  ]
-
   // FAQ and legal pages for completeness
   const supportPages: MetadataRoute.Sitemap = [
     {
@@ -226,7 +210,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...coursePages,
     ...mockTestSeriesPages,
     ...blogPostPages,
-    ...userPages,
     ...supportPages
   ]
 }

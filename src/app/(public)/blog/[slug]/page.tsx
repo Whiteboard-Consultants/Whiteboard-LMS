@@ -16,6 +16,8 @@ import { BlogAuthorByline } from "@/components/blog/blog-author-bylines";
 import { generateBlogPostSchema, generateBreadcrumbSchema, generateFAQSchema, cleanSchema } from "@/lib/schema-markup";
 import { getBlogAuthorUrl } from "@/lib/blog-authors";
 import { getDefaultFaqsForSlug } from "@/lib/blog-default-faqs";
+import { demoteContentHeadings } from "@/lib/blog-utils";
+import { DEFAULT_OG_IMAGE, metaDescription, pageTitle } from "@/lib/seo";
 
 const HUSTLE_CULTURE_SLUG = "hustle-culture-gen-z-student-burnout-2026";
 
@@ -130,24 +132,38 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
         other['application/ld+json:faq'] = JSON.stringify(faqSchema);
     }
 
+    const description = metaDescription(post.excerpt);
+    const title = pageTitle(post.title);
+    const images = post.imageUrl
+        ? [
+            {
+                url: post.imageUrl,
+                width: 1200,
+                height: 630,
+                alt: post.title,
+            },
+        ]
+        : [DEFAULT_OG_IMAGE];
+
     return {
-        title: `${post.title} | Whiteboard Consultants Blog`,
-        description: post.excerpt,
+        title: { absolute: title },
+        description,
         alternates: {
             canonical: `/blog/${post.slug}`,
         },
         openGraph: {
-            title: post.title,
-            description: post.excerpt,
+            type: 'article',
+            locale: 'en_IN',
+            siteName: 'Whiteboard Consultants',
+            title,
+            description,
             url: `/blog/${post.slug}`,
-            images: post.imageUrl ? [
-                {
-                    url: post.imageUrl,
-                    width: 1200,
-                    height: 630,
-                    alt: post.title,
-                },
-            ] : [],
+            images,
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title,
+            description,
         },
         other,
     };
@@ -296,7 +312,10 @@ export default async function PostPage({ params }: PostPageProps) {
                                 )}
                             </div>
                         )}
-                        <div className="prose dark:prose-invert lg:prose-xl max-w-4xl mx-auto" dangerouslySetInnerHTML={{ __html: post.content }} />
+                        <div
+                            className="prose dark:prose-invert lg:prose-xl max-w-4xl mx-auto"
+                            dangerouslySetInnerHTML={{ __html: demoteContentHeadings(post.content) }}
+                        />
                     </div>
                 </article>
 

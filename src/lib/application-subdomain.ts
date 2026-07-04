@@ -9,6 +9,9 @@ export const APPLICATION_BASE_URL = `https://${APPLICATION_HOST}`;
 
 export const MAIN_SITE_URL = 'https://www.whiteboardconsultant.com';
 
+/** Apex host (no www). Prefer www as the single canonical host for SEO. */
+export const MAIN_SITE_APEX_HOST = 'whiteboardconsultant.com';
+
 /** Application subdomain paths (short URLs for lead-gen pages). */
 export const APPLICATION_PATHS = [
   '/resume-mastery',
@@ -61,6 +64,12 @@ export function isApplicationHost(host: string): boolean {
 export function isLocalMainDevHost(host: string): boolean {
   const normalized = host.split(':')[0].toLowerCase();
   return normalized === 'localhost' || normalized === '127.0.0.1';
+}
+
+/** True when the request is on the bare apex domain (not www). */
+export function isApexMainHost(host: string): boolean {
+  const normalized = host.split(':')[0].toLowerCase();
+  return normalized === MAIN_SITE_APEX_HOST;
 }
 
 /** @deprecated Use isLocalMainDevHost */

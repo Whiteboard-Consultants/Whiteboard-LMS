@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import type { WhyChooseUsData } from '@/lib/content';
 import whyChooseUsHome from '@/content/why-choose-us-home.json';
 import HomePageClient from '@/components/home-page-client';
-import { pageMetadata } from '@/lib/seo';
+import { metaDescription, pageMetadata, pageTitle } from '@/lib/seo';
 
 // Pre-render at build time; revalidate content hourly
 export const revalidate = 3600;
@@ -10,7 +10,8 @@ export const dynamic = 'force-static';
 
 export const metadata: Metadata = {
   ...pageMetadata({
-    title: 'Whiteboard Consultants | Best Study Abroad & Test Prep in Kolkata',
+    // Fits in 60 chars with brand; keywords first for SERP display
+    title: 'Study Abroad & Test Prep Kolkata',
     description:
       'Expert study abroad & test prep consultant in Kolkata. IELTS, TOEFL, aptitude test prep, college admissions, and upskilling. 1000+ success stories. Start your global journey today.',
     path: '/',
@@ -28,9 +29,10 @@ export const metadata: Metadata = {
     },
   }),
   twitter: {
-    title: "Whiteboard Consultants - Kolkata's #1 Study Abroad & Test Prep Expert",
-    description:
-      'Planning to study abroad? Need IELTS, TOEFL, or aptitude test prep? Whiteboard Consultants in Kolkata is your one-stop solution for success.',
+    title: pageTitle("Kolkata's #1 Study Abroad & Test Prep Expert"),
+    description: metaDescription(
+      'Planning to study abroad? Need IELTS, TOEFL, or aptitude test prep? Whiteboard Consultants in Kolkata is your one-stop solution for success.'
+    ),
     images: ['/twitter-image-home.png'],
   },
 };

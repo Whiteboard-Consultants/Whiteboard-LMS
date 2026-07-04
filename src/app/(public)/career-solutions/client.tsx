@@ -213,7 +213,7 @@ export default function CareerSolutionsClient() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <RIASECButton />
-                <Link href="/simple-register">
+                <Link href="/contact">
                   <Button
                     size="lg"
                     className="border-2 border-white bg-transparent text-white hover:bg-white/10"

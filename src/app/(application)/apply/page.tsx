@@ -4,7 +4,7 @@ import { pageMetadata } from '@/lib/seo';
 import { MAIN_SITE_URL, APPLICATION_BASE_URL } from '@/lib/application-subdomain';
 
 export const metadata: Metadata = pageMetadata({
-  title: 'Apply Now | Whiteboard Consultants',
+  title: 'Apply Now',
   description:
     'Start your education journey with Whiteboard Consultants. Complete our guided application form and schedule a free counseling callback.',
   path: '/apply',

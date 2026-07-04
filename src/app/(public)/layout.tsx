@@ -3,15 +3,18 @@ import { Footer } from "@/components/footer";
 import { PublicHeader } from "@/components/public-header";
 import type { Metadata } from "next";
 import { URL } from "url";
+import { DEFAULT_OG_IMAGE, metaDescription, pageTitle } from "@/lib/seo";
 
 export const metadata: Metadata = {
   // IMPORTANT: Replace with your actual production domain
   metadataBase: new URL('https://www.whiteboardconsultant.com'), 
   title: {
-    default: 'Whiteboard Consultants - Study Abroad & Test Prep Experts in Kolkata',
+    default: pageTitle('Study Abroad & Test Prep Experts in Kolkata'),
     template: '%s | Whiteboard Consultants',
   },
-  description: "Expert guidance for studying abroad in top destinations (USA, UK, Canada, etc.) and comprehensive test preparation for IELTS, TOEFL, GMAT, GRE. Start your journey with the best education consultants in Kolkata.",
+  description: metaDescription(
+    "Expert guidance for studying abroad in top destinations (USA, UK, Canada, etc.) and comprehensive test preparation for IELTS, TOEFL, GMAT, GRE. Start your journey with the best education consultants in Kolkata."
+  ),
   keywords: [
     "study abroad consultants Kolkata",
     "overseas education consultants",
@@ -25,19 +28,20 @@ export const metadata: Metadata = {
     "higher education abroad",
   ],
   openGraph: {
-    title: 'Whiteboard Consultants - Your Gateway to Global Education',
-    description: 'Expert guidance for studying abroad and comprehensive test preparation. Unlock your potential with the best education consultants in Kolkata.',
+    type: 'website',
+    locale: 'en_IN',
     siteName: 'Whiteboard Consultants',
+    title: pageTitle('Study Abroad & Test Prep Experts in Kolkata'),
+    description: metaDescription(
+      'Expert guidance for studying abroad and comprehensive test preparation. Unlock your potential with the best education consultants in Kolkata.'
+    ),
+    url: 'https://www.whiteboardconsultant.com',
     images: [
       {
-        url: '/og-image.png', // TODO: Create this image (1200x630)
-        width: 1200,
-        height: 630,
+        ...DEFAULT_OG_IMAGE,
         alt: 'Whiteboard Consultants - Study Abroad and Test Prep',
       },
     ],
-    locale: 'en_IN',
-    type: 'website',
   },
   robots: {
     index: true,

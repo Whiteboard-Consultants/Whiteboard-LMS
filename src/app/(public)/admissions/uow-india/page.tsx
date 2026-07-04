@@ -5,7 +5,7 @@ import UowIndiaClient from './uow-india-client';
 import { pageMetadata } from '@/lib/seo';
 
 export const metadata: Metadata = pageMetadata({
-  title: 'University of Wollongong (UOW) India Admissions | Whiteboard Consultants',
+  title: 'UOW India Admissions GIFT City',
   description:
     'As the official East India partner for the University of Wollongong, we provide expert guidance for admissions to the UOW campus at GIFT City, Gandhinagar. Explore programs in Computing, Data Analytics, and FinTech.',
   path: '/admissions/uow-india',

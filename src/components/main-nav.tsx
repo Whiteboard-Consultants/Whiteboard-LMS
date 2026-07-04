@@ -125,6 +125,7 @@ export function MainNav({ isMobileLayout = false }: MainNavProps) {
                 <Link href="/online-programs" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm font-semibold rounded-md hover:bg-primary-foreground/10 transition-colors">Online Programs</Link>
                 <Link href="/courses" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">Our Courses</Link>
                 <Link href="/partner-programs" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">Partner Programs</Link>
+                <Link href="/mock-tests" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">Mock Tests</Link>
               </div>
             </AccordionContent>
           </AccordionItem>
@@ -258,6 +259,9 @@ export function MainNav({ isMobileLayout = false }: MainNavProps) {
                         </ListItem>
                         <ListItem href="/partner-programs" title="Partner Programs">
                             Collaborative programs with leading universities and institutions worldwide.
+                        </ListItem>
+                        <ListItem href="/mock-tests" title="Mock Tests">
+                            Practice series for campus recruitment and competitive exams.
                         </ListItem>
                     </ul>
                 </NavigationMenuContent>

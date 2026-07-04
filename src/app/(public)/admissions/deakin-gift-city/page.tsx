@@ -3,7 +3,7 @@ import DeakinGiftCityClient from './deakin-gift-city-client';
 import { pageMetadata } from '@/lib/seo';
 
 export const metadata: Metadata = pageMetadata({
-  title: 'Deakin University GIFT City Admissions | Whiteboard Consultants',
+  title: 'Deakin GIFT City Admissions',
   description:
     "As the official East India partner for Deakin University, we provide expert guidance for admissions to Deakin's GIFT City campus in Gandhinagar. Explore postgraduate programs in Business, Technology, and FinTech.",
   path: '/admissions/deakin-gift-city',

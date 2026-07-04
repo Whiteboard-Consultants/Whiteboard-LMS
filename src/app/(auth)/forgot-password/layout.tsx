@@ -1,10 +1,15 @@
 import type { Metadata } from 'next';
+import { pageTitle } from '@/lib/seo';
 
 export const metadata: Metadata = {
-  title: 'Forgot Password | Whiteboard Consultants',
+  title: { absolute: pageTitle('Forgot Password') },
   description: 'Reset your password to regain access to your Whiteboard Consultants account.',
   alternates: {
-    canonical: '/auth/forgot-password',
+    canonical: '/forgot-password',
+  },
+  robots: {
+    index: false,
+    follow: true,
   },
 };
 

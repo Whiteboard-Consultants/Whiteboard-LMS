@@ -1,10 +1,15 @@
 import type { Metadata } from 'next';
+import { pageTitle } from '@/lib/seo';
 
 export const metadata: Metadata = {
-  title: 'Login | Whiteboard Consultants',
+  title: { absolute: pageTitle('Login') },
   description: 'Login to your Whiteboard Consultants account to access courses, tests, and personalized learning paths.',
   alternates: {
-    canonical: '/auth/login',
+    canonical: '/login',
+  },
+  robots: {
+    index: false,
+    follow: true,
   },
 };
 

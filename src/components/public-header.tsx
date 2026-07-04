@@ -39,13 +39,13 @@ export function PublicHeader() {
         <header className="sticky top-0 z-50 w-full border-b bg-primary text-primary-foreground dark:bg-black dark:border-primary-foreground/20">
             <SidebarProvider>
                 <div className="container flex h-[60px] items-center">
-                    <Link href="/" className="mr-6 flex items-center space-x-2">
-                        <Image src="/logo.png" alt="Whiteboard Consultants Logo" width={120} height={40} className="h-auto w-auto" priority />
+                    <Link href="/" className="mr-6 flex shrink-0 items-center space-x-2">
+                        <Image src="/logo.png" alt="Whiteboard Consultants Logo" width={120} height={40} className="h-auto w-auto max-w-[120px]" priority />
                     </Link>
-                    <div className="hidden lg:flex flex-1 items-center justify-center relative">
+                    <div className="hidden lg:flex min-w-0 flex-1 items-center justify-center relative">
                         <MainNav />
                     </div>
-                    <div className="flex flex-1 items-center justify-end space-x-4 lg:flex-none">
+                    <div className="flex shrink-0 items-center justify-end space-x-4">
                         <div className="hidden lg:block">
                             <UserActions />
                         </div>

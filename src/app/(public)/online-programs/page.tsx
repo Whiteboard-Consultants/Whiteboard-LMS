@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import OnlineProgramsContent from '@/components/online-programs-content';
-import { pageMetadata } from '@/lib/seo';
+import { pageMetadata, pageTitle } from '@/lib/seo';
 
 export const metadata: Metadata = {
   ...pageMetadata({
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     },
   }),
   twitter: {
-    title: 'Online Degrees and Certification Programs for Career Growth',
+    title: pageTitle('Online Degrees & Certification Programs'),
     description:
       'Discover flexible online degrees and certification programs. Earn accredited credentials and upskill with industry-ready courses.',
     images: ['/twitter-image-online-programs.png'],

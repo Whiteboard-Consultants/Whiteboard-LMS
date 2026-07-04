@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Share2, BookOpen, Award, Globe, Briefcase } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { demoteContentHeadings } from "@/lib/blog-utils";
 
 interface BlogPostDetailProps {
   post: Post;
@@ -165,7 +166,9 @@ export function BlogPostDetail({ post, relatedPosts = [] }: BlogPostDetailProps)
                              prose-li:text-muted-foreground
                              prose-strong:text-foreground prose-strong:font-semibold
                              prose-a:text-primary prose-a:no-underline hover:prose-a:underline"
-                  dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '<br>') }}
+                  dangerouslySetInnerHTML={{
+                    __html: demoteContentHeadings(post.content.replace(/\n/g, '<br>')),
+                  }}
                 />
               </div>
 

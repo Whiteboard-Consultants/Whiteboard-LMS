@@ -14,6 +14,7 @@ import { Breadcrumb } from "@/components/breadcrumb";
 import { CoursePurchaseCard } from "@/components/course-purchase-card";
 import { CourseCurriculum } from "@/components/course-curriculum";
 import { generateCourseSchema, generateBreadcrumbSchema, cleanSchema } from "@/lib/schema-markup";
+import { DEFAULT_OG_IMAGE, metaDescription, pageTitle } from "@/lib/seo";
 
 // Cache course details for 1 hour - Improves TTFB significantly
 export const revalidate = 3600;
@@ -37,24 +38,38 @@ export async function generateMetadata({ params }: CoursePageProps): Promise<Met
             title: "Course Not Found",
         };
     }
+    const description = metaDescription(course.description);
+    const title = pageTitle(course.title);
+    const images = course.imageUrl
+        ? [
+            {
+                url: course.imageUrl,
+                width: 1200,
+                height: 630,
+                alt: course.title,
+            },
+        ]
+        : [DEFAULT_OG_IMAGE];
+
     return {
-        title: `${course.title} | Whiteboard Consultants`,
-        description: course.description,
+        title: { absolute: title },
+        description,
         alternates: {
             canonical: `/courses/${courseId}`,
         },
         openGraph: {
-            title: course.title,
-            description: course.description,
+            type: 'website',
+            locale: 'en_IN',
+            siteName: 'Whiteboard Consultants',
+            title,
+            description,
             url: `/courses/${courseId}`,
-            images: [
-                {
-                    url: course.imageUrl,
-                    width: 1200,
-                    height: 630,
-                    alt: course.title,
-                },
-            ],
+            images,
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title,
+            description,
         },
     };
 }

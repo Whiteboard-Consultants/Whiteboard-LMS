@@ -4,6 +4,10 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { pageMetadata } from '@/lib/seo';
 
+// Fully static legal page — no data fetching
+export const dynamic = 'force-static';
+export const revalidate = 86400;
+
 export const metadata: Metadata = pageMetadata({
   title: 'Refund Policy | Whiteboard Consultants',
   description:

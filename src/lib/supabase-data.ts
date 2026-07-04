@@ -30,12 +30,9 @@ export async function getCourses(options?: {
   if (options?.category && options.category !== 'Free Courses') {
     // Map the display category to database category for other categories
     const databaseCategory = mapCategoryForDatabase(options.category as CategoryKey);
-    console.log('🔍 getCourses - Original category:', options.category);
-    console.log('🔍 getCourses - Mapped database category:', databaseCategory);
-    
+
     if (databaseCategory) {
       query = query.eq('category', databaseCategory);
-      console.log('🔍 getCourses - Applied filter for category:', databaseCategory);
     }
     // If databaseCategory is undefined (like for "All Programs"), no filter is applied
   }
@@ -45,11 +42,6 @@ export async function getCourses(options?: {
   }
 
   const { data, error } = await query.order('created_at', { ascending: false });
-
-  console.log('🔍 getCourses - Query result:', { data: data?.length, error });
-  if (data) {
-    console.log('🔍 getCourses - Course categories found:', data.map(c => ({ id: c.id, title: c.title, category: c.category })));
-  }
 
   if (error) {
     console.error('Error fetching courses:', error);

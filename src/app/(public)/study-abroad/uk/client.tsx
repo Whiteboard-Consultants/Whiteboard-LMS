@@ -419,12 +419,12 @@ export default function UKPageClient({ children }: UKPageClientProps) {
                             <Card key={uni.name} className="overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col">
                                 <div className="relative h-56 w-full">
                                     <Image 
-                                        src={uni.image} 
+                                        src={`${uni.image}?auto=compress&cs=tinysrgb&w=800`}
                                         alt={`Campus of ${uni.name}, a top university to study in the UK for Indian students`} 
                                         fill 
                                         className="object-cover" 
-                                        quality={75}
-                                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                        quality={60}
+                                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
                                         priority={topUniversities.indexOf(uni) < 3}
                                         data-ai-hint={uni.dataAiHint}
                                     />

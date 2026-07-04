@@ -36,8 +36,6 @@ const publicAllow = [
   '/faqs',
   '/privacy',
   '/refund-policy',
-  '/login',
-  '/register',
 ]
 
 /** App, transactional, and non-production routes */
@@ -49,6 +47,11 @@ const disallow = [
   '/settings/*',
   '/cart',
   '/cart/*',
+  '/login',
+  '/register',
+  '/simple-register',
+  '/forgot-password',
+  '/reset-password',
   '/auth/*',
   '/private/*',
   '/tmp/*',

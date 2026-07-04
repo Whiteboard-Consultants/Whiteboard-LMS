@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { SocialLinks } from './social-links';
+import { applicationUrl } from '@/lib/application-subdomain';
 
 export function Footer() {
     const currentYear = new Date().getFullYear();
@@ -42,11 +43,28 @@ export function Footer() {
                             </ul>
                         </div>
                         <div>
-                            <h3 className="font-semibold mb-4">Services</h3>
+                            <h3 className="font-semibold mb-4">Programs & Services</h3>
                             <ul className="space-y-2 text-sm text-primary-foreground/80">
+                                <li><Link href="/online-programs" className="hover:underline">Online Programs</Link></li>
+                                <li><Link href="/partner-programs" className="hover:underline">Partner Programs</Link></li>
+                                <li><Link href="/mock-tests" className="hover:underline">Mock Tests</Link></li>
+                                <li><Link href="/career-solutions/skill-development" className="hover:underline">Skill Development</Link></li>
                                 <li><Link href="/courses" className="hover:underline">Test Preparation</Link></li>
-                                <li><Link href="/courses" className="hover:underline">Career Development</Link></li>
-                                <li><Link href="/courses" className="hover:underline">Language Skills</Link></li>
+                                <li>
+                                    <a href={applicationUrl('/resume-mastery')} className="hover:underline">
+                                        Resume Mastery
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href={applicationUrl('/campus-placement')} className="hover:underline">
+                                        Campus Placement Prep
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href={applicationUrl('/online-mba')} className="hover:underline">
+                                        Online MBA
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                         <div>
@@ -55,6 +73,7 @@ export function Footer() {
                                 <li><Link href="/about" className="hover:underline">About Us</Link></li>
                                 <li><Link href="/contact" className="hover:underline">Contact Us</Link></li>
                                 <li><Link href="/blog" className="hover:underline">Blog</Link></li>
+                                <li><Link href="/faqs" className="hover:underline">FAQs</Link></li>
                                 <li><Link href="/privacy" className="hover:underline">Privacy Policy</Link></li>
                                 <li><Link href="/refund-policy" className="hover:underline">Refund Policy</Link></li>
                             </ul>

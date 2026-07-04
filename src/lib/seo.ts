@@ -11,7 +11,117 @@ export interface SEOConfig {
   structuredData?: object;
 }
 
-/** Keep canonical and Open Graph URL in sync (fixes Ahrefs "og:url not matching canonical") */
+/** Google/Ahrefs display limit; longer descriptions are truncated in SERPs. */
+export const META_DESCRIPTION_MAX_LENGTH = 155;
+
+/** SERP title display limit (~600px / ~60 chars). Longer titles are cut in results. */
+export const META_TITLE_MAX_LENGTH = 60;
+
+const BRAND_TITLE_SUFFIX = ' | Whiteboard Consultants';
+
+/** Remove brand segments so we never stack "| Whiteboard Consultants" twice. */
+function stripBrandFromTitle(title: string): string {
+  return title
+    .replace(/^\s*Whiteboard Consultants\s*[|–-]\s*/i, '')
+    .replace(
+      /\s*[|–-]\s*Whiteboard Consultants(?:\s+Blog)?(?:\s*[–-]\s*Your Gateway to Global Education)?\s*$/gi,
+      ''
+    )
+    .replace(/\s*[|–-]\s*Whiteboard Consultants\s*$/gi, '')
+    .trim();
+}
+
+/**
+ * Build a keyword-first title with a single brand suffix, capped for SERPs.
+ * Uses `absolute` titles so layout templates cannot append a second brand.
+ */
+export function pageTitle(
+  title: string | null | undefined,
+  maxLength = META_TITLE_MAX_LENGTH
+): string {
+  let clean = stripBrandFromTitle(title ?? '').replace(/\s+/g, ' ').trim();
+  if (!clean) return 'Whiteboard Consultants';
+
+  const budget = maxLength - BRAND_TITLE_SUFFIX.length;
+  if (budget < 12) return clean.slice(0, maxLength);
+
+  // Prefer the primary segment before "|" so secondary taglines don't force truncation
+  // of the main keywords (e.g. "Study in Canada from India | Top Canada Consultants").
+  if (clean.length > budget && clean.includes('|')) {
+    const primary = clean.split('|')[0].trim();
+    if (primary.length >= 12) clean = primary;
+  }
+
+  if (clean.length <= budget) {
+    return `${clean}${BRAND_TITLE_SUFFIX}`;
+  }
+
+  // Keep the start (primary keywords); truncate on a word boundary.
+  const slice = clean.slice(0, budget);
+  const lastSpace = slice.lastIndexOf(' ');
+  const lastSep = Math.max(slice.lastIndexOf(':'), slice.lastIndexOf('—'), slice.lastIndexOf('-'));
+  const breakAt = Math.max(lastSpace, lastSep);
+  const cut = breakAt > budget * 0.5 ? breakAt : budget;
+  // Drop dangling prepositions/articles left by truncation
+  const primary = slice
+    .slice(0, cut)
+    .replace(/[\s:–—-]+$/g, '')
+    .replace(/\s+\b(in|for|and|or|the|a|an|to|of|with|on|at|by|from)\b$/i, '')
+    .trim();
+  return `${primary}${BRAND_TITLE_SUFFIX}`;
+}
+
+/**
+ * Strip HTML and truncate to a SERP-safe meta description length.
+ * Fixes Ahrefs "meta description too long" and course pages that dump HTML into meta.
+ */
+export function metaDescription(
+  input: string | null | undefined,
+  maxLength = META_DESCRIPTION_MAX_LENGTH
+): string {
+  if (!input) return '';
+
+  const text = input
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#0*39;/g, "'")
+    .replace(/&apos;/gi, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  if (text.length <= maxLength) return text;
+
+  const budget = maxLength - 1; // room for ellipsis
+  const slice = text.slice(0, budget);
+  const lastSpace = slice.lastIndexOf(' ');
+  const cut = lastSpace > budget * 0.6 ? lastSpace : budget;
+  return `${slice.slice(0, cut).trimEnd()}…`;
+}
+
+/** Default share image — required for valid Open Graph (Ahrefs). */
+export const DEFAULT_OG_IMAGE = {
+  url: '/og-image-home.png',
+  width: 1200,
+  height: 630,
+  alt: 'Whiteboard Consultants',
+} as const;
+
+function resolveOgImages(
+  images: NonNullable<Metadata['openGraph']>['images'] | undefined
+): NonNullable<NonNullable<Metadata['openGraph']>['images']> {
+  if (Array.isArray(images) && images.length > 0) return images;
+  if (images && !Array.isArray(images)) return images;
+  return [DEFAULT_OG_IMAGE];
+}
+
+/**
+ * Full page metadata with SERP-safe title/description and complete Open Graph tags.
+ * Ahrefs requires og:title, og:type, og:image, and og:url for "valid Open Graph".
+ */
 export function pageMetadata({
   title,
   description,
@@ -28,18 +138,45 @@ export function pageMetadata({
   openGraphDescription?: string;
   openGraph?: Omit<NonNullable<Metadata['openGraph']>, 'url'>;
 } & Omit<Metadata, 'title' | 'description' | 'alternates' | 'openGraph'>): Metadata {
-  const ogTitle = openGraphTitle ?? openGraph?.title ?? title;
-  const ogDescription = openGraphDescription ?? openGraph?.description ?? description;
+  const safeTitle = pageTitle(title);
+  const safeDescription = metaDescription(description);
+  const ogTitleSource =
+    typeof openGraphTitle === 'string'
+      ? openGraphTitle
+      : typeof openGraph?.title === 'string'
+        ? openGraph.title
+        : title;
+  const ogTitle = pageTitle(ogTitleSource);
+  const ogDescription = metaDescription(
+    typeof openGraphDescription === 'string'
+      ? openGraphDescription
+      : typeof openGraph?.description === 'string'
+        ? openGraph.description
+        : description
+  );
+  const images = resolveOgImages(openGraph?.images);
+
   return {
     ...extra,
-    title,
-    description,
+    // absolute avoids layout templates stacking a second brand suffix
+    title: { absolute: safeTitle },
+    description: safeDescription,
     alternates: { canonical: path },
     openGraph: {
+      type: 'website',
+      locale: 'en_IN',
+      siteName: 'Whiteboard Consultants',
       ...openGraph,
-      title: typeof ogTitle === 'string' ? ogTitle : title,
+      title: ogTitle,
       description: ogDescription,
       url: path,
+      images,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: ogTitle,
+      description: ogDescription,
+      ...(typeof extra.twitter === 'object' && extra.twitter ? extra.twitter : {}),
     },
   };
 }
@@ -91,13 +228,14 @@ export function generateSEO({
   ogImage,
   structuredData
 }: SEOConfig): Metadata {
-  const fullTitle = title.includes(siteConfig.name) ? title : `${title} | ${siteConfig.name}`;
+  const fullTitle = pageTitle(title);
   const url = canonical ? `${siteConfig.url}${canonical}` : siteConfig.url;
   const image = ogImage || siteConfig.ogImage;
+  const safeDescription = metaDescription(description);
 
   return {
-    title: fullTitle,
-    description,
+    title: { absolute: fullTitle },
+    description: safeDescription,
     keywords: [...commonKeywords, ...keywords].join(', '),
     robots: {
       index: !noindex,
@@ -111,7 +249,7 @@ export function generateSEO({
     },
     openGraph: {
       title: fullTitle,
-      description,
+      description: safeDescription,
       url,
       siteName: siteConfig.name,
       images: [
@@ -128,7 +266,7 @@ export function generateSEO({
     twitter: {
       card: 'summary_large_image',
       title: fullTitle,
-      description,
+      description: safeDescription,
       images: [image],
       creator: '@whiteboardcons',
     },

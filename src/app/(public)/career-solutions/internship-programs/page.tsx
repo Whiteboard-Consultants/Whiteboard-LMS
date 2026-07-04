@@ -527,15 +527,10 @@ export default function InternshipProgramsPage() {
               Join our next cohort of emerging professionals and gain real-world experience.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/simple-register">
+              <Link href="/contact">
                 <Button size="lg" variant="secondary">
                   Apply Now
                   <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-              <Link href="/contact">
-                <Button size="lg" className="border-2 border-white bg-transparent text-white hover:bg-white/10">
-                  Contact Us
                 </Button>
               </Link>
             </div>

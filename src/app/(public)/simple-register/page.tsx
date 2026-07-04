@@ -2,11 +2,12 @@ import type { Metadata } from 'next';
 import { SimpleRegisterForm } from "@/components/simple-register-form";
 import { pageMetadata } from '@/lib/seo';
 
+// Internal activation flow for pre-provisioned accounts — not a public marketing page
 export const metadata: Metadata = pageMetadata({
-  title: 'Register with Code | Whiteboard Consultants',
-  description:
-    'Activate your account using your registration code. Join Whiteboard Consultants for expert education guidance and test preparation.',
+  title: 'Activate Account',
+  description: 'Activate your Whiteboard Consultants account.',
   path: '/simple-register',
+  robots: { index: false, follow: false },
 });
 
 export default function SimpleRegisterPage() {

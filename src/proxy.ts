@@ -4,6 +4,7 @@ import {
   APPLICATION_BASE_URL,
   APPLICATION_PATHS,
   getRequestHost,
+  isApexMainHost,
   isApplicationHost,
   isLocalMainDevHost,
   localMainSiteUrl,
@@ -68,15 +69,23 @@ function redirectToApplication(
 
 export function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
-
-  if (shouldSkipProxy(pathname)) {
-    return NextResponse.next();
-  }
-
   const host = getRequestHost(request);
   const onApplicationHost = isApplicationHost(host);
   const onLocalMainDev =
     process.env.NODE_ENV === 'development' && isLocalMainDevHost(host);
+
+  // Collapse apex → www so search engines only index one host (Ahrefs duplicate pages).
+  if (!onApplicationHost && !onLocalMainDev && isApexMainHost(host)) {
+    const wwwUrl = new URL(
+      `${request.nextUrl.pathname}${request.nextUrl.search}`,
+      MAIN_SITE_URL
+    );
+    return NextResponse.redirect(wwwUrl, 301);
+  }
+
+  if (shouldSkipProxy(pathname)) {
+    return NextResponse.next();
+  }
 
   if (onApplicationHost) {
     if (pathname === '/') {
