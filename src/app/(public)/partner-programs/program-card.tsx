@@ -14,11 +14,55 @@ import {
   iconBgClasses,
   providerClasses,
 } from './provider-colors';
-import type { PartnerProgram } from './types';
+import type { DegreeType, PartnerProgram } from './types';
 
 function getIcon(program: PartnerProgram, index: number): LucideIcon {
   if (!program.isFree) return Briefcase;
   return index % 2 === 0 ? BarChart : Book;
+}
+
+const degreeBadgeStyles: Record<DegreeType, string> = {
+  masters:
+    'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-200',
+  'pg-diploma':
+    'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-200',
+  doctorate:
+    'bg-violet-100 text-violet-800 dark:bg-violet-900/50 dark:text-violet-200',
+  bachelors:
+    'bg-sky-100 text-sky-800 dark:bg-sky-900/50 dark:text-sky-200',
+};
+
+const degreeBadgeLabels: Record<DegreeType, string> = {
+  masters: "MASTER'S",
+  'pg-diploma': 'PG DIPLOMA',
+  doctorate: 'DOCTORATE',
+  bachelors: "BACHELOR'S",
+};
+
+function getProgramBadge(program: PartnerProgram): {
+  label: string;
+  className: string;
+} {
+  if (program.isFree) {
+    return {
+      label: 'FREE',
+      className:
+        'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300',
+    };
+  }
+
+  if (program.degreeType) {
+    return {
+      label: degreeBadgeLabels[program.degreeType],
+      className: degreeBadgeStyles[program.degreeType],
+    };
+  }
+
+  return {
+    label: 'CERTIFICATE',
+    className:
+      'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200',
+  };
 }
 
 interface ProgramCardProps {
@@ -31,6 +75,7 @@ export function ProgramCard({ program, index = 0 }: ProgramCardProps) {
   const providerColor = getProviderColor(program.provider);
   const iconBg = iconBgClasses[providerColor];
   const providerStyle = providerClasses[providerColor];
+  const badge = getProgramBadge(program);
 
   return (
     <Card className="group bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border-white/60 dark:border-slate-700/60 hover:border-white/80 dark:hover:border-slate-600/80 hover:bg-white/50 dark:hover:bg-slate-900/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 h-full flex flex-col">
@@ -44,15 +89,14 @@ export function ProgramCard({ program, index = 0 }: ProgramCardProps) {
           >
             <Icon className="w-6 h-6" />
           </div>
-          {program.isFree ? (
-            <span className="text-xs bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300 px-2 py-1 rounded-full font-semibold">
-              FREE
-            </span>
-          ) : (
-            <span className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-200 px-2 py-1 rounded-full font-semibold">
-              DEGREE
-            </span>
-          )}
+          <span
+            className={cn(
+              'text-xs px-2 py-1 rounded-full font-semibold',
+              badge.className
+            )}
+          >
+            {badge.label}
+          </span>
         </div>
         <CardTitle className="text-xl mb-2">{program.title}</CardTitle>
         <CardDescription className="text-base leading-relaxed">

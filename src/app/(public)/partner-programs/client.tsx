@@ -14,12 +14,16 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ProgramGrid } from './program-grid';
 import { ProgramMegaMenu } from './program-mega-menu';
+import { degreeChipClass } from './degree-chips';
 import {
   categoryMeta,
   degreeTypeLabel,
+  degreeTypeOptions,
   filterPrograms,
+  getAvailableDegreeTypes,
   parseCategoryParam,
   parseDegreeTypeParam,
+  supportsDegreeTypeFilter,
   type ProgramFilter,
 } from './programs-index';
 import type { DegreeType } from './types';
@@ -36,28 +40,60 @@ export default function PartnerProgramsClient() {
 
   useEffect(() => {
     setActiveCategory(categoryFromUrl);
-    setActiveDegreeType(degreeTypeFromUrl);
+    if (!supportsDegreeTypeFilter(categoryFromUrl)) {
+      setActiveDegreeType(null);
+      return;
+    }
+    const available = getAvailableDegreeTypes(categoryFromUrl);
+    setActiveDegreeType(
+      degreeTypeFromUrl && available.includes(degreeTypeFromUrl)
+        ? degreeTypeFromUrl
+        : null
+    );
   }, [categoryFromUrl, degreeTypeFromUrl]);
+
+  const availableDegreeTypes = useMemo(
+    () => getAvailableDegreeTypes(activeCategory),
+    [activeCategory]
+  );
 
   const filteredPrograms = useMemo(
     () =>
       filterPrograms(activeCategory, {
-        degreeType: activeCategory === 'degree' ? activeDegreeType : null,
+        degreeType: supportsDegreeTypeFilter(activeCategory)
+          ? activeDegreeType
+          : null,
       }),
     [activeCategory, activeDegreeType]
   );
 
   const { title, description } = categoryMeta[activeCategory];
-  const gridTitle =
-    activeCategory === 'degree' && activeDegreeType
-      ? `${title} · ${degreeTypeLabel(activeDegreeType)}`
-      : title;
+  const gridTitle = activeDegreeType
+    ? `${title} · ${degreeTypeLabel(activeDegreeType)}`
+    : title;
 
   const selectCategory = useCallback(
     (category: ProgramFilter, degreeType?: DegreeType | null) => {
       setActiveCategory(category);
-      const nextDegreeType =
-        category === 'degree' ? (degreeType ?? null) : null;
+
+      let nextDegreeType: DegreeType | null = null;
+      if (supportsDegreeTypeFilter(category)) {
+        if (degreeType !== undefined) {
+          nextDegreeType = degreeType;
+        } else {
+          const available = getAvailableDegreeTypes(category);
+          nextDegreeType =
+            activeDegreeType && available.includes(activeDegreeType)
+              ? activeDegreeType
+              : null;
+        }
+
+        const available = getAvailableDegreeTypes(category);
+        if (nextDegreeType && !available.includes(nextDegreeType)) {
+          nextDegreeType = null;
+        }
+      }
+
       setActiveDegreeType(nextDegreeType);
 
       const params = new URLSearchParams(searchParams.toString());
@@ -82,7 +118,14 @@ export default function PartnerProgramsClient() {
         .getElementById('programs-grid')
         ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     },
-    [router, searchParams]
+    [router, searchParams, activeDegreeType]
+  );
+
+  const selectDegreeType = useCallback(
+    (degreeType: DegreeType | null) => {
+      selectCategory(activeCategory, degreeType);
+    },
+    [selectCategory, activeCategory]
   );
 
   return (
@@ -159,6 +202,35 @@ export default function PartnerProgramsClient() {
             <p className="text-muted-foreground max-w-3xl mx-auto">
               {description}
             </p>
+
+            {availableDegreeTypes.length > 1 && (
+              <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
+                <span className="text-sm text-muted-foreground mr-1">
+                  Degree level:
+                </span>
+                <button
+                  type="button"
+                  className={degreeChipClass('all', activeDegreeType === null)}
+                  onClick={() => selectDegreeType(null)}
+                >
+                  All
+                </button>
+                {availableDegreeTypes.map((degreeType) => (
+                  <button
+                    key={degreeType}
+                    type="button"
+                    className={degreeChipClass(
+                      degreeType,
+                      activeDegreeType === degreeType
+                    )}
+                    onClick={() => selectDegreeType(degreeType)}
+                  >
+                    {degreeTypeOptions.find((o) => o.value === degreeType)
+                      ?.label ?? degreeTypeLabel(degreeType)}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <ProgramGrid

@@ -3,6 +3,7 @@ import { computerSciencePrograms } from './computer-science-programs-data';
 import { cybersecurityPrograms } from './cybersecurity-programs-data';
 import { dataSciencePrograms } from './data-science-programs-data';
 import { financePrograms } from './finance-programs-data';
+import { marketingPrograms } from './marketing-programs-data';
 import { webDevelopmentPrograms } from './web-development-programs-data';
 import { freePrograms } from './free-programs-data';
 import { managementPrograms } from './management-programs-data';
@@ -27,6 +28,7 @@ export const allPartnerPrograms: PartnerProgram[] = [
   ...artificialIntelligencePrograms,
   ...cybersecurityPrograms,
   ...webDevelopmentPrograms,
+  ...marketingPrograms,
 ];
 
 export const PREVIEW_LIMIT = 4;
@@ -114,6 +116,13 @@ interface FilterOptions {
   degreeType?: DegreeType | null;
 }
 
+const DEGREE_TYPE_FILTER_EXCLUDED: ProgramFilter[] = ['free', 'certificate'];
+
+/** Subject categories and Degrees support Master's / Bachelor's / etc. chips. */
+export function supportsDegreeTypeFilter(filter: ProgramFilter): boolean {
+  return !DEGREE_TYPE_FILTER_EXCLUDED.includes(filter);
+}
+
 function applyDegreeTypeFilter(
   programs: PartnerProgram[],
   degreeType?: DegreeType | null
@@ -139,7 +148,6 @@ export function filterPrograms(
       programs = allPartnerPrograms.filter(
         (program) => !program.isFree && program.certificate === 'Degree'
       );
-      programs = applyDegreeTypeFilter(programs, options?.degreeType);
       break;
     case 'certificate':
       programs = allPartnerPrograms.filter(
@@ -155,7 +163,26 @@ export function filterPrograms(
       );
   }
 
+  if (supportsDegreeTypeFilter(filter)) {
+    programs = applyDegreeTypeFilter(programs, options?.degreeType);
+  }
+
   return sortProgramsByProvider(programs);
+}
+
+/** Degree levels present in a category (before applying a degree-type chip). */
+export function getAvailableDegreeTypes(filter: ProgramFilter): DegreeType[] {
+  if (!supportsDegreeTypeFilter(filter)) return [];
+
+  const programs = filterPrograms(filter);
+  const present = new Set<DegreeType>();
+  for (const program of programs) {
+    if (program.degreeType) present.add(program.degreeType);
+  }
+
+  return degreeTypeOptions
+    .map((option) => option.value)
+    .filter((value) => present.has(value));
 }
 
 export function getProgramCount(

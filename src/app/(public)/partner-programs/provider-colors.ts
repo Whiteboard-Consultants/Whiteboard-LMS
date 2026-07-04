@@ -101,16 +101,25 @@ const PROVIDER_BRAND_COLORS: Record<string, ProviderColorKey> = {
   'Sharda University': 'blue',
   'KL University': 'teal',
   'Alliance University': 'violet',
+  'Alliance University (Bennett University Online)': 'violet',
+
   'Manav Rachna University': 'green',
   'Parul University': 'green',
   'Andhra University': 'blue',
   'SRM Univeristy': 'rose',
+  'SRM University': 'rose',
+  'Symbiosis School for Online and Digital Learning (SSODL)': 'indigo',
+
   'Sastra University': 'orange',
   'DY Patil University, Pune': 'cyan',
   'DY Patil University Navi Mumbai': 'cyan',
   'O.P. Jindal Global University': 'amber',
+  'O.P. Jindal Global University (JGU)': 'amber',
   'IMT Ghaziabad': 'purple',
   'K. J. Somaiya Institute of Management': 'rose',
+  NMIMS: 'purple',
+  'Vignan University': 'sky',
+
 
   // Tech & corporate partners
   'Microsoft': 'blue',

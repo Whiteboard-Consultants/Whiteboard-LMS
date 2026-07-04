@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   ArrowRight,
@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { degreeChipClass } from './degree-chips';
 import {
   getProviderColor,
   iconBgClasses,
@@ -18,10 +19,13 @@ import {
 import {
   categoryMeta,
   courseSubjects,
+  degreeTypeLabel,
   degreeTypeOptions,
+  getAvailableDegreeTypes,
   getPreviewPrograms,
   getProgramCount,
   programGoals,
+  supportsDegreeTypeFilter,
   type ProgramFilter,
 } from './programs-index';
 import type { DegreeType, MenuNavItem } from './types';
@@ -53,15 +57,6 @@ function sidebarChevronClass(isActive: boolean) {
   );
 }
 
-function degreeChipClass(isSelected: boolean) {
-  return cn(
-    'px-4 py-2 rounded-lg text-sm font-medium border transition-colors',
-    isSelected
-      ? 'bg-accent border-primary text-foreground font-semibold dark:bg-accent dark:border-border dark:text-accent-foreground'
-      : 'bg-background border-border text-foreground hover:bg-muted hover:border-primary/30 dark:bg-card dark:border-border dark:text-card-foreground dark:hover:bg-muted'
-  );
-}
-
 export function ProgramMegaMenu({
   activeCategory,
   activeDegreeType,
@@ -75,25 +70,48 @@ export function ProgramMegaMenu({
 
   const previewFilter = hoveredItem.filter;
   const isDegreePanel = previewFilter === 'degree';
+  const supportsDegreeChips = supportsDegreeTypeFilter(previewFilter);
+  const availablePreviewDegreeTypes = useMemo(() => {
+    if (!supportsDegreeChips) return [];
+    if (isDegreePanel) {
+      return degreeTypeOptions.map((option) => option.value);
+    }
+    return getAvailableDegreeTypes(previewFilter);
+  }, [previewFilter, supportsDegreeChips, isDegreePanel]);
+  const showDegreeChips =
+    supportsDegreeChips &&
+    (isDegreePanel || availablePreviewDegreeTypes.length > 1);
+
   const meta = categoryMeta[previewFilter];
   const previewPrograms = getPreviewPrograms(previewFilter, {
-    degreeType: isDegreePanel ? previewDegreeType : null,
+    degreeType: supportsDegreeChips ? previewDegreeType : null,
   });
   const totalCount = getProgramCount(previewFilter, {
-    degreeType: isDegreePanel ? previewDegreeType : null,
+    degreeType: supportsDegreeChips ? previewDegreeType : null,
   });
 
   useEffect(() => {
-    if (!isDegreePanel) {
+    if (!supportsDegreeChips) {
+      setPreviewDegreeType(null);
+      return;
+    }
+    if (
+      previewDegreeType &&
+      !availablePreviewDegreeTypes.includes(previewDegreeType)
+    ) {
       setPreviewDegreeType(null);
     }
-  }, [isDegreePanel]);
+  }, [supportsDegreeChips, availablePreviewDegreeTypes, previewDegreeType]);
 
   const handleExplore = useCallback(
     (filter: ProgramFilter, degreeType?: DegreeType | null) => {
       onSelectCategory(
         filter,
-        filter === 'degree' ? (degreeType ?? previewDegreeType) : null
+        supportsDegreeTypeFilter(filter)
+          ? degreeType !== undefined
+            ? degreeType
+            : previewDegreeType
+          : null
       );
       setIsOpen(false);
     },
@@ -253,22 +271,25 @@ export function ProgramMegaMenu({
                       {meta.description}
                     </p>
 
-                    {isDegreePanel && (
+                    {showDegreeChips && (
                       <div className="flex flex-wrap gap-2 mt-4">
-                        {degreeTypeOptions.map((option) => (
+                        {availablePreviewDegreeTypes.map((degreeType) => (
                           <button
-                            key={option.value}
+                            key={degreeType}
                             type="button"
                             className={degreeChipClass(
-                              previewDegreeType === option.value
+                              degreeType,
+                              previewDegreeType === degreeType
                             )}
-                            onClick={() => toggleDegreeType(option.value)}
+                            onClick={() => toggleDegreeType(degreeType)}
                           >
-                            {option.label}
+                            {degreeTypeOptions.find((o) => o.value === degreeType)
+                              ?.label ?? degreeTypeLabel(degreeType)}
                           </button>
                         ))}
                       </div>
                     )}
+
 
                     {isDegreePanel && (
                       <Button
