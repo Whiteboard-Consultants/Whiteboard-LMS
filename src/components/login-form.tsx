@@ -132,12 +132,18 @@ export function LoginForm({ router }: LoginFormProps) {
         description: "Welcome back! Redirecting...",
       });
 
-      // Check for returnUrl from query params (for purchase redirects)
-      const returnUrl = searchParams.get('returnUrl');
-      
-      let redirectPath = returnUrl 
+      // Relative-only returnUrl (e.g. /student/test-cart after guest enroll)
+      const rawReturnUrl = searchParams.get('returnUrl');
+      const returnUrl =
+        rawReturnUrl &&
+        rawReturnUrl.startsWith('/') &&
+        !rawReturnUrl.startsWith('//')
+          ? rawReturnUrl
+          : null;
+
+      let redirectPath = returnUrl
         ? returnUrl
-        : role === 'admin' ? '/admin/dashboard' 
+        : role === 'admin' ? '/admin/dashboard'
         : role === 'instructor' ? '/instructor/dashboard'
         : '/student/dashboard';
       
@@ -248,7 +254,14 @@ export function LoginForm({ router }: LoginFormProps) {
        <CardFooter className="flex-col gap-4">
         <div className="text-center text-sm">
           Don&apos;t have an account?{" "}
-          <Link href="/register" className="underline">
+          <Link
+            href={
+              searchParams.get('returnUrl')
+                ? `/register?returnUrl=${encodeURIComponent(searchParams.get('returnUrl')!)}`
+                : '/register'
+            }
+            className="underline"
+          >
             Sign up
           </Link>
         </div>

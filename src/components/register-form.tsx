@@ -5,7 +5,7 @@ import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -59,6 +59,7 @@ const GoogleIcon = () => (
 
 export function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const { executeReCaptcha, isLoaded: recaptchaLoaded } = useReCaptcha();
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -66,6 +67,23 @@ export function RegisterForm() {
   const [message, setMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const isSubmittingRef = useRef(false);
+
+  const rawReturnUrl = searchParams.get('returnUrl');
+  const returnUrl =
+    rawReturnUrl &&
+    rawReturnUrl.startsWith('/') &&
+    !rawReturnUrl.startsWith('//')
+      ? rawReturnUrl
+      : null;
+  const loginHref = returnUrl
+    ? `/login?message=registration_success&returnUrl=${encodeURIComponent(returnUrl)}`
+    : '/login?message=registration_success';
+  const instructorLoginHref = returnUrl
+    ? `/login?message=instructor_pending&returnUrl=${encodeURIComponent(returnUrl)}`
+    : '/login?message=instructor_pending';
+  const loginLinkHref = returnUrl
+    ? `/login?returnUrl=${encodeURIComponent(returnUrl)}`
+    : '/login';
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -161,11 +179,11 @@ export function RegisterForm() {
       });
 
       form.reset();
-      // Redirect to login with appropriate message
+      // Redirect to login; keep returnUrl so cart checkout can continue after sign-in
       if (isInstructor) {
-        router.push("/login?message=instructor_pending");
+        router.push(instructorLoginHref);
       } else {
-        router.push("/login?message=registration_success");
+        router.push(loginHref);
       }
       
     } catch (error: unknown) {
@@ -329,7 +347,7 @@ export function RegisterForm() {
       <CardFooter className="flex-col gap-4">
         <div className="text-center text-sm w-full">
           Already have an account?{" "}
-          <Link href="/login" className="underline">
+          <Link href={loginLinkHref} className="underline">
             Log in
           </Link>
         </div>

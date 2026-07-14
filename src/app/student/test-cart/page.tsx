@@ -8,7 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
-import { useTestCart } from '@/hooks/use-test-cart';
+import { useTestCart, testCartItemKey } from '@/hooks/use-test-cart';
+import type { TestCartItem } from '@/hooks/use-test-cart';
 import { purchaseIndividualTest, purchaseSeriesPackage } from '@/app/instructor/series-purchase-actions';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -86,8 +87,8 @@ export default function TestCartPage() {
     }
   };
 
-  const handleRemoveItem = (itemId: string) => {
-    removeFromTestCart(itemId);
+  const handleRemoveItem = (item: TestCartItem) => {
+    removeFromTestCart(item);
     toast({ title: 'Removed from cart' });
   };
 
@@ -335,7 +336,7 @@ export default function TestCartPage() {
             <h2 className="text-2xl font-semibold mb-4">Your Tests ({testCart.length})</h2>
             <div className="space-y-4">
               {testCart.map((item) => (
-                <Card key={item.id} className="overflow-hidden">
+                <Card key={testCartItemKey(item)} className="overflow-hidden">
                   <CardContent className="p-4">
                     <div className="flex items-start gap-4">
                       {item.image && (
@@ -360,7 +361,7 @@ export default function TestCartPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleRemoveItem(item.id)}
+                        onClick={() => handleRemoveItem(item)}
                         className="text-orange-500 hover:text-orange-600 dark:text-orange-400 dark:hover:text-orange-300 hover:bg-orange-50 dark:hover:bg-orange-950/30"
                       >
                         <X className="h-4 w-4" />

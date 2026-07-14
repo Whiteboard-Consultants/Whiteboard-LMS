@@ -150,12 +150,17 @@ const nextConfig: NextConfig = {
       }
     ],
   },
-  // Fix for broken UOW India GIFT City redirect
   async redirects() {
     return [
       {
         source: '/uow-india-gift-city',
         destination: '/admissions/uow-india',
+        permanent: true,
+      },
+      // Ahrefs 404: topic cards linked short seriesTitle slug instead of full series title
+      {
+        source: '/mock-tests/campus-recruitment',
+        destination: '/mock-tests/campus-recruitment-full-mock-series',
         permanent: true,
       },
     ];

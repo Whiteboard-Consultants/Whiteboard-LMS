@@ -203,9 +203,11 @@ export function TestAccessGate({ testId }: TestAccessGateProps) {
 
   // User not authenticated and test is free
   if (!user) {
+    const loginHref = `/login?returnUrl=${encodeURIComponent(`/test/${testId}`)}`;
+    const registerHref = `/register?returnUrl=${encodeURIComponent(`/test/${testId}`)}`;
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-2xl mx-auto space-y-4">
           <Link 
             href="/mock-tests"
             className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 mb-6 transition-colors"
@@ -214,12 +216,26 @@ export function TestAccessGate({ testId }: TestAccessGateProps) {
             Back to Mock Tests
           </Link>
           
-          <Alert variant="destructive">
+          <Alert>
             <Lock className="h-4 w-4" />
             <AlertDescription>
-              Please log in to access this test.
+              Please log in or create an account to take this free test.
             </AlertDescription>
           </Alert>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href={loginHref}
+              className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            >
+              Log in
+            </Link>
+            <Link
+              href={registerHref}
+              className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent"
+            >
+              Create account
+            </Link>
+          </div>
         </div>
       </div>
     );

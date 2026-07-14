@@ -6,7 +6,6 @@ import {
     getCachedMockTestFilterOptions,
     getPublishedMockTests,
 } from '@/lib/public-page-data';
-import type { Test } from '@/types';
 
 export const revalidate = 1800; // Cache for 30 minutes
 
@@ -31,47 +30,16 @@ type MockTestsPageProps = {
     }>;
 };
 
-function filterMockTests(
-    tests: Test[],
-    filters: {
-        seriesId?: string;
-        topic?: string;
-        difficultyLevel?: string;
-        minPrice?: number;
-        maxPrice?: number;
-        instructorId?: string;
-    }
-): Test[] {
-    return tests.filter((test) => {
-        if (filters.seriesId && test.seriesId !== filters.seriesId) return false;
-        if (filters.topic && test.topic !== filters.topic) return false;
-        if (filters.difficultyLevel && test.difficultyLevel !== filters.difficultyLevel) return false;
-        if (filters.minPrice !== undefined && (test.price ?? 0) < filters.minPrice) return false;
-        if (filters.maxPrice !== undefined && (test.price ?? 0) > filters.maxPrice) return false;
-        if (filters.instructorId && test.instructorId !== filters.instructorId) return false;
-        return true;
-    });
-}
-
 export default async function MockTestsPage({ searchParams }: MockTestsPageProps) {
     const params = await searchParams;
-
-    const filters = {
-        seriesId: params?.series,
-        topic: params?.topic,
-        difficultyLevel: params?.difficulty,
-        minPrice: params?.minPrice ? parseInt(params.minPrice, 10) : undefined,
-        maxPrice: params?.maxPrice ? parseInt(params.maxPrice, 10) : undefined,
-        instructorId: params?.instructor,
-    };
 
     const [testsResult, filterOptionsResult] = await Promise.all([
         getPublishedMockTests(),
         getCachedMockTestFilterOptions(),
     ]);
 
-    const allTests = testsResult.success ? testsResult.data || [] : [];
-    const tests = filterMockTests(allTests, filters);
+    // Pass the full published catalog; topic filtering happens in the client UX.
+    const tests = testsResult.success ? testsResult.data || [] : [];
     const filterOptions = filterOptionsResult.success ? filterOptionsResult.data : null;
 
     const breadcrumbLd = {
@@ -103,14 +71,7 @@ export default async function MockTestsPage({ searchParams }: MockTestsPageProps
                 <MockTestPageClient 
                     initialTests={tests} 
                     filterOptions={filterOptions}
-                    initialFilters={{
-                        series: params?.series,
-                        topic: params?.topic,
-                        difficulty: params?.difficulty,
-                        minPrice: params?.minPrice ? parseInt(params.minPrice) : undefined,
-                        maxPrice: params?.maxPrice ? parseInt(params.maxPrice) : undefined,
-                        instructor: params?.instructor
-                    }}
+                    initialTopic={params?.topic}
                 />
             </Suspense>
         </>

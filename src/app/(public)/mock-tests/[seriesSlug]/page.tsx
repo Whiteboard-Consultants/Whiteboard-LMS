@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { generateSlug } from '@/lib/slug-utils';
 import { SeriesDetailClient } from '@/components/series-detail-client';
 import { pageMetadata } from '@/lib/seo';
@@ -8,6 +8,7 @@ import {
     getMockTestsForSeries,
     getPublishedTestSeries,
 } from '@/lib/public-page-data';
+import type { TestSeries } from '@/types';
 
 export const revalidate = 1800;
 
@@ -16,6 +17,24 @@ type SeriesPageProps = {
         seriesSlug: string;
     }>;
 };
+
+/** Exact slug match, then unique prefix match (e.g. campus-recruitment → full series). */
+function findSeriesBySlug(
+    seriesList: TestSeries[],
+    decodedSlug: string
+): { series: TestSeries; isExact: boolean } | null {
+    const exact = seriesList.find((s) => generateSlug(s.title) === decodedSlug);
+    if (exact) return { series: exact, isExact: true };
+
+    const prefixMatches = seriesList.filter((s) =>
+        generateSlug(s.title).startsWith(`${decodedSlug}-`)
+    );
+    if (prefixMatches.length === 1) {
+        return { series: prefixMatches[0], isExact: false };
+    }
+
+    return null;
+}
 
 export async function generateStaticParams() {
     const seriesResult = await getPublishedTestSeries();
@@ -41,11 +60,9 @@ export async function generateMetadata(
         });
     }
 
-    const matchingSeries = seriesResult.data.find(
-        (s) => generateSlug(s.title) === decodedSlug
-    );
+    const match = findSeriesBySlug(seriesResult.data, decodedSlug);
 
-    if (!matchingSeries) {
+    if (!match) {
         return pageMetadata({
             title: 'Series Not Found',
             description: 'The test series you are looking for does not exist.',
@@ -53,13 +70,14 @@ export async function generateMetadata(
         });
     }
 
-    const path = `/mock-tests/${encodeURIComponent(decodedSlug)}`;
+    const canonicalSlug = generateSlug(match.series.title);
+    const path = `/mock-tests/${encodeURIComponent(canonicalSlug)}`;
     return pageMetadata({
-        title: matchingSeries.title,
-        description: matchingSeries.description || `Practice with ${matchingSeries.title} mock tests`,
+        title: match.series.title,
+        description: match.series.description || `Practice with ${match.series.title} mock tests`,
         path,
-        openGraphTitle: matchingSeries.title,
-        openGraphDescription: matchingSeries.description,
+        openGraphTitle: match.series.title,
+        openGraphDescription: match.series.description,
     });
 }
 
@@ -72,12 +90,18 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
         notFound();
     }
 
-    const matchingSeries = seriesResult.data.find(
-        (s) => generateSlug(s.title) === decodedSlug
-    );
+    const match = findSeriesBySlug(seriesResult.data, decodedSlug);
 
-    if (!matchingSeries) {
+    if (!match) {
         notFound();
+    }
+
+    const matchingSeries = match.series;
+    const canonicalSlug = generateSlug(matchingSeries.title);
+
+    // Short/legacy slugs permanently redirect to the canonical series URL
+    if (!match.isExact) {
+        permanentRedirect(`/mock-tests/${encodeURIComponent(canonicalSlug)}`);
     }
 
     const [testsResult, filterOptionsResult] = await Promise.all([
@@ -108,7 +132,7 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
                 "@type": "ListItem",
                 "position": 3,
                 "name": matchingSeries.title,
-                "item": `https://www.whiteboardconsultant.com/mock-tests/${encodeURIComponent(decodedSlug)}`
+                "item": `https://www.whiteboardconsultant.com/mock-tests/${encodeURIComponent(canonicalSlug)}`
             }
         ]
     };

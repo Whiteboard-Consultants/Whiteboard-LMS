@@ -108,54 +108,49 @@ export function SeriesPurchaseCard({
     setCouponError('');
   };
 
+  const buildCartItem = () => {
+    if (purchaseType === 'series') {
+      return {
+        id: series.id,
+        title: series.title,
+        price: discountedSeriesPrice,
+        type: 'series' as const,
+      };
+    }
+    return {
+      id: (isTestPurchase ? testId : series.id) as string,
+      title: series.title,
+      price: individualPrice,
+      type: 'individual' as const,
+      seriesId: isTestPurchase ? series.id : undefined,
+    };
+  };
+
+  /** Guests: stash selection, then login → test cart (Razorpay checkout). */
+  const redirectGuestToLoginWithCart = () => {
+    try {
+      localStorage.setItem('pendingCartItem', JSON.stringify(buildCartItem()));
+      localStorage.setItem('pendingCartAction', 'add');
+    } catch (error) {
+      console.error('Failed to save pending cart item:', error);
+    }
+    router.push(`/login?returnUrl=${encodeURIComponent('/student/test-cart')}`);
+  };
+
   const handleAddToCart = async () => {
-    // First check if user is authenticated
     if (!userData?.id) {
-      // Save the item to localStorage before redirecting
-      // This way, after login, we can add it to cart
-      try {
-        const cartItem = {
-          id: isTestPurchase ? testId : series.id,
-          title: series.title,
-          price: purchaseType === 'individual' ? individualPrice : discountedSeriesPrice,
-          type: purchaseType as 'individual' | 'series',
-          seriesId: isTestPurchase ? series.id : undefined
-        };
-        
-        // Save to localStorage so it persists across login redirect
-        localStorage.setItem('pendingCartItem', JSON.stringify(cartItem));
-        localStorage.setItem('pendingCartAction', 'add');
-        
-        console.log('💾 Saved pending cart item to localStorage, redirecting to login');
-      } catch (error) {
-        console.error('Failed to save pending cart item:', error);
-      }
-      
-      // Redirect to login - user will go to dashboard, then we'll add the item from localStorage
-      router.push('/login');
+      redirectGuestToLoginWithCart();
       return;
     }
 
     try {
-      // For test purchases: id is testId, seriesId is series.id
-      // For series purchases: id is series.id, seriesId is undefined
-      const cartItem = {
-        id: isTestPurchase ? testId : series.id,
-        title: series.title,
-        price: purchaseType === 'individual' ? individualPrice : discountedSeriesPrice,
-        type: purchaseType as 'individual' | 'series',
-        seriesId: isTestPurchase ? series.id : undefined
-      };
-
-      await addToTestCart(cartItem);
-      
-      // Show success message (even if item was already in cart, it resolves without error)
+      await addToTestCart(buildCartItem());
       toast({
         title: 'Added to Cart',
         description: `${series.title} added to your test cart.`,
       });
+      router.push('/student/test-cart');
     } catch (error) {
-      // Only show error if it's a real error (shouldn't happen with new code)
       const message = error instanceof Error ? error.message : 'Failed to add to cart';
       console.error('Add to cart error:', message);
       toast({
@@ -168,13 +163,11 @@ export function SeriesPurchaseCard({
 
   const handlePurchase = async () => {
     if (!userData?.id) {
-      // Redirect to login WITHOUT returnUrl - user will go to dashboard instead
-      // This prevents the repetitive "return to purchase page" loop
-      router.push('/login');
+      // Same path as Add to Cart: item lands in cart after login for Razorpay checkout
+      redirectGuestToLoginWithCart();
       return;
     }
 
-    // Show payment checkout
     setShowPayment(true);
   };
 
@@ -424,7 +417,9 @@ export function SeriesPurchaseCard({
         </div>
 
         <p className="text-xs text-slate-600 dark:text-slate-400 text-center">
-          You'll be redirected to checkout after clicking
+          {userData?.id
+            ? 'Complete payment to unlock access instantly'
+            : 'Sign in or create an account — this item will be waiting in your cart to checkout'}
         </p>
       </CardContent>
     </Card>

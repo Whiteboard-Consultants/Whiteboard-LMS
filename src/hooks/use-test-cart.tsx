@@ -5,7 +5,10 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "./use-auth";
 
 export interface TestCartItem {
+  /** Product id: test id for individual, series id for series packages */
   id: string;
+  /** DB row id — preferred for React keys / precise deletes */
+  cartRowId?: string;
   title: string;
   price: number;
   type: 'individual' | 'series';
@@ -14,10 +17,27 @@ export interface TestCartItem {
   addedAt?: string;
 }
 
+/** Stable unique key for list rendering (same test can appear as both types). */
+export function testCartItemKey(item: TestCartItem): string {
+  return item.cartRowId || `${item.id}:${item.type}`;
+}
+
+function dedupeCartItems(items: TestCartItem[]): TestCartItem[] {
+  const seen = new Set<string>();
+  const result: TestCartItem[] = [];
+  for (const item of items) {
+    const key = `${item.id}:${item.type}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    result.push(item);
+  }
+  return result;
+}
+
 interface TestCartContextType {
   testCart: TestCartItem[];
   addToTestCart: (item: TestCartItem) => Promise<void>;
-  removeFromTestCart: (itemId: string) => Promise<void>;
+  removeFromTestCart: (item: TestCartItem | string) => Promise<void>;
   clearTestCart: () => Promise<void>;
   loading: boolean;
 }
@@ -55,7 +75,6 @@ export function TestCartProvider({ children }: { children: ReactNode }) {
   // Process pending cart items after login (from unauthenticated add-to-cart)
   useEffect(() => {
     const processPendingCartItem = async () => {
-      // Only run if user just logged in
       if (!user?.id) return;
 
       try {
@@ -63,10 +82,12 @@ export function TestCartProvider({ children }: { children: ReactNode }) {
         const pendingAction = localStorage.getItem('pendingCartAction');
 
         if (pendingItem && pendingAction === 'add') {
-          console.log('🔄 [TestCartProvider] Processing pending cart item after login');
           const cartItem = JSON.parse(pendingItem) as TestCartItem;
 
-          // Add to database
+          // Clear first so React Strict Mode / remounts don't double-insert
+          localStorage.removeItem('pendingCartItem');
+          localStorage.removeItem('pendingCartAction');
+
           const { error } = await supabase
             .from('test_carts')
             .insert({
@@ -88,18 +109,10 @@ export function TestCartProvider({ children }: { children: ReactNode }) {
             }
           }
 
-          // Clear localStorage
-          localStorage.removeItem('pendingCartItem');
-          localStorage.removeItem('pendingCartAction');
-          
-          // Reload cart to show the newly added item
           await loadTestCart();
-          
-          console.log('✅ Pending cart item processed successfully');
         }
       } catch (error) {
         console.error('Error processing pending cart item:', error);
-        // Clear localStorage on error
         localStorage.removeItem('pendingCartItem');
         localStorage.removeItem('pendingCartAction');
       }
@@ -121,34 +134,41 @@ export function TestCartProvider({ children }: { children: ReactNode }) {
 
         if (error) {
           console.warn("Test cart database unavailable, using local storage:", error.message);
-          setTestCart(getGuestTestCart());
+          setTestCart(dedupeCartItems(getGuestTestCart()));
         } else {
           const cartItems = cartData?.map(item => ({
             id: item.test_id,
+            cartRowId: item.id,
             title: item.test_title,
             price: item.test_price,
             type: item.test_type as 'individual' | 'series',
-            seriesId: item.series_id,
-            image: item.test_image,
+            seriesId: item.series_id || undefined,
+            image: item.test_image || undefined,
             addedAt: item.added_at
           })) || [];
-          setTestCart(cartItems);
+          setTestCart(dedupeCartItems(cartItems));
         }
       } catch (err) {
         console.warn("Test cart functionality disabled - using local storage:", err);
-        setTestCart(getGuestTestCart());
+        setTestCart(dedupeCartItems(getGuestTestCart()));
       }
     } else {
       // Load from local storage for guests
-      setTestCart(getGuestTestCart());
+      setTestCart(dedupeCartItems(getGuestTestCart()));
     }
 
     setLoading(false);
   }, [user?.id]);
 
   const addToTestCart = useCallback(async (item: TestCartItem) => {
+    const alreadyInCart = testCart.some(
+      (existing) => existing.id === item.id && existing.type === item.type
+    );
+    if (alreadyInCart) {
+      return;
+    }
+
     if (user?.id) {
-      // Add to database for authenticated users
       try {
         const { error } = await supabase
           .from('test_carts')
@@ -171,26 +191,22 @@ export function TestCartProvider({ children }: { children: ReactNode }) {
             fullError: error
           });
           
-          // If table doesn't exist, RLS error, UNIQUE constraint, or other config issue, handle gracefully
           if (
-            error.code === '42P01' || // undefined table
-            error.code === '42000' || // permission denied
-            error.code === '23505' || // unique constraint violation
-            error.code === '42883' || // function not found
-            error.message?.includes('test_carts') || // table name in error
-            error.message?.includes('permission') || // permission in error
-            error.message?.includes('unique') // unique constraint
+            error.code === '42P01' ||
+            error.code === '42000' ||
+            error.code === '23505' ||
+            error.code === '42883' ||
+            error.message?.includes('test_carts') ||
+            error.message?.includes('permission') ||
+            error.message?.includes('unique')
           ) {
-            // Log what happened
             if (error.code === '23505' || error.message?.includes('unique')) {
               console.warn("⚠️ Item already in cart, reloading from database");
-              // Reload cart from database to show the existing item
               await loadTestCart();
               return;
             } else {
               console.warn("⚠️ test_carts table not ready or RLS issue, using localStorage fallback");
-              // For other config issues, fall back to localStorage
-              const updatedCart = [...testCart, item];
+              const updatedCart = dedupeCartItems([...testCart, item]);
               saveGuestTestCart(updatedCart);
               setTestCart(updatedCart);
               return;
@@ -199,36 +215,43 @@ export function TestCartProvider({ children }: { children: ReactNode }) {
           throw error;
         }
 
-        console.log("✅ Item added to test cart successfully");
-        // Reload from database to ensure consistency
         await loadTestCart();
       } catch (err) {
         console.error("❌ Failed to add to test cart, falling back to localStorage:", {
           message: err instanceof Error ? err.message : String(err),
           fullError: err
         });
-        // Fallback to local storage on any error
-        const updatedCart = [...testCart, item];
+        const updatedCart = dedupeCartItems([...testCart, item]);
         saveGuestTestCart(updatedCart);
         setTestCart(updatedCart);
       }
     } else {
-      // Add to local storage for guests
-      const updatedCart = [...testCart, item];
+      const updatedCart = dedupeCartItems([...testCart, item]);
       saveGuestTestCart(updatedCart);
       setTestCart(updatedCart);
     }
   }, [testCart, user?.id, loadTestCart]);
 
-  const removeFromTestCart = useCallback(async (itemId: string) => {
+  const removeFromTestCart = useCallback(async (itemOrId: TestCartItem | string) => {
+    const item =
+      typeof itemOrId === 'string'
+        ? testCart.find((c) => c.id === itemOrId) || { id: itemOrId, type: 'individual' as const, title: '', price: 0 }
+        : itemOrId;
+
     if (user?.id) {
-      // Remove from database for authenticated users
       try {
-        const { error } = await supabase
+        let query = supabase
           .from('test_carts')
           .delete()
-          .eq('user_id', user.id)
-          .eq('test_id', itemId);
+          .eq('user_id', user.id);
+
+        if (item.cartRowId) {
+          query = query.eq('id', item.cartRowId);
+        } else {
+          query = query.eq('test_id', item.id).eq('test_type', item.type);
+        }
+
+        const { error } = await query;
 
         if (error) {
           console.error("❌ Error removing from test cart:", {
@@ -239,21 +262,24 @@ export function TestCartProvider({ children }: { children: ReactNode }) {
           throw error;
         }
 
-        console.log("✅ Item removed from test cart");
-        setTestCart(testCart.filter((item) => item.id !== itemId));
+        setTestCart(
+          testCart.filter((c) => testCartItemKey(c) !== testCartItemKey(item as TestCartItem))
+        );
       } catch (err) {
         console.error("❌ Failed to remove from test cart, falling back to localStorage:", {
           message: err instanceof Error ? err.message : String(err),
           fullError: err
         });
-        // Fallback to local storage
-        const updatedCart = testCart.filter((item) => item.id !== itemId);
+        const updatedCart = testCart.filter(
+          (c) => !(c.id === item.id && c.type === item.type)
+        );
         saveGuestTestCart(updatedCart);
         setTestCart(updatedCart);
       }
     } else {
-      // Remove from local storage for guests
-      const updatedCart = testCart.filter((item) => item.id !== itemId);
+      const updatedCart = testCart.filter(
+        (c) => !(c.id === item.id && c.type === item.type)
+      );
       saveGuestTestCart(updatedCart);
       setTestCart(updatedCart);
     }
