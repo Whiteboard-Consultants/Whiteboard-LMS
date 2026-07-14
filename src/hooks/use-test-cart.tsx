@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useContext, createContext, ReactNode, useCallback } from "react";
+import { useState, useEffect, useContext, createContext, ReactNode, useCallback, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "./use-auth";
 
@@ -65,7 +65,12 @@ function saveGuestTestCart(cart: TestCartItem[]) {
 export function TestCartProvider({ children }: { children: ReactNode }) {
   const [testCart, setTestCart] = useState<TestCartItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user, userData } = useAuth();
+  const { user } = useAuth();
+  const testCartRef = useRef(testCart);
+
+  useEffect(() => {
+    testCartRef.current = testCart;
+  }, [testCart]);
 
   // Load test cart on mount and when user changes
   useEffect(() => {
@@ -160,8 +165,20 @@ export function TestCartProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   }, [user?.id]);
 
+  const applyLocalCartUpdate = useCallback(
+    (updater: (prev: TestCartItem[]) => TestCartItem[]) => {
+      setTestCart((prev) => {
+        const updated = updater(prev);
+        saveGuestTestCart(updated);
+        testCartRef.current = updated;
+        return updated;
+      });
+    },
+    []
+  );
+
   const addToTestCart = useCallback(async (item: TestCartItem) => {
-    const alreadyInCart = testCart.some(
+    const alreadyInCart = testCartRef.current.some(
       (existing) => existing.id === item.id && existing.type === item.type
     );
     if (alreadyInCart) {
@@ -206,9 +223,9 @@ export function TestCartProvider({ children }: { children: ReactNode }) {
               return;
             } else {
               console.warn("⚠️ test_carts table not ready or RLS issue, using localStorage fallback");
-              const updatedCart = dedupeCartItems([...testCart, item]);
-              saveGuestTestCart(updatedCart);
-              setTestCart(updatedCart);
+              applyLocalCartUpdate((prev) =>
+                dedupeCartItems([...prev, item])
+              );
               return;
             }
           }
@@ -221,24 +238,31 @@ export function TestCartProvider({ children }: { children: ReactNode }) {
           message: err instanceof Error ? err.message : String(err),
           fullError: err
         });
-        const updatedCart = dedupeCartItems([...testCart, item]);
-        saveGuestTestCart(updatedCart);
-        setTestCart(updatedCart);
+        applyLocalCartUpdate((prev) => dedupeCartItems([...prev, item]));
       }
     } else {
-      const updatedCart = dedupeCartItems([...testCart, item]);
-      saveGuestTestCart(updatedCart);
-      setTestCart(updatedCart);
+      applyLocalCartUpdate((prev) => {
+        if (prev.some((e) => e.id === item.id && e.type === item.type)) {
+          return prev;
+        }
+        return dedupeCartItems([...prev, item]);
+      });
     }
-  }, [testCart, user?.id, loadTestCart]);
+  }, [user?.id, loadTestCart, applyLocalCartUpdate]);
 
   const removeFromTestCart = useCallback(async (itemOrId: TestCartItem | string) => {
-    const item =
+    const resolveItem = (cart: TestCartItem[]): TestCartItem =>
       typeof itemOrId === 'string'
-        ? testCart.find((c) => c.id === itemOrId) || { id: itemOrId, type: 'individual' as const, title: '', price: 0 }
+        ? cart.find((c) => c.id === itemOrId) || {
+            id: itemOrId,
+            type: 'individual' as const,
+            title: '',
+            price: 0,
+          }
         : itemOrId;
 
     if (user?.id) {
+      const item = resolveItem(testCartRef.current);
       try {
         let query = supabase
           .from('test_carts')
@@ -262,28 +286,29 @@ export function TestCartProvider({ children }: { children: ReactNode }) {
           throw error;
         }
 
-        setTestCart(
-          testCart.filter((c) => testCartItemKey(c) !== testCartItemKey(item as TestCartItem))
-        );
+        setTestCart((prev) => {
+          const updated = prev.filter(
+            (c) => testCartItemKey(c) !== testCartItemKey(item)
+          );
+          testCartRef.current = updated;
+          return updated;
+        });
       } catch (err) {
         console.error("❌ Failed to remove from test cart, falling back to localStorage:", {
           message: err instanceof Error ? err.message : String(err),
           fullError: err
         });
-        const updatedCart = testCart.filter(
-          (c) => !(c.id === item.id && c.type === item.type)
+        applyLocalCartUpdate((prev) =>
+          prev.filter((c) => !(c.id === item.id && c.type === item.type))
         );
-        saveGuestTestCart(updatedCart);
-        setTestCart(updatedCart);
       }
     } else {
-      const updatedCart = testCart.filter(
-        (c) => !(c.id === item.id && c.type === item.type)
-      );
-      saveGuestTestCart(updatedCart);
-      setTestCart(updatedCart);
+      applyLocalCartUpdate((prev) => {
+        const item = resolveItem(prev);
+        return prev.filter((c) => !(c.id === item.id && c.type === item.type));
+      });
     }
-  }, [testCart, user?.id]);
+  }, [user?.id, applyLocalCartUpdate]);
 
   const clearTestCart = useCallback(async () => {
     if (user?.id) {
@@ -305,6 +330,7 @@ export function TestCartProvider({ children }: { children: ReactNode }) {
 
         console.log("✅ Test cart cleared");
         setTestCart([]);
+        testCartRef.current = [];
       } catch (err) {
         console.error("❌ Failed to clear test cart, falling back to localStorage:", {
           message: err instanceof Error ? err.message : String(err),
@@ -313,11 +339,13 @@ export function TestCartProvider({ children }: { children: ReactNode }) {
         // Fallback to local storage
         localStorage.removeItem('testCart');
         setTestCart([]);
+        testCartRef.current = [];
       }
     } else {
       // Clear from local storage for guests
       localStorage.removeItem('testCart');
       setTestCart([]);
+      testCartRef.current = [];
     }
   }, [user?.id]);
 

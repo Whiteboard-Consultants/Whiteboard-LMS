@@ -189,7 +189,7 @@ export function MockTestPageClient({
                                 };
                                 const seriesId = tests[0]?.seriesId;
                                 const seriesFromFilters = seriesId
-                                    ? filterOptions?.series.find((s) => s.id === seriesId)
+                                    ? filterOptions?.series?.find((s) => s.id === seriesId)
                                     : undefined;
                                 const seriesName =
                                     seriesFromFilters?.title ||
