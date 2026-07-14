@@ -7,7 +7,7 @@ import Link from "next/link";
 import { pageMetadata } from '@/lib/seo';
 
 export const metadata: Metadata = pageMetadata({
-  title: 'FAQs | Study Abroad, Test Prep & Career Tips | Whiteboard Consultants',
+  title: 'Study Abroad FAQs Guide',
   description:
     'Answers to FAQs on study abroad, IELTS/TOEFL/aptitude test prep, work permits, and career growth from expert education consultants in Kolkata.',
   path: '/faqs',

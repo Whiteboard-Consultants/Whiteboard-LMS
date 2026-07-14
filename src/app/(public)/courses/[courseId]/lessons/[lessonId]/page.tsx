@@ -32,12 +32,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title: lesson?.title ? `${lesson.title} - ${course?.title || 'Course'}` : 'Lesson',
       description: `Learn with this lesson from ${course?.title || 'our course'}.`,
       path: `/courses/${courseId}/lessons/${lessonId}`,
+      robots: { index: false, follow: false },
     });
   } catch {
     return pageMetadata({
       title: 'Lesson',
       description: 'Learn with this lesson.',
       path: `/courses/${courseId}/lessons/${lessonId}`,
+      robots: { index: false, follow: false },
     });
   }
 }

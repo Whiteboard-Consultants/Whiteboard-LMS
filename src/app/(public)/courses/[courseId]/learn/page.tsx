@@ -25,12 +25,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title: course?.title ? `Learn ${course.title}` : 'Course Learning',
       description: course?.description || 'Learn with this comprehensive course.',
       path: `/courses/${courseId}/learn`,
+      robots: { index: false, follow: false },
     });
   } catch {
     return pageMetadata({
       title: 'Course Learning',
       description: 'Learn with this comprehensive course.',
       path: `/courses/${courseId}/learn`,
+      robots: { index: false, follow: false },
     });
   }
 }

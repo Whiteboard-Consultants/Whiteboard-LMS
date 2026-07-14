@@ -10,11 +10,11 @@ import {
 export const revalidate = 1800; // Cache for 30 minutes
 
 export const metadata: Metadata = pageMetadata({
-    title: 'Mock Tests & Practice Series | Whiteboard Consultants',
+    title: 'Mock Tests Aptitude Series',
     description:
     'Practice with our comprehensive mock test series. Quantitative Aptitude, Verbal Ability, Logical Reasoning & Data Interpretation with difficulty levels from Easy to Hard.',
     path: '/mock-tests',
-    openGraphTitle: 'Mock Tests & Practice Series',
+    openGraphTitle: 'Mock Tests Aptitude Series',
     openGraphDescription:
     'Prepare for competitive exams with targeted mock tests across multiple difficulty levels.',
 });

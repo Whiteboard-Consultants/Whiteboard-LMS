@@ -4,7 +4,7 @@ import { buildFaqPageSchema } from '@/lib/faq-schema';
 import { pageMetadata } from '@/lib/seo';
 
 export const metadata: Metadata = pageMetadata({
-  title: 'Skill Development & Corporate Training | Whiteboard Consultants',
+  title: 'Skill Development Training',
   description:
     'Professional skill development and corporate training programs including leadership, communication, technical skills, and team building.',
   path: '/career-solutions/skill-development',

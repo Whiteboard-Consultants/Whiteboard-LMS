@@ -7,7 +7,7 @@ import { ArrowLeft } from "lucide-react";
 import { pageMetadata } from '@/lib/seo';
 
 export const metadata: Metadata = pageMetadata({
-  title: 'Apply to University of Wollongong, India | Whiteboard Consultants',
+  title: 'Apply to UOW India',
   description:
     'Submit your application to University of Wollongong with expert guidance from Whiteboard Consultants. Get assistance throughout the application process.',
   path: '/admissions/uow-india/apply',

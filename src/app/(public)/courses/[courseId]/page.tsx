@@ -14,7 +14,7 @@ import { Breadcrumb } from "@/components/breadcrumb";
 import { CoursePurchaseCard } from "@/components/course-purchase-card";
 import { CourseCurriculum } from "@/components/course-curriculum";
 import { generateCourseSchema, generateBreadcrumbSchema, cleanSchema } from "@/lib/schema-markup";
-import { DEFAULT_OG_IMAGE, metaDescription, pageTitle } from "@/lib/seo";
+import { DEFAULT_OG_IMAGE, metaDescription, pageMetadata, pageTitle } from "@/lib/seo";
 
 // Cache course details for 1 hour - Improves TTFB significantly
 export const revalidate = 3600;
@@ -34,9 +34,12 @@ export async function generateMetadata({ params }: CoursePageProps): Promise<Met
     const { courseId } = await params;
     const course = await getCourse(courseId);
     if (!course) {
-        return {
-            title: "Course Not Found",
-        };
+        return pageMetadata({
+            title: 'Course Not Found',
+            description: 'This course could not be found.',
+            path: `/courses/${courseId}`,
+            robots: { index: false, follow: true },
+        });
     }
     const description = metaDescription(course.description);
     const title = pageTitle(course.title);

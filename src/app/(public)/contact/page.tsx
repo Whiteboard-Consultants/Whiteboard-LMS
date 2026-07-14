@@ -4,7 +4,7 @@ import ContactPageClient from '@/components/contact-page-client';
 import { pageMetadata } from '@/lib/seo';
 
 export const metadata: Metadata = pageMetadata({
-  title: 'Contact Us | Whiteboard Consultants',
+  title: 'Contact Study Abroad Kolkata',
   description:
     'Contact Whiteboard Consultants in Kolkata for expert guidance on study abroad, test prep, and college admissions. Free consultation available today.',
   path: '/contact',

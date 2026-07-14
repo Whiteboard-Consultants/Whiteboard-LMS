@@ -17,7 +17,7 @@ import { generateBlogPostSchema, generateBreadcrumbSchema, generateFAQSchema, cl
 import { getBlogAuthorUrl } from "@/lib/blog-authors";
 import { getDefaultFaqsForSlug } from "@/lib/blog-default-faqs";
 import { demoteContentHeadings } from "@/lib/blog-utils";
-import { DEFAULT_OG_IMAGE, metaDescription, pageTitle } from "@/lib/seo";
+import { DEFAULT_OG_IMAGE, metaDescription, pageMetadata, pageTitle } from "@/lib/seo";
 
 const HUSTLE_CULTURE_SLUG = "hustle-culture-gen-z-student-burnout-2026";
 
@@ -91,9 +91,12 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
     const { slug } = await params;
     const post = await getPost(slug);
     if (!post) {
-        return {
-            title: "Post Not Found",
-        };
+        return pageMetadata({
+            title: 'Post Not Found',
+            description: 'This blog post could not be found.',
+            path: `/blog/${slug}`,
+            robots: { index: false, follow: true },
+        });
     }
 
     const createdDate = convertToDate(post.createdAt);

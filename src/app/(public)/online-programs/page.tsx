@@ -4,11 +4,11 @@ import { pageMetadata, pageTitle } from '@/lib/seo';
 
 export const metadata: Metadata = {
   ...pageMetadata({
-    title: 'Online Degrees and Certification Programs for Career Growth | Upskill Anytime, Anywhere',
+    title: 'Online Degrees & Courses',
     description:
       'Discover flexible online degrees and certification programs for professionals, graduates, and career switchers. Earn accredited credentials, upskill with industry-ready courses, and boost your career online.',
     path: '/online-programs',
-    openGraphTitle: 'Online Degrees and Certification Programs for Career Growth',
+    openGraphTitle: 'Online Degrees & Courses',
     openGraph: {
       images: [
         {
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     },
   }),
   twitter: {
-    title: pageTitle('Online Degrees & Certification Programs'),
+    title: pageTitle('Online Degrees & Courses'),
     description:
       'Discover flexible online degrees and certification programs. Earn accredited credentials and upskill with industry-ready courses.',
     images: ['/twitter-image-online-programs.png'],

@@ -67,6 +67,7 @@ export async function generateMetadata(
             title: 'Series Not Found',
             description: 'The test series you are looking for does not exist.',
             path: `/mock-tests/${encodeURIComponent(decodedSlug)}`,
+            robots: { index: false, follow: true },
         });
     }
 

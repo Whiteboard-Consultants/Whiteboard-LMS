@@ -15,11 +15,11 @@ import { QuickAnswer } from '@/components/quick-answer';
 import { siteConfig, pageMetadata } from '@/lib/seo';
 
 export const metadata: Metadata = pageMetadata({
-  title: 'Expert Study Abroad Consultants in Kolkata | Whiteboard Consultants',
+  title: 'Study Abroad Help Kolkata',
   description:
     'Study abroad expert in Kolkata. University selection, application support, visa guidance for USA, UK, Canada, Australia & more. Free counseling available!',
   path: '/study-abroad',
-  openGraphTitle: "Study Abroad with Whiteboard Consultants - Kolkata's Premier Guide",
+  openGraphTitle: 'Study Abroad Help Kolkata',
   openGraphDescription:
     "Dreaming of studying overseas? Get expert help with university admissions, test prep, and visa applications from Kolkata's top-rated study abroad consultants.",
 });

@@ -6,11 +6,11 @@ import WhyChooseUsSection from '@/components/sections/why-choose-us-section';
 import { pageMetadata } from '@/lib/seo';
 
 export const metadata: Metadata = pageMetadata({
-  title: 'Study in Dubai (UAE) from India | Top Dubai Education Consultants',
+  title: 'Study in Dubai from India',
   description:
     'Study in Dubai with expert consultants in Kolkata. International university campuses, tax-free career opportunities, and student visa guidance.',
   path: '/study-abroad/dubai',
-  openGraphTitle: 'Study in Dubai: The Ultimate Guide for Indian Students | Whiteboard Consultants',
+  openGraphTitle: 'Study in Dubai from India',
   openGraphDescription:
     'Explore top university branch campuses in Dubai, courses, and career opportunities. Get free counseling from our expert Dubai education consultants in Kolkata.',
 });

@@ -17,11 +17,11 @@ import {
 export const revalidate = 1800;
 
 export const metadata: Metadata = pageMetadata({
-  title: 'Test Prep & Career Courses in Kolkata | Whiteboard Consultants',
+  title: 'Test Prep Courses Kolkata',
   description:
     'Expert IELTS, TOEFL, aptitude test prep, and career development programs in Kolkata. Achieve your academic goals with our proven coaching methods.',
   path: '/courses',
-  openGraphTitle: 'Explore All Courses | Whiteboard Consultants',
+  openGraphTitle: 'Test Prep Courses Kolkata',
   openGraphDescription:
     'Find the perfect course to advance your academic or professional journey. From test prep to career skills, we have you covered.',
 });

@@ -7,7 +7,7 @@ import { buildFaqPageSchema } from "@/lib/faq-schema";
 import { pageMetadata } from '@/lib/seo';
 
 export const metadata: Metadata = pageMetadata({
-  title: 'College Admissions India | Whiteboard Consultants',
+  title: 'College Admissions India',
   description:
     "Secure your spot in India's top colleges with expert admission guidance from Whiteboard Consultants in Kolkata. We partner with leading institutions like IISM and EIILM, offering comprehensive application support and test preparation.",
   path: '/college-admissions',
