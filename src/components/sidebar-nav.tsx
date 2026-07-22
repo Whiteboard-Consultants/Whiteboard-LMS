@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { BookMarked, LayoutDashboard, BarChart3, Users, Lightbulb, UserCheck, UserSquare, Megaphone, Award, FileText, Ticket, Rss, Package, ClipboardList, Mail, Zap, DollarSign, MessageSquare, HelpCircle, Folder } from "lucide-react";
+import { BookMarked, LayoutDashboard, BarChart3, Users, Lightbulb, UserCheck, UserSquare, Megaphone, Award, FileText, Ticket, Rss, Package, ClipboardList, Mail, Zap, DollarSign, MessageSquare, HelpCircle, Folder, Compass } from "lucide-react";
 import { Skeleton } from "./ui/skeleton";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
 
@@ -24,6 +24,7 @@ const adminRequestLinks = [
     { href: "/admin/enrollments", label: "Enrollments", icon: UserCheck },
     { href: "/admin/certificates", label: "Certificates", icon: Award },
     { href: "/admin/contact-submissions", label: "Contact Forms", icon: Mail },
+    { href: "/admin/riasec", label: "RIASEC Leads", icon: Compass },
 ];
 
 const adminReportLinks = [

@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { format } from "date-fns";
 import { supabase } from "@/lib/supabase";
 import { sendPasswordResetEmail, setTemporaryPassword, fetchUserEnrollments, deleteUserEnrollment, approveUser, rejectUser, suspendUser, reinstateUser } from './actions';
@@ -83,6 +84,10 @@ const newUserSchema = z.object({
 type NewUserFormData = z.infer<typeof newUserSchema>;
 
 export default function AdminUsersPage() {
+  const searchParams = useSearchParams();
+  const roleFilter = searchParams.get('role');
+  const initialTab = searchParams.get('tab') === 'requests' ? 'requests' : 'all-users';
+
   const [pendingRegistrations, setPendingRegistrations] = useState<RegistrationRequest[]>([]);
   const [users, setUsers] = useState<UserType[]>([]);
   const [loading, setLoading] = useState(true);
@@ -96,8 +101,13 @@ export default function AdminUsersPage() {
   const [isCreatingUser, setIsCreatingUser] = useState(false);
   const [sortColumn, setSortColumn] = useState<'name' | 'email' | 'role' | 'status' | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [activeTab, setActiveTab] = useState(initialTab);
   const { toast } = useToast();
   const { user: authUser, userData } = useAuth();
+
+  useEffect(() => {
+    setActiveTab(searchParams.get('tab') === 'requests' ? 'requests' : 'all-users');
+  }, [searchParams]);
 
   const newUserForm = useForm<NewUserFormData>({
     resolver: zodResolver(newUserSchema),
@@ -121,10 +131,17 @@ export default function AdminUsersPage() {
     }
   };
 
-  const getSortedUsers = useCallback(() => {
-    if (!sortColumn) return users;
+  const filteredUsers = useMemo(() => {
+    if (roleFilter === 'instructor' || roleFilter === 'student' || roleFilter === 'admin') {
+      return users.filter((user) => user.role === roleFilter);
+    }
+    return users;
+  }, [users, roleFilter]);
 
-    const sorted = [...users].sort((a, b) => {
+  const getSortedUsers = useCallback(() => {
+    if (!sortColumn) return filteredUsers;
+
+    const sorted = [...filteredUsers].sort((a, b) => {
       let aValue: any = '';
       let bValue: any = '';
 
@@ -163,7 +180,7 @@ export default function AdminUsersPage() {
     });
 
     return sorted;
-  }, [users, sortColumn, sortDirection]);
+  }, [filteredUsers, sortColumn, sortDirection]);
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -656,17 +673,25 @@ export default function AdminUsersPage() {
         </Button>
       </div>
       
-       <Tabs defaultValue="all-users">
+       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-4">
           <TabsTrigger value="all-users">All Users</TabsTrigger>
           <TabsTrigger value="requests">Registration Requests ({pendingRegistrations.length})</TabsTrigger>
         </TabsList>
         <TabsContent value="all-users">
+            {roleFilter && (
+              <p className="mb-4 text-sm text-muted-foreground">
+                Showing {roleFilter}s only.{' '}
+                <Link href="/admin/users" className="text-primary underline-offset-4 hover:underline">
+                  Clear filter
+                </Link>
+              </p>
+            )}
             {/* Mobile View */}
             <div className="md:hidden">
-              {loading ? <p>Loading...</p> : users.length > 0 ? (
+              {loading ? <p>Loading...</p> : getSortedUsers().length > 0 ? (
                 <div className="space-y-4">
-                  {users.map(user => (
+                  {getSortedUsers().map(user => (
                     <Card key={user.id}>
                         <CardHeader>
                             <div className="flex justify-between items-start">

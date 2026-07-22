@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { BookOpen, Users, UserCheck, DollarSign, Mail, BarChart3, Settings, Bell, TrendingUp } from 'lucide-react';
+import { BookOpen, Users, UserCheck, DollarSign, Mail, Bell, TrendingUp, Compass } from 'lucide-react';
 
-import { supabase } from '@/lib/supabase';
 import type { User } from '@/types';
 import { getContactSubmissionStats } from '../contact-submissions/actions';
+import { getRiasecAssessmentStats } from '../riasec/actions';
 import { getDashboardStats } from './actions';
 import { PageHeader } from '@/components/page-header';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -29,6 +29,11 @@ export default function AdminDashboardPage() {
     totalSubmissions: number;
     recentSubmissions: number;
   }>({ totalSubmissions: 0, recentSubmissions: 0 });
+  const [riasecStats, setRiasecStats] = useState<{
+    totalLeads: number;
+    recentLeads: number;
+    completedAssessments: number;
+  }>({ totalLeads: 0, recentLeads: 0, completedAssessments: 0 });
 
   useEffect(() => {
     if (!user) {
@@ -59,6 +64,15 @@ export default function AdminDashboardPage() {
           setContactStats({
             totalSubmissions: contactStatsResult.data.totalSubmissions,
             recentSubmissions: contactStatsResult.data.recentSubmissions
+          });
+        }
+
+        const riasecStatsResult = await getRiasecAssessmentStats();
+        if (riasecStatsResult.success && riasecStatsResult.data) {
+          setRiasecStats({
+            totalLeads: riasecStatsResult.data.totalLeads,
+            recentLeads: riasecStatsResult.data.recentLeads,
+            completedAssessments: riasecStatsResult.data.completedAssessments,
           });
         }
       } catch (error) {
@@ -112,39 +126,51 @@ export default function AdminDashboardPage() {
       <div className="space-y-6">
         <h2 className="text-2xl font-bold tracking-tight font-headline text-slate-900 dark:text-white">System Statistics</h2>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <StatCard
-            title="Total Users"
-            value={totalUsers.toString()}
-            icon={<Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />}
-            gradient="blue"
-          />
-          <StatCard
-            title="Active Instructors"
-            value={totalInstructors.toString()}
-            icon={<UserCheck className="h-6 w-6 text-green-600 dark:text-green-400" />}
-            gradient="green"
-          />
-          <StatCard
-            title="Active Students"
-            value={totalStudents.toString()}
-            icon={<BookOpen className="h-6 w-6 text-purple-600 dark:text-purple-400" />}
-            gradient="purple"
-          />
+          <Link href="/admin/users" className="no-underline">
+            <StatCard
+              title="Total Users"
+              value={totalUsers.toString()}
+              icon={<Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />}
+              gradient="blue"
+              className="h-full cursor-pointer transition-transform hover:-translate-y-0.5"
+            />
+          </Link>
+          <Link href="/admin/users?role=instructor" className="no-underline">
+            <StatCard
+              title="Active Instructors"
+              value={totalInstructors.toString()}
+              icon={<UserCheck className="h-6 w-6 text-green-600 dark:text-green-400" />}
+              gradient="green"
+              className="h-full cursor-pointer transition-transform hover:-translate-y-0.5"
+            />
+          </Link>
+          <Link href="/admin/users?role=student" className="no-underline">
+            <StatCard
+              title="Active Students"
+              value={totalStudents.toString()}
+              icon={<BookOpen className="h-6 w-6 text-purple-600 dark:text-purple-400" />}
+              gradient="purple"
+              className="h-full cursor-pointer transition-transform hover:-translate-y-0.5"
+            />
+          </Link>
         </div>
       </div>
 
       <div className="space-y-6 mt-12">
         <h2 className="text-2xl font-bold tracking-tight font-headline text-slate-900 dark:text-white">Quick Metrics</h2>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <StatCard
-            title={pendingUsers > 0 ? "⚠️ Pending Approvals" : "Pending Approvals"}
-            value={pendingUsers.toString()}
-            icon={<TrendingUp className="h-6 w-6 text-amber-600 dark:text-amber-400" />}
-            gradient={pendingUsers > 0 ? "amber" : "slate"}
-            isAlert={pendingUsers > 0}
-          >
-            <p className="text-xs text-foreground/60 dark:text-slate-300/60 pt-1">Users awaiting approval</p>
-          </StatCard>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <Link href="/admin/users?tab=requests" className="no-underline">
+            <StatCard
+              title={pendingUsers > 0 ? "⚠️ Pending Approvals" : "Pending Approvals"}
+              value={pendingUsers.toString()}
+              icon={<TrendingUp className="h-6 w-6 text-amber-600 dark:text-amber-400" />}
+              gradient={pendingUsers > 0 ? "amber" : "slate"}
+              isAlert={pendingUsers > 0}
+              className="h-full cursor-pointer transition-transform hover:-translate-y-0.5"
+            >
+              <p className="text-xs text-foreground/60 dark:text-slate-300/60 pt-1">Users awaiting approval</p>
+            </StatCard>
+          </Link>
           <Link href="/admin/contact-submissions" className="no-underline">
             <StatCard
               title="Contact Submissions"
@@ -153,6 +179,18 @@ export default function AdminDashboardPage() {
               gradient="indigo"
             >
               <p className="text-xs text-foreground/60 dark:text-slate-300/60 pt-1">{contactStats.totalSubmissions} total submissions</p>
+            </StatCard>
+          </Link>
+          <Link href="/admin/riasec" className="no-underline">
+            <StatCard
+              title="RIASEC Leads"
+              value={riasecStats.recentLeads.toString()}
+              icon={<Compass className="h-6 w-6 text-teal-600 dark:text-teal-400" />}
+              gradient="green"
+            >
+              <p className="text-xs text-foreground/60 dark:text-slate-300/60 pt-1">
+                {riasecStats.totalLeads} total · {riasecStats.completedAssessments} completed
+              </p>
             </StatCard>
           </Link>
         </div>
