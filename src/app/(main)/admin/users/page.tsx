@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { format } from "date-fns";
 import { supabase } from "@/lib/supabase";
+import { authenticatedFetch } from "@/lib/auth-fetch";
 import { sendPasswordResetEmail, setTemporaryPassword, fetchUserEnrollments, deleteUserEnrollment, approveUser, rejectUser, suspendUser, reinstateUser } from './actions';
 import { getAllUsers, getPendingUsers } from './data-actions';
 import { PageHeader } from "@/components/page-header";
@@ -59,6 +60,13 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { ManagerPermissionsFields } from "@/components/admin/manager-permissions-fields";
+import {
+  MANAGER_PERMISSION_CATALOG,
+  normalizeManagerPermissions,
+  type PermissionKey,
+} from "@/lib/permissions";
+import type { ManagerPermission } from "@/types";
 
 interface UserWithEnrollments extends UserType {
     enrollments: (Enrollment & { courseTitle: string; status: 'pending' | 'approved'; enrollmentType?: 'course' | 'test' | 'series' })[];
@@ -76,12 +84,24 @@ interface RegistrationRequest {
 const newUserSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
-  role: z.enum(['student', 'instructor', 'admin']),
+  role: z.enum(['student', 'instructor', 'admin', 'manager']),
   status: z.enum(['pending', 'approved']),
   phone: z.string().optional(),
 });
 
 type NewUserFormData = z.infer<typeof newUserSchema>;
+
+function permissionsToMode(permissions?: ManagerPermission[] | null): 'all' | 'custom' {
+  if (!permissions || permissions.includes('*')) return 'all';
+  return 'custom';
+}
+
+function permissionsToSelected(permissions?: ManagerPermission[] | null): PermissionKey[] {
+  if (!permissions || permissions.includes('*')) {
+    return MANAGER_PERMISSION_CATALOG.map((p) => p.key);
+  }
+  return permissions.filter((p): p is PermissionKey => p !== '*');
+}
 
 export default function AdminUsersPage() {
   const searchParams = useSearchParams();
@@ -99,6 +119,19 @@ export default function AdminUsersPage() {
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [isCreatingUser, setIsCreatingUser] = useState(false);
+  const [permissionMode, setPermissionMode] = useState<'all' | 'custom'>('all');
+  const [selectedPermissions, setSelectedPermissions] = useState<PermissionKey[]>(
+    MANAGER_PERMISSION_CATALOG.map((p) => p.key)
+  );
+  const [editingPermissionsUser, setEditingPermissionsUser] = useState<UserType | null>(null);
+  const [editPermissionMode, setEditPermissionMode] = useState<'all' | 'custom'>('all');
+  const [editSelectedPermissions, setEditSelectedPermissions] = useState<PermissionKey[]>([]);
+  const [isSavingPermissions, setIsSavingPermissions] = useState(false);
+  const [createdCredentials, setCreatedCredentials] = useState<{
+    email: string;
+    password: string;
+    name: string;
+  } | null>(null);
   const [sortColumn, setSortColumn] = useState<'name' | 'email' | 'role' | 'status' | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -120,6 +153,14 @@ export default function AdminUsersPage() {
     },
   });
 
+  const watchedRole = newUserForm.watch('role');
+
+  useEffect(() => {
+    if (watchedRole === 'manager') {
+      newUserForm.setValue('status', 'approved');
+    }
+  }, [watchedRole, newUserForm]);
+
   const handleSort = (column: 'name' | 'email' | 'role' | 'status') => {
     if (sortColumn === column) {
       // Toggle direction if same column is clicked
@@ -132,7 +173,12 @@ export default function AdminUsersPage() {
   };
 
   const filteredUsers = useMemo(() => {
-    if (roleFilter === 'instructor' || roleFilter === 'student' || roleFilter === 'admin') {
+    if (
+      roleFilter === 'instructor' ||
+      roleFilter === 'student' ||
+      roleFilter === 'admin' ||
+      roleFilter === 'manager'
+    ) {
       return users.filter((user) => user.role === roleFilter);
     }
     return users;
@@ -511,28 +557,29 @@ export default function AdminUsersPage() {
         throw new Error('Only admin users can create new users');
       }
 
-      console.log('Creating user via API with data:', {
+      if (data.role === 'manager' && permissionMode === 'custom' && selectedPermissions.length === 0) {
+        throw new Error('Select at least one permission for the manager, or choose ALL');
+      }
+
+      const requestBody: Record<string, unknown> = {
         name: data.name,
         email: data.email,
         role: data.role,
-        status: data.status,
-        phone: data.phone || undefined,
-      });
-      
-      // Call the API route for user creation
-      const requestBody: any = {
-        name: data.name,
-        email: data.email,
-        role: data.role,
-        status: data.status,
+        status: data.role === 'manager' ? 'approved' : data.status,
       };
 
-      // Only include phone if it has a value
       if (data.phone && data.phone.trim()) {
         requestBody.phone = data.phone.trim();
       }
 
-      const response = await fetch('/api/admin/users', {
+      if (data.role === 'manager') {
+        requestBody.permissions = normalizeManagerPermissions(
+          permissionMode,
+          selectedPermissions
+        );
+      }
+
+      const response = await authenticatedFetch('/api/admin/users', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -546,16 +593,27 @@ export default function AdminUsersPage() {
         throw new Error(result.error || 'Failed to create user');
       }
 
-      console.log('User created successfully:', result.user);
-
-      // Show success message
       toast({ 
         title: "User Profile Created Successfully!", 
-        description: `User "${result.user.name}" profile has been created. They can register using the standard sign-up page.`,
+        description: data.role === 'manager'
+          ? result.temporaryPassword
+            ? `Manager "${result.user.name}" created. Copy the password from the dialog.`
+            : `Manager "${result.user.name}" created with assigned permissions.`
+          : `User "${result.user.name}" profile has been created. They can register using the standard sign-up page.`,
       });
+
+      if (data.role === 'manager' && result.temporaryPassword) {
+        setCreatedCredentials({
+          email: result.user.email,
+          password: result.temporaryPassword,
+          name: result.user.name,
+        });
+      }
       
       setIsAddUserModalOpen(false);
       newUserForm.reset();
+      setPermissionMode('all');
+      setSelectedPermissions(MANAGER_PERMISSION_CATALOG.map((p) => p.key));
       await fetchUsers();
       await fetchPendingRegistrations();
     } catch (error: any) {
@@ -563,7 +621,9 @@ export default function AdminUsersPage() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message?.includes('duplicate') || error.message?.includes('unique')
+        description: error.message?.includes('No active session') || error.message?.includes('Admin access required')
+          ? "Your session expired or could not be verified. Please refresh the page and try again."
+          : error.message?.includes('duplicate') || error.message?.includes('unique')
           ? "A user with this email already exists"
           : error.message?.includes('Permission denied')
           ? "Permission denied. Please check admin privileges."
@@ -571,6 +631,67 @@ export default function AdminUsersPage() {
       });
     }
     setIsCreatingUser(false);
+  };
+
+  const openEditPermissions = (user: UserType) => {
+    setEditingPermissionsUser(user);
+    setEditPermissionMode(permissionsToMode(user.permissions));
+    setEditSelectedPermissions(permissionsToSelected(user.permissions));
+  };
+
+  const handleSaveManagerPermissions = async () => {
+    if (!editingPermissionsUser) return;
+    if (editPermissionMode === 'custom' && editSelectedPermissions.length === 0) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Select at least one permission, or choose ALL',
+      });
+      return;
+    }
+
+    setIsSavingPermissions(true);
+    try {
+      if (!authUser || !userData || userData.role !== 'admin') {
+        throw new Error('Only admin users can update manager permissions');
+      }
+
+      const permissions = normalizeManagerPermissions(
+        editPermissionMode,
+        editSelectedPermissions
+      );
+
+      const response = await authenticatedFetch('/api/admin/users', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: editingPermissionsUser.id,
+          permissions,
+        }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to update permissions');
+      }
+
+      toast({
+        title: 'Permissions updated',
+        description: `Updated access for ${editingPermissionsUser.name}`,
+      });
+      setEditingPermissionsUser(null);
+      await fetchUsers();
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: error.message || 'Failed to update permissions',
+      });
+    } finally {
+      setIsSavingPermissions(false);
+    }
   };
 
   const UserActions = ({ user }: { user: UserType }) => (
@@ -586,6 +707,11 @@ export default function AdminUsersPage() {
                 {user.role === 'student' && (
                     <DropdownMenuItem onClick={() => handleViewProfile(user)}>
                         <User className="mr-2 h-4 w-4" /> View Profile
+                    </DropdownMenuItem>
+                 )}
+                {user.role === 'manager' && (
+                    <DropdownMenuItem onClick={() => openEditPermissions(user)}>
+                        <Shield className="mr-2 h-4 w-4" /> Edit Permissions
                     </DropdownMenuItem>
                  )}
                <DropdownMenuItem onClick={() => handleManageEnrollments(user)}>
@@ -970,11 +1096,11 @@ export default function AdminUsersPage() {
 
       {/* Add New User Modal */}
       <Dialog open={isAddUserModalOpen} onOpenChange={setIsAddUserModalOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add New User</DialogTitle>
             <DialogDescription>
-              Create a new user account manually. They will be able to log in with their email.
+              Create a new user account manually. Managers are created by admin only (no public registration).
             </DialogDescription>
           </DialogHeader>
           <Form {...newUserForm}>
@@ -1020,6 +1146,7 @@ export default function AdminUsersPage() {
                       <SelectContent>
                         <SelectItem value="student">Student</SelectItem>
                         <SelectItem value="instructor">Instructor</SelectItem>
+                        <SelectItem value="manager">Manager</SelectItem>
                         <SelectItem value="admin">Admin</SelectItem>
                       </SelectContent>
                     </Select>
@@ -1027,27 +1154,40 @@ export default function AdminUsersPage() {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={newUserForm.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Initial Status</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="approved">Approved (Active)</SelectItem>
-                        <SelectItem value="pending">Pending (Requires approval)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+
+              {watchedRole === 'manager' && (
+                <ManagerPermissionsFields
+                  mode={permissionMode}
+                  onModeChange={setPermissionMode}
+                  selected={selectedPermissions}
+                  onSelectedChange={setSelectedPermissions}
+                />
+              )}
+
+              {watchedRole !== 'manager' && (
+                <FormField
+                  control={newUserForm.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Initial Status</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="approved">Approved (Active)</SelectItem>
+                          <SelectItem value="pending">Pending (Requires approval)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
               <FormField
                 control={newUserForm.control}
                 name="phone"
@@ -1086,6 +1226,95 @@ export default function AdminUsersPage() {
               </div>
             </form>
           </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Manager Permissions Modal */}
+      <Dialog
+        open={!!editingPermissionsUser}
+        onOpenChange={(open) => {
+          if (!open) setEditingPermissionsUser(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Manager Permissions</DialogTitle>
+            <DialogDescription>
+              {editingPermissionsUser
+                ? `Update access for ${editingPermissionsUser.name} (${editingPermissionsUser.email})`
+                : 'Update manager access'}
+            </DialogDescription>
+          </DialogHeader>
+          <ManagerPermissionsFields
+            mode={editPermissionMode}
+            onModeChange={setEditPermissionMode}
+            selected={editSelectedPermissions}
+            onSelectedChange={setEditSelectedPermissions}
+          />
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setEditingPermissionsUser(null)}
+              disabled={isSavingPermissions}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleSaveManagerPermissions} disabled={isSavingPermissions}>
+              {isSavingPermissions ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                'Save Permissions'
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+      {/* Created Manager Credentials Dialog */}
+      <Dialog
+        open={!!createdCredentials}
+        onOpenChange={(open) => {
+          if (!open) setCreatedCredentials(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Manager login created</DialogTitle>
+            <DialogDescription>
+              Share these credentials securely with {createdCredentials?.name}. They should change
+              the password after first login.
+            </DialogDescription>
+          </DialogHeader>
+          {createdCredentials && (
+            <div className="space-y-3">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground mb-1">Email</p>
+                <p className="font-mono text-sm break-all rounded border bg-muted/40 px-3 py-2">
+                  {createdCredentials.email}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground mb-1">Temporary password</p>
+                <p className="font-mono text-sm break-all rounded border bg-muted/40 px-3 py-2">
+                  {createdCredentials.password}
+                </p>
+              </div>
+              <Button
+                className="w-full"
+                onClick={async () => {
+                  await navigator.clipboard.writeText(
+                    `Email: ${createdCredentials.email}\nPassword: ${createdCredentials.password}`
+                  );
+                  toast({ title: 'Copied', description: 'Credentials copied to clipboard' });
+                }}
+              >
+                Copy credentials
+              </Button>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

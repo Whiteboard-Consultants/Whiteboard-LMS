@@ -6,33 +6,51 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { BookMarked, LayoutDashboard, BarChart3, Users, Lightbulb, UserCheck, UserSquare, Megaphone, Award, FileText, Ticket, Rss, Package, ClipboardList, Mail, Zap, DollarSign, MessageSquare, HelpCircle, Folder, Compass } from "lucide-react";
+import { BookMarked, LayoutDashboard, BarChart3, Users, Lightbulb, UserCheck, UserSquare, Megaphone, Award, FileText, Ticket, Rss, Package, ClipboardList, Mail, Zap, DollarSign, MessageSquare, HelpCircle, Folder, Compass, type LucideIcon } from "lucide-react";
 import { Skeleton } from "./ui/skeleton";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
+import { canAccessPath, hasPermission, type PermissionKey } from "@/lib/permissions";
+import type { User } from "@/types";
 
-const adminManagementLinks = [
-    { href: "/admin/coupons", label: "Coupons", icon: Ticket },
-    { href: "/admin/courses", label: "Courses", icon: BookMarked },
-    { href: "/admin/programs", label: "Programs", icon: Folder },
-    { href: "/admin/blog", label: "Blog", icon: Rss },
-    { href: "/admin/commissions", label: "Commissions", icon: DollarSign },
-    { href: "/instructor/tests", label: "Tests", icon: FileText },
-    { href: "/admin/users", label: "Users", icon: Users },
+type NavLink = {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  permission?: PermissionKey | null;
+};
+
+const adminManagementLinks: NavLink[] = [
+    { href: "/admin/coupons", label: "Coupons", icon: Ticket, permission: 'coupons' },
+    { href: "/admin/courses", label: "Courses", icon: BookMarked, permission: 'courses' },
+    { href: "/admin/programs", label: "Programs", icon: Folder, permission: 'programs' },
+    { href: "/admin/blog", label: "Blog", icon: Rss, permission: 'blog' },
+    { href: "/admin/commissions", label: "Commissions", icon: DollarSign, permission: 'commissions' },
+    { href: "/instructor/tests", label: "Tests", icon: FileText, permission: 'tests' },
+    { href: "/admin/users", label: "Users", icon: Users, permission: null }, // admin only
 ];
 
-const adminRequestLinks = [
-    { href: "/admin/enrollments", label: "Enrollments", icon: UserCheck },
-    { href: "/admin/certificates", label: "Certificates", icon: Award },
-    { href: "/admin/contact-submissions", label: "Contact Forms", icon: Mail },
-    { href: "/admin/riasec", label: "RIASEC Leads", icon: Compass },
+const adminRequestLinks: NavLink[] = [
+    { href: "/admin/enrollments", label: "Enrollments", icon: UserCheck, permission: 'enrollments' },
+    { href: "/admin/certificates", label: "Certificates", icon: Award, permission: 'certificates' },
+    { href: "/admin/contact-submissions", label: "Contact Forms", icon: Mail, permission: 'contact_forms' },
+    { href: "/admin/riasec", label: "RIASEC Leads", icon: Compass, permission: 'riasec' },
 ];
 
-const adminReportLinks = [
-    { href: "/admin/reports", label: "General", icon: BarChart3 },
-    { href: "/admin/reports/instructors", label: "Instructors", icon: UserSquare },
-    { href: "/admin/reports/commission", label: "Commission", icon: DollarSign },
-    { href: "/admin/reports/tests", label: "Tests", icon: BarChart3 },
+const adminReportLinks: NavLink[] = [
+    { href: "/admin/reports", label: "General", icon: BarChart3, permission: 'reports' },
+    { href: "/admin/reports/instructors", label: "Instructors", icon: UserSquare, permission: 'reports' },
+    { href: "/admin/reports/commission", label: "Commission", icon: DollarSign, permission: 'reports' },
+    { href: "/admin/reports/tests", label: "Tests", icon: BarChart3, permission: 'reports' },
 ];
+
+function canSeeLink(user: User | null | undefined, link: NavLink): boolean {
+  if (!user) return false;
+  if (user.role === 'admin') return true;
+  if (user.role !== 'manager') return false;
+  if (link.permission === null) return false;
+  if (!link.permission) return canAccessPath(user, link.href);
+  return hasPermission(user, link.permission);
+}
 
 export function SidebarNav() {
   const { userData, loading } = useAuth();
@@ -52,8 +70,26 @@ export function SidebarNav() {
     );
   }
 
-  const renderAdminNav = () => (
+  const renderAdminNav = () => {
+    const management = adminManagementLinks.filter((link) => canSeeLink(userData, link));
+    const requests = adminRequestLinks.filter((link) => canSeeLink(userData, link));
+    const reports = adminReportLinks.filter((link) => canSeeLink(userData, link));
+    const showDashboard = canSeeLink(userData, {
+      href: '/admin/dashboard',
+      label: 'Dashboard',
+      icon: LayoutDashboard,
+      permission: 'dashboard',
+    });
+    const showAnnouncements = canSeeLink(userData, {
+      href: '/admin/announcements',
+      label: 'Announcements',
+      icon: Megaphone,
+      permission: 'announcements',
+    });
+
+    return (
      <div className="px-2 text-sm font-medium lg:px-4 space-y-1">
+        {showDashboard && (
         <Link
             href="/admin/dashboard"
             onClick={() => setOpenMobile(false)}
@@ -67,6 +103,8 @@ export function SidebarNav() {
             <LayoutDashboard className="h-5 w-5" />
             Dashboard
         </Link>
+        )}
+         {showAnnouncements && (
          <Link
             href="/admin/announcements"
             onClick={() => setOpenMobile(false)}
@@ -80,7 +118,9 @@ export function SidebarNav() {
             <Megaphone className="h-5 w-5" />
             Announcements
         </Link>
-        <Accordion type="multiple" className="w-full">
+         )}
+        <Accordion type="multiple" className="w-full" defaultValue={['management', 'requests', 'reports']}>
+            {management.length > 0 && (
             <AccordionItem value="management" className="border-none">
                 <AccordionTrigger className="px-3 py-2 rounded-lg text-primary-foreground/80 hover:bg-primary-foreground/10 hover:text-primary-foreground hover:no-underline [&[data-state=open]]:bg-primary-foreground/10">
                    <div className="flex items-center gap-3">
@@ -89,7 +129,7 @@ export function SidebarNav() {
                    </div>
                 </AccordionTrigger>
                 <AccordionContent className="pl-8 pt-1 space-y-1">
-                     {adminManagementLinks.map(link => {
+                     {management.map(link => {
                          const isActive = pathname.startsWith(link.href);
                          return (
                             <Link key={link.href} href={link.href} onClick={() => setOpenMobile(false)} className={cn("flex items-center gap-3 rounded-md px-3 py-2 text-primary-foreground/70 transition-all hover:text-primary-foreground", isActive && "bg-primary-foreground/10 text-primary-foreground")}>
@@ -100,6 +140,8 @@ export function SidebarNav() {
                      })}
                 </AccordionContent>
             </AccordionItem>
+            )}
+             {requests.length > 0 && (
              <AccordionItem value="requests" className="border-none">
                 <AccordionTrigger className="px-3 py-2 rounded-lg text-primary-foreground/80 hover:bg-primary-foreground/10 hover:text-primary-foreground hover:no-underline [&[data-state=open]]:bg-primary-foreground/10">
                    <div className="flex items-center gap-3">
@@ -108,7 +150,7 @@ export function SidebarNav() {
                    </div>
                 </AccordionTrigger>
                 <AccordionContent className="pl-8 pt-1 space-y-1">
-                     {adminRequestLinks.map(link => {
+                     {requests.map(link => {
                           const isActive = pathname.startsWith(link.href);
                          return (
                             <Link key={link.href} href={link.href} onClick={() => setOpenMobile(false)} className={cn("flex items-center gap-3 rounded-md px-3 py-2 text-primary-foreground/70 transition-all hover:text-primary-foreground", isActive && "bg-primary-foreground/10 text-primary-foreground")}>
@@ -119,6 +161,8 @@ export function SidebarNav() {
                      })}
                 </AccordionContent>
             </AccordionItem>
+             )}
+             {reports.length > 0 && (
              <AccordionItem value="reports" className="border-none">
                 <AccordionTrigger className="px-3 py-2 rounded-lg text-primary-foreground/80 hover:bg-primary-foreground/10 hover:text-primary-foreground hover:no-underline [&[data-state=open]]:bg-primary-foreground/10">
                    <div className="flex items-center gap-3">
@@ -127,7 +171,7 @@ export function SidebarNav() {
                    </div>
                 </AccordionTrigger>
                 <AccordionContent className="pl-8 pt-1 space-y-1">
-                     {adminReportLinks.map(link => {
+                     {reports.map(link => {
                           const isActive = pathname.startsWith(link.href);
                          return (
                             <Link key={link.href} href={link.href} onClick={() => setOpenMobile(false)} className={cn("flex items-center gap-3 rounded-md px-3 py-2 text-primary-foreground/70 transition-all hover:text-primary-foreground", isActive && "bg-primary-foreground/10 text-primary-foreground")}>
@@ -138,9 +182,11 @@ export function SidebarNav() {
                      })}
                 </AccordionContent>
             </AccordionItem>
+             )}
         </Accordion>
      </div>
   );
+  };
 
   const getNavLinks = () => {
     const allLinks = {
@@ -166,12 +212,12 @@ export function SidebarNav() {
       ],
     };
     
-    return role && role !== 'admin' ? allLinks[role] : [];
+    return role && role !== 'admin' && role !== 'manager' ? allLinks[role as 'instructor' | 'student'] : [];
   };
 
   const links = getNavLinks();
   
-  if (role === 'admin') {
+  if (role === 'admin' || role === 'manager') {
       return renderAdminNav();
   }
 

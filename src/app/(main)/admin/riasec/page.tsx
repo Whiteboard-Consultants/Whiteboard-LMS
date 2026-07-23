@@ -36,6 +36,7 @@ import {
   getRiasecAssessments,
   deleteRiasecAssessment,
 } from '@/app/(main)/admin/riasec/actions';
+import { useAuth } from '@/hooks/use-auth';
 
 interface RiasecAssessment {
   id: string;
@@ -71,6 +72,7 @@ function escapeCsv(value: string) {
 }
 
 export default function RiasecLeadsPage() {
+  const { userData } = useAuth();
   const [assessments, setAssessments] = useState<RiasecAssessment[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -97,7 +99,7 @@ export default function RiasecLeadsPage() {
   const fetchAssessments = async () => {
     try {
       setLoading(true);
-      const result = await getRiasecAssessments();
+      const result = await getRiasecAssessments(userData);
       if (result.success && result.data) {
         setAssessments(result.data);
       } else {
@@ -114,7 +116,7 @@ export default function RiasecLeadsPage() {
     if (!confirm('Are you sure you want to delete this RIASEC lead?')) return;
 
     try {
-      const result = await deleteRiasecAssessment(id);
+      const result = await deleteRiasecAssessment(id, userData);
       if (result.success) {
         setAssessments((prev) => prev.filter((a) => a.id !== id));
         if (selectedAssessment?.id === id) {

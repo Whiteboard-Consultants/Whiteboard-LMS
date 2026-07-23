@@ -72,8 +72,8 @@ export default function InstructorTestsPage() {
           .select('*')
           .order('created_at', { ascending: false });
 
-        if (userData?.role !== 'admin') {
-          // For non-admin users, filter by instructor_id
+        if (userData?.role !== 'admin' && userData?.role !== 'manager') {
+          // For non-admin/manager users, filter by instructor_id
           testsQuery = testsQuery.eq('instructor_id', user.id);
         }
 
@@ -126,7 +126,7 @@ export default function InstructorTestsPage() {
         }
 
         // Fetch all instructors if user is admin (using server action)
-        if (userData?.role === 'admin') {
+        if (userData?.role === 'admin' || userData?.role === 'manager') {
           const instructorsList = await getInstructors();
           const instructorMap = new Map();
           instructorsList.forEach(instructor => {
@@ -268,7 +268,7 @@ export default function InstructorTestsPage() {
      </AlertDialog>
   );
   
-  const dashboardUrl = userData?.role === 'admin' ? '/admin/dashboard' : '/instructor/dashboard';
+  const dashboardUrl = userData?.role === 'admin' || userData?.role === 'manager' ? '/admin/dashboard' : '/instructor/dashboard';
 
   return (
     <div>
@@ -314,7 +314,7 @@ export default function InstructorTestsPage() {
                               <CardTitle className="text-lg">{test.title}</CardTitle>
                               <TestActions test={test} />
                           </div>
-                           {userData?.role === 'admin' && (
+                           {(userData?.role === 'admin' || userData?.role === 'manager') && (
                                 <p className="text-xs text-muted-foreground pt-1">
                                     By: {instructors.get(test.instructorId) || 'Unknown Instructor'}
                                 </p>

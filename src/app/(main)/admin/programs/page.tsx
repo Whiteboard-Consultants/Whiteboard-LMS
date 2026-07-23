@@ -52,9 +52,9 @@ export default function AdminProgramsPage() {
     batch_time: ''
   });
 
-  // Check if user is admin
+  // Check if user is admin or manager
   useEffect(() => {
-    if (user && userData && userData.role !== 'admin') {
+    if (user && userData && userData.role !== 'admin' && userData.role !== 'manager') {
       router.push('/student/dashboard');
     }
   }, [user, userData, router]);
@@ -209,7 +209,7 @@ export default function AdminProgramsPage() {
     course => !programCourses.some(pc => pc.id === course.id)
   );
 
-  if (!user || !userData || userData.role !== 'admin') {
+  if (!user || !userData || (userData.role !== 'admin' && userData.role !== 'manager')) {
     return null;
   }
 

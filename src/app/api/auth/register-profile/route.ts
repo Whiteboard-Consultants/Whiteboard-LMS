@@ -22,6 +22,14 @@ export async function POST(request: NextRequest) {
       await request.json()
     );
 
+    // Managers/admins cannot be created via public registration
+    if (role === 'admin') {
+      return NextResponse.json(
+        { error: 'Admin accounts cannot be created via public registration' },
+        { status: 403 }
+      );
+    }
+
     const { data: authUser, error: authError } =
       await supabaseAdmin.auth.admin.getUserById(userId);
 

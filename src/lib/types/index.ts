@@ -3,13 +3,31 @@
 import type { IconName } from "@/components/counter-stat";
 
 // Use string for dates instead of Firebase Timestamp
-export type UserRole = 'admin' | 'instructor' | 'student';
+export type UserRole = 'admin' | 'manager' | 'instructor' | 'student';
+
+export type ManagerPermission =
+  | 'dashboard'
+  | 'announcements'
+  | 'coupons'
+  | 'courses'
+  | 'programs'
+  | 'blog'
+  | 'commissions'
+  | 'tests'
+  | 'enrollments'
+  | 'certificates'
+  | 'contact_forms'
+  | 'riasec'
+  | 'reports'
+  | '*';
 
 export type User = {
   id: string;
   name: string;
   email: string;
   role: UserRole;
+  /** Manager module permissions. `['*']` = all manager-allowed modules. */
+  permissions?: ManagerPermission[] | null;
   avatarUrl?: string;
   status: 'pending' | 'approved' | 'rejected' | 'suspended';
   phone?: string;

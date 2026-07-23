@@ -117,7 +117,7 @@ export async function authenticatedFetch(
     console.log(`authenticatedFetch: ✅ Adding Authorization header (token first 50 chars: ${currentSession.access_token.substring(0, 50)}...)`);
     (fetchOptions.headers as Record<string, string>)['Authorization'] = `Bearer ${currentSession.access_token}`;
   } else {
-    console.warn('authenticatedFetch: ❌ No access_token available - request will likely fail');
+    throw new Error('No active session. Please refresh the page and sign in again.');
   }
   
   const result = await fetch(url, fetchOptions);

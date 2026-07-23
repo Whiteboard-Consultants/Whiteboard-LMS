@@ -63,7 +63,7 @@ export default function InstructorDashboardPage() {
         console.log('🔄 User role is', userData.role, ', redirecting to correct dashboard...');
         if (userData.role === 'student') {
             router.push('/student/dashboard');
-        } else if (userData.role === 'admin') {
+        } else if (userData.role === 'admin' || userData.role === 'manager') {
             router.push('/admin/dashboard');
         }
         return;

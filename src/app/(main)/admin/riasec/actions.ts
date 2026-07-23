@@ -1,6 +1,8 @@
 'use server';
 
 import { createClient } from '@supabase/supabase-js';
+import { assertCan } from '@/lib/permissions';
+import type { User } from '@/types';
 
 const supabaseAdmin = process.env.SUPABASE_SERVICE_ROLE_KEY
   ? createClient(
@@ -15,8 +17,13 @@ const supabaseAdmin = process.env.SUPABASE_SERVICE_ROLE_KEY
     )
   : null;
 
-export async function getRiasecAssessments() {
+type Actor = Pick<User, 'role' | 'permissions'> | null | undefined;
+
+export async function getRiasecAssessments(actor?: Actor) {
   try {
+    if (actor !== undefined) {
+      assertCan(actor, 'riasec');
+    }
     if (!supabaseAdmin) {
       return { success: false, error: 'Database configuration error' };
     }
@@ -34,12 +41,18 @@ export async function getRiasecAssessments() {
     return { success: true, data };
   } catch (error) {
     console.error('Error in getRiasecAssessments:', error);
-    return { success: false, error: 'Failed to fetch RIASEC assessments' };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch RIASEC assessments',
+    };
   }
 }
 
-export async function deleteRiasecAssessment(id: string) {
+export async function deleteRiasecAssessment(id: string, actor?: Actor) {
   try {
+    if (actor !== undefined) {
+      assertCan(actor, 'riasec');
+    }
     if (!supabaseAdmin) {
       return { success: false, error: 'Database configuration error' };
     }
@@ -48,10 +61,7 @@ export async function deleteRiasecAssessment(id: string) {
       return { success: false, error: 'Assessment ID is required' };
     }
 
-    const { error } = await supabaseAdmin
-      .from('riasec_assessments')
-      .delete()
-      .eq('id', id);
+    const { error } = await supabaseAdmin.from('riasec_assessments').delete().eq('id', id);
 
     if (error) {
       console.error('Error deleting RIASEC assessment:', error);
@@ -61,12 +71,18 @@ export async function deleteRiasecAssessment(id: string) {
     return { success: true };
   } catch (error) {
     console.error('Error in deleteRiasecAssessment:', error);
-    return { success: false, error: 'Failed to delete RIASEC assessment' };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to delete RIASEC assessment',
+    };
   }
 }
 
-export async function getRiasecAssessmentStats() {
+export async function getRiasecAssessmentStats(actor?: Actor) {
   try {
+    if (actor !== undefined) {
+      assertCan(actor, 'riasec');
+    }
     if (!supabaseAdmin) {
       return { success: false, error: 'Database configuration error' };
     }
@@ -111,6 +127,12 @@ export async function getRiasecAssessmentStats() {
     };
   } catch (error) {
     console.error('Error in getRiasecAssessmentStats:', error);
-    return { success: false, error: 'Failed to fetch RIASEC assessment statistics' };
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch RIASEC assessment statistics',
+    };
   }
 }

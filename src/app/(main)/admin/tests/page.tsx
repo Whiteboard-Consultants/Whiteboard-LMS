@@ -64,7 +64,7 @@ export default function AdminTestsPage() {
   const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
-    if (userData?.role === 'admin') {
+    if (userData?.role === 'admin' || userData?.role === 'manager') {
       fetchTests();
     }
   }, [userData]);
@@ -221,7 +221,7 @@ export default function AdminTestsPage() {
     return matchesSearch && matchesType;
   });
 
-  if (userData?.role !== 'admin') {
+  if (userData?.role !== 'admin' && userData?.role !== 'manager') {
     return (
       <div className="container mx-auto py-8">
         <div className="text-center">

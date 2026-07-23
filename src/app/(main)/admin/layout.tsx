@@ -1,9 +1,19 @@
 
 'use client';
 import { useAuth } from "@/hooks/use-auth";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { canAccessPath, hasPermission, isAdminOrManager, MANAGER_PERMISSION_CATALOG } from "@/lib/permissions";
+import type { User } from "@/types";
+
+function firstAllowedAdminPath(user: User): string {
+  if (hasPermission(user, 'dashboard')) return '/admin/dashboard';
+  for (const item of MANAGER_PERMISSION_CATALOG) {
+    if (hasPermission(user, item.key)) return item.href;
+  }
+  return '/login';
+}
 
 export default function AdminLayout({
   children,
@@ -12,18 +22,30 @@ export default function AdminLayout({
 }) {
   const { user, userData, loading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
-    if (loading) return; // Wait for auth state to be determined
+    if (loading) return;
 
-    // If a user is logged in but is not an admin, redirect.
-    if (user && userData && userData.role !== 'admin') {
-      router.push('/login'); 
+    if (user && userData && !isAdminOrManager(userData.role)) {
+      router.push('/login');
+      return;
     }
-  }, [user, userData, loading, router]);
+
+    if (user && userData && userData.role === 'manager') {
+      if (!canAccessPath(userData, pathname)) {
+        router.replace(firstAllowedAdminPath(userData));
+      }
+    }
+  }, [user, userData, loading, router, pathname]);
   
-  // While loading, or if the user is not authorized, show a loading skeleton.
-  if (loading || !user || (userData?.role !== 'admin')) {
+  const authorized =
+    !!user &&
+    !!userData &&
+    isAdminOrManager(userData.role) &&
+    (userData.role === 'admin' || canAccessPath(userData, pathname));
+
+  if (loading || !authorized) {
     return (
         <div className="space-y-4">
           <Skeleton className="h-10 w-1/2" />

@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { getContactSubmissions, deleteContactSubmission } from '@/app/(main)/admin/contact-submissions/actions';
+import { useAuth } from '@/hooks/use-auth';
 
 interface ContactSubmission {
   id: string;
@@ -49,6 +50,7 @@ interface ContactSubmission {
 }
 
 export default function ContactSubmissionsPage() {
+  const { userData } = useAuth();
   const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -75,7 +77,7 @@ export default function ContactSubmissionsPage() {
   const fetchSubmissions = async () => {
     try {
       setLoading(true);
-      const result = await getContactSubmissions();
+      const result = await getContactSubmissions(userData);
       if (result.success && result.data) {
         setSubmissions(result.data);
       } else {
@@ -91,7 +93,7 @@ export default function ContactSubmissionsPage() {
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this submission?')) {
       try {
-        const result = await deleteContactSubmission(id);
+        const result = await deleteContactSubmission(id, userData);
         if (result.success) {
           setSubmissions(submissions.filter(s => s.id !== id));
           if (selectedSubmission?.id === id) {

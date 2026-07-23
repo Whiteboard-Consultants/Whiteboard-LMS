@@ -15,10 +15,18 @@ import { AdminRevenueCard } from '@/components/admin-revenue-card';
 import { StatCard } from '@/components/stat-card';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { hasPermission, isAdminRole } from '@/lib/permissions';
 
 export default function AdminDashboardPage() {
   const { user, userData } = useAuth();
+  const isAdmin = isAdminRole(userData?.role);
+  const canUsers = isAdmin;
+  const canContact = hasPermission(userData, 'contact_forms');
+  const canRiasec = hasPermission(userData, 'riasec');
+  const canCourses = hasPermission(userData, 'courses');
+  const canCommissions = hasPermission(userData, 'commissions');
+  const canAnnouncements = hasPermission(userData, 'announcements');
+  const canReports = hasPermission(userData, 'reports');
   const [totalUsers, setTotalUsers] = useState(0);
   const [totalInstructors, setTotalInstructors] = useState(0);
   const [totalStudents, setTotalStudents] = useState(0);
@@ -36,44 +44,46 @@ export default function AdminDashboardPage() {
   }>({ totalLeads: 0, recentLeads: 0, completedAssessments: 0 });
 
   useEffect(() => {
-    if (!user) {
+    if (!user || !userData) {
         setLoading(false);
         return;
     }
 
-    // Verify user is admin and fetch dashboard data
     const fetchDashboardData = async () => {
       try {
-        // Use server action to fetch dashboard stats
-        const statsResult = await getDashboardStats();
-        
-        if (statsResult.success && statsResult.data) {
-          setTotalUsers(statsResult.data.totalUsers);
-          setTotalInstructors(statsResult.data.totalInstructors);
-          setTotalStudents(statsResult.data.totalStudents);
-          setPendingUsers(statsResult.data.pendingApprovals);
-          setUsers(statsResult.data.users);
-          console.log('Dashboard stats loaded:', statsResult.data);
-        } else {
-          console.error('Failed to load dashboard stats:', statsResult.error);
+        if (isAdminRole(userData.role)) {
+          const statsResult = await getDashboardStats();
+          
+          if (statsResult.success && statsResult.data) {
+            setTotalUsers(statsResult.data.totalUsers);
+            setTotalInstructors(statsResult.data.totalInstructors);
+            setTotalStudents(statsResult.data.totalStudents);
+            setPendingUsers(statsResult.data.pendingApprovals);
+            setUsers(statsResult.data.users);
+          } else {
+            console.error('Failed to load dashboard stats:', statsResult.error);
+          }
         }
 
-        // Fetch contact submission stats
-        const contactStatsResult = await getContactSubmissionStats();
-        if (contactStatsResult.success && contactStatsResult.data) {
-          setContactStats({
-            totalSubmissions: contactStatsResult.data.totalSubmissions,
-            recentSubmissions: contactStatsResult.data.recentSubmissions
-          });
+        if (hasPermission(userData, 'contact_forms')) {
+          const contactStatsResult = await getContactSubmissionStats(userData);
+          if (contactStatsResult.success && contactStatsResult.data) {
+            setContactStats({
+              totalSubmissions: contactStatsResult.data.totalSubmissions,
+              recentSubmissions: contactStatsResult.data.recentSubmissions
+            });
+          }
         }
 
-        const riasecStatsResult = await getRiasecAssessmentStats();
-        if (riasecStatsResult.success && riasecStatsResult.data) {
-          setRiasecStats({
-            totalLeads: riasecStatsResult.data.totalLeads,
-            recentLeads: riasecStatsResult.data.recentLeads,
-            completedAssessments: riasecStatsResult.data.completedAssessments,
-          });
+        if (hasPermission(userData, 'riasec')) {
+          const riasecStatsResult = await getRiasecAssessmentStats(userData);
+          if (riasecStatsResult.success && riasecStatsResult.data) {
+            setRiasecStats({
+              totalLeads: riasecStatsResult.data.totalLeads,
+              recentLeads: riasecStatsResult.data.recentLeads,
+              completedAssessments: riasecStatsResult.data.completedAssessments,
+            });
+          }
         }
       } catch (error) {
         console.warn("Dashboard data unavailable - database not fully set up:", error);
@@ -83,7 +93,7 @@ export default function AdminDashboardPage() {
     };
 
     fetchDashboardData();
-  }, [user]);
+  }, [user, userData]);
 
   if (loading) {
     return (
@@ -124,6 +134,8 @@ export default function AdminDashboardPage() {
           <AnnouncementBanner />
       
       <div className="space-y-6">
+        {canUsers && (
+          <>
         <h2 className="text-2xl font-bold tracking-tight font-headline text-slate-900 dark:text-white">System Statistics</h2>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           <Link href="/admin/users" className="no-underline">
@@ -154,11 +166,14 @@ export default function AdminDashboardPage() {
             />
           </Link>
         </div>
+          </>
+        )}
       </div>
 
       <div className="space-y-6 mt-12">
         <h2 className="text-2xl font-bold tracking-tight font-headline text-slate-900 dark:text-white">Quick Metrics</h2>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {canUsers && (
           <Link href="/admin/users?tab=requests" className="no-underline">
             <StatCard
               title={pendingUsers > 0 ? "⚠️ Pending Approvals" : "Pending Approvals"}
@@ -171,6 +186,8 @@ export default function AdminDashboardPage() {
               <p className="text-xs text-foreground/60 dark:text-slate-300/60 pt-1">Users awaiting approval</p>
             </StatCard>
           </Link>
+          )}
+          {canContact && (
           <Link href="/admin/contact-submissions" className="no-underline">
             <StatCard
               title="Contact Submissions"
@@ -181,6 +198,8 @@ export default function AdminDashboardPage() {
               <p className="text-xs text-foreground/60 dark:text-slate-300/60 pt-1">{contactStats.totalSubmissions} total submissions</p>
             </StatCard>
           </Link>
+          )}
+          {canRiasec && (
           <Link href="/admin/riasec" className="no-underline">
             <StatCard
               title="RIASEC Leads"
@@ -193,12 +212,14 @@ export default function AdminDashboardPage() {
               </p>
             </StatCard>
           </Link>
+          )}
         </div>
       </div>
 
       <div className="space-y-6 mt-12">
         <h2 className="text-2xl font-bold tracking-tight font-headline text-slate-900 dark:text-white">Quick Actions</h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {canUsers && (
           <Link href="/admin/users" className="no-underline">
             <Card variant="blue" className="hover:bg-blue-100/50 dark:hover:bg-blue-900/30 cursor-pointer h-full">
               <CardHeader>
@@ -212,6 +233,8 @@ export default function AdminDashboardPage() {
               </CardContent>
             </Card>
           </Link>
+          )}
+          {canCourses && (
           <Link href="/admin/courses" className="no-underline">
             <Card variant="green" className="hover:bg-green-100/50 dark:hover:bg-green-900/30 cursor-pointer h-full">
               <CardHeader>
@@ -225,6 +248,8 @@ export default function AdminDashboardPage() {
               </CardContent>
             </Card>
           </Link>
+          )}
+          {canCommissions && (
           <Link href="/admin/commissions" className="no-underline">
             <Card variant="purple" className="hover:bg-purple-100/50 dark:hover:bg-purple-900/30 cursor-pointer h-full">
               <CardHeader>
@@ -238,6 +263,8 @@ export default function AdminDashboardPage() {
               </CardContent>
             </Card>
           </Link>
+          )}
+          {canAnnouncements && (
           <Link href="/admin/announcements" className="no-underline">
             <Card variant="orange" className="hover:bg-orange-100/50 dark:hover:bg-orange-900/30 cursor-pointer h-full">
               <CardHeader>
@@ -251,13 +278,16 @@ export default function AdminDashboardPage() {
               </CardContent>
             </Card>
           </Link>
+          )}
         </div>
       </div>
       {/* Revenue Analytics Section */}
+      {(canReports || canCommissions) && (
       <div className="space-y-6 mt-12">
         <h2 className="text-2xl font-bold tracking-tight font-headline text-slate-900 dark:text-white">Revenue Analytics</h2>
         <AdminRevenueCard />
       </div>
+      )}
         </div>
       </div>
     </div>

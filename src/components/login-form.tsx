@@ -143,7 +143,7 @@ export function LoginForm({ router }: LoginFormProps) {
 
       let redirectPath = returnUrl
         ? returnUrl
-        : role === 'admin' ? '/admin/dashboard'
+        : role === 'admin' || role === 'manager' ? '/admin/dashboard'
         : role === 'instructor' ? '/instructor/dashboard'
         : '/student/dashboard';
       
