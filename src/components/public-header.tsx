@@ -45,7 +45,7 @@ export function PublicHeader() {
                     <div className="hidden lg:flex min-w-0 flex-1 items-center justify-center relative">
                         <MainNav />
                     </div>
-                    <div className="flex shrink-0 items-center justify-end space-x-4">
+                    <div className="ml-auto flex shrink-0 items-center justify-end space-x-4">
                         <div className="hidden lg:block">
                             <UserActions />
                         </div>
