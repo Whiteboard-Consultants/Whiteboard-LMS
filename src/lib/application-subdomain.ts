@@ -19,6 +19,7 @@ export const APPLICATION_PATHS = [
   '/online-mba',
   '/apply',
   '/uow',
+  '/bges',
 ] as const;
 
 export type ApplicationPath = (typeof APPLICATION_PATHS)[number];

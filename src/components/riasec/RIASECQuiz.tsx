@@ -66,10 +66,10 @@ export function RIASECQuiz({
   const allQuestionsAnswered = Object.keys(responses).length === totalQuestions;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4 py-8">
-      <div className="w-full max-w-2xl bg-white rounded-xl shadow-lg overflow-hidden">
+    <div className="bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4 py-6 sm:p-6 sm:py-8">
+      <div className="w-full max-w-4xl bg-white rounded-xl shadow-lg overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-6 text-white">
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-6 text-white sm:px-8">
           <h1 className="text-2xl font-bold mb-2">Career Assessment Quiz</h1>
           <div className="flex items-center justify-between">
             <span className="text-blue-100">
@@ -89,15 +89,15 @@ export function RIASECQuiz({
         </div>
 
         {/* Content */}
-        <div className="p-8">
+        <div className="p-6 sm:p-8 lg:p-10">
           {/* Question */}
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-800 mb-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-6 sm:text-2xl">
               {currentQuestion.text}
             </h2>
 
             {/* Options */}
-            <div className="space-y-3">
+            <div className="grid gap-3 sm:grid-cols-2">
               {currentQuestion.options.map(option => (
                 <label
                   key={option.value}

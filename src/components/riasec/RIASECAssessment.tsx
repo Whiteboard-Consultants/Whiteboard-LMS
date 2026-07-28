@@ -5,10 +5,12 @@
 
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { RIASECRegistration } from './RIASECRegistration';
+import { BgesRiasecPreForm } from './BgesRiasecPreForm';
 import { RIASECQuiz } from './RIASECQuiz';
 import { RIASECResults } from './RIASECResults';
+import type { BgesPreQuizFormData } from '@/lib/schemas/bges-pre-quiz';
 
 type AssessmentStep = 'registration' | 'quiz' | 'results';
 
@@ -20,9 +22,12 @@ interface AssessmentState {
   fullName: string | null;
   scores: Record<string, number> | null;
   profileDetails: any[] | null;
+  preQuiz: BgesPreQuizFormData | null;
 }
 
 export function RIASECAssessment({ campaign }: { campaign?: string }) {
+  const isBges = campaign === 'bges';
+
   const [state, setState] = useState<AssessmentState>({
     step: 'registration',
     userId: null,
@@ -31,29 +36,30 @@ export function RIASECAssessment({ campaign }: { campaign?: string }) {
     fullName: null,
     scores: null,
     profileDetails: null,
+    preQuiz: null,
   });
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Handle successful registration
   const handleRegistrationComplete = (data: {
     userId: string;
     email: string;
     fullName: string;
     assessmentId: string;
+    preQuiz?: BgesPreQuizFormData;
   }) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       step: 'quiz',
       userId: data.userId,
       assessmentId: data.assessmentId,
       userEmail: data.email,
       fullName: data.fullName,
+      preQuiz: data.preQuiz ?? null,
     }));
   };
 
-  // Handle quiz submission
   const handleQuizSubmit = async (responses: Record<string, string>) => {
     setIsLoading(true);
     setError(null);
@@ -64,7 +70,9 @@ export function RIASECAssessment({ campaign }: { campaign?: string }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           assessmentId: state.assessmentId,
-          responses,
+          responses: state.preQuiz
+            ? { ...responses, _preQuiz: state.preQuiz, _campaign: campaign }
+            : responses,
           campaign,
         }),
       });
@@ -76,7 +84,7 @@ export function RIASECAssessment({ campaign }: { campaign?: string }) {
       const data = await response.json();
 
       if (data.success) {
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
           step: 'results',
           scores: data.results.scores,
@@ -90,11 +98,16 @@ export function RIASECAssessment({ campaign }: { campaign?: string }) {
     }
   };
 
-  // Render appropriate step
   const renderStep = () => {
     switch (state.step) {
       case 'registration':
-        return (
+        return isBges ? (
+          <BgesRiasecPreForm
+            onComplete={handleRegistrationComplete}
+            isLoading={isLoading}
+            error={error}
+          />
+        ) : (
           <RIASECRegistration
             onComplete={handleRegistrationComplete}
             isLoading={isLoading}
@@ -123,9 +136,5 @@ export function RIASECAssessment({ campaign }: { campaign?: string }) {
     }
   };
 
-  return (
-    <div className="w-full max-w-4xl mx-auto">
-      {renderStep()}
-    </div>
-  );
+  return <div className="w-full mx-auto">{renderStep()}</div>;
 }

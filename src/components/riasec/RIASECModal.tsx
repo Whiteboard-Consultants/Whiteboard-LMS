@@ -27,9 +27,9 @@ export function RIASECModal({ isOpen, onClose, campaign }: RIASECModalProps) {
       />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-3 sm:p-6">
         <div
-          className="bg-white rounded-2xl shadow-2xl max-h-[90vh] overflow-hidden w-full max-w-4xl relative"
+          className="bg-white rounded-2xl shadow-2xl max-h-[96vh] overflow-hidden w-full max-w-6xl relative"
           onClick={e => e.stopPropagation()}
         >
           {/* Close Button */}
@@ -43,7 +43,7 @@ export function RIASECModal({ isOpen, onClose, campaign }: RIASECModalProps) {
           </button>
 
           {/* Content */}
-          <div className="overflow-y-auto max-h-[90vh]">
+          <div className="overflow-y-auto max-h-[96vh]">
             <RIASECAssessment campaign={campaign} />
           </div>
         </div>
