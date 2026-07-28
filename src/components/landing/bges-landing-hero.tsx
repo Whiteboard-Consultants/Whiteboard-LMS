@@ -92,7 +92,7 @@ export function BgesLandingHero() {
                   <span className="font-extrabold text-[#E8A020]">FREE</span>{' '}
                   Participation Certificate.
                 </span>
-                <ArrowRight className="h-5 w-5 shrink-0 transition group-hover:translate-x-1" />
+                <ArrowRight className="h-24 w-24 shrink-0 stroke-[3] text-[hsl(209,100%,29%)] transition group-hover:translate-x-2" />
               </a>
             </Button>
           </div>

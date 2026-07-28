@@ -5,6 +5,11 @@
 
 import { createTransporter } from '@/lib/email-service';
 import { RIASECProfile } from '@/lib/riasec-data';
+import {
+  formatPreQuizForDisplay,
+  getPreQuizFromResponses,
+  getQuizAnswersFromResponses,
+} from '@/lib/bges-riasec-display';
 
 interface RIASECEmailPayload {
   assessment: any;
@@ -15,6 +20,7 @@ interface RIASECEmailPayload {
 
 const ADMIN_SUBJECT_BY_CAMPAIGN: Record<string, string> = {
   'campus-placement': 'New Application for Campus Placement',
+  bges: 'New BGES RIASEC Assessment',
 };
 
 export function getRiasecAdminSubject(campaign?: string): string | undefined {
@@ -217,6 +223,44 @@ async function sendAdminSummaryEmail(
   adminEmail: string,
   adminSubject?: string
 ) {
+  const preQuiz = formatPreQuizForDisplay(
+    getPreQuizFromResponses(assessment.responses)
+  );
+  const quizAnswers = getQuizAnswersFromResponses(assessment.responses);
+
+  const preQuizHtml = preQuiz
+    ? `
+      <div style="background-color: #f8fafc; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+        <h3 style="margin: 0 0 10px 0; color: #1e40af;">BGES Pre-Quiz</h3>
+        <p><strong>WhatsApp:</strong> ${preQuiz.whatsappNumber || '—'}</p>
+        <p><strong>Career Stage:</strong> ${preQuiz.careerStage}</p>
+        <p><strong>Graduation Program:</strong> ${preQuiz.graduationProgram}</p>
+        <p><strong>Future Plans:</strong> ${preQuiz.futurePlans}</p>
+        <p><strong>Higher Studies Focus:</strong> ${preQuiz.higherStudiesFocus}</p>
+      </div>
+    `
+    : '';
+
+  const quizAnswersHtml = quizAnswers.length
+    ? `
+      <div style="background-color: #f8fafc; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+        <h3 style="margin: 0 0 10px 0; color: #1e40af;">Quiz Answers</h3>
+        <ol style="margin: 0; padding-left: 20px; color: #334155;">
+          ${quizAnswers
+            .map(
+              (answer) => `
+            <li style="margin-bottom: 12px;">
+              <div style="font-weight: 600; color: #1e293b; margin-bottom: 4px;">${answer.questionText}</div>
+              <div>${answer.answerText}</div>
+            </li>
+          `
+            )
+            .join('')}
+        </ol>
+      </div>
+    `
+    : '';
+
   const htmlContent = `
     <div style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; padding: 20px;">
       <h2 style="color: #2563eb; margin-bottom: 20px;">New RIASEC Assessment Completed</h2>
@@ -225,8 +269,15 @@ async function sendAdminSummaryEmail(
         <h3 style="margin: 0 0 10px 0; color: #1e40af;">Student Information</h3>
         <p><strong>Name:</strong> ${assessment.full_name}</p>
         <p><strong>Email:</strong> <a href="mailto:${assessment.email}">${assessment.email}</a></p>
+        ${
+          preQuiz?.whatsappNumber
+            ? `<p><strong>WhatsApp:</strong> ${preQuiz.whatsappNumber}</p>`
+            : ''
+        }
         <p><strong>Completed:</strong> ${new Date(assessment.completed_at).toLocaleString()}</p>
       </div>
+
+      ${preQuizHtml}
 
       <div style="background-color: #f8fafc; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
         <h3 style="margin: 0 0 10px 0; color: #1e40af;">Assessment Results</h3>
@@ -245,6 +296,8 @@ async function sendAdminSummaryEmail(
         </ul>
       </div>
 
+      ${quizAnswersHtml}
+
       <div style="background-color: #f3f4f6; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
         <h4 style="margin-top: 0;">Assessment ID:</h4>
         <code style="font-family: monospace; color: #666;">${assessment.id}</code>
@@ -258,11 +311,14 @@ async function sendAdminSummaryEmail(
   `;
 
   const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.GMAIL_USER;
+  const subject = adminSubject
+    ? `${adminSubject}: ${assessment.full_name}`
+    : `New RIASEC Assessment: ${assessment.full_name}`;
 
   await transporter.sendMail({
     from: fromEmail,
     to: adminEmail,
-    subject: adminSubject || `New RIASEC Assessment: ${assessment.full_name}`,
+    subject,
     html: htmlContent,
   });
 

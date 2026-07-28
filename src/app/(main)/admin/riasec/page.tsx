@@ -37,6 +37,12 @@ import {
   deleteRiasecAssessment,
 } from '@/app/(main)/admin/riasec/actions';
 import { useAuth } from '@/hooks/use-auth';
+import {
+  formatPreQuizForDisplay,
+  getPreQuizFromResponses,
+  getQuizAnswersFromResponses,
+  isBgesCampaign,
+} from '@/lib/bges-riasec-display';
 
 interface RiasecAssessment {
   id: string;
@@ -52,6 +58,7 @@ interface RiasecAssessment {
   primary_profile: string | null;
   secondary_profile: string | null;
   tertiary_profile: string | null;
+  responses: Record<string, unknown> | null;
   email_sent_to_student: boolean | null;
   email_sent_to_admin: boolean | null;
   created_at: string;
@@ -135,6 +142,12 @@ export default function RiasecLeadsPage() {
     const headers = [
       'Name',
       'Email',
+      'WhatsApp',
+      'Campaign',
+      'Career Stage',
+      'Graduation Program',
+      'Future Plans',
+      'Higher Studies Focus',
       'Status',
       'Primary Profile',
       'Secondary Profile',
@@ -149,24 +162,47 @@ export default function RiasecLeadsPage() {
       'Completed At',
     ];
 
-    const rows = filteredAssessments.map((assessment) => [
-      assessment.full_name || '',
-      assessment.email,
-      assessment.completed_at ? 'Completed' : 'Registered',
-      assessment.primary_profile || '',
-      assessment.secondary_profile || '',
-      assessment.tertiary_profile || '',
-      String(assessment.realistic_score ?? 0),
-      String(assessment.investigative_score ?? 0),
-      String(assessment.artistic_score ?? 0),
-      String(assessment.social_score ?? 0),
-      String(assessment.enterprising_score ?? 0),
-      String(assessment.conventional_score ?? 0),
-      format(new Date(assessment.created_at), 'yyyy-MM-dd HH:mm:ss'),
-      assessment.completed_at
-        ? format(new Date(assessment.completed_at), 'yyyy-MM-dd HH:mm:ss')
-        : '',
-    ]);
+    const rows = filteredAssessments.map((assessment) => {
+      const preQuiz = formatPreQuizForDisplay(
+        getPreQuizFromResponses(assessment.responses)
+      );
+      const campaign = isBgesCampaign(assessment.responses)
+        ? 'BGES'
+        : '';
+
+      return [
+        assessment.full_name || '',
+        assessment.email,
+        preQuiz?.whatsappNumber || '',
+        campaign,
+        preQuiz?.careerStage && preQuiz.careerStage !== '—'
+          ? preQuiz.careerStage
+          : '',
+        preQuiz?.graduationProgram && preQuiz.graduationProgram !== '—'
+          ? preQuiz.graduationProgram
+          : '',
+        preQuiz?.futurePlans && preQuiz.futurePlans !== '—'
+          ? preQuiz.futurePlans
+          : '',
+        preQuiz?.higherStudiesFocus && preQuiz.higherStudiesFocus !== '—'
+          ? preQuiz.higherStudiesFocus
+          : '',
+        assessment.completed_at ? 'Completed' : 'Registered',
+        assessment.primary_profile || '',
+        assessment.secondary_profile || '',
+        assessment.tertiary_profile || '',
+        String(assessment.realistic_score ?? 0),
+        String(assessment.investigative_score ?? 0),
+        String(assessment.artistic_score ?? 0),
+        String(assessment.social_score ?? 0),
+        String(assessment.enterprising_score ?? 0),
+        String(assessment.conventional_score ?? 0),
+        format(new Date(assessment.created_at), 'yyyy-MM-dd HH:mm:ss'),
+        assessment.completed_at
+          ? format(new Date(assessment.completed_at), 'yyyy-MM-dd HH:mm:ss')
+          : '',
+      ];
+    });
 
     const csvContent = [headers, ...rows]
       .map((row) => row.map((field) => escapeCsv(field)).join(','))
@@ -297,9 +333,14 @@ export default function RiasecLeadsPage() {
                         </a>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={assessment.completed_at ? 'default' : 'secondary'}>
-                          {assessment.completed_at ? 'Completed' : 'Registered'}
-                        </Badge>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Badge variant={assessment.completed_at ? 'default' : 'secondary'}>
+                            {assessment.completed_at ? 'Completed' : 'Registered'}
+                          </Badge>
+                          {isBgesCampaign(assessment.responses) && (
+                            <Badge variant="outline">BGES</Badge>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
                         {assessment.primary_profile ? (
@@ -403,6 +444,20 @@ export default function RiasecLeadsPage() {
                               {selectedAssessment.email}
                             </a>
                           </div>
+                          {(() => {
+                            const preQuiz = formatPreQuizForDisplay(
+                              getPreQuizFromResponses(selectedAssessment.responses)
+                            );
+                            if (!preQuiz?.whatsappNumber) return null;
+                            return (
+                              <div>
+                                <p className="text-sm font-medium text-muted-foreground mb-1">
+                                  WhatsApp
+                                </p>
+                                <p className="font-medium text-sm">{preQuiz.whatsappNumber}</p>
+                              </div>
+                            );
+                          })()}
                           <div>
                             <p className="text-sm font-medium text-muted-foreground mb-1">Status</p>
                             <Badge
@@ -410,6 +465,11 @@ export default function RiasecLeadsPage() {
                             >
                               {selectedAssessment.completed_at ? 'Completed' : 'Registered'}
                             </Badge>
+                            {isBgesCampaign(selectedAssessment.responses) && (
+                              <Badge variant="outline" className="ml-2">
+                                BGES
+                              </Badge>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -491,6 +551,87 @@ export default function RiasecLeadsPage() {
                         </div>
                       </div>
                     )}
+
+                    {(() => {
+                      const preQuiz = formatPreQuizForDisplay(
+                        getPreQuizFromResponses(selectedAssessment.responses)
+                      );
+                      if (!preQuiz) return null;
+
+                      return (
+                        <div className="border-t pt-6 space-y-4">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-semibold">Event Pre-Quiz</h3>
+                            {isBgesCampaign(selectedAssessment.responses) && (
+                              <Badge variant="outline">BGES</Badge>
+                            )}
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <p className="text-sm font-medium text-muted-foreground mb-1">
+                                WhatsApp
+                              </p>
+                              <p className="font-medium text-sm">
+                                {preQuiz.whatsappNumber || '—'}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-muted-foreground mb-1">
+                                Career Stage
+                              </p>
+                              <p className="font-medium text-sm">{preQuiz.careerStage}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-muted-foreground mb-1">
+                                Graduation Program
+                              </p>
+                              <p className="font-medium text-sm">
+                                {preQuiz.graduationProgram}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-muted-foreground mb-1">
+                                Future Plans
+                              </p>
+                              <p className="font-medium text-sm">{preQuiz.futurePlans}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-muted-foreground mb-1">
+                                Higher Studies Focus
+                              </p>
+                              <p className="font-medium text-sm">
+                                {preQuiz.higherStudiesFocus}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    {(() => {
+                      const quizAnswers = getQuizAnswersFromResponses(
+                        selectedAssessment.responses
+                      );
+                      if (!quizAnswers.length) return null;
+
+                      return (
+                        <div className="border-t pt-6 space-y-4">
+                          <h3 className="font-semibold">Quiz Answers</h3>
+                          <ol className="space-y-4 list-decimal list-inside">
+                            {quizAnswers.map((answer) => (
+                              <li key={answer.questionId} className="text-sm">
+                                <span className="font-medium text-foreground">
+                                  {answer.questionText}
+                                </span>
+                                <p className="mt-1 ml-5 text-muted-foreground">
+                                  {answer.answerText}
+                                </p>
+                              </li>
+                            ))}
+                          </ol>
+                        </div>
+                      );
+                    })()}
 
                     <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t">
                       <Button
