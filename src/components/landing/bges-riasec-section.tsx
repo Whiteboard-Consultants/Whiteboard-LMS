@@ -16,7 +16,7 @@ const STEPS = [
     icon: Compass,
     title: 'Understand the Future of Jobs',
     description:
-      'Learn how the Future of Jobs 2025 trends are reshaping fintech, AI/ML and management careers.',
+      'Learn how the Future of Jobs 2025 trends are reshaping Fintech, AI/ML and Management careers.',
   },
   {
     icon: ClipboardList,
@@ -60,20 +60,20 @@ export function BgesRiasecSection() {
               </div>
 
               <h2 className="text-balance text-2xl font-bold leading-snug tracking-tight text-[hsl(209,100%,29%)] sm:text-3xl xl:text-4xl">
-                Find your RIASEC type and your place in fintech, AI/ML and
-                management
+                Find your RIASEC type and your place in Fintech, AI/ML and
+                Management
               </h2>
 
               <p className="mx-auto mt-5 max-w-3xl text-[16px] leading-relaxed text-slate-700">
                 The RIASEC framework helps you match your personality and working
-                style to future‑ready roles in technology and business—whether
+                style to future‑ready roles in Technology and Business—whether
                 you&apos;re more investigative, enterprising, conventional or social.
                 In this event, you will complete the RIASEC test and receive
                 guidance on how your profile can translate into roles such as{' '}
                 <span className="font-semibold text-[#E8A020]">
-                  fintech product strategist, AI/ML engineer, data analyst,
-                  compliance specialist, tech consultant, or innovation‑driven
-                  leader
+                  Fintech product strategist, AI/ML Engineer, Data Analyst,
+                  Compliance Specialist, Tech Consultant, or Innovation‑driven
+                  Leader
                 </span>
                 .
               </p>

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import {
   BriefcaseBusiness,
   Globe2,
@@ -10,42 +11,71 @@ type PathwayCard = {
   icon: LucideIcon;
   eyebrow: string;
   title: string;
-  body: string;
+  body: ReactNode;
   points: string[];
 };
+
+const linkClass =
+  'font-semibold text-[#E8A020] underline decoration-[#E8A020]/60 underline-offset-2 transition hover:text-white hover:decoration-white';
 
 const CARDS: PathwayCard[] = [
   {
     icon: Globe2,
     eyebrow: 'Study Abroad',
     title:
-      'Study Abroad: Build global careers in fintech, AI/ML and management',
-    body: 'Explore international programs in fintech, business analytics, data science, AI & ML, digital finance and technology‑focused MBAs across leading study destinations. We help you select universities and courses that directly map to high‑growth roles highlighted in the Future of Jobs Report 2025—Fintech Engineers, Big Data Specialists, AI & ML Specialists, and technology‑savvy.',
+      'Study Abroad: Build global careers in Fintech, AI/ML and Management',
+    body: 'Explore international programs in Fintech, Business Analytics, Data Science, AI & ML, Digital Finance and technology‑focused MBAs across leading study destinations. We help you select universities and courses that directly map to high‑growth roles highlighted in the Future of Jobs Report 2025—Fintech Engineers, Big Data Specialists, AI & ML Specialists, and technology‑savvy.',
     points: [
-      'Shortlist countries, universities and programs where fintech, AI/ML and tech MBAs are strategic priorities.',
+      'Shortlist countries, universities and programs where Fintech, AI/ML and tech MBAs are strategic priorities.',
       'Get guidance on admissions, SOPs, scholarships and visas for future‑ready degrees.',
-      'Understand the ROI and global career pathways for fintech, AI/ML and management programs.',
+      'Understand the ROI and global career pathways for Fintech, AI/ML and Management programs.',
     ],
   },
   {
     icon: GraduationCap,
     eyebrow: 'Foreign Universities in India',
     title:
-      'Foreign Universities in India: Global‑standard tech and management programs, Indian campuses',
-    body: 'Access foreign universities in India that offer cutting‑edge programs at the intersection of business, finance and technology—such as analytics, fintech and digital transformation—at campuses like UOW India and Deakin GIFT City. These programs embed AI, data and innovation into the curriculum, aligning with the Future of Jobs 2025 demand for fintech engineers and AI & ML specialists.',
+      'Foreign Universities in India: Global‑standard tech and Management programs, Indian campuses',
+    body: (
+      <>
+        Access foreign universities in India that offer cutting‑edge programs at
+        the intersection of business, finance and technology—such as Analytics,
+        Fintech and Digital Transformation—at campuses like{' '}
+        <a
+          href="https://www.whiteboardconsultant.com/admissions/uow-india"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={linkClass}
+        >
+          UOW India
+        </a>{' '}
+        and{' '}
+        <a
+          href="https://www.whiteboardconsultant.com/admissions/deakin-gift-city"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={linkClass}
+        >
+          Deakin GIFT City
+        </a>
+        . These programs embed AI, Data and Innovation into the curriculum,
+        aligning with the Future of Jobs 2025 demand for Fintech Engineers and AI
+        &amp; ML specialists.
+      </>
+    ),
     points: [
-      'Discover India‑based foreign campuses with strong fintech, analytics and technology‑management offerings.',
-      'Learn how these degrees can serve as a bridge to global fintech and AI/ML roles while you study in India.',
+      'Discover India‑based foreign campuses with strong Fintech, Analytics and technology‑management offerings.',
+      'Learn how these degrees can serve as a bridge to global Fintech and AI/ML roles while you study in India.',
       'Get clarity on admission processes, credit transfer possibilities and future mobility options.',
     ],
   },
   {
     icon: BriefcaseBusiness,
     eyebrow: 'Career Counselling',
-    title: 'Career Counselling: Align your path with fintech, AI/ML and MBAs',
-    body: 'Our counsellors help you navigate the evolving job market in financial technology and AI, and design a roadmap that connects your current profile to advanced degrees and future roles. We work with you to clarify whether you should target specialised master’s programs in fintech or data science, AI/ML‑focused tracks, technology‑driven MBAs, or a combination over time.',
+    title: 'Career Counselling: Align your path with Fintech, AI/ML and MBAs',
+    body: 'Our counsellors help you navigate the evolving job market in financial technology and AI, and design a roadmap that connects your current profile to advanced degrees and future roles. We work with you to clarify whether you should target specialised master’s programs in Fintech or Data Science, AI/ML‑focused tracks, technology‑driven MBAs, or a combination over time.',
     points: [
-      'One‑on‑one sessions to map your interests and strengths to fintech, AI/ML and management roles.',
+      'One‑on‑one sessions to map your interests and strengths to Fintech, AI/ML and Management roles.',
       'Guidance on sequencing: certifications → specialised master’s → MBA, depending on your goals and experience.',
       'A personalised plan linking skills, internships, projects and higher studies to in‑demand job roles.',
     ],
@@ -54,10 +84,10 @@ const CARDS: PathwayCard[] = [
     icon: Sparkles,
     eyebrow: 'Upskill',
     title:
-      'Online Degrees & Certifications: Build the skills that future fintech and AI roles demand',
-    body: 'With a large share of today’s skills projected to become outdated by 2030, structured upskilling in AI, data and digital finance is essential. Through our focused learning programs, we help you build practical capabilities in analytics tools, programming foundations, AI literacy, cybersecurity basics and high‑impact professional skills like communication, problem‑solving and leadership.',
+      'Online Degrees & Certifications: Build the skills that future Fintech and AI roles demand',
+    body: 'With a large share of today’s skills projected to become outdated by 2030, structured upskilling in AI, data and Digital Finance is essential. Through our focused learning programs, we help you build practical capabilities in analytics tools, programming foundations, AI literacy, cybersecurity basics and high‑impact professional skills like communication, problem‑solving and leadership.',
     points: [
-      'Skill tracks aligned with high‑growth roles: fintech engineer, AI/ML specialist, big data analyst and tech‑savvy manager.',
+      'Skill tracks aligned with high‑growth roles: Fintech Engineer, AI/ML specialist, Big Data analyst and tech‑savvy manager.',
       'Hands‑on exposure to tools and concepts: data analysis, dashboards, algorithm fundamentals, digital risk awareness.',
       'Integration with your study‑abroad or foreign‑campus plans, so your degree and skills reinforce each other.',
     ],
@@ -91,7 +121,7 @@ export function BgesPathwaysSection() {
             Your pathways
           </p>
           <h2 className="mt-3 text-balance text-2xl font-bold leading-snug tracking-tight sm:text-3xl xl:text-4xl">
-            Four ways to future‑proof your career in fintech, AI/ML and management
+            Four ways to future‑proof your career in Fintech, AI/ML and Management
           </h2>
         </div>
 

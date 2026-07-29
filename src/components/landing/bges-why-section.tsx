@@ -3,10 +3,10 @@ import { CheckCircle2 } from 'lucide-react';
 const HIGHLIGHT = 'font-semibold text-[#E8A020]';
 
 const BULLETS = [
-  'Fintech is evolving through AI, blockchain and cybersecurity, driving demand for roles like fintech engineers, data security analysts and digital product leaders.',
-  'AI and machine learning specialists are among the top in‑demand roles to 2030, with global job postings for AI/ML talent growing far faster than the overall labour market.',
-  'MBAs and management‑focused degrees that integrate analytics, technology and leadership are becoming critical for designing strategies around automation, AI adoption and digital finance.',
-  'Core skills like analytical thinking, technological literacy, AI and big data, and human‑centred leadership are consistently ranked among the most important skills for the future of work.',
+  'Fintech is evolving through AI, Blockchain and Cybersecurity, driving demand for roles like Fintech Engineers, Data Security Analysts and Digital Product Leaders.',
+  'AI and Machine Learning Specialists are among the top in‑demand roles to 2030, with global job postings for AI/ML talent growing far faster than the overall labour market.',
+  'MBAs and management‑focused degrees that integrate Analytics, Technology and leadership are becoming critical for designing strategies around automation, AI adoption and Digital Finance.',
+  'Core skills like Analytical Thinking, Technological Literacy, AI and Big Data, and human‑centred leadership are consistently ranked among the most important skills for the future of work.',
 ] as const;
 
 export function BgesWhySection() {
@@ -23,7 +23,7 @@ export function BgesWhySection() {
 
       <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
         <h2 className="text-balance text-2xl font-bold leading-snug tracking-tight text-[hsl(209,100%,29%)] sm:text-3xl xl:text-4xl">
-          Why fintech, AI &amp; ML, and MBAs are at the centre of the Future of Jobs
+          Why Fintech, AI &amp; ML, and MBAs are at the centre of the Future of Jobs
         </h2>
 
         <p className="mt-6 text-[16px] leading-relaxed text-slate-700">
@@ -42,7 +42,7 @@ export function BgesWhySection() {
           <span className={HIGHLIGHT}>
             nearly 95% of firms invest in AI solutions and automation
           </span>
-          . This creates a unique opportunity for professionals who combine fintech
+          . This creates a unique opportunity for professionals who combine Fintech
           domain knowledge, AI/ML capabilities and strong management skills through
           advanced degrees like MBAs.
         </p>
