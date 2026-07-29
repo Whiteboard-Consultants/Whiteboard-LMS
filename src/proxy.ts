@@ -92,7 +92,7 @@ export function proxy(request: NextRequest) {
       return redirect(request, new URL('/apply', request.url), 302);
     }
 
-    if (APPLICATION_PATH_SET.has(pathname)) {
+    if (APPLICATION_PATH_SET.has(pathname) || pathname.startsWith('/bges/')) {
       return NextResponse.next();
     }
 
@@ -128,6 +128,11 @@ export function proxy(request: NextRequest) {
 
   if (APPLICATION_PATH_SET.has(pathname)) {
     return redirectToApplication(request, pathname as ApplicationPath);
+  }
+
+  if (pathname.startsWith('/bges/')) {
+    const url = new URL(pathname + request.nextUrl.search, applicationOrigin(request));
+    return redirect(request, url, 301);
   }
 
   return NextResponse.next();

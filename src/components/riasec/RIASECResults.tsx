@@ -6,13 +6,16 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Download, Share2, Mail, CheckCircle } from 'lucide-react';
+import { Download, Share2, Mail, CheckCircle, Award } from 'lucide-react';
+import Link from 'next/link';
 
 interface RIASECResultsProps {
   scores: Record<string, number>;
   profileDetails: any[];
   studentName?: string | null;
   studentEmail?: string | null;
+  assessmentId?: string | null;
+  campaign?: string;
 }
 
 export function RIASECResults({
@@ -20,9 +23,14 @@ export function RIASECResults({
   profileDetails,
   studentName,
   studentEmail,
+  assessmentId,
+  campaign,
 }: RIASECResultsProps) {
   const [copied, setCopied] = useState(false);
   const [shared, setShared] = useState(false);
+  const isBges = campaign === 'bges';
+  const certificateHref =
+    isBges && assessmentId ? `/bges/certificate/${assessmentId}` : null;
 
   const primaryProfile = profileDetails[0];
   const profilesByType = {
@@ -80,6 +88,19 @@ ${Object.entries(scores)
             Your results have been sent to{' '}
             <span className="font-semibold">{studentEmail}</span>
           </p>
+          {certificateHref && (
+            <div className="mt-6">
+              <Link
+                href={certificateHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg bg-[hsl(209,100%,29%)] px-6 py-3 text-base font-semibold text-white hover:bg-[hsl(209,100%,24%)] transition"
+              >
+                <Award className="h-5 w-5" />
+                View / Download Certificate
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* Primary Profile Card */}
@@ -264,7 +285,18 @@ ${Object.entries(scores)
           </div>
 
           {/* Share Buttons */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className={`grid gap-4 ${certificateHref ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-3'}`}>
+            {certificateHref && (
+              <Link
+                href={certificateHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 px-4 py-3 bg-[hsl(209,100%,29%)] text-white rounded-lg hover:bg-[hsl(209,100%,24%)] transition font-medium"
+              >
+                <Award className="w-4 h-4" />
+                Certificate
+              </Link>
+            )}
             <button
               onClick={handleCopyResults}
               className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 transition font-medium"

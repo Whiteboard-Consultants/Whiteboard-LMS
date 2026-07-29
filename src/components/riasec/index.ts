@@ -8,3 +8,4 @@ export { RIASECQuiz } from './RIASECQuiz';
 export { RIASECResults } from './RIASECResults';
 export { RIASECModal } from './RIASECModal';
 export { RIASECButton } from './RIASECButton';
+export { RiasecParticipationCertificate } from './RiasecParticipationCertificate';

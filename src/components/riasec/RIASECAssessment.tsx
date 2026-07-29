@@ -129,6 +129,8 @@ export function RIASECAssessment({ campaign }: { campaign?: string }) {
             profileDetails={state.profileDetails!}
             studentName={state.fullName}
             studentEmail={state.userEmail}
+            assessmentId={state.assessmentId}
+            campaign={campaign}
           />
         );
       default:
