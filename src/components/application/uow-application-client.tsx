@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { LandingHeader } from '@/components/landing/landing-header';
 import { UowApplyForm } from '@/components/uow-apply-form';
 
@@ -11,6 +12,14 @@ export function UowApplicationClient() {
       <div className="pt-24 pb-16">
         <div className="container max-w-3xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
+            <Image
+              src="/landing/UTF-8UOW INDIA Logo PRIMARY NAVY.svg"
+              alt="University of Wollongong India"
+              width={262}
+              height={242}
+              className="mx-auto mb-6 h-28 w-auto sm:h-32"
+              priority
+            />
             <h1 className="font-headline text-3xl sm:text-4xl font-bold text-foreground mb-4">
               Apply to University of Wollongong, India
             </h1>
