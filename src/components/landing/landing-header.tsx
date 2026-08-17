@@ -32,8 +32,7 @@ export function LandingHeader({
             src="/logo.png"
             alt="Whiteboard Consultants"
             width={160}
-            height={60}
-            className="h-auto w-auto"
+            height={51}
           />
         </Link>
 

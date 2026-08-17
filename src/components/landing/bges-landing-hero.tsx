@@ -38,8 +38,9 @@ export function BgesLandingHero() {
             src="/logo.png"
             alt="Whiteboard Consultants"
             width={168}
-            height={56}
-            className="h-9 w-auto sm:h-11"
+            height={53}
+            className="h-9 sm:h-11"
+            style={{ width: 'auto' }}
             priority
           />
         </Link>

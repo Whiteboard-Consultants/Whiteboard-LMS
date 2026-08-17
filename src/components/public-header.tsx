@@ -18,7 +18,7 @@ function MobileSidebar() {
                     <SheetDescription className="sr-only">The main navigation menu for the application.</SheetDescription>
                     <div className="flex h-14 items-center border-b -mt-2 -mx-6 px-4 lg:h-[60px] lg:px-6 bg-primary text-primary-foreground border-primary-foreground/10 dark:bg-black">
                         <Link href="/" className="flex items-center gap-2 font-semibold shrink-0">
-                            <Image src="/logo.png" alt="Whiteboard Consultants Logo" width={180} height={40} className="h-auto w-auto" />
+                            <Image src="/logo.png" alt="Whiteboard Consultants Logo" width={180} height={57} />
                         </Link>
                     </div>
                 </SheetHeader>
@@ -40,7 +40,7 @@ export function PublicHeader() {
             <SidebarProvider>
                 <div className="container flex h-[60px] items-center">
                     <Link href="/" className="mr-6 flex shrink-0 items-center space-x-2">
-                        <Image src="/logo.png" alt="Whiteboard Consultants Logo" width={120} height={40} className="h-auto w-auto max-w-[120px]" priority />
+                        <Image src="/logo.png" alt="Whiteboard Consultants Logo" width={120} height={38} priority />
                     </Link>
                     <div className="hidden lg:flex min-w-0 flex-1 items-center justify-center relative">
                         <MainNav />

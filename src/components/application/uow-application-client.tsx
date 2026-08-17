@@ -17,7 +17,8 @@ export function UowApplicationClient() {
               alt="University of Wollongong India"
               width={262}
               height={242}
-              className="mx-auto mb-6 h-28 w-auto sm:h-32"
+              className="mx-auto mb-6 h-28 sm:h-32"
+              style={{ width: 'auto' }}
               priority
             />
             <h1 className="font-headline text-3xl sm:text-4xl font-bold text-foreground mb-4">
