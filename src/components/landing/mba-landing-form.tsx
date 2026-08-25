@@ -535,7 +535,7 @@ export function MbaLandingForm() {
                 ) : (
                   <>
                     <Check className="w-4 h-4 mr-2" />
-                    Get My Free MBA Guidance
+                    Get My Free Program-Fit Report
                   </>
                 )}
               </Button>

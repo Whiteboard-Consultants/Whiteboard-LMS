@@ -5,62 +5,34 @@ import { ChevronDown } from 'lucide-react';
 
 const FAQS = [
   {
-    question: 'Do these carry the same weight as a full-time MBA?',
-    answer: (
-      <div className="space-y-4">
-        <p>
-          <strong>The Official Position: Yes (with conditions)</strong>
-        </p>
-        <p>
-          The UGC has officially notified that online and distance learning degrees are
-          equivalent to conventional degrees at all levels. UGC&apos;s 2020 regulations
-          explicitly state this equivalence.
-        </p>
-        <p>
-          An online MBA from a UGC-DEB recognized university is treated as equivalent
-          for:
-        </p>
-        <ul className="list-disc pl-5 space-y-1">
-          <li>Government jobs (including UPSC)</li>
-          <li>Higher education admissions (PhD eligibility)</li>
-          <li>Private sector employment</li>
-        </ul>
-        <p>
-          NEP 2020 further reinforced this by promoting flexible learning pathways —
-          online degrees are part of the same academic credit framework.
-        </p>
-      </div>
-    ),
+    question: 'Is the program-fit consultation really free?',
+    answer:
+      'Yes — no cost, no obligation, no credit card. The personalised report and 15-minute counsellor debrief are included at no charge.',
   },
   {
-    question: 'Are online MBA degrees recognized by employers?',
+    question: "I'm not from a business background — will this work for me?",
     answer:
-      'Yes. Online MBA degrees from UGC/AICTE-recognized universities carry the same validity as on-campus degrees. Employers evaluate the institution and specialization — not the delivery mode.',
+      "Yes. Many of our partner programmes accept graduates from non-commerce backgrounds. We'll match you to programmes that fit your academic profile and career goals — not assume you're already in management.",
   },
   {
-    question: 'Can I do an MBA while working full-time?',
+    question: "How is this different from just Googling 'best online MBA'?",
     answer:
-      'Absolutely. Our partner programs are designed for working professionals with flexible schedules, recorded lectures, and weekend live sessions.',
+      "Google gives you ranked lists. We give you a counsellor and a personalised shortlist based on your role, budget, timeline, and goals — plus a live debrief so you can ask the questions lists don't answer.",
   },
   {
-    question: 'How much does an online MBA cost in India?',
+    question: 'My timeline is tight — is it too late to apply for this cohort?',
     answer:
-      'Programs in our portfolio range from ₹1 Lac to ₹5 Lacs+, depending on the university and specialization. We\'ll help you find options within your stated budget.',
+      "It depends on the programme. Some have rolling admissions; others have fixed cohort dates. Tell us your preferred start window in the form and we'll confirm what's still open — without pressure.",
   },
   {
-    question: 'How long does an online MBA take?',
+    question: 'How many hours a week does the program actually require?',
     answer:
-      'Most programs are 2 years. Some universities offer accelerated or extended timelines depending on your pace.',
+      'Most working professionals plan for roughly 8–12 hours a week, depending on the university and pace. We explain the real weekly commitment for each shortlisted programme so you can choose what fits your job.',
   },
   {
-    question: 'Do I need work experience to apply?',
+    question: "What if I go through the consultation and decide it's not the right fit?",
     answer:
-      'It depends on the program. Some accept fresh graduates; others prefer 1–2 years of experience. We\'ll match you to programs suited to your profile.',
-  },
-  {
-    question: 'Is the consultation really free?',
-    answer:
-      'Yes. Our initial guidance and program shortlisting are completely free, with no obligation to enroll.',
+      "That's a perfectly fine outcome. The consultation exists to give you clarity — including clarity that now isn't the right time, or that a different path fits better. No catch, no hard sell.",
   },
 ];
 
@@ -72,10 +44,10 @@ export function MbaLandingFAQ() {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Frequently Asked Questions
+            Questions We Get Asked Every Day
           </h2>
           <p className="text-xl text-gray-600">
-            Everything you need to know about Online MBA programs
+            Short answers in plain language — not marketing-department phrasing.
           </p>
         </div>
 
@@ -86,6 +58,7 @@ export function MbaLandingFAQ() {
               className="backdrop-blur-md bg-white/50 border border-white/70 rounded-xl overflow-hidden hover:border-blue-200/80 hover:shadow-md transition-all duration-300"
             >
               <button
+                type="button"
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
                 className="w-full p-6 flex justify-between items-start text-left hover:bg-white/40 transition-colors"
               >
@@ -101,28 +74,11 @@ export function MbaLandingFAQ() {
 
               {openIndex === index && (
                 <div className="px-6 pb-6 bg-gradient-to-br from-blue-50/50 to-white/30 border-t border-white/60">
-                  <div className="text-gray-700 leading-relaxed">
-                    {typeof faq.answer === 'string' ? <p>{faq.answer}</p> : faq.answer}
-                  </div>
+                  <p className="text-gray-700 leading-relaxed">{faq.answer}</p>
                 </div>
               )}
             </div>
           ))}
-        </div>
-
-        <div className="mt-16 p-8 backdrop-blur-md bg-gradient-to-br from-blue-50/70 to-indigo-50/50 border border-blue-200/60 rounded-xl text-center shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            Still have questions?
-          </h3>
-          <p className="text-gray-600 mb-4">
-            Reach out to our support team or schedule a consultation call.
-          </p>
-          <a
-            href="mailto:info@whiteboardconsultant.com"
-            className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-          >
-            Contact Support
-          </a>
         </div>
       </div>
     </section>
