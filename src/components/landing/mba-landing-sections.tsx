@@ -485,7 +485,7 @@ export function MbaLandingSections() {
           <div className="grid md:grid-cols-4 gap-6">
             {[
               { stat: '500+', label: 'Professionals guided to date', color: 'text-blue-600' },
-              { stat: '15+', label: 'Partner universities & accreditations', color: 'text-indigo-600' },
+              { stat: '6+', label: 'Partner universities & accreditations', color: 'text-indigo-600' },
               { stat: '10+', label: 'MBA specialisations available', color: 'text-purple-600' },
               { stat: 'Free', label: 'Consultation — always', color: 'text-green-600' },
             ].map((item) => (
