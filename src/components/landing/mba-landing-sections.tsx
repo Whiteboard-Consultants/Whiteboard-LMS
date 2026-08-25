@@ -14,6 +14,7 @@ import {
   TrendingUp,
   Users,
 } from 'lucide-react';
+import { OnlineMbaNavigator } from '@/components/landing/online-mba-navigator';
 
 type ColorVariant = {
   glass: string;
@@ -413,6 +414,13 @@ export function MbaLandingSections() {
           <p className="text-center text-sm text-gray-500">
             Free · 15 minutes · Instant report · 1-on-1 debrief included
           </p>
+        </div>
+      </section>
+
+      {/* Online MBA Navigator */}
+      <section className="py-20 bg-gradient-to-b from-white to-slate-50/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <OnlineMbaNavigator />
         </div>
       </section>
 
