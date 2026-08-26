@@ -3,7 +3,9 @@
 
 import { supabase } from '@/lib/supabase';
 import { createClient } from '@supabase/supabase-js';
+import { cookies, headers } from 'next/headers';
 import { sendAdminNotification, sendAutoReply, type ContactSubmissionData } from '@/lib/email-service';
+import { sendMetaLeadEvent } from '@/lib/meta-conversions-api';
 import { verifyReCaptcha } from '@/lib/recaptcha-verify';
 import type { z } from "zod";
 
@@ -40,7 +42,11 @@ type ContactFormData = z.infer<z.ZodObject<{
 }>>;
 
 
-export async function saveContactSubmission(formData: ContactFormData, recaptchaToken?: string) {
+export async function saveContactSubmission(
+  formData: ContactFormData,
+  recaptchaToken?: string,
+  eventId?: string
+) {
   // Verify reCAPTCHA token first
   if (recaptchaToken) {
     const recaptchaResult = await verifyReCaptcha(recaptchaToken, 'contact_form');
@@ -77,6 +83,15 @@ export async function saveContactSubmission(formData: ContactFormData, recaptcha
       message: formData.message?.trim() || null,
       submitted_at: new Date().toISOString(),
     };
+    const requestHeaders = await headers();
+    const requestCookies = await cookies();
+    const ipAddress =
+      requestHeaders.get('x-forwarded-for') ||
+      requestHeaders.get('x-real-ip') ||
+      'unknown';
+    const userAgent = requestHeaders.get('user-agent') || 'unknown';
+    const sourceUrl =
+      requestHeaders.get('referer') || `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/contact`;
     
     const { data, error } = await client
       .from('contact_submissions')
@@ -117,14 +132,29 @@ export async function saveContactSubmission(formData: ContactFormData, recaptcha
 
     // Send notifications and wait for them to complete
     try {
-      const [adminSent, autoReplySent] = await Promise.all([
+      const [adminSent, autoReplySent, metaLeadSent] = await Promise.all([
         sendAdminNotification(emailData),
-        sendAutoReply(emailData)
+        sendAutoReply(emailData),
+        sendMetaLeadEvent({
+          eventId: eventId || crypto.randomUUID(),
+          eventSourceUrl: sourceUrl,
+          userData: {
+            email: emailData.email,
+            phone: emailData.phone,
+            firstName: emailData.firstName,
+            lastName: emailData.lastName,
+            fbp: requestCookies.get('_fbp')?.value,
+            fbc: requestCookies.get('_fbc')?.value,
+            clientIpAddress: ipAddress,
+            clientUserAgent: userAgent,
+          },
+        }),
       ]);
 
       console.log(`📧 Contact submission ${data.id} - Email status:`);
       console.log(`   Admin notification: ${adminSent ? '✅ sent' : '❌ failed'}`);
       console.log(`   Auto-reply: ${autoReplySent ? '✅ sent' : '❌ failed'}`);
+      console.log(`   Meta lead event: ${metaLeadSent ? '✅ sent' : '❌ failed'}`);
       
       if (!adminSent || !autoReplySent) {
         console.log('⚠️  Email service issue detected. Checking configuration:');

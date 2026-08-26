@@ -5,6 +5,7 @@ import {
   sendMbaLandingConfirmation,
   type MbaLandingSubmissionData,
 } from '@/lib/mba-landing-email-service';
+import { sendMetaLeadEvent } from '@/lib/meta-conversions-api';
 import { mbaLandingFormSchema } from '@/lib/schemas/mba-landing-form';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -31,13 +32,20 @@ export async function POST(request: NextRequest) {
 
     const data = parsed.data;
     const submittedAt = new Date().toISOString();
+    const eventId =
+      typeof body?.eventId === 'string' && body.eventId.trim()
+        ? body.eventId.trim()
+        : crypto.randomUUID();
 
     const ipAddress =
       request.headers.get('x-forwarded-for') ||
       request.headers.get('x-real-ip') ||
       'unknown';
     const userAgent = request.headers.get('user-agent') || 'unknown';
-    const sourceUrl = request.headers.get('referer') || 'direct';
+    const sourceUrl =
+      request.headers.get('referer') || `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/online-mba`;
+    const fbp = request.cookies.get('_fbp')?.value;
+    const fbc = request.cookies.get('_fbc')?.value;
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey, {
       auth: { persistSession: false },
@@ -81,14 +89,29 @@ export async function POST(request: NextRequest) {
     };
 
     try {
-      const [adminSent, confirmationSent] = await Promise.all([
+      const [adminSent, confirmationSent, metaLeadSent] = await Promise.all([
         sendMbaLandingAdminNotification(emailPayload),
         sendMbaLandingConfirmation(emailPayload),
+        sendMetaLeadEvent({
+          eventId,
+          eventSourceUrl: sourceUrl,
+          userData: {
+            email: data.email,
+            phone: data.phone,
+            firstName: data.firstName,
+            lastName: data.lastName,
+            fbp,
+            fbc,
+            clientIpAddress: ipAddress,
+            clientUserAgent: userAgent,
+          },
+        }),
       ]);
 
       console.log(`MBA landing form notifications:`, {
         adminNotification: adminSent ? 'sent' : 'failed',
         userConfirmation: confirmationSent ? 'sent' : 'failed',
+        metaLeadEvent: metaLeadSent ? 'sent' : 'failed',
       });
     } catch (emailError) {
       console.error('Error sending MBA landing email notifications:', emailError);

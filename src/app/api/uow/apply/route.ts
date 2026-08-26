@@ -5,6 +5,7 @@ import {
   sendUowApplicationConfirmation,
   type UowApplicationData,
 } from '@/lib/uow-application-email-service';
+import { sendMetaLeadEvent } from '@/lib/meta-conversions-api';
 import { uowApplyFormSchema } from '@/lib/schemas/uow-apply-form';
 import { siteConfig } from '@/lib/seo';
 
@@ -25,12 +26,25 @@ export async function POST(request: NextRequest) {
 
     const data = parsed.data;
     const submittedAt = new Date().toISOString();
+    const eventId =
+      typeof body?.eventId === 'string' && body.eventId.trim()
+        ? body.eventId.trim()
+        : crypto.randomUUID();
 
     const messageParts = [
       `Program: ${data.degreeOfInterest}`,
       `State: ${data.state}`,
       data.enquiryMessage ? `Message: ${data.enquiryMessage}` : null,
     ].filter(Boolean);
+    const ipAddress =
+      request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
+    const userAgent = request.headers.get('user-agent') || 'unknown';
+    const sourceUrl =
+      request.headers.get('referer') || `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/uow`;
+    const fbp = request.cookies.get('_fbp')?.value;
+    const fbc = request.cookies.get('_fbc')?.value;
 
     if (supabaseUrl && supabaseServiceKey) {
       const supabase = createClient(supabaseUrl, supabaseServiceKey, {
@@ -65,14 +79,29 @@ export async function POST(request: NextRequest) {
       submittedAt,
     };
 
-    const [adminSent, confirmationSent] = await Promise.all([
+    const [adminSent, confirmationSent, metaLeadSent] = await Promise.all([
       sendUowApplicationAdminNotification(emailPayload),
       sendUowApplicationConfirmation(emailPayload),
+      sendMetaLeadEvent({
+        eventId,
+        eventSourceUrl: sourceUrl,
+        userData: {
+          email: emailPayload.email,
+          phone: emailPayload.phone,
+          firstName: emailPayload.firstName,
+          lastName: emailPayload.lastName,
+          fbp,
+          fbc,
+          clientIpAddress: ipAddress,
+          clientUserAgent: userAgent,
+        },
+      }),
     ]);
 
     console.log('UOW application email status:', {
       adminNotification: adminSent ? 'sent' : 'failed',
       userConfirmation: confirmationSent ? 'sent' : 'failed',
+      metaLeadEvent: metaLeadSent ? 'sent' : 'failed',
     });
 
     if (!adminSent && !confirmationSent) {

@@ -1,12 +1,14 @@
 'use server';
 
 import { createClient } from '@supabase/supabase-js';
+import { cookies, headers } from 'next/headers';
 import { supabase } from '@/lib/supabase';
 import {
   sendApplicationAdminNotification,
   sendApplicationConfirmation,
   type ApplicationFormData,
 } from '@/lib/application-email-service';
+import { sendMetaLeadEvent } from '@/lib/meta-conversions-api';
 import { siteConfig } from '@/lib/seo';
 
 const supabaseAdmin = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -54,7 +56,8 @@ function buildMessageBody(data: ApplicationFormData): string {
 }
 
 export async function submitApplication(
-  data: ApplicationFormData
+  data: ApplicationFormData,
+  eventId?: string
 ): Promise<{ success: boolean; error?: string }> {
   if (
     !data.fullName?.trim() ||
@@ -93,6 +96,15 @@ export async function submitApplication(
 
   try {
     const client = supabaseAdmin || supabase;
+    const requestHeaders = await headers();
+    const requestCookies = await cookies();
+    const ipAddress =
+      requestHeaders.get('x-forwarded-for') ||
+      requestHeaders.get('x-real-ip') ||
+      'unknown';
+    const userAgent = requestHeaders.get('user-agent') || 'unknown';
+    const sourceUrl =
+      requestHeaders.get('referer') || `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/apply`;
 
     if (client) {
       const { firstName, lastName } = splitName(payload.fullName);
@@ -112,14 +124,30 @@ export async function submitApplication(
       }
     }
 
-    const [adminSent, confirmationSent] = await Promise.all([
+    const { firstName, lastName } = splitName(payload.fullName);
+    const [adminSent, confirmationSent, metaLeadSent] = await Promise.all([
       sendApplicationAdminNotification(payload),
       sendApplicationConfirmation(payload),
+      sendMetaLeadEvent({
+        eventId: eventId || crypto.randomUUID(),
+        eventSourceUrl: sourceUrl,
+        userData: {
+          email: payload.email,
+          phone: payload.whatsapp,
+          firstName,
+          lastName,
+          fbp: requestCookies.get('_fbp')?.value,
+          fbc: requestCookies.get('_fbc')?.value,
+          clientIpAddress: ipAddress,
+          clientUserAgent: userAgent,
+        },
+      }),
     ]);
 
     console.log(
       `Application emails – admin: ${adminSent ? 'sent' : 'failed'}, confirmation: ${confirmationSent ? 'sent' : 'failed'}`
     );
+    console.log(`Application Meta lead – ${metaLeadSent ? 'sent' : 'failed'}`);
 
     if (!adminSent && !confirmationSent) {
       return {

@@ -24,6 +24,7 @@ import {
   bgesPreQuizSchema,
   type BgesPreQuizFormData,
 } from '@/lib/schemas/bges-pre-quiz';
+import { FacebookPixelEvents } from '@/lib/facebook-pixel';
 
 type FormStep = 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -178,6 +179,7 @@ export function BgesRiasecPreForm({
     try {
       setIsSubmitting(true);
       setSubmitError(null);
+      const eventId = crypto.randomUUID();
 
       const payload: BgesPreQuizFormData = { ...data };
       if (
@@ -187,10 +189,21 @@ export function BgesRiasecPreForm({
         delete payload.higherStudiesFocus;
       }
 
+      FacebookPixelEvents.lead(
+        payload.email,
+        payload.whatsappNumber,
+        payload.firstName,
+        payload.lastName,
+        eventId
+      );
+
       const response = await fetch('/api/riasec/bges-start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          ...payload,
+          eventId,
+        }),
       });
 
       const result = await response.json();

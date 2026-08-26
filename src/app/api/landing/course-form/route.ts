@@ -4,6 +4,7 @@ import {
   sendResumeMasteryAdminNotification,
   sendResumeMasteryConfirmation,
 } from '@/lib/resume-mastery-email-service';
+import { sendMetaLeadEvent } from '@/lib/meta-conversions-api';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -22,6 +23,7 @@ export async function POST(request: NextRequest) {
     
     const {
       courseId,
+      eventId,
       firstName,
       lastName,
       email,
@@ -42,7 +44,10 @@ export async function POST(request: NextRequest) {
                       request.headers.get('x-real-ip') || 
                       'unknown';
     const userAgent = request.headers.get('user-agent') || 'unknown';
-    const sourceUrl = request.headers.get('referer') || 'direct';
+    const sourceUrl =
+      request.headers.get('referer') || `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/resume-mastery`;
+    const fbp = request.cookies.get('_fbp')?.value;
+    const fbc = request.cookies.get('_fbc')?.value;
 
     // Insert into database
     const { data, error } = await supabase
@@ -104,6 +109,20 @@ export async function POST(request: NextRequest) {
       await Promise.all([
         sendResumeMasteryAdminNotification(emailPayload),
         sendResumeMasteryConfirmation(emailPayload),
+        sendMetaLeadEvent({
+          eventId: typeof eventId === 'string' && eventId.trim() ? eventId.trim() : crypto.randomUUID(),
+          eventSourceUrl: sourceUrl,
+          userData: {
+            email,
+            phone,
+            firstName,
+            lastName,
+            fbp,
+            fbc,
+            clientIpAddress: ipAddress,
+            clientUserAgent: userAgent,
+          },
+        }),
       ]);
     } catch (emailError) {
       console.error('Resume Mastery email error:', emailError);

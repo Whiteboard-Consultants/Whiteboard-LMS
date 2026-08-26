@@ -243,15 +243,17 @@ export default function ApplicationFormClient() {
       submittedAt: new Date().toISOString(),
     };
 
+    const eventId = crypto.randomUUID();
     const nameParts = payload.fullName.split(/\s+/);
     FacebookPixelEvents.lead(
       payload.email,
       payload.whatsapp,
       nameParts[0],
-      nameParts.slice(1).join(' ') || undefined
+      nameParts.slice(1).join(' ') || undefined,
+      eventId
     );
 
-    const result = await submitApplication(payload);
+    const result = await submitApplication(payload, eventId);
     setIsSubmitting(false);
 
     if (result.success) {

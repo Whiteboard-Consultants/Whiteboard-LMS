@@ -8,6 +8,7 @@
 import React, { useState } from 'react';
 import { Mail, Lock, User, Check, LogIn } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
+import { FacebookPixelEvents } from '@/lib/facebook-pixel';
 
 interface RIASECRegistrationProps {
   onComplete: (data: {
@@ -105,6 +106,16 @@ export function RIASECRegistration({
     setIsSubmitting(true);
 
     try {
+      const eventId = crypto.randomUUID();
+      const [firstName, ...rest] = formData.fullName.trim().split(/\s+/);
+      FacebookPixelEvents.lead(
+        formData.email,
+        undefined,
+        firstName,
+        rest.join(' ') || undefined,
+        eventId
+      );
+
       const response = await fetch('/api/riasec/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -112,6 +123,7 @@ export function RIASECRegistration({
           email: formData.email,
           password: formData.password,
           fullName: formData.fullName,
+          eventId,
         }),
       });
 

@@ -6,6 +6,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
+import { sendMetaLeadEvent } from '@/lib/meta-conversions-api';
 import { bgesPreQuizSchema } from '@/lib/schemas/bges-pre-quiz';
 
 const supabase = createClient(
@@ -57,9 +58,22 @@ export async function POST(request: NextRequest) {
     }
 
     const data = parsed.data;
+    const eventId =
+      typeof body?.eventId === 'string' && body.eventId.trim()
+        ? body.eventId.trim()
+        : crypto.randomUUID();
     const email = data.email.trim().toLowerCase();
     const fullName = `${data.firstName.trim()} ${data.lastName.trim()}`;
     const password = crypto.randomUUID();
+    const ipAddress =
+      request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
+    const userAgent = request.headers.get('user-agent') || 'unknown';
+    const sourceUrl =
+      request.headers.get('referer') || `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/bges`;
+    const fbp = request.cookies.get('_fbp')?.value;
+    const fbc = request.cookies.get('_fbc')?.value;
 
     let userId = await findUserIdByEmail(email);
 
@@ -122,6 +136,23 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
+
+    const metaLeadSent = await sendMetaLeadEvent({
+      eventId,
+      eventSourceUrl: sourceUrl,
+      userData: {
+        email,
+        phone: data.whatsappNumber,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        fbp,
+        fbc,
+        clientIpAddress: ipAddress,
+        clientUserAgent: userAgent,
+      },
+    });
+
+    console.log('BGES Meta lead event:', metaLeadSent ? 'sent' : 'failed');
 
     return NextResponse.json({
       success: true,

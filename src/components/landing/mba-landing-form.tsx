@@ -147,13 +147,23 @@ export function MbaLandingForm() {
   const onSubmit = async (data: MbaLandingFormData) => {
     try {
       setIsSubmitting(true);
+      const eventId = crypto.randomUUID();
 
-      FacebookPixelEvents.lead(data.email, data.phone, data.firstName, data.lastName);
+      FacebookPixelEvents.lead(
+        data.email,
+        data.phone,
+        data.firstName,
+        data.lastName,
+        eventId
+      );
 
       const response = await fetch('/api/landing/mba-form', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          eventId,
+        }),
       });
 
       if (!response.ok) {

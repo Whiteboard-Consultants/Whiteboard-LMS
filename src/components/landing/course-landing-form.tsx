@@ -80,8 +80,15 @@ export function CourseLandingForm({ courseId, courseName }: CourseLandingFormPro
   const onSubmit = async (data: LandingFormData) => {
     try {
       setIsSubmitting(true);
+      const eventId = crypto.randomUUID();
 
-      FacebookPixelEvents.lead(data.email, data.phone, data.firstName, data.lastName);
+      FacebookPixelEvents.lead(
+        data.email,
+        data.phone,
+        data.firstName,
+        data.lastName,
+        eventId
+      );
 
       const response = await fetch('/api/landing/course-form', {
         method: 'POST',
@@ -89,6 +96,7 @@ export function CourseLandingForm({ courseId, courseName }: CourseLandingFormPro
         body: JSON.stringify({
           courseId,
           courseName,
+          eventId,
           ...data,
         }),
       });

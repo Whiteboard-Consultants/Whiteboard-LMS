@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { saveContactSubmission } from "@/app/(public)/contact/actions";
 import { useReCaptcha, ReCaptchaBadge } from "@/components/recaptcha";
+import { FacebookPixelEvents } from "@/lib/facebook-pixel";
 
 const formSchema = z.object({
   firstName: z.string().min(1, "First Name is required."),
@@ -55,8 +56,17 @@ export default function ContactPageClient() {
             });
             return;
         }
+
+        const eventId = crypto.randomUUID();
+        FacebookPixelEvents.lead(
+          values.email,
+          values.phone,
+          values.firstName,
+          values.lastName,
+          eventId
+        );
         
-        const result = await saveContactSubmission(values, recaptchaToken);
+        const result = await saveContactSubmission(values, recaptchaToken, eventId);
         if (result.success) {
             toast({
                 title: "Message Sent!",

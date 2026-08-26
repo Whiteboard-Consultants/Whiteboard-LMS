@@ -2,7 +2,8 @@
 
 export function trackPixelEvent(
   eventName: string,
-  eventData?: Record<string, any>
+  eventData?: Record<string, any>,
+  options?: { eventId?: string }
 ) {
   if (typeof window === 'undefined') return;
 
@@ -14,13 +15,18 @@ export function trackPixelEvent(
   }
 
   if (window.fbq) {
+    if (options?.eventId) {
+      window.fbq('track', eventName, eventData, { eventID: options.eventId });
+      return;
+    }
+
     window.fbq('track', eventName, eventData);
   }
 }
 
 declare global {
   interface Window {
-    fbq: (command: string, event: string, data?: any) => void;
+    fbq: (...args: any[]) => void;
   }
 }
 
@@ -57,14 +63,20 @@ export const FacebookPixelEvents = {
       timestamp: new Date().toISOString(),
     }),
 
-  lead: (email?: string, phone?: string, firstName?: string, lastName?: string) =>
+  lead: (
+    email?: string,
+    phone?: string,
+    firstName?: string,
+    lastName?: string,
+    eventId?: string
+  ) =>
     trackPixelEvent('Lead', {
       em: email ? hashEmail(email) : undefined,
       ph: phone ? hashPhone(phone) : undefined,
       fn: firstName,
       ln: lastName,
       timestamp: new Date().toISOString(),
-    }),
+    }, { eventId }),
 
   completeRegistration: (email?: string, firstName?: string, lastName?: string) =>
     trackPixelEvent('CompleteRegistration', {

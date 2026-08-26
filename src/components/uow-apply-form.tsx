@@ -58,17 +58,22 @@ export function UowApplyForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
+      const eventId = crypto.randomUUID();
       FacebookPixelEvents.lead(
         values.email,
         values.phone,
         values.firstName,
-        values.lastName
+        values.lastName,
+        eventId
       );
 
       const response = await fetch('/api/uow/apply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
+        body: JSON.stringify({
+          ...values,
+          eventId,
+        }),
       });
 
       const result = await response.json();

@@ -5,6 +5,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
+import { sendMetaLeadEvent } from '@/lib/meta-conversions-api';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -13,7 +14,8 @@ const supabase = createClient(
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password, fullName } = await request.json();
+    const body = await request.json();
+    const { email, password, fullName } = body;
 
     if (!email || !password || !fullName) {
       return NextResponse.json(
@@ -43,6 +45,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const nameParts = fullName.trim().split(/\s+/);
+    const eventId =
+      typeof body?.eventId === 'string' && body.eventId.trim()
+        ? body.eventId.trim()
+        : crypto.randomUUID();
+    const ipAddress =
+      request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
+    const userAgent = request.headers.get('user-agent') || 'unknown';
+    const sourceUrl =
+      request.headers.get('referer') || `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/`;
+    const fbp = request.cookies.get('_fbp')?.value;
+    const fbc = request.cookies.get('_fbc')?.value;
+
     // Create RIASEC assessment record
     const { data: assessment, error: assessmentError } = await supabase
       .from('riasec_assessments')
@@ -61,6 +78,22 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
+
+    const metaLeadSent = await sendMetaLeadEvent({
+      eventId,
+      eventSourceUrl: sourceUrl,
+      userData: {
+        email,
+        firstName: nameParts[0],
+        lastName: nameParts.slice(1).join(' ') || undefined,
+        fbp,
+        fbc,
+        clientIpAddress: ipAddress,
+        clientUserAgent: userAgent,
+      },
+    });
+
+    console.log('RIASEC registration Meta lead:', metaLeadSent ? 'sent' : 'failed');
 
     // Create auth session token for immediate login
     // Session is returned from signUp automatically
