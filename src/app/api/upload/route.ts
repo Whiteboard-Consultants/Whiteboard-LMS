@@ -2,6 +2,7 @@
 import {NextRequest, NextResponse} from "next/server";
 import { createClient } from '@supabase/supabase-js';
 import { sendResumeAdminNotification, sendResumeConfirmation, type ResumeSubmissionData } from '@/lib/resume-email-service';
+import { sendMetaLeadEvent } from '@/lib/meta-conversions-api';
 
 // Create a Supabase client with service role key for file uploads
 const supabaseAdmin = createClient(
@@ -15,6 +16,21 @@ export async function POST(req: NextRequest) {
     const name = formData.get("name") as string;
     const email = formData.get("email") as string;
     const careerObjective = formData.get("careerObjective") as string;
+    const eventIdValue = formData.get("eventId");
+    const eventId =
+      typeof eventIdValue === "string" && eventIdValue.trim()
+        ? eventIdValue.trim()
+        : crypto.randomUUID();
+    const ipAddress =
+      req.headers.get("x-forwarded-for") ||
+      req.headers.get("x-real-ip") ||
+      "unknown";
+    const userAgent = req.headers.get("user-agent") || "unknown";
+    const sourceUrl =
+      req.headers.get("referer") ||
+      `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/#resume`;
+    const fbp = req.cookies.get("_fbp")?.value;
+    const fbc = req.cookies.get("_fbc")?.value;
 
     if (!file) {
         return NextResponse.json({error: "No file provided"}, {status: 400});
@@ -116,14 +132,29 @@ export async function POST(req: NextRequest) {
 
         // Send notifications and wait for them to complete
         try {
-            const [adminSent, confirmationSent] = await Promise.all([
+            const nameParts = name.trim().split(/\s+/);
+            const [adminSent, confirmationSent, metaLeadSent] = await Promise.all([
                 sendResumeAdminNotification(emailData),
-                sendResumeConfirmation(emailData)
+                sendResumeConfirmation(emailData),
+                sendMetaLeadEvent({
+                    eventId,
+                    eventSourceUrl: sourceUrl,
+                    userData: {
+                        email: emailData.email,
+                        firstName: nameParts[0],
+                        lastName: nameParts.slice(1).join(" ") || undefined,
+                        fbp,
+                        fbc,
+                        clientIpAddress: ipAddress,
+                        clientUserAgent: userAgent,
+                    },
+                }),
             ]);
 
             console.log(`📧 Resume submission ${submissionData.id} notifications:`, { 
                 adminNotification: adminSent ? '✅ sent' : '❌ failed',
-                userConfirmation: confirmationSent ? '✅ sent' : '❌ failed'
+                userConfirmation: confirmationSent ? '✅ sent' : '❌ failed',
+                metaLeadEvent: metaLeadSent ? '✅ sent' : '❌ failed',
             });
             
             if (!adminSent || !confirmationSent) {

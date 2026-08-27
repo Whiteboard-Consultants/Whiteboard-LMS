@@ -12,6 +12,7 @@ import { Loader2, UploadCloud } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
 import { Textarea } from '../ui/textarea';
 import { Skeleton } from '../ui/skeleton';
+import { FacebookPixelEvents } from '@/lib/facebook-pixel';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -43,11 +44,19 @@ export default function ResumeEvaluationSection() {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
+    const eventId = crypto.randomUUID();
+    const nameParts = values.name.trim().split(/\s+/);
+    const firstName = nameParts[0];
+    const lastName = nameParts.slice(1).join(' ') || undefined;
+
+    FacebookPixelEvents.lead(values.email, undefined, firstName, lastName, eventId);
+
     const formData = new FormData();
     formData.append('name', values.name);
     formData.append('email', values.email);
     formData.append('careerObjective', values.careerObjective);
     formData.append('file', values.resume[0]);
+    formData.append('eventId', eventId);
 
     try {
       const response = await fetch('/api/upload', {
