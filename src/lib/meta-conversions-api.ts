@@ -86,18 +86,18 @@ export async function sendMetaLeadEvent({
   eventSourceUrl,
   userData,
 }: SendMetaLeadEventInput): Promise<boolean> {
-  const pixelId = process.env.FACEBOOK_PIXEL_ID || process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
+  const pixelIds = getConfiguredPixelIds();
   const accessToken = process.env.FACEBOOK_CAPI_ACCESS_TOKEN;
+  const accessToken2 = process.env.FACEBOOK_CAPI_ACCESS_TOKEN_2;
   const testEventCode = process.env.FACEBOOK_CAPI_TEST_EVENT_CODE?.trim();
 
-  if (!pixelId || !accessToken) {
+  if (pixelIds.length === 0 || (!accessToken && !accessToken2)) {
     console.warn('Meta Conversions API is not fully configured. Skipping server-side lead.');
     return false;
   }
 
   const normalizedSourceUrl = normalizeEventSourceUrl(eventSourceUrl);
-
-  const payload = {
+  const payloadBase = {
     data: [
       {
         event_name: 'Lead',
@@ -111,24 +111,62 @@ export async function sendMetaLeadEvent({
     ...(testEventCode ? { test_event_code: testEventCode } : {}),
   };
 
-  // Meta's documented auth for CAPI is access_token as a query param.
-  const endpoint = `https://graph.facebook.com/v21.0/${pixelId}/events?access_token=${encodeURIComponent(accessToken)}`;
+  const results = await Promise.all(
+    pixelIds.map(async (pixelId, index) => {
+      const token =
+        index === 0
+          ? accessToken || accessToken2
+          : accessToken2;
 
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
+      if (!token) {
+        console.warn(`Meta CAPI skipped for pixel ${pixelId}: missing access token`);
+        return false;
+      }
 
-  const responseText = await response.text();
+      const endpoint = `https://graph.facebook.com/v21.0/${pixelId}/events?access_token=${encodeURIComponent(token)}`;
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payloadBase),
+      });
 
-  if (!response.ok) {
-    console.error('Meta CAPI lead event failed:', response.status, responseText);
-    return false;
+      const responseText = await response.text();
+
+      if (!response.ok) {
+        console.error(
+          `Meta CAPI lead event failed for pixel ${pixelId}:`,
+          response.status,
+          responseText
+        );
+        return false;
+      }
+
+      console.log(`Meta CAPI lead event accepted for pixel ${pixelId}:`, responseText);
+      return true;
+    })
+  );
+
+  return results.some(Boolean);
+}
+
+function getConfiguredPixelIds(): string[] {
+  const ids = new Set<string>();
+
+  const primary =
+    process.env.FACEBOOK_PIXEL_ID?.trim() ||
+    process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID?.trim();
+  if (primary) ids.add(primary);
+
+  const secondary = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID_2?.trim();
+  if (secondary) ids.add(secondary);
+
+  const list = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_IDS?.split(',') ?? [];
+  for (const id of list) {
+    const trimmed = id.trim();
+    if (trimmed) ids.add(trimmed);
   }
 
-  console.log('Meta CAPI lead event accepted:', responseText);
-  return true;
+  return Array.from(ids);
 }

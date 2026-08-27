@@ -1,5 +1,23 @@
 // Meta Pixel (Facebook Pixel) event tracking
 
+function getMetaPixelIds(): string[] {
+  const ids = new Set<string>();
+
+  const primary = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID?.trim();
+  if (primary) ids.add(primary);
+
+  const secondary = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID_2?.trim();
+  if (secondary) ids.add(secondary);
+
+  const list = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_IDS?.split(',') ?? [];
+  for (const id of list) {
+    const trimmed = id.trim();
+    if (trimmed) ids.add(trimmed);
+  }
+
+  return Array.from(ids);
+}
+
 export function trackPixelEvent(
   eventName: string,
   eventData?: Record<string, any>,
@@ -8,9 +26,9 @@ export function trackPixelEvent(
   if (typeof window === 'undefined') return;
 
   if (!window.fbq) {
-    const pixelId = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
-    if (pixelId) {
-      initMetaPixel(pixelId);
+    const pixelIds = getMetaPixelIds();
+    if (pixelIds.length > 0) {
+      initMetaPixel(pixelIds);
     }
   }
 
@@ -143,10 +161,12 @@ function hashPhone(phone: string): string {
   return phone.replace(/\D/g, '');
 }
 
-// Initialize Meta Pixel
-export function initMetaPixel(pixelId: string) {
-  if (typeof window !== 'undefined' && !window.fbq && pixelId) {
-    // Load Meta Pixel Script
+// Initialize Meta Pixel(s)
+export function initMetaPixel(pixelIds: string | string[]) {
+  const ids = (Array.isArray(pixelIds) ? pixelIds : [pixelIds]).filter(Boolean);
+  if (typeof window === 'undefined' || ids.length === 0) return;
+
+  if (!window.fbq) {
     const script = document.createElement('script');
     script.innerHTML = `
       !function(f,b,e,v,n,t,s)
@@ -157,14 +177,21 @@ export function initMetaPixel(pixelId: string) {
       t.src=v;s=b.getElementsByTagName(e)[0];
       s.parentNode.insertBefore(t,s)}(window, document,'script',
       'https://connect.facebook.net/en_US/fbevents.js');
-      fbq('init', '${pixelId}');
+      ${ids.map((id) => `fbq('init', '${id}');`).join('\n')}
       fbq('track', 'PageView');
     `;
     document.head.appendChild(script);
 
-    // Fallback image pixel
-    const noscript = document.createElement('noscript');
-    noscript.innerHTML = `<img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1" />`;
-    document.head.appendChild(noscript);
+    for (const id of ids) {
+      const noscript = document.createElement('noscript');
+      noscript.innerHTML = `<img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=${id}&ev=PageView&noscript=1" />`;
+      document.head.appendChild(noscript);
+    }
+    return;
+  }
+
+  // Script already present — ensure each pixel is initialized.
+  for (const id of ids) {
+    window.fbq('init', id);
   }
 }

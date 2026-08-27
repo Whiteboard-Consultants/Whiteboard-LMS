@@ -2,12 +2,42 @@
 
 import Script from 'next/script';
 
-export function MetaPixelInit() {
-  const pixelId = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
+function getMetaPixelIds(): string[] {
+  const ids = new Set<string>();
 
-  if (!pixelId) {
+  const primary = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID?.trim();
+  if (primary) ids.add(primary);
+
+  const secondary = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID_2?.trim();
+  if (secondary) ids.add(secondary);
+
+  const list = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_IDS?.split(',') ?? [];
+  for (const id of list) {
+    const trimmed = id.trim();
+    if (trimmed) ids.add(trimmed);
+  }
+
+  return Array.from(ids);
+}
+
+export function MetaPixelInit() {
+  const pixelIds = getMetaPixelIds();
+
+  if (pixelIds.length === 0) {
     return null;
   }
+
+  const initCalls = pixelIds.map((id) => `fbq('init', '${id}');`).join('\n            ');
+  const noscriptPixels = pixelIds.map((id) => (
+    <img
+      key={id}
+      height="1"
+      width="1"
+      style={{ display: 'none' }}
+      src={`https://www.facebook.com/tr?id=${id}&ev=PageView&noscript=1`}
+      alt=""
+    />
+  ));
 
   return (
     <>
@@ -24,20 +54,12 @@ export function MetaPixelInit() {
             t.src=v;s=b.getElementsByTagName(e)[0];
             s.parentNode.insertBefore(t,s)}(window, document,'script',
             'https://connect.facebook.net/en_US/fbevents.js');
-            fbq('init', '${pixelId}');
+            ${initCalls}
             fbq('track', 'PageView');
           `,
         }}
       />
-      <noscript>
-        <img
-          height="1"
-          width="1"
-          style={{ display: 'none' }}
-          src={`https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1`}
-          alt=""
-        />
-      </noscript>
+      <noscript>{noscriptPixels}</noscript>
     </>
   );
 }
