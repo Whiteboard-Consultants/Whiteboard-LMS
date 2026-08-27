@@ -67,39 +67,58 @@ export async function getCollegeAdmissionsData(): Promise<CollegeAdmissionsData>
     return JSON.parse(jsonData);
 }
 
-// Define the structure for a single country
+export type CountrySubject = string | { name: string; description?: string; subPrograms?: string[] };
+
+// Shape used by PopularDestinationsSection
 export interface Country {
     slug: string;
     name: string;
     image: string;
     dataAiHint?: string;
-    universities: string;
     cost: string;
     intakes: string;
-    subjects: (string | { name: string; description?: string; subPrograms?: string[] })[];
+    subjects: CountrySubject[];
     highlights: string[];
     href: string;
 }
 
-// Function to fetch and map country data
+// Raw countries.json shape (card fields plus SEO / listing extras)
+interface CountryJson {
+    slug: string;
+    name: string;
+    image?: string;
+    dataAiHint?: string;
+    cost?: string;
+    intakes?: string;
+    subjects?: CountrySubject[];
+    highlights?: string[];
+    top_universities?: string[];
+    popular_courses?: string[];
+}
+
+function mapCountry(c: CountryJson): Country {
+    const listedUnis = c.top_universities?.filter(Boolean) ?? [];
+    const courses = c.subjects?.length ? c.subjects : (c.popular_courses ?? []);
+
+    return {
+        slug: c.slug,
+        name: c.name,
+        image: c.image || '/images/courses/default-course.svg',
+        dataAiHint: c.dataAiHint,
+        cost: c.cost || 'Varies',
+        intakes: c.intakes || 'Varies',
+        subjects: courses,
+        highlights: c.highlights?.length ? c.highlights : listedUnis.slice(0, 4),
+        href: `/study-abroad/${c.slug}`,
+    };
+}
+
 export async function getCountriesData(): Promise<Country[]> {
     try {
         const filePath = path.join(process.cwd(), 'src', 'data', 'countries.json');
         const fileContent = await fs.readFile(filePath, 'utf8');
-        const data: Country[] = JSON.parse(fileContent);
-        
-        return data.map((c: Country) => ({
-            slug: c.slug,
-            name: c.name,
-            image: c.image || '/images/courses/default-course.svg',
-            dataAiHint: c.dataAiHint,
-            universities: c.universities || 'N/A',
-            cost: c.cost || "Varies",
-            intakes: c.intakes || "Varies",
-            subjects: c.subjects || [],
-            highlights: c.highlights || [],
-            href: `/study-abroad/${c.slug}`,
-        }));
+        const data: CountryJson[] = JSON.parse(fileContent);
+        return data.map(mapCountry);
     } catch (e) {
         console.error("Failed to fetch countries data:", e);
         return [];

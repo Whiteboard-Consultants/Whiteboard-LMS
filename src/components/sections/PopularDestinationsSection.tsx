@@ -1,5 +1,6 @@
 
 "use client";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { CheckCircle2 } from "lucide-react";
@@ -8,12 +9,15 @@ import Link from "next/link";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Country } from "@/lib/content";
 
+const FALLBACK_IMAGE = "/images/courses/default-course.svg";
+
 interface PopularDestinationsSectionProps {
     destinations: Country[];
 }
 
 export default function PopularDestinationsSection({ destinations }: PopularDestinationsSectionProps) {
-    
+    const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
+
     return (
     <section className="py-16 sm:py-24 bg-background dark:bg-slate-dark">
       <div className="container">
@@ -26,20 +30,22 @@ export default function PopularDestinationsSection({ destinations }: PopularDest
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {destinations.map((destination) => (
-            <Card key={destination.name} className="flex flex-col overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 bg-card text-card-foreground">
-              <div className="relative h-56 w-full">
+          {destinations.map((destination, index) => (
+            <Card key={destination.slug || destination.name} className="flex flex-col overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 bg-card text-card-foreground">
+              <div className="relative h-56 w-full bg-muted">
                 <Image
-                  src={destination.image}
+                  src={failedImages[destination.slug] ? FALLBACK_IMAGE : destination.image}
                   alt={`Studying in ${destination.name}: Top universities, admission process, costs, and international student guide`}
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-cover"
-                  quality={85}
-                  priority={destinations.indexOf(destination) < 3}
-                  placeholder="blur"
-                  blurDataURL="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect fill='%23f0f0f0' width='400' height='300'/%3E%3C/svg%3E"
-                  data-ai-hint={destination.dataAiHint}
+                  quality={75}
+                  priority={index < 3}
+                  onError={() =>
+                    setFailedImages((prev) =>
+                      prev[destination.slug] ? prev : { ...prev, [destination.slug]: true }
+                    )
+                  }
                 />
               </div>
               <CardHeader className="p-6">
@@ -47,10 +53,6 @@ export default function PopularDestinationsSection({ destinations }: PopularDest
               </CardHeader>
               <CardContent className="p-6 pt-0 flex flex-col flex-grow">
                 <div className="space-y-4 text-muted-foreground flex-grow">
-                    <div className="flex justify-between items-baseline">
-                        <span>Universities:</span>
-                        <span className="font-bold text-foreground">{destination.universities}</span>
-                    </div>
                     <div className="flex justify-between items-baseline">
                         <span>Average Cost:</span>
                         <span className="font-bold text-foreground text-right">{destination.cost}</span>
@@ -60,13 +62,14 @@ export default function PopularDestinationsSection({ destinations }: PopularDest
                         <span className="font-bold text-foreground text-right">{destination.intakes}</span>
                     </div>
                     
+                    {destination.subjects.length > 0 && (
                     <Accordion type="single" collapsible className="w-full">
                       <AccordionItem value="item-1">
                         <AccordionTrigger className="font-semibold text-sm py-2">View Popular Programs</AccordionTrigger>
                         <AccordionContent>
                            <ul className="space-y-2 pt-2">
-                                {destination.subjects.map((subject, index) => (
-                                    <li key={index}>
+                                {destination.subjects.map((subject, subjectIndex) => (
+                                    <li key={subjectIndex}>
                                       <div className="flex items-start text-xs">
                                         <CheckCircle2 className="h-3 w-3 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
                                         <div className="flex flex-col">
@@ -90,18 +93,21 @@ export default function PopularDestinationsSection({ destinations }: PopularDest
                         </AccordionContent>
                       </AccordionItem>
                     </Accordion>
+                    )}
                     
+                    {destination.highlights.length > 0 && (
                     <div>
                         <h4 className="font-semibold text-foreground mb-2">Key Highlights:</h4>
                         <ul className="space-y-2">
-                            {destination.highlights.map((highlight, index) => (
-                                <li key={index} className="flex items-center">
+                            {destination.highlights.map((highlight, highlightIndex) => (
+                                <li key={highlightIndex} className="flex items-center">
                                     <CheckCircle2 className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
                                     <span>{highlight}</span>
                                 </li>
                             ))}
                         </ul>
                     </div>
+                    )}
                 </div>
                 <div className="mt-auto pt-6">
                     <Button asChild className="w-full dark:bg-slate-dark dark:text-white dark:border dark:border-white">
