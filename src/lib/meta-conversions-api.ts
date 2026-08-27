@@ -90,6 +90,7 @@ export async function sendMetaLeadEvent({
   const accessToken = process.env.FACEBOOK_CAPI_ACCESS_TOKEN;
   const accessToken2 = process.env.FACEBOOK_CAPI_ACCESS_TOKEN_2;
   const testEventCode = process.env.FACEBOOK_CAPI_TEST_EVENT_CODE?.trim();
+  const testEventCode2 = process.env.FACEBOOK_CAPI_TEST_EVENT_CODE_2?.trim();
 
   if (pixelIds.length === 0 || (!accessToken && !accessToken2)) {
     console.warn('Meta Conversions API is not fully configured. Skipping server-side lead.');
@@ -97,31 +98,31 @@ export async function sendMetaLeadEvent({
   }
 
   const normalizedSourceUrl = normalizeEventSourceUrl(eventSourceUrl);
-  const payloadBase = {
-    data: [
-      {
-        event_name: 'Lead',
-        event_time: Math.floor(Date.now() / 1000),
-        event_id: eventId,
-        action_source: 'website',
-        ...(normalizedSourceUrl ? { event_source_url: normalizedSourceUrl } : {}),
-        user_data: buildUserData(userData),
-      },
-    ],
-    ...(testEventCode ? { test_event_code: testEventCode } : {}),
-  };
+  const eventData = [
+    {
+      event_name: 'Lead',
+      event_time: Math.floor(Date.now() / 1000),
+      event_id: eventId,
+      action_source: 'website',
+      ...(normalizedSourceUrl ? { event_source_url: normalizedSourceUrl } : {}),
+      user_data: buildUserData(userData),
+    },
+  ];
 
   const results = await Promise.all(
     pixelIds.map(async (pixelId, index) => {
-      const token =
-        index === 0
-          ? accessToken || accessToken2
-          : accessToken2;
+      const token = index === 0 ? accessToken || accessToken2 : accessToken2;
+      const pixelTestCode = index === 0 ? testEventCode : testEventCode2;
 
       if (!token) {
         console.warn(`Meta CAPI skipped for pixel ${pixelId}: missing access token`);
         return false;
       }
+
+      const payload = {
+        data: eventData,
+        ...(pixelTestCode ? { test_event_code: pixelTestCode } : {}),
+      };
 
       const endpoint = `https://graph.facebook.com/v21.0/${pixelId}/events?access_token=${encodeURIComponent(token)}`;
       const response = await fetch(endpoint, {
@@ -129,7 +130,7 @@ export async function sendMetaLeadEvent({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payloadBase),
+        body: JSON.stringify(payload),
       });
 
       const responseText = await response.text();
