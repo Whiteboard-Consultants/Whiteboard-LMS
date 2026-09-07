@@ -23,7 +23,7 @@ export default function CtaSection({ headline }: CtaSectionProps) {
                             <div className="space-y-4">
                                 <div className="flex items-center gap-3">
                                     <Phone className="h-5 w-5 text-primary-foreground dark:text-slate-300" />
-                                    <a href="tel:+918583035656" className="text-primary-foreground/90 dark:text-slate-300 hover:text-primary-foreground dark:hover:text-white">+91 85830 35656</a>
+                                    <a href="tel:+918583035656" className="text-primary-foreground/90 dark:text-slate-300 hover:text-primary-foreground dark:hover:text-white">+91-8583035656</a>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <Mail className="h-5 w-5 text-primary-foreground dark:text-slate-300" />

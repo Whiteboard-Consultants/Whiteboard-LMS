@@ -18,6 +18,8 @@ const publicAllow = [
   '/',
   '/llms.txt',
   '/about',
+  '/education-consultant-kolkata',
+  '/study-abroad-consultants-kolkata',
   '/contact',
   '/courses',
   '/courses/*',

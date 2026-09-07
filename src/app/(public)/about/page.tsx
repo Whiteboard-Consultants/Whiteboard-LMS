@@ -150,7 +150,7 @@ export default function AboutPage() {
                             <p>With over 2 decades of experience in education and edtech, we have played diverse roles in guiding students towards their career goals. We immersed ourselves in understanding the industry&apos;s requirements, operations, and support mechanisms.</p>
                             <p>Expanding our network, we aimed to offer and receive assistance effectively. Leveraging our experience, we have honed the student journey, highlighting pitfalls to avoid and showcasing the benefits of understanding chosen career paths for success.</p>
                             <p>We empathetically stepped into the shoes of students and career seekers, navigating the journey to understand and overcome obstacles in pursuing higher education.</p>
-                            <p>This journey led us to establish Whiteboard Consultants, a top <Link href="/college-admissions" className="text-primary hover:underline dark:text-white">education consultant in Kolkata</Link>, where you can seek guidance and meticulously plan your career or higher education path with a fresh perspective.</p>
+                            <p>This journey led us to establish Whiteboard Consultants, a top <Link href="/education-consultant-kolkata" className="text-primary hover:underline dark:text-white">education consultant in Kolkata</Link>, where you can seek guidance and meticulously plan your career or higher education path with a fresh perspective.</p>
                         </div>
                     </div>
                 </div>

@@ -616,7 +616,7 @@ export async function sendEnrollmentWelcomeEmail(
               </div>
               <div class="footer-section">
                 📧 Email: <a href="mailto:info@whiteboardconsultant.com">info@whiteboardconsultant.com</a><br>
-                📱 Phone: <a href="tel:+918583035656">+91 8583035656</a><br>
+                📱 Phone: <a href="tel:+918583035656">+91-8583035656</a><br>
                 🌐 Website: <a href="https://whiteboardconsultant.com" target="_blank">whiteboardconsultant.com</a>
               </div>
               <div class="footer-divider"></div>

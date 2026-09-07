@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import { pageMetadata } from '@/lib/seo';
+import { pageMetadata, siteConfig } from '@/lib/seo';
 
 // Fully static legal page — no data fetching
 export const dynamic = 'force-static';
@@ -191,9 +191,8 @@ export default function RefundPolicyPage() {
             </p>
             <div className="bg-muted p-6 rounded-lg space-y-2 text-foreground">
               <p>
-                <strong>Whiteboard Consultants</strong><br />
-                'My Cube', 6th Floor, Park Plaza, 71, Park Street<br />
-                Kolkata, West Bengal 700016, India
+                <strong>{siteConfig.name}</strong><br />
+                {siteConfig.contact.address}
               </p>
               <p>
                 <strong>Email:</strong>{' '}
@@ -204,7 +203,7 @@ export default function RefundPolicyPage() {
               <p>
                 <strong>Phone:</strong>{' '}
                 <Link href="tel:+918583035656" className="text-primary hover:underline">
-                  +91-85830-35656
+                  +91-8583035656
                 </Link>
               </p>
               <p>

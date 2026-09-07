@@ -9,7 +9,6 @@ export const organizationSameAs = [
   'https://www.youtube.com/@whiteboardconsultants',
 ] as const;
 
-const streetAddress = "Park Plaza, 71 Park Street, Floor 6, 'My Cube'";
 const phone = siteConfig.contact.phone.replace(/\s/g, '');
 
 export const organizationSchema = {
@@ -35,23 +34,24 @@ export const organizationSchema = {
   },
   address: {
     '@type': 'PostalAddress',
-    streetAddress,
-    addressLocality: 'Kolkata',
-    addressRegion: 'West Bengal',
-    postalCode: '700016',
-    addressCountry: 'IN',
+    streetAddress: siteConfig.contact.streetAddress,
+    addressLocality: siteConfig.contact.addressLocality,
+    addressRegion: siteConfig.contact.addressRegion,
+    postalCode: siteConfig.contact.postalCode,
+    addressCountry: siteConfig.contact.addressCountry,
   },
   geo: {
     '@type': 'GeoCoordinates',
-    latitude: 22.5514,
-    longitude: 88.3522,
+    latitude: siteConfig.contact.latitude,
+    longitude: siteConfig.contact.longitude,
   },
+  hasMap: siteConfig.contact.mapsUrl,
   areaServed: {
     '@type': 'GeoCircle',
     geoMidpoint: {
       '@type': 'GeoCoordinates',
-      latitude: 22.5726,
-      longitude: 88.3639,
+      latitude: siteConfig.contact.latitude,
+      longitude: siteConfig.contact.longitude,
     },
     geoRadius: '50000',
   },
@@ -59,14 +59,14 @@ export const organizationSchema = {
     {
       '@type': 'OpeningHoursSpecification',
       dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-      opens: '10:00',
-      closes: '18:00',
+      opens: siteConfig.contact.hoursWeekdayOpens,
+      closes: siteConfig.contact.hoursWeekdayCloses,
     },
     {
       '@type': 'OpeningHoursSpecification',
       dayOfWeek: 'Saturday',
-      opens: '10:00',
-      closes: '15:00',
+      opens: siteConfig.contact.hoursSaturdayOpens,
+      closes: siteConfig.contact.hoursSaturdayCloses,
     },
   ],
   founder: [

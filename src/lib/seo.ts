@@ -194,9 +194,23 @@ export const siteConfig = {
     youtube: "https://www.youtube.com/@whiteboardconsultants"
   },
   contact: {
-    phone: "+91 8583 035656",
+    phone: "+91-8583035656",
     email: "info@whiteboardconsultant.com",
-    address: "Park Plaza, 71 Park Street, Floor 6, Kolkata, West Bengal 700016, India"
+    address: '"My Cube", 6th Floor, Park Plaza, 71 Park Street, Kolkata - 700016',
+    streetAddress: '"My Cube", 6th Floor, Park Plaza, 71 Park Street',
+    addressLocality: "Kolkata",
+    addressRegion: "West Bengal",
+    postalCode: "700016",
+    addressCountry: "IN",
+    latitude: 22.551546,
+    longitude: 88.354508,
+    mapsUrl: "https://maps.app.goo.gl/tBzDnPjy8kUcPYga6",
+    hoursWeekdays: "Mo-Fr 10:00-18:00",
+    hoursSaturday: "Sa 10:00-15:00",
+    hoursWeekdayOpens: "10:00",
+    hoursWeekdayCloses: "18:00",
+    hoursSaturdayOpens: "10:00",
+    hoursSaturdayCloses: "15:00",
   }
 };
 
@@ -455,28 +469,28 @@ export function generateLocalBusinessStructuredData() {
     "email": siteConfig.contact.email,
     "address": {
       "@type": "PostalAddress",
-      "streetAddress": "'My Cube', 6th Floor, Park Plaza, 71, Park Street",
-      "addressLocality": "Kolkata",
-      "addressRegion": "West Bengal",
-      "postalCode": "700016",
-      "addressCountry": "IN"
+      "streetAddress": siteConfig.contact.streetAddress,
+      "addressLocality": siteConfig.contact.addressLocality,
+      "addressRegion": siteConfig.contact.addressRegion,
+      "postalCode": siteConfig.contact.postalCode,
+      "addressCountry": siteConfig.contact.addressCountry
     },
     "geo": {
       "@type": "GeoCoordinates",
-      "latitude": 22.5574,
-      "longitude": 88.3476
+      "latitude": siteConfig.contact.latitude,
+      "longitude": siteConfig.contact.longitude
     },
     "openingHours": [
-      "Mo-Fr 09:00-18:00",
-      "Sa 09:00-15:00"
+      siteConfig.contact.hoursWeekdays,
+      siteConfig.contact.hoursSaturday
     ],
     "sameAs": Object.values(siteConfig.links),
     "serviceArea": {
       "@type": "GeoCircle",
       "geoMidpoint": {
         "@type": "GeoCoordinates",
-        "latitude": 22.5574,
-        "longitude": 88.3476
+        "latitude": siteConfig.contact.latitude,
+        "longitude": siteConfig.contact.longitude
       },
       "geoRadius": "50000" // 50km radius
     },

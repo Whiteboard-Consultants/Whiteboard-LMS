@@ -57,7 +57,7 @@ export default function HomePageClient({ whyChooseUsData }: HomePageClientProps)
                                 Best Education Consultant in Kolkata for Higher Education & Career Development - <span className="text-primary dark:text-white">Whiteboard Consultants</span>
                             </h1>
                             <p className="mt-6 text-lg text-muted-foreground">
-                                As the top Education Consultant in Kolkata, we specialize in <Link href="/study-abroad" className="text-primary underline hover:underline dark:text-white">Study Abroad</Link> guidance, <Link href="/courses" className="text-primary underline hover:underline dark:text-white">TOEFL/IELTS Test Prep</Link>, and <Link href="/college-admissions" className="text-primary underline hover:underline dark:text-white">College Admissions</Link>. Get expert guidance for overseas education, competitive exam training, and career success.
+                                As the top <Link href="/education-consultant-kolkata" className="text-primary underline hover:underline dark:text-white">Education Consultant in Kolkata</Link>, we specialize in <Link href="/study-abroad-consultants-kolkata" className="text-primary underline hover:underline dark:text-white">Study Abroad</Link> guidance, <Link href="/courses" className="text-primary underline hover:underline dark:text-white">TOEFL/IELTS Test Prep</Link>, and <Link href="/college-admissions" className="text-primary underline hover:underline dark:text-white">College Admissions</Link>. Get expert guidance for overseas education, competitive exam training, and career success.
                             </p>
                             <QuickAnswer>
                                 <p>

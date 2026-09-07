@@ -72,6 +72,13 @@ export const breadcrumbConfigs = {
   about: [
     { name: 'About Us', href: '/about' }
   ],
+  educationConsultantKolkata: [
+    { name: 'Education Consultant in Kolkata', href: '/education-consultant-kolkata' }
+  ],
+  studyAbroadConsultantsKolkata: [
+    { name: 'Study Abroad', href: '/study-abroad' },
+    { name: 'Study Abroad Consultants in Kolkata', href: '/study-abroad-consultants-kolkata' }
+  ],
   courses: [
     { name: 'Courses', href: '/courses' }
   ],

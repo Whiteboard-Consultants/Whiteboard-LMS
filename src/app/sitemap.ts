@@ -22,6 +22,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9, // About page - high importance for trust
     },
     {
+      url: `${baseUrl}/education-consultant-kolkata`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/study-abroad-consultants-kolkata`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.9,
+    },
+    {
       url: `${baseUrl}/courses`,
       lastModified: new Date(),
       changeFrequency: 'weekly', // Courses updated regularly

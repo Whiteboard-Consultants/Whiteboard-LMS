@@ -1,6 +1,7 @@
 'use client'
 
 import Script from 'next/script'
+import { siteConfig } from '@/lib/seo'
 
 interface StructuredDataProps {
   data: object | object[]
@@ -87,24 +88,25 @@ export function LocalBusinessStructuredData() {
     "description": "Premier education consultant in Kolkata specializing in study abroad guidance, test preparation, and career counseling",
     "image": "https://www.whiteboardconsultant.com/logo.png",
     "url": "https://www.whiteboardconsultant.com",
-    "telephone": "+91-85830-35656",
-    "email": "info@whiteboardconsultant.com",
+    "telephone": siteConfig.contact.phone,
+    "email": siteConfig.contact.email,
     "address": {
       "@type": "PostalAddress",
-      "streetAddress": "'My Cube', 6th Floor, Park Plaza, 71, Park Street",
-      "addressLocality": "Kolkata", 
-      "addressRegion": "West Bengal",
-      "postalCode": "700016",
-      "addressCountry": "IN"
+      "streetAddress": siteConfig.contact.streetAddress,
+      "addressLocality": siteConfig.contact.addressLocality,
+      "addressRegion": siteConfig.contact.addressRegion,
+      "postalCode": siteConfig.contact.postalCode,
+      "addressCountry": siteConfig.contact.addressCountry
     },
     "geo": {
       "@type": "GeoCoordinates",
-      "latitude": 22.5574,
-      "longitude": 88.3476
+      "latitude": siteConfig.contact.latitude,
+      "longitude": siteConfig.contact.longitude
     },
+    "hasMap": siteConfig.contact.mapsUrl,
     "openingHours": [
-      "Mo-Fr 09:00-18:00",
-      "Sa 09:00-15:00"
+      siteConfig.contact.hoursWeekdays,
+      siteConfig.contact.hoursSaturday
     ],
     "priceRange": "₹₹",
     "currenciesAccepted": "INR",
@@ -127,10 +129,10 @@ export function LocalBusinessStructuredData() {
       "@type": "GeoCircle",
       "geoMidpoint": {
         "@type": "GeoCoordinates",
-        "latitude": 22.5574,
-        "longitude": 88.3476
+        "latitude": siteConfig.contact.latitude,
+        "longitude": siteConfig.contact.longitude
       },
-      "geoRadius": "100000" // 100km radius
+      "geoRadius": "50000"
     },
     "hasOfferCatalog": {
       "@type": "OfferCatalog",

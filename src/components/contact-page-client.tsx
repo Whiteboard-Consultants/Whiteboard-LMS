@@ -13,6 +13,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useToast } from "@/hooks/use-toast";
+import { siteConfig } from "@/lib/seo";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { saveContactSubmission } from "@/app/(public)/contact/actions";
 import { useReCaptcha, ReCaptchaBadge } from "@/components/recaptcha";
@@ -139,8 +140,8 @@ export default function ContactPageClient() {
                       </div>
                       <div>
                         <h3 className="font-semibold">Call Us</h3>
-                        <a href="tel:+918583035656" className="text-muted-foreground hover:text-primary dark:hover:text-white">
-                          +91 85830 35656
+                        <a href={`tel:+${siteConfig.contact.phone.replace(/\D/g, '')}`} className="text-muted-foreground hover:text-primary dark:hover:text-white">
+                          {siteConfig.contact.phone}
                         </a>
                       </div>
                     </div>
@@ -155,16 +156,14 @@ export default function ContactPageClient() {
                             </p>
                         </div>
                     </div>
-                    <a href="https://maps.app.goo.gl/tBzDnPjy8kUcPYga6" target="_blank" rel="noopener noreferrer" className="flex items-start gap-4 group">
+                    <a href={siteConfig.contact.mapsUrl} target="_blank" rel="noopener noreferrer" className="flex items-start gap-4 group">
                         <div className="bg-primary/10 p-3 rounded-full">
                             <MapPin className="h-6 w-6 text-primary dark:text-primary-foreground" />
                         </div>
                         <div>
                             <h3 className="font-semibold">City Office</h3>
                             <p className="text-muted-foreground group-hover:text-primary group-hover:underline dark:group-hover:text-white">
-                                &apos;My Cube&apos;, 6th Floor, Park Plaza,<br />
-                                71, Park Street,<br />
-                                Kolkata - 700 016
+                                {siteConfig.contact.address}
                             </p>
                         </div>
                     </a>

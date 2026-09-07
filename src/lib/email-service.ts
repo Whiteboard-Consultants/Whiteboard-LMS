@@ -366,7 +366,7 @@ export async function sendAutoReply(submission: ContactSubmissionData): Promise<
 
         <div style="background-color: #ecfdf5; padding: 15px; border-radius: 6px; margin: 20px 0;">
           <h3 style="margin: 0 0 10px 0; color: #065f46;">Need Immediate Help?</h3>
-          <p style="margin: 0;">Call us at <a href="tel:+918583035656" style="color: #2563eb;">+91 85830 35656</a></p>
+          <p style="margin: 0;">Call us at <a href="tel:+918583035656" style="color: #2563eb;">+91-8583035656</a></p>
           <p style="margin: 5px 0 0 0;">Or email us at <a href="mailto:info@whiteboardconsultant.com" style="color: #2563eb;">info@whiteboardconsultant.com</a></p>
         </div>
 
@@ -396,7 +396,7 @@ What happens next?
 - You'll receive personalized guidance based on your needs
 
 Need immediate help?
-Call us at +91 85830 35656
+Call us at +91-8583035656
 Email: info@whiteboardconsultant.com
 
 Best regards,

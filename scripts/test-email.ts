@@ -17,7 +17,7 @@ const testSubmission = {
   firstName: 'Test',
   lastName: 'Configuration',
   email: 'info@whiteboardconsultant.com', // Using your own email for auto-reply test
-  phone: '+91 85830 35656',
+  phone: '+91-8583035656',
   inquiryType: 'Email Configuration Test',
   message: 'This is a test message to verify Google Workspace email integration is working correctly.',
   submittedAt: new Date().toISOString(),

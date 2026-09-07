@@ -87,17 +87,22 @@ export function MainNav({ isMobileLayout = false }: MainNavProps) {
               Home
             </Link>
           </div>
-          <div>
-            <Link href="/about" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm font-medium rounded-md hover:bg-primary-foreground/10 transition-colors">
-              About
-            </Link>
-          </div>
+          <AccordionItem value="about" className="border-b-0">
+            <AccordionTrigger className="px-2 py-2 text-sm font-medium hover:bg-primary-foreground/10 rounded-md">About</AccordionTrigger>
+            <AccordionContent className="pl-4 pt-2 pb-2">
+              <div className="space-y-2">
+                <Link href="/about" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">About Us</Link>
+                <Link href="/education-consultant-kolkata" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">Education Consultants in Kolkata</Link>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
 
           <AccordionItem value="study-abroad" className="border-b-0">
             <AccordionTrigger className="px-2 py-2 text-sm font-medium hover:bg-primary-foreground/10 rounded-md">Study Abroad</AccordionTrigger>
             <AccordionContent className="pl-4 pt-2 pb-2">
               <div className="space-y-2">
                 <Link href="/study-abroad" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">All Study Abroad</Link>
+                <Link href="/study-abroad-consultants-kolkata" onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">Study Abroad Consultants in Kolkata</Link>
                 {studyAbroadDestinations.map((dest) => (
                   <Link key={dest.title} href={dest.href} onClick={() => setOpenMobile(false)} className="block px-2 py-2 text-sm rounded-md hover:bg-primary-foreground/10 transition-colors">
                     {dest.title}
@@ -164,9 +169,17 @@ export function MainNav({ isMobileLayout = false }: MainNavProps) {
                 </NavigationMenuLink>
             </NavigationMenuItem>
             <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                    <Link href="/about" className={cn(navigationMenuTriggerStyle(), "bg-transparent hover:bg-primary-foreground/10 text-primary-foreground hover:text-primary-foreground focus:text-primary-foreground")}>About</Link>
-                </NavigationMenuLink>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-primary-foreground/10 text-primary-foreground hover:text-primary-foreground focus:text-primary-foreground">About</NavigationMenuTrigger>
+                <NavigationMenuContent>
+                    <ul className="grid w-[400px] gap-3 p-4">
+                        <ListItem href="/about" title="About Us">
+                            Our story, team, and approach as education consultants in Kolkata.
+                        </ListItem>
+                        <ListItem href="/education-consultant-kolkata" title="Education Consultants in Kolkata">
+                            Park Street office for study abroad, test prep, and college admissions.
+                        </ListItem>
+                    </ul>
+                </NavigationMenuContent>
             </NavigationMenuItem>
             <NavigationMenuItem>
                 <NavigationMenuTrigger className="bg-transparent hover:bg-primary-foreground/10 text-primary-foreground hover:text-primary-foreground focus:text-primary-foreground">Study Abroad</NavigationMenuTrigger>
@@ -188,6 +201,12 @@ export function MainNav({ isMobileLayout = false }: MainNavProps) {
                                </Link>
                             </NavigationMenuLink>
                         </li>
+                        <ListItem
+                            href="/study-abroad-consultants-kolkata"
+                            title="Study Abroad Consultants in Kolkata"
+                        >
+                            Local counseling from our Park Street office for USA, UK, Canada, and more.
+                        </ListItem>
                          {studyAbroadDestinations.map((destination) => (
                             <ListItem
                                 key={destination.title}

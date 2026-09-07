@@ -23,6 +23,7 @@ export function Footer() {
                         <div>
                             <h3 className="font-semibold mb-4">Study Abroad</h3>
                             <ul className="space-y-2 text-sm text-primary-foreground/80">
+                                <li><Link href="/study-abroad-consultants-kolkata" className="hover:underline">Consultants in Kolkata</Link></li>
                                 <li><Link href="/study-abroad/ireland" className="hover:underline">Ireland</Link></li>
                                 <li><Link href="/study-abroad/malta" className="hover:underline">Malta</Link></li>
                                 <li><Link href="/study-abroad/uk" className="hover:underline">United Kingdom</Link></li>
@@ -71,6 +72,7 @@ export function Footer() {
                             <h3 className="font-semibold mb-4">Company</h3>
                             <ul className="space-y-2 text-sm text-primary-foreground/80">
                                 <li><Link href="/about" className="hover:underline">About Us</Link></li>
+                                <li><Link href="/education-consultant-kolkata" className="hover:underline">Education Consultants in Kolkata</Link></li>
                                 <li><Link href="/contact" className="hover:underline">Contact Us</Link></li>
                                 <li><Link href="/blog" className="hover:underline">Blog</Link></li>
                                 <li><Link href="/faqs" className="hover:underline">FAQs</Link></li>
