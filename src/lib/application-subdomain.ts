@@ -17,6 +17,7 @@ export const APPLICATION_PATHS = [
   '/resume-mastery',
   '/campus-placement',
   '/online-mba',
+  '/future_of_jobs',
   '/apply',
   '/uow',
   '/bges',
@@ -29,6 +30,7 @@ export const MAIN_TO_APPLICATION_REDIRECTS: Record<string, ApplicationPath> = {
   '/landing/resume-mastery': '/resume-mastery',
   '/landing/campus_placement': '/campus-placement',
   '/landing/online-mba': '/online-mba',
+  '/landing/future_of_jobs': '/future_of_jobs',
   '/admissions/uow-india/apply': '/uow',
 };
 
