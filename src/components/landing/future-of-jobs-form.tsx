@@ -194,7 +194,6 @@ export function FutureOfJobsForm() {
                     <Input
                       placeholder="Your full name"
                       autoComplete="name"
-                      autoFocus
                       className="h-10"
                       {...field}
                     />
