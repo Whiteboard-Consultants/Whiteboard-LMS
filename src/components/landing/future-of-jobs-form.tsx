@@ -144,10 +144,10 @@ export function FutureOfJobsForm() {
 
   if (isConfirmed) {
     return (
-      <div className="rounded-2xl border border-emerald-200 bg-emerald-50/80 p-8 text-center">
+      <div className="rounded-2xl border border-emerald-200 dark:border-emerald-700 bg-emerald-50/80 dark:bg-emerald-950/40 p-8 text-center">
         <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-emerald-600" />
-        <h3 className="text-2xl font-bold text-gray-900 mb-3">You&apos;re in.</h3>
-        <p className="text-gray-700 leading-relaxed max-w-xl mx-auto">
+        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">You&apos;re in.</h3>
+        <p className="text-gray-700 dark:text-slate-200 leading-relaxed max-w-xl mx-auto">
           Seat confirmed for Future of Jobs — 21 September, Bhawanipur Global Campus.
           We&apos;ll WhatsApp/email your reminder and the pre-session prep sheet 24 hours
           before. See you there.
@@ -164,7 +164,7 @@ export function FutureOfJobsForm() {
             <div key={step.number} className="flex-1">
               <div
                 className={`h-1 rounded-full transition-colors ${
-                  step.number <= currentStep ? 'bg-blue-600' : 'bg-gray-200'
+                  step.number <= currentStep ? 'bg-blue-600' : 'bg-gray-200 dark:bg-slate-600'
                 }`}
               />
             </div>
@@ -172,10 +172,10 @@ export function FutureOfJobsForm() {
         </div>
         <div className="flex justify-between items-center gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">{currentStepMeta.title}</h2>
-            <p className="text-sm text-gray-600 mt-1">{currentStepMeta.description}</p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{currentStepMeta.title}</h2>
+            <p className="text-sm text-gray-600 dark:text-slate-300 mt-1">{currentStepMeta.description}</p>
           </div>
-          <div className="text-sm font-medium text-gray-500 whitespace-nowrap">
+          <div className="text-sm font-medium text-gray-500 dark:text-slate-400 whitespace-nowrap">
             Step {currentStep} of {totalSteps}
           </div>
         </div>
@@ -189,7 +189,7 @@ export function FutureOfJobsForm() {
               name="fullName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-base">Name *</FormLabel>
+                  <FormLabel className="text-base dark:text-slate-200">Name *</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Your full name"
@@ -210,7 +210,7 @@ export function FutureOfJobsForm() {
               name="mobileNumber"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-base">Phone No. *</FormLabel>
+                  <FormLabel className="text-base dark:text-slate-200">Phone No. *</FormLabel>
                   <FormControl>
                     <Input
                       type="tel"
@@ -234,7 +234,7 @@ export function FutureOfJobsForm() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-base">Email ID *</FormLabel>
+                  <FormLabel className="text-base dark:text-slate-200">Email ID *</FormLabel>
                   <FormControl>
                     <Input
                       type="email"
@@ -257,7 +257,7 @@ export function FutureOfJobsForm() {
               name="collegeName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-base">College Name *</FormLabel>
+                  <FormLabel className="text-base dark:text-slate-200">College Name *</FormLabel>
                   <FormControl>
                     <Input autoFocus className="h-10" {...field} />
                   </FormControl>
@@ -273,7 +273,7 @@ export function FutureOfJobsForm() {
               name="yearOfStudy"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-base">Year of Study *</FormLabel>
+                  <FormLabel className="text-base dark:text-slate-200">Year of Study *</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
@@ -300,7 +300,7 @@ export function FutureOfJobsForm() {
               name="bridgePlan"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-base">
+                  <FormLabel className="text-base dark:text-slate-200">
                     How do you plan to cross the bridge? *
                   </FormLabel>
                   <Select
@@ -337,7 +337,7 @@ export function FutureOfJobsForm() {
               name="programChoice"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-base">
+                  <FormLabel className="text-base dark:text-slate-200">
                     What is your choice of program? *
                   </FormLabel>
                   <FormControl>

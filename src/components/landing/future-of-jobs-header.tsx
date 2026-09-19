@@ -43,7 +43,7 @@ export function FutureOfJobsHeader() {
                 e.preventDefault();
                 scrollTo(item.id);
               }}
-              className="text-sm font-bold text-gray-700 hover:text-primary transition-colors"
+              className="text-sm font-bold text-gray-700 dark:text-slate-200 hover:text-primary dark:hover:text-blue-300 transition-colors"
             >
               {item.label}
             </a>
@@ -56,7 +56,7 @@ export function FutureOfJobsHeader() {
             e.preventDefault();
             scrollTo('register-section');
           }}
-          className="px-4 py-2 bg-primary text-white text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity"
+          className="px-4 py-2 bg-primary dark:bg-blue-600 text-white text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity"
         >
           Reserve My Seat
         </a>

@@ -47,12 +47,14 @@ const GLASS_CARD =
 const GLASS_CARD_HOVER =
   'hover:bg-white/50 dark:hover:bg-slate-900/50 hover:border-white/80 dark:hover:border-slate-600/80 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300';
 const PRIMARY_CARD =
-  'rounded-2xl bg-primary text-white shadow-xl border border-white/20 min-w-0 overflow-hidden';
+  'rounded-2xl bg-primary dark:bg-[hsl(209,100%,29%)] text-white shadow-xl border border-white/20 min-w-0 overflow-hidden';
 const MOBILE_CTA =
   'w-full max-w-full min-w-0 h-auto py-3 px-4 sm:px-6 whitespace-normal flex-wrap gap-2 text-sm sm:text-base justify-center text-center leading-snug';
 const ICON_BOX =
   'flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 dark:bg-blue-500/25 border border-primary/20 dark:border-blue-400/40 flex items-center justify-center';
 const ICON_COLOR = 'w-5 h-5 text-primary dark:text-blue-300';
+const ACCENT_TEXT = 'text-primary dark:text-blue-300';
+const BRAND_SURFACE = 'bg-primary dark:bg-[hsl(209,100%,29%)]';
 
 function scrollToForm() {
   document.getElementById('register-section')?.scrollIntoView({ behavior: 'smooth' });
@@ -75,7 +77,7 @@ export function FutureOfJobsLanding() {
     <div className="w-full min-h-screen overflow-x-hidden bg-gradient-to-br from-indigo-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900">
       <FutureOfJobsHeader />
 
-      <section className="relative bg-primary text-white overflow-hidden pt-28">
+      <section className={`relative ${BRAND_SURFACE} text-white overflow-hidden pt-28`}>
         <div className="absolute inset-0 opacity-20 pointer-events-none">
           <div className="absolute top-20 left-10 w-72 h-72 bg-white rounded-full mix-blend-overlay filter blur-3xl" />
           <div className="absolute -top-40 right-10 w-72 h-72 bg-red-400 rounded-full mix-blend-overlay filter blur-3xl" />
@@ -145,7 +147,7 @@ export function FutureOfJobsLanding() {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3">
               The Numbers Behind the Session
             </h2>
-            <p className="text-sm text-gray-500 dark:text-slate-400 leading-relaxed">
+            <p className="text-sm text-gray-500 dark:text-slate-300 leading-relaxed">
               India Skills Report 2026 (ETS with CII, AICTE, AIU, Taggd) · Unstop Talent
               Report 2026 · Nomura research on Indian entry-level hiring
             </p>
@@ -171,7 +173,7 @@ export function FutureOfJobsLanding() {
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 text-center">
             Does Any of This Sound Like You?
           </h2>
-          <p className="text-lg text-gray-600 dark:text-slate-300 mb-10 leading-relaxed text-center">
+            <p className="text-lg text-gray-600 dark:text-slate-200 mb-10 leading-relaxed text-center">
             Six specific reasons the jump from degree to job is harder right now — not a
             personal failing, a market shift.
           </p>
@@ -186,7 +188,7 @@ export function FutureOfJobsLanding() {
                   <div className={ICON_BOX}>
                     <Icon className={ICON_COLOR} />
                   </div>
-                  <p className="text-gray-700 dark:text-slate-300 leading-relaxed pt-1.5">
+                  <p className="text-gray-700 dark:text-slate-200 leading-relaxed pt-1.5">
                     {point.text}
                   </p>
                 </li>
@@ -206,8 +208,8 @@ export function FutureOfJobsLanding() {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               What You&apos;ll Walk Away With
             </h2>
-            <h3 className="text-xl font-semibold text-primary mb-3">The Four-Lane Bridge</h3>
-            <p className="text-lg text-gray-600 dark:text-slate-300 leading-relaxed">
+            <h3 className={`text-xl font-semibold ${ACCENT_TEXT} mb-3`}>The Four-Lane Bridge</h3>
+            <p className="text-lg text-gray-600 dark:text-slate-200 leading-relaxed">
               Four concrete, combinable routes from degree to first job — not generic
               motivation.
             </p>
@@ -218,16 +220,16 @@ export function FutureOfJobsLanding() {
               const Icon = LANE_ICONS[index];
               return (
                 <div key={lane.title} className={`p-6 ${GLASS_CARD} ${GLASS_CARD_HOVER}`}>
-                  <div className="w-10 h-10 rounded-lg bg-primary text-white flex items-center justify-center mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-primary dark:bg-blue-600 text-white flex items-center justify-center mb-4">
                     <Icon className="w-5 h-5" />
                   </div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-primary mb-1">
+                  <p className={`text-xs font-semibold uppercase tracking-wide ${ACCENT_TEXT} mb-1`}>
                     {lane.lane}
                   </p>
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                     {lane.title}
                   </h3>
-                  <p className="text-gray-600 dark:text-slate-300 text-sm leading-relaxed">
+                  <p className="text-gray-600 dark:text-slate-200 text-sm leading-relaxed">
                     {lane.description}
                   </p>
                 </div>
@@ -239,7 +241,7 @@ export function FutureOfJobsLanding() {
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
               A 90-Day Plan You Can Start Today
             </h3>
-            <p className="text-gray-600 dark:text-slate-300 leading-relaxed">
+            <p className="text-gray-600 dark:text-slate-200 leading-relaxed">
               Separate, specific action plans for third-years and final-years — because the
               two groups are solving different problems on different clocks.
             </p>
@@ -257,7 +259,7 @@ export function FutureOfJobsLanding() {
               {AUDIENCE.map((item) => (
                 <li key={item} className={`flex gap-3 p-3 ${GLASS_CARD}`}>
                   <span className="mt-1 h-2 w-2 rounded-full bg-primary flex-shrink-0" />
-                  <span className="text-gray-700 dark:text-slate-300 leading-relaxed">
+                  <span className="text-gray-700 dark:text-slate-200 leading-relaxed">
                     {item}
                   </span>
                 </li>
@@ -278,7 +280,7 @@ export function FutureOfJobsLanding() {
                       <Icon className={ICON_COLOR} />
                     </div>
                     <div>
-                      <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold">
+                      <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-slate-400 font-semibold">
                         {item.label}
                       </p>
                       <p className="text-gray-800 dark:text-slate-200">{item.value}</p>
@@ -306,10 +308,10 @@ export function FutureOfJobsLanding() {
                 <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
                   Navnit Daniel Alley
                 </h2>
-                <p className="text-sm font-semibold text-primary mb-3">
+                <p className={`text-sm font-semibold ${ACCENT_TEXT} mb-3`}>
                   Co-Founder — Career Coach &amp; Sales Trainer
                 </p>
-                <p className="text-gray-600 dark:text-slate-300 leading-relaxed mb-4">
+                <p className="text-gray-600 dark:text-slate-200 leading-relaxed mb-4">
                   I help students, parents, and early professionals make confident,
                   future-ready career decisions through personalized education consulting,
                   practical real-world training, career development support, and sales
@@ -319,7 +321,7 @@ export function FutureOfJobsLanding() {
                   href="https://www.linkedin.com/in/navnit-daniel-alley-sales-and-career-coach"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:opacity-80"
+                  className={`inline-flex items-center gap-2 text-sm font-medium ${ACCENT_TEXT} hover:opacity-80`}
                 >
                   <Linkedin className="w-5 h-5" />
                   LinkedIn
@@ -332,7 +334,7 @@ export function FutureOfJobsLanding() {
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
               About Whiteboard Consultants
             </h2>
-            <p className="text-gray-600 dark:text-slate-300 leading-relaxed">
+            <p className="text-gray-600 dark:text-slate-200 leading-relaxed">
               Whiteboard Consultants provides career counselling, placement preparation
               and global education advisory to Indian students — helping them turn a
               degree into a defensible, evidence-backed first job or postgraduate plan.
@@ -360,14 +362,14 @@ export function FutureOfJobsLanding() {
                     {faq.question}
                   </span>
                   <ChevronDown
-                    className={`w-5 h-5 text-gray-500 flex-shrink-0 transition-transform duration-300 ${
+                    className={`w-5 h-5 text-gray-500 dark:text-slate-300 flex-shrink-0 transition-transform duration-300 ${
                       openFaqIndex === index ? 'rotate-180' : ''
                     }`}
                   />
                 </button>
                 {openFaqIndex === index && (
                   <div className="px-6 pb-6 bg-white/20 dark:bg-slate-900/20 border-t border-white/40 dark:border-slate-700/40">
-                    <p className="text-gray-700 dark:text-slate-300 leading-relaxed">
+                    <p className="text-gray-700 dark:text-slate-200 leading-relaxed">
                       {faq.answer}
                     </p>
                   </div>
@@ -387,7 +389,7 @@ export function FutureOfJobsLanding() {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3">
               Save My Seat — Future of Jobs Session
             </h2>
-            <p className="text-lg text-gray-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-lg text-gray-600 dark:text-slate-200 max-w-2xl mx-auto leading-relaxed">
               Tell us a little about where you are, and how you plan to cross the
               bridge. It helps the speaker tailor the session&apos;s examples to this
               room, and it takes under a minute.
@@ -399,7 +401,7 @@ export function FutureOfJobsLanding() {
         </div>
       </section>
 
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-primary text-white">
+      <section className={`py-20 px-4 sm:px-6 lg:px-8 ${BRAND_SURFACE} text-white`}>
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Reserve Your Seat</h2>
           <p className="text-lg text-blue-100 leading-relaxed mb-8">
