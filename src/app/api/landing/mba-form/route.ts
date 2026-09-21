@@ -6,7 +6,13 @@ import {
   type MbaLandingSubmissionData,
 } from '@/lib/mba-landing-email-service';
 import { sendMetaLeadEvent } from '@/lib/meta-conversions-api';
-import { mbaLandingFormSchema } from '@/lib/schemas/mba-landing-form';
+import {
+  getBudgetLabel,
+  getCareerStageLabel,
+  getMbaReasonLabel,
+  getProgramTimelineLabel,
+  mbaLandingFormSchema,
+} from '@/lib/schemas/mba-landing-form';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -81,6 +87,28 @@ export async function POST(request: NextRequest) {
         { error: 'Failed to submit form. Please try again.' },
         { status: 500 }
       );
+    }
+
+    const { error: contactError } = await supabase.from('contact_submissions').insert({
+      first_name: data.firstName.trim(),
+      last_name: data.lastName.trim(),
+      email: data.email.trim().toLowerCase(),
+      phone: data.phone?.trim() || 'Not provided',
+      inquiry_type: 'Online MBA',
+      message: [
+        `Career stage: ${getCareerStageLabel(data.careerStage)}`,
+        `Why MBA: ${getMbaReasonLabel(data.mbaReason)}`,
+        `Budget: ${getBudgetLabel(data.budget)}`,
+        `Program timeline: ${getProgramTimelineLabel(data.programTimeline)}`,
+        `Biggest challenge: ${data.biggestChallenge}`,
+        `Preferred callback: ${data.callbackDate} ${data.callbackTime}`,
+        `Source: ${sourceUrl}`,
+      ].join('\n'),
+      submitted_at: submittedAt,
+    });
+
+    if (contactError) {
+      console.error('MBA landing contact_submissions insert error:', contactError);
     }
 
     const emailPayload: MbaLandingSubmissionData = {

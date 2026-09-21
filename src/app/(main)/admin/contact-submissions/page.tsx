@@ -150,6 +150,8 @@ export default function ContactSubmissionsPage() {
       'Test Preparation': 'destructive',
       'Career Development': 'default',
       'General Enquiry': 'secondary',
+      'Online MBA': 'default',
+      'Application Form': 'outline',
     };
     return variants[type] || 'outline';
   };

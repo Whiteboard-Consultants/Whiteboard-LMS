@@ -9,6 +9,7 @@ import { format } from "date-fns";
 import { supabase } from "@/lib/supabase";
 import { fetchAllEnrollments } from "./data-actions";
 import { getCouponEnrollments, getCouponDetails } from "./actions";
+import { LandingRegistrationsReport } from "./landing-registrations-report";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import {
@@ -639,10 +640,12 @@ export default function AdminReportsPage() {
         </div>
       <PageHeader
         title="General Reports & Analytics"
-        description="Revenue analytics, course performance, and data exports."
+        description="Revenue analytics, landing page registrations, course performance, and data exports."
       />
       
       <div className="space-y-8">
+        <LandingRegistrationsReport />
+
         {/* Revenue Analytics Section */}
         <div className="bg-muted p-4 md:p-6 rounded-lg">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
