@@ -75,7 +75,7 @@ export function LandingRegistrationsReport() {
         <div className="flex-1">
           <h3 className="text-xl font-bold tracking-tight">Landing page registrations</h3>
           <p className="text-sm text-muted-foreground">
-            Leads from Online MBA, Resume Mastery, and Future of Jobs landing forms.
+            Leads from Online MBA, Resume Mastery, Future of Jobs, and Global Career Camp.
           </p>
         </div>
         <div className="w-full md:w-auto flex flex-col md:flex-row items-stretch md:items-center gap-2">
@@ -91,6 +91,7 @@ export function LandingRegistrationsReport() {
               <SelectItem value="online-mba">Online MBA</SelectItem>
               <SelectItem value="resume-mastery">Resume Mastery</SelectItem>
               <SelectItem value="future-of-jobs">Future of Jobs</SelectItem>
+              <SelectItem value="gcc">Global Career Camp</SelectItem>
             </SelectContent>
           </Select>
           <Button

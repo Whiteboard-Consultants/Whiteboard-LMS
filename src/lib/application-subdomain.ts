@@ -21,6 +21,7 @@ export const APPLICATION_PATHS = [
   '/apply',
   '/uow',
   '/bges',
+  '/gcc',
 ] as const;
 
 export type ApplicationPath = (typeof APPLICATION_PATHS)[number];

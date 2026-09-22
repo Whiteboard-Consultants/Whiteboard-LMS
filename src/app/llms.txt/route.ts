@@ -46,6 +46,7 @@ Whiteboard Consultants is an education consultancy based in Kolkata, West Bengal
 - Campus placement assessment: ${APPLICATION_BASE_URL}/campus-placement
 - Online MBA guidance: ${APPLICATION_BASE_URL}/online-mba
 - Future of Jobs campus session: ${APPLICATION_BASE_URL}/future_of_jobs
+- Global Career Camp 2026: ${APPLICATION_BASE_URL}/gcc
 - Free resume evaluation: ${base}/#resume
 - RIASEC career assessment: ${base}/#RIASEC
 

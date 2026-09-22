@@ -23,7 +23,11 @@ const supabaseAdmin = createClient(
   }
 );
 
-export type LandingLeadSource = 'online-mba' | 'resume-mastery' | 'future-of-jobs';
+export type LandingLeadSource =
+  | 'online-mba'
+  | 'resume-mastery'
+  | 'future-of-jobs'
+  | 'gcc';
 
 export interface LandingLead {
   id: string;
@@ -40,6 +44,7 @@ const SOURCE_LABELS: Record<LandingLeadSource, string> = {
   'online-mba': 'Online MBA',
   'resume-mastery': 'Resume Mastery',
   'future-of-jobs': 'Future of Jobs',
+  gcc: 'Global Career Camp',
 };
 
 export async function fetchLandingRegistrations(): Promise<{
@@ -47,7 +52,7 @@ export async function fetchLandingRegistrations(): Promise<{
   error: string | null;
 }> {
   try {
-    const [mbaResult, resumeResult, jobsResult] = await Promise.all([
+    const [mbaResult, resumeResult, jobsResult, gccResult] = await Promise.all([
       supabaseAdmin
         .from('mba_landing_form_responses')
         .select('*')
@@ -58,6 +63,10 @@ export async function fetchLandingRegistrations(): Promise<{
         .order('created_at', { ascending: false }),
       supabaseAdmin
         .from('future_of_jobs_form_responses')
+        .select('*')
+        .order('created_at', { ascending: false }),
+      supabaseAdmin
+        .from('gcc_form_responses')
         .select('*')
         .order('created_at', { ascending: false }),
     ]);
@@ -132,6 +141,36 @@ export async function fetchLandingRegistrations(): Promise<{
       }
     } else if (jobsResult.error) {
       console.error('Error fetching Future of Jobs responses:', jobsResult.error);
+    }
+
+    if (!gccResult.error && gccResult.data) {
+      for (const row of gccResult.data) {
+        const destinations = Array.isArray(row.preferred_destinations)
+          ? row.preferred_destinations.join(', ')
+          : '';
+        const studyAreas = Array.isArray(row.preferred_study_areas)
+          ? row.preferred_study_areas.join(', ')
+          : '';
+        leads.push({
+          id: `gcc-${row.id}`,
+          source: 'gcc',
+          sourceLabel: SOURCE_LABELS.gcc,
+          name: row.full_name || '—',
+          email: row.email || '',
+          phone: row.mobile_number || '',
+          submittedAt: row.created_at,
+          summary: [
+            row.department_stream,
+            row.current_semester_year,
+            destinations,
+            studyAreas,
+          ]
+            .filter(Boolean)
+            .join(' · '),
+        });
+      }
+    } else if (gccResult.error) {
+      console.error('Error fetching Global Career Camp responses:', gccResult.error);
     }
 
     leads.sort(
