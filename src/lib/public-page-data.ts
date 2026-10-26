@@ -7,8 +7,13 @@ import {
   searchMockTests,
   getMockTestFilterOptions,
 } from '@/app/instructor/test-series-actions';
-import type { Course, CourseCategory } from '@/types';
-import { mapCategoryForDatabase, type CategoryKey } from '@/lib/course-categories';
+import type { Course } from '@/types';
+import { metaDescription } from '@/lib/seo';
+import {
+  filterPublishedCourses,
+} from '@/lib/filter-published-courses';
+
+export { filterPublishedCourses };
 
 const REVALIDATE_SECONDS = 1800;
 
@@ -71,40 +76,27 @@ export const getCachedMockTestFilterOptions = cache(async () =>
   fetchMockTestFilterOptions()
 );
 
-/** In-memory filter over the cached course list (avoids per-filter DB hits). */
-export function filterPublishedCourses(
-  courses: Course[],
-  options?: {
-    searchTerm?: string;
-    category?: CourseCategory | 'All Programs' | 'Free Courses' | string;
-  }
-): Course[] {
-  let result = courses;
-
-  if (options?.searchTerm) {
-    const q = options.searchTerm.toLowerCase();
-    result = result.filter((course) => course.title.toLowerCase().includes(q));
-  }
-
-  const category = options?.category;
-  if (!category || category === 'All Programs') {
-    return result;
-  }
-
-  if (category === 'Free Courses') {
-    return result.filter(
-      (course) =>
-        course.type === 'free' ||
-        course.price === 0 ||
-        course.price == null
-    );
-  }
-
-  const databaseCategory = mapCategoryForDatabase(category as CategoryKey);
-  if (!databaseCategory) return result;
-
-  return result.filter(
-    (course) =>
-      course.category === databaseCategory || course.category === category
-  );
+/** Listing fields only. Full course HTML stays off the public catalogue payload. */
+export function toPublicCourseListing(course: Course): Course {
+  return {
+    id: course.id,
+    title: course.title,
+    description: metaDescription(course.description, 160),
+    imageUrl: course.imageUrl,
+    instructor: {
+      id: course.instructor?.id || '',
+      name: course.instructor?.name || 'Unknown Instructor',
+    },
+    studentCount: course.studentCount || 0,
+    rating: course.rating || 0,
+    ratingCount: course.ratingCount || 0,
+    type: course.type,
+    price: course.price,
+    originalPrice: course.originalPrice,
+    category: course.category,
+    hasCertificate: Boolean(course.hasCertificate),
+    duration: course.duration,
+    level: course.level,
+    freeLessonsCount: course.freeLessonsCount,
+  };
 }

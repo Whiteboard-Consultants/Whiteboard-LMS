@@ -317,3 +317,19 @@ export function degreeTypeLabel(degreeType: DegreeType): string {
     degreeType
   );
 }
+
+/** Shareable filter URL. Rendered as real links so the catalogue is in the HTML. */
+export function programFilterHref(
+  category: ProgramFilter,
+  degreeType?: DegreeType | null
+): string {
+  const params = new URLSearchParams();
+  if (category !== 'all') params.set('category', category);
+
+  if (degreeType && supportsDegreeTypeFilter(category)) {
+    params.set('degreeType', degreeType);
+  }
+
+  const query = params.toString();
+  return query ? `/partner-programs?${query}` : '/partner-programs';
+}

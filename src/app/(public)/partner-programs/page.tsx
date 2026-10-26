@@ -1,7 +1,12 @@
 import type { Metadata } from 'next';
-import { Suspense } from 'react';
 import PartnerProgramsClient from './client';
 import { pageMetadata } from '@/lib/seo';
+import {
+  getAvailableDegreeTypes,
+  parseCategoryParam,
+  parseDegreeTypeParam,
+  supportsDegreeTypeFilter,
+} from './programs-index';
 
 export const metadata: Metadata = pageMetadata({
   title: 'Partner Study Programs',
@@ -13,24 +18,30 @@ export const metadata: Metadata = pageMetadata({
     'Discover exclusive partner programs with top universities and institutions worldwide. Special benefits and streamlined admissions through Whiteboard Consultants.',
 });
 
-function ProgramsGridSkeleton() {
-  return (
-    <div className="container mx-auto px-4 py-16 animate-pulse">
-      <div className="h-8 bg-muted rounded w-64 mx-auto mb-4" />
-      <div className="h-4 bg-muted rounded w-96 max-w-full mx-auto mb-12" />
-      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="h-96 bg-muted rounded-lg" />
-        ))}
-      </div>
-    </div>
-  );
-}
+type PartnerProgramsPageProps = {
+  searchParams?: Promise<{
+    category?: string;
+    degreeType?: string;
+  }>;
+};
 
-export default async function PartnerProgramsPage() {
+export default async function PartnerProgramsPage({
+  searchParams,
+}: PartnerProgramsPageProps) {
+  const params = await searchParams;
+  const category = parseCategoryParam(params?.category ?? null);
+  const requestedDegreeType = parseDegreeTypeParam(params?.degreeType ?? null);
+  const degreeType =
+    supportsDegreeTypeFilter(category) &&
+    requestedDegreeType &&
+    getAvailableDegreeTypes(category).includes(requestedDegreeType)
+      ? requestedDegreeType
+      : null;
+
   return (
-    <Suspense fallback={<ProgramsGridSkeleton />}>
-      <PartnerProgramsClient />
-    </Suspense>
+    <PartnerProgramsClient
+      initialCategory={category}
+      initialDegreeType={degreeType}
+    />
   );
 }

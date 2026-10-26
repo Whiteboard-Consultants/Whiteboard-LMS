@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { Suspense, useCallback, useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,7 +35,7 @@ interface FilterOptions {
 
 interface MockTestPageClientProps {
     initialTests: Test[];
-    filterOptions: FilterOptions | null;
+    filterOptions?: FilterOptions | null;
     initialTopic?: string;
 }
 
@@ -80,6 +80,9 @@ export function MockTestPageClient({
     const router = useRouter();
     const [selectedTopic, setSelectedTopic] = useState<string | null>(initialTopic || null);
     const [searchQuery, setSearchQuery] = useState('');
+    const applyTopic = useCallback((topic: string | null) => {
+        setSelectedTopic(topic);
+    }, []);
 
     useEffect(() => {
         if (selectedTopic) {
@@ -138,6 +141,9 @@ export function MockTestPageClient({
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900">
+            <Suspense fallback={null}>
+                <MockTestTopicSync onTopic={applyTopic} />
+            </Suspense>
             <section className="py-20 px-4 md:px-6 lg:px-8">
                 <div className="max-w-6xl mx-auto">
                     <div className="rounded-2xl bg-gradient-to-br from-blue-50/70 via-white/60 to-indigo-50/70 dark:from-blue-950/30 dark:via-slate-900/40 dark:to-indigo-950/30 backdrop-blur-md border border-blue-100/40 dark:border-blue-900/40 p-8 md:p-12 mb-4 shadow-lg">
@@ -410,4 +416,14 @@ export function MockTestPageClient({
             </div>
         </div>
     );
+}
+
+function MockTestTopicSync({ onTopic }: { onTopic: (topic: string | null) => void }) {
+    const topic = useSearchParams().get('topic');
+
+    useEffect(() => {
+        onTopic(topic);
+    }, [topic, onTopic]);
+
+    return null;
 }

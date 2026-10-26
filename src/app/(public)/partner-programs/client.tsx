@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   ArrowRight,
@@ -21,36 +21,31 @@ import {
   degreeTypeOptions,
   filterPrograms,
   getAvailableDegreeTypes,
-  parseCategoryParam,
-  parseDegreeTypeParam,
+  programFilterHref,
   supportsDegreeTypeFilter,
   type ProgramFilter,
 } from './programs-index';
 import type { DegreeType } from './types';
 
-export default function PartnerProgramsClient() {
+interface PartnerProgramsClientProps {
+  initialCategory: ProgramFilter;
+  initialDegreeType: DegreeType | null;
+}
+
+export default function PartnerProgramsClient({
+  initialCategory,
+  initialDegreeType,
+}: PartnerProgramsClientProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const categoryFromUrl = parseCategoryParam(searchParams.get('category'));
-  const degreeTypeFromUrl = parseDegreeTypeParam(searchParams.get('degreeType'));
   const [activeCategory, setActiveCategory] =
-    useState<ProgramFilter>(categoryFromUrl);
+    useState<ProgramFilter>(initialCategory);
   const [activeDegreeType, setActiveDegreeType] =
-    useState<DegreeType | null>(degreeTypeFromUrl);
+    useState<DegreeType | null>(initialDegreeType);
 
   useEffect(() => {
-    setActiveCategory(categoryFromUrl);
-    if (!supportsDegreeTypeFilter(categoryFromUrl)) {
-      setActiveDegreeType(null);
-      return;
-    }
-    const available = getAvailableDegreeTypes(categoryFromUrl);
-    setActiveDegreeType(
-      degreeTypeFromUrl && available.includes(degreeTypeFromUrl)
-        ? degreeTypeFromUrl
-        : null
-    );
-  }, [categoryFromUrl, degreeTypeFromUrl]);
+    setActiveCategory(initialCategory);
+    setActiveDegreeType(initialDegreeType);
+  }, [initialCategory, initialDegreeType]);
 
   const availableDegreeTypes = useMemo(
     () => getAvailableDegreeTypes(activeCategory),
@@ -96,21 +91,7 @@ export default function PartnerProgramsClient() {
 
       setActiveDegreeType(nextDegreeType);
 
-      const params = new URLSearchParams(searchParams.toString());
-      if (category === 'all') {
-        params.delete('category');
-      } else {
-        params.set('category', category);
-      }
-
-      if (nextDegreeType) {
-        params.set('degreeType', nextDegreeType);
-      } else {
-        params.delete('degreeType');
-      }
-
-      const query = params.toString();
-      router.replace(query ? `?${query}` : '/partner-programs', {
+      router.replace(programFilterHref(category, nextDegreeType), {
         scroll: false,
       });
 
@@ -118,7 +99,7 @@ export default function PartnerProgramsClient() {
         .getElementById('programs-grid')
         ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     },
-    [router, searchParams, activeDegreeType]
+    [router, activeDegreeType]
   );
 
   const selectDegreeType = useCallback(

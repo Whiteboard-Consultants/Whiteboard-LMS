@@ -1,20 +1,19 @@
 
-import { Suspense } from 'react';
-import { CourseList, CourseListSkeleton } from '@/components/course-list';
 import CoursesPageClient from '@/components/course-page-client';
-import { CourseCategory } from '@/types';
 import type { Metadata } from 'next';
 import { coursesFaqs } from '@/lib/courses-faqs';
 import { pageMetadata } from '@/lib/seo';
 import {
-  filterPublishedCourses,
   getCachedCourseCategories,
   getCachedPrograms,
   getCachedPublishedCourses,
+  toPublicCourseListing,
 } from '@/lib/public-page-data';
 
-// Cache courses list for 30 minutes - Improves TTFB
+// Cache the full page for 30 minutes. Reading searchParams would make every
+// AI-crawler request a cache miss and inflate time to first byte.
 export const revalidate = 1800;
+export const dynamic = 'force-static';
 
 export const metadata: Metadata = pageMetadata({
   title: 'Test Prep Courses Kolkata',
@@ -27,24 +26,13 @@ export const metadata: Metadata = pageMetadata({
 });
 
 
-type CoursesPageProps = {
-  searchParams?: Promise<{
-    search?: string;
-    category?: string;
-  }>;
-};
-
-export default async function CoursesPage({ searchParams }: CoursesPageProps) {
-    const params = await searchParams;
-    const searchTerm = params?.search || '';
-    const category = (params?.category || 'All Programs') as CourseCategory | 'All Programs' | 'Free Courses';
-
+export default async function CoursesPage() {
     const [allCourses, categories, programs] = await Promise.all([
       getCachedPublishedCourses(),
       getCachedCourseCategories(),
       getCachedPrograms(),
     ]);
-    const courses = filterPublishedCourses(allCourses, { searchTerm, category });
+    const courses = allCourses.map(toPublicCourseListing);
 
     const breadcrumbLd = {
         "@context": "https://schema.org",
@@ -114,11 +102,11 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
             />
-            <CoursesPageClient categories={categories} initialCategory={category} programs={programs}>
-                <Suspense fallback={<CourseListSkeleton />}>
-                    <CourseList courses={courses} />
-                </Suspense>
-            </CoursesPageClient>
+            <CoursesPageClient
+                categories={categories}
+                courses={courses}
+                programs={programs}
+            />
         </>
     );
 }

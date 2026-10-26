@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useState, useCallback, Suspense } from 'react';
-import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import { Suspense, useState, useCallback, useEffect, useMemo } from 'react';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { CourseCategoryFilter } from "@/components/course-category-filter";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -10,11 +10,13 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, Globe, MessageSquare, Briefcase, Lightbulb, Target, Sparkles } from "lucide-react";
 import type { CourseCategory, CourseCategoryData } from '@/types';
-import { CourseListSkeleton } from './course-list';
+import { CourseList } from './course-list';
 import { ProgramsTable } from './programs-table';
 import { useAuth } from '@/hooks/use-auth';
 import type { Program } from '@/app/admin/programs-actions';
 import CoursesFaqSection from '@/components/sections/CoursesFaqSection';
+import { filterPublishedCourses } from '@/lib/filter-published-courses';
+import type { Course } from '@/types';
 
 const iconComponents: { [key: string]: React.ElementType } = {
     Globe,
@@ -25,36 +27,55 @@ const iconComponents: { [key: string]: React.ElementType } = {
     Sparkles,
 };
 
+type CoursesFilter =
+    | CourseCategory
+    | "All Programs"
+    | "Free Courses"
+    | "Mock Tests"
+    | "Batch Schedule";
+
 interface CoursesPageClientProps {
     categories: CourseCategoryData[];
-    initialCategory: CourseCategory | "All Programs" | "Free Courses";
-    children: React.ReactNode;
+    courses: Course[];
     programs: Program[];
 }
 
-export default function CoursesPageClient({ categories, initialCategory, children, programs }: CoursesPageClientProps) {
+export default function CoursesPageClient({ categories, courses, programs }: CoursesPageClientProps) {
     const router = useRouter();
     const pathname = usePathname();
-    const searchParams = useSearchParams();
-    const [selectedCategory, setSelectedCategory] = useState<typeof initialCategory | "Mock Tests">(initialCategory);
+    const [selectedCategory, setSelectedCategory] = useState<CoursesFilter>("All Programs");
+    const [searchTerm, setSearchTerm] = useState("");
     const { userData } = useAuth();
     const isAdmin = userData?.role === 'admin';
 
+    const applyUrlFilter = useCallback((category: string | null, search: string) => {
+        setSelectedCategory((category as CoursesFilter) || "All Programs");
+        setSearchTerm(search);
+    }, []);
+
+    const visibleCourses = useMemo(
+        () => filterPublishedCourses(courses, { searchTerm, category: selectedCategory }),
+        [courses, searchTerm, selectedCategory]
+    );
+
     const handleSelectCategory = useCallback((category: string) => {
-        // Handle Mock Tests navigation
         if (category === "Mock Tests") {
             router.push('/mock-tests');
-            setSelectedCategory("Mock Tests" as const);
+            setSelectedCategory("Mock Tests");
             return;
         }
-        
-        setSelectedCategory(category as CourseCategory | "All Programs" | "Free Courses");
-        const current = new URLSearchParams(Array.from(searchParams.entries()));
-        current.set("category", category);
+
+        const nextCategory = category as CoursesFilter;
+        setSelectedCategory(nextCategory);
+        const current = new URLSearchParams(window.location.search);
+        if (nextCategory === "All Programs") {
+            current.delete("category");
+        } else {
+            current.set("category", nextCategory);
+        }
         const search = current.toString();
-        const query = search ? `?${search}` : "";
-        router.replace(`${pathname}${query}`, { scroll: false });
-    }, [pathname, router, searchParams]);
+        router.replace(search ? `${pathname}?${search}` : pathname, { scroll: false });
+    }, [pathname, router]);
 
     const getCategoryColors = (iconName: string) => {
         const colorMap: { [key: string]: { bg: string; border: string; icon: string; accent: string } } = {
@@ -128,6 +149,9 @@ export default function CoursesPageClient({ categories, initialCategory, childre
 
     return (
         <div>
+            <Suspense fallback={null}>
+                <CoursesUrlFilterSync onChange={applyUrlFilter} />
+            </Suspense>
             <section className="w-full bg-slate-100 dark:bg-slate-dark">
                 <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-center py-6 md:py-12 lg:py-16">
                 <div className="flex flex-col items-start space-y-6">
@@ -259,9 +283,7 @@ export default function CoursesPageClient({ categories, initialCategory, childre
                             </div>
 
                             <div className="mt-8">
-                                <Suspense fallback={<CourseListSkeleton />}>
-                                   {children}
-                                </Suspense>
+                                <CourseList courses={visibleCourses} />
                             </div>
                         </>
                     )}
@@ -271,4 +293,20 @@ export default function CoursesPageClient({ categories, initialCategory, childre
             <CoursesFaqSection />
         </div>
     );
+}
+
+function CoursesUrlFilterSync({
+    onChange,
+}: {
+    onChange: (category: string | null, search: string) => void;
+}) {
+    const searchParams = useSearchParams();
+    const category = searchParams.get("category");
+    const search = searchParams.get("search") || "";
+
+    useEffect(() => {
+        onChange(category, search);
+    }, [category, search, onChange]);
+
+    return null;
 }

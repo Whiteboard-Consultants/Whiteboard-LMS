@@ -13,7 +13,7 @@ import { RichTextRenderer } from "@/components/rich-text-renderer";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { CoursePurchaseCard } from "@/components/course-purchase-card";
 import { CourseCurriculum } from "@/components/course-curriculum";
-import { generateCourseSchema, generateBreadcrumbSchema, cleanSchema } from "@/lib/schema-markup";
+import { generateCourseSchema, generateProductSchema, generateBreadcrumbSchema, cleanSchema } from "@/lib/schema-markup";
 import { DEFAULT_OG_IMAGE, metaDescription, pageMetadata, pageTitle } from "@/lib/seo";
 
 // Cache course details for 1 hour - Improves TTFB significantly
@@ -85,20 +85,24 @@ export default async function CoursePage({ params }: CoursePageProps) {
         notFound();
     }
 
-    const jsonLd = cleanSchema(generateCourseSchema({
+    const schemaInput = {
         id: course.id,
         title: course.title,
         description: course.description,
         imageUrl: course.imageUrl,
-        price: course.price,
+        price: course.type === 'paid' ? course.price : 0,
+        originalPrice: course.type === 'paid' ? course.originalPrice : undefined,
         category: course.category,
         rating: course.rating,
         reviewCount: course.ratingCount,
-        studentCount: course.studentCount,
         instructorName: course.instructor?.name,
         instructorId: course.instructor?.id,
-        educationalLevel: "BeginnerLevel",
-    }));
+        duration: course.duration,
+        educationalLevel: course.level,
+    };
+
+    const jsonLd = cleanSchema(generateCourseSchema(schemaInput));
+    const productLd = cleanSchema(generateProductSchema(schemaInput));
 
     const breadcrumbSchema = generateBreadcrumbSchema([
         { name: "Home", url: "https://www.whiteboardconsultant.com" },
@@ -111,6 +115,10 @@ export default async function CoursePage({ params }: CoursePageProps) {
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(productLd) }}
             />
             <script
                 type="application/ld+json"

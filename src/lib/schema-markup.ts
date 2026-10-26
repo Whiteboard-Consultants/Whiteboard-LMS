@@ -3,7 +3,111 @@
  * Generates structured data in schema.org format for better search visibility
  */
 
-import { organizationSchema } from '@/lib/organization-schema';
+import { organizationSameAs, organizationSchema } from '@/lib/organization-schema';
+import { siteConfig } from '@/lib/seo';
+
+const SITE_URL = siteConfig.url;
+
+export type CourseSchemaInput = {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  price?: number;
+  originalPrice?: number;
+  category?: string;
+  rating?: number;
+  reviewCount?: number;
+  /** @deprecated Student count is not a review count. Kept so older callers still type-check. */
+  studentCount?: number;
+  instructorName?: string;
+  instructorId?: string;
+  duration?: string;
+  skill?: string[];
+  learningResourceType?: string;
+  educationalLevel?: string;
+};
+
+/** Plain text for JSON-LD. Course descriptions are stored as HTML. */
+export function schemaText(input: string | null | undefined, maxLength = 5000): string {
+  if (!input) return '';
+  const text = input
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#0*39;/g, "'")
+    .replace(/&apos;/gi, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (text.length <= maxLength) return text;
+  return `${text.slice(0, maxLength).trimEnd()}…`;
+}
+
+function coursePageUrl(id: string): string {
+  return `${SITE_URL}/courses/${id}`;
+}
+
+function absoluteUrl(url?: string): string | undefined {
+  if (!url) return undefined;
+  if (url.startsWith('https://') || url.startsWith('http://')) return url;
+  if (url.startsWith('//')) return `https:${url}`;
+  return `${SITE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+}
+
+function formatPrice(price?: number): string {
+  if (price == null || Number.isNaN(price)) return '0';
+  return String(price);
+}
+
+/** ISO 8601 durations only. Free-text lengths are not valid schema.org Duration values. */
+function isoDuration(value?: string): string | undefined {
+  if (!value) return undefined;
+  const trimmed = value.trim();
+  return /^P(?!$)(\d+Y)?(\d+M)?(\d+W)?(\d+D)?(T(?=\d)(\d+H)?(\d+M)?(\d+S)?)?$/.test(trimmed)
+    ? trimmed
+    : undefined;
+}
+
+function aggregateRating(rating?: number, reviewCount?: number) {
+  if (rating == null || rating <= 0 || !reviewCount || reviewCount <= 0) return undefined;
+  return {
+    '@type': 'AggregateRating',
+    ratingValue: rating.toFixed(1),
+    reviewCount,
+    bestRating: '5',
+    worstRating: '1',
+  };
+}
+
+function courseOffer(id: string, price?: number, originalPrice?: number) {
+  const activePrice = price ?? 0;
+  const offer: Record<string, unknown> = {
+    '@type': 'Offer',
+    url: coursePageUrl(id),
+    price: formatPrice(activePrice),
+    priceCurrency: 'INR',
+    availability: 'https://schema.org/InStock',
+    seller: {
+      '@type': 'Organization',
+      '@id': `${SITE_URL}/#organization`,
+      name: siteConfig.name,
+    },
+  };
+
+  if (originalPrice != null && originalPrice > activePrice) {
+    offer.priceSpecification = {
+      '@type': 'UnitPriceSpecification',
+      priceType: 'https://schema.org/StrikethroughPrice',
+      price: formatPrice(originalPrice),
+      priceCurrency: 'INR',
+    };
+  }
+
+  return offer;
+}
 
 // Course Schema
 export function generateCourseSchema({
@@ -12,74 +116,93 @@ export function generateCourseSchema({
   description,
   imageUrl,
   price,
+  originalPrice,
+  rating,
+  reviewCount,
+  instructorName,
+  instructorId,
+  duration,
+  skill,
+  learningResourceType = 'Course',
+  educationalLevel,
+}: CourseSchemaInput) {
+  const url = coursePageUrl(id);
+  const workload = isoDuration(duration);
+  const hasInstance = Boolean(instructorName || workload);
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Course',
+    '@id': `${url}#course`,
+    name: title,
+    description: schemaText(description) || title,
+    image: absoluteUrl(imageUrl),
+    learningResourceType,
+    educationalLevel: educationalLevel || undefined,
+    url,
+    provider: {
+      '@type': 'EducationalOrganization',
+      '@id': `${SITE_URL}/#organization`,
+      name: siteConfig.name,
+      url: SITE_URL,
+      sameAs: [...organizationSameAs],
+    },
+    hasCourseInstance: hasInstance
+      ? {
+          '@type': 'CourseInstance',
+          courseMode: 'online',
+          courseWorkload: workload,
+          instructor: instructorName
+            ? {
+                '@type': 'Person',
+                name: instructorName,
+                url: instructorId ? `${SITE_URL}/instructors/${instructorId}` : undefined,
+              }
+            : undefined,
+        }
+      : undefined,
+    teaches: skill && skill.length > 0 ? skill : undefined,
+    offers: courseOffer(id, price, originalPrice),
+    aggregateRating: aggregateRating(rating, reviewCount),
+    inLanguage: 'en-IN',
+  };
+}
+
+/**
+ * Product schema for course pages. Ahrefs classifies priced course URLs as
+ * product pages and reports "Product page missing Product schema" when only
+ * Course markup is present.
+ */
+export function generateProductSchema({
+  id,
+  title,
+  description,
+  imageUrl,
+  price,
+  originalPrice,
   category,
   rating,
   reviewCount,
-  studentCount,
-  instructorName,
-  instructorId,
-  duration, // in weeks or days
-  skill, // array of skills taught
-  learningResourceType = "Course",
-  educationalLevel = "BeginnerLevel",
-}: {
-  id: string;
-  title: string;
-  description: string;
-  imageUrl: string;
-  price?: number;
-  category?: string;
-  rating?: number;
-  reviewCount?: number;
-  studentCount?: number;
-  instructorName?: string;
-  instructorId?: string;
-  duration?: string;
-  skill?: string[];
-  learningResourceType?: string;
-  educationalLevel?: string;
-}) {
+}: CourseSchemaInput) {
+  const url = coursePageUrl(id);
+
   return {
-    "@context": "https://schema.org",
-    "@type": "Course",
-    "name": title,
-    "description": description,
-    "image": imageUrl,
-    "learningResourceType": learningResourceType,
-    "educationalLevel": educationalLevel,
-    "url": `https://www.whiteboardconsultant.com/courses/${id}`,
-    "provider": {
-      "@type": "Organization",
-      "name": "Whiteboard Consultants",
-      "url": "https://www.whiteboardconsultant.com",
-      "sameAs": [
-        "https://www.whiteboardconsultant.com"
-      ]
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    '@id': `${url}#product`,
+    name: title,
+    description: schemaText(description) || title,
+    image: absoluteUrl(imageUrl),
+    sku: id,
+    productID: id,
+    url,
+    category: category || undefined,
+    brand: {
+      '@type': 'Brand',
+      name: siteConfig.name,
     },
-    "instructor": instructorName ? {
-      "@type": "Person",
-      "name": instructorName,
-      "url": instructorId ? `https://www.whiteboardconsultant.com/instructors/${instructorId}` : undefined
-    } : undefined,
-    "teaches": skill && skill.length > 0 ? skill : undefined,
-    "duration": duration,
-    "offers": {
-      "@type": "Offer",
-      "url": `https://www.whiteboardconsultant.com/courses/${id}`,
-      "price": price ? price.toString() : "0",
-      "priceCurrency": "INR",
-      "availability": "https://schema.org/InStock",
-      "category": category
-    },
-    "aggregateRating": rating ? {
-      "@type": "AggregateRating",
-      "ratingValue": rating.toFixed(1),
-      "reviewCount": (reviewCount || studentCount || 0),
-      "bestRating": "5",
-      "worstRating": "1"
-    } : undefined,
-    "coursePrerequisites": "None",
-    "inLanguage": "en-US"
+    offers: courseOffer(id, price, originalPrice),
+    aggregateRating: aggregateRating(rating, reviewCount),
   };
 }
 
