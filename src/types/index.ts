@@ -419,6 +419,7 @@ export type Post = {
     content: string;
     imageUrl?: string;
     featuredImageAlt?: string;
+    seoTitle?: string;
     metaDescription?: string;
     metaKeywords?: string;
     status: 'published' | 'draft' | 'scheduled';

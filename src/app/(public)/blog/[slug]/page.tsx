@@ -135,8 +135,8 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
         other['application/ld+json:faq'] = JSON.stringify(faqSchema);
     }
 
-    const description = metaDescription(post.excerpt);
-    const title = pageTitle(post.title);
+    const description = metaDescription(post.metaDescription || post.excerpt);
+    const title = pageTitle(post.seoTitle || post.title);
     const images = post.imageUrl
         ? [
             {
@@ -310,9 +310,6 @@ export default async function PostPage({ params }: PostPageProps) {
                                     height={400}
                                     className="rounded-lg shadow-lg mx-auto"
                                 />
-                                {post.featuredImageAlt && (
-                                    <p className="text-sm text-muted-foreground mt-2 italic">{post.featuredImageAlt}</p>
-                                )}
                             </div>
                         )}
                         <div
