@@ -5,6 +5,7 @@ import { addActivity } from "@/lib/crm/leads";
 import { activitySchema } from "@/lib/crm/schemas";
 
 export const runtime = "nodejs";
+export const preferredRegion = "bom1";
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   const user = await requireCrmUser();

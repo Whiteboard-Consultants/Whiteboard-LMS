@@ -4,6 +4,7 @@ import { prisma } from "@/lib/crm/db";
 import { jsonError } from "@/lib/crm/http";
 
 export const runtime = "nodejs";
+export const preferredRegion = "bom1";
 
 export async function DELETE(_request: Request, context: { params: Promise<{ id: string }> }) {
   const admin = await requireCrmAdmin();

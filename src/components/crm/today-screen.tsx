@@ -67,16 +67,34 @@ export function TodayScreen() {
   }
 
   useEffect(() => {
-    crmFetch<CrmMeta>("/api/crm/meta")
-      .then((value) => {
+    let ignore = false;
+    const params = new URLSearchParams({
+      status: "Overdue,Due Today",
+      sort: "daysOverdue",
+      dir: "desc",
+      pageSize: "100",
+      ownerId: "me",
+    });
+    Promise.all([
+      crmFetch<CrmMeta>("/api/crm/meta"),
+      crmFetch<{ rows: Row[]; summary: { overdue: number; dueToday: number } }>(`/api/crm/leads?${params.toString()}`),
+    ])
+      .then(([value, data]) => {
+        if (ignore) return;
         setMeta(value);
-        const initial = value.me.role === "ADMIN" ? "me" : "me";
-        setOwnerId(initial);
-        return load(initial);
+        setOwnerId("me");
+        setRows(data.rows);
+        setSummary(data.summary);
+        setLoading(false);
       })
-      .catch((err: unknown) => setError(err instanceof Error ? err.message : "Could not load CRM"));
-    // load is recreated each render; the initial fetch is intentional.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      .catch((err: unknown) => {
+        if (ignore) return;
+        setError(err instanceof Error ? err.message : "Could not load CRM");
+        setLoading(false);
+      });
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   if (!meta && !error) return <LoadingBlock />;

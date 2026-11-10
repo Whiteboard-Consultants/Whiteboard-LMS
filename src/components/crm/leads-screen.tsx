@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   flexRender,
   getCoreRowModel,
@@ -73,6 +73,7 @@ export function LeadsScreen() {
   const [dir, setDir] = useState<"asc" | "desc">("desc");
   const [visibility, setVisibility] = useState<VisibilityState>({});
   const [ready, setReady] = useState(false);
+  const appliedInitialList = useRef(false);
 
   useEffect(() => {
     const stored = window.localStorage.getItem("crm-columns");
@@ -83,14 +84,36 @@ export function LeadsScreen() {
   }, []);
 
   useEffect(() => {
-    crmFetch<CrmMeta>("/api/crm/meta").then((value) => {
-      setMeta(value);
-      setOwnerId(value.me.role === "COUNSELLOR" ? "me" : "");
-      setReady(true);
-    }).catch((err: unknown) => {
-      setError(err instanceof Error ? err.message : "Could not load leads");
-      setLoading(false);
-    });
+    let ignore = false;
+    const firstList = crmFetch<{ rows: Row[]; total: number }>(
+      "/api/crm/leads?page=1&pageSize=50&sort=enquiryDate&dir=desc",
+    );
+    crmFetch<CrmMeta>("/api/crm/meta")
+      .then(async (value) => {
+        if (ignore) return;
+        setMeta(value);
+        if (value.me.role === "COUNSELLOR") {
+          void firstList.catch(() => undefined);
+          setOwnerId("me");
+          setReady(true);
+          return;
+        }
+        const data = await firstList;
+        if (ignore) return;
+        setRows(data.rows);
+        setTotal(data.total);
+        setPage(1);
+        setLoading(false);
+        setReady(true);
+      })
+      .catch((err: unknown) => {
+        if (ignore) return;
+        setError(err instanceof Error ? err.message : "Could not load leads");
+        setLoading(false);
+      });
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   async function load(nextPage = page) {
@@ -113,7 +136,12 @@ export function LeadsScreen() {
   }
 
   useEffect(() => {
-    if (ready) void load(1);
+    if (!ready) return;
+    if (!appliedInitialList.current) {
+      appliedInitialList.current = true;
+      if (ownerId === "") return;
+    }
+    void load(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, ownerId, sort, dir, filters]);
 

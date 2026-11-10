@@ -1,6 +1,8 @@
 import type { Prisma } from "@prisma/client";
 import { addDays, dbToIso, isoToDb, kolkataToday } from "@/lib/crm/dates";
+import { clearCrmCache } from "@/lib/crm/cache";
 import { prisma } from "@/lib/crm/db";
+import { getCrmReference } from "@/lib/crm/reference";
 import { computeLeadMetrics, type LeadComputed, type MetricLead } from "@/lib/crm/leadMetrics";
 import { allocateLeadCode, metricContext, nextCounsellorId, productCategoriesForVertical } from "@/lib/crm/settings";
 
@@ -195,27 +197,10 @@ async function buildWhere(query: LeadQuery, actorId: string, isAdmin: boolean): 
 }
 
 async function duplicateSets() {
-  const [mobiles, emails] = await Promise.all([
-    prisma.lead.groupBy({
-      by: ["mobile"],
-      where: { archived: false, mobile: { not: null } },
-      _count: { _all: true },
-    }),
-    prisma.lead.groupBy({
-      by: ["email"],
-      where: { archived: false, email: { not: null } },
-      _count: { _all: true },
-    }),
-  ]);
+  const reference = await getCrmReference();
   return {
-    mobiles: new Set(
-      mobiles.filter((row) => row.mobile && row.mobile.trim() && row._count._all > 1).map((row) => row.mobile as string),
-    ),
-    emails: new Set(
-      emails
-        .filter((row) => row.email && row.email.trim() && row._count._all > 1)
-        .map((row) => row.email!.toLowerCase()),
-    ),
+    mobiles: new Set(reference.duplicateMobiles),
+    emails: new Set(reference.duplicateEmails),
   };
 }
 
@@ -367,10 +352,11 @@ export async function listLeads(query: LeadQuery, actor: { id: string; role: str
   const pageSize = query.exportAll ? 20000 : Math.min(200, Math.max(1, query.pageSize ?? 50));
   const isAdmin = actor.role === "ADMIN";
   const where = await buildWhere(query, actor.id, isAdmin);
-  const [sets, ctx] = await Promise.all([duplicateSets(), metricContext(today)]);
 
   if (!needsFullScan(query)) {
-    const [total, records] = await Promise.all([
+    const [sets, ctx, total, records] = await Promise.all([
+      duplicateSets(),
+      metricContext(today),
       prisma.lead.count({ where }),
       prisma.lead.findMany({
         where,
@@ -389,7 +375,11 @@ export async function listLeads(query: LeadQuery, actor: { id: string; role: str
     };
   }
 
-  const records = await prisma.lead.findMany({ where, select: leadSelect });
+  const [sets, ctx, records] = await Promise.all([
+    duplicateSets(),
+    metricContext(today),
+    prisma.lead.findMany({ where, select: leadSelect }),
+  ]);
   const views = applyDerived(
     records.map((record) => toView(record, ctx, sets)),
     query,
@@ -457,7 +447,7 @@ function toPrismaData(input: Partial<LeadInput>): Prisma.LeadUncheckedUpdateInpu
 
 export async function createLead(input: LeadInput, actorId: string | null) {
   const today = kolkataToday();
-  return prisma.$transaction(async (tx) => {
+  const lead = await prisma.$transaction(async (tx) => {
     const settingsCtx = await metricContext(today, tx);
     const leadCode = await allocateLeadCode(tx);
     const ownerId = input.ownerId || (await nextCounsellorId(tx));
@@ -476,6 +466,12 @@ export async function createLead(input: LeadInput, actorId: string | null) {
     });
     return lead;
   });
+  return fresh(lead);
+}
+
+function fresh<T>(result: T): T {
+  clearCrmCache();
+  return result;
 }
 
 export async function updateLead(id: string, patch: Partial<LeadInput>, actorId: string | null) {
@@ -483,8 +479,8 @@ export async function updateLead(id: string, patch: Partial<LeadInput>, actorId:
   if (!existing || existing.archived) return null;
   const data = toPrismaData(patch);
   const nextStage = typeof data.stage === "string" ? data.stage : existing.stage;
-  return prisma.$transaction(async (tx) => {
-    const lead = await tx.lead.update({ where: { id }, data });
+  const lead = await prisma.$transaction(async (tx) => {
+    const updated = await tx.lead.update({ where: { id }, data });
     if (typeof patch.stage !== "undefined" && nextStage && nextStage !== existing.stage) {
       await tx.stageHistory.create({
         data: {
@@ -495,14 +491,15 @@ export async function updateLead(id: string, patch: Partial<LeadInput>, actorId:
         },
       });
     }
-    return lead;
+    return updated;
   });
+  return fresh(lead);
 }
 
 export async function setLeadArchived(id: string, archived: boolean) {
   const existing = await prisma.lead.findUnique({ where: { id } });
   if (!existing) return null;
-  return prisma.lead.update({ where: { id }, data: { archived } });
+  return fresh(await prisma.lead.update({ where: { id }, data: { archived } }));
 }
 
 export async function deleteLead(id: string) {
@@ -516,7 +513,7 @@ export async function deleteLead(id: string) {
     prisma.stageHistory.deleteMany({ where: { leadId: id } }),
     prisma.lead.delete({ where: { id } }),
   ]);
-  return existing;
+  return fresh(existing);
 }
 
 export async function getLeadDetail(id: string) {
@@ -590,18 +587,20 @@ export async function addActivity(
 ) {
   const lead = await prisma.lead.findUnique({ where: { id: input.leadId } });
   if (!lead) return null;
-  return prisma.activity.create({
-    data: {
-      leadId: input.leadId,
-      date: isoToDb(input.date),
-      channel: input.channel,
-      outcome: input.outcome,
-      summary: input.summary,
-      nextFollowUpDate: input.nextFollowUpDate ? isoToDb(input.nextFollowUpDate) : null,
-      nextAction: input.nextAction,
-      loggedById: actorId,
-    },
-  });
+  return fresh(
+    await prisma.activity.create({
+      data: {
+        leadId: input.leadId,
+        date: isoToDb(input.date),
+        channel: input.channel,
+        outcome: input.outcome,
+        summary: input.summary,
+        nextFollowUpDate: input.nextFollowUpDate ? isoToDb(input.nextFollowUpDate) : null,
+        nextAction: input.nextAction,
+        loggedById: actorId,
+      },
+    }),
+  );
 }
 
 export async function listActivities(query: {

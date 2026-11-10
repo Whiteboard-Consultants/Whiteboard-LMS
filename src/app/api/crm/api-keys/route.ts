@@ -5,6 +5,7 @@ import { prisma } from "@/lib/crm/db";
 import { jsonError, readJson } from "@/lib/crm/http";
 
 export const runtime = "nodejs";
+export const preferredRegion = "bom1";
 
 export async function GET() {
   const admin = await requireCrmAdmin();

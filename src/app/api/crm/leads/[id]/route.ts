@@ -5,6 +5,7 @@ import { deleteLead, getLeadDetail, setLeadArchived, updateLead } from "@/lib/cr
 import { leadPatchSchema } from "@/lib/crm/schemas";
 
 export const runtime = "nodejs";
+export const preferredRegion = "bom1";
 
 type Context = { params: Promise<{ id: string }> };
 

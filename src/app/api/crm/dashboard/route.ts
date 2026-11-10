@@ -7,6 +7,7 @@ import { listLeads } from "@/lib/crm/leads";
 import { metricContext } from "@/lib/crm/settings";
 
 export const runtime = "nodejs";
+export const preferredRegion = "bom1";
 
 export async function GET(request: Request) {
   const user = await requireCrmUser();

@@ -5,6 +5,7 @@ import { addActivity, listActivities } from "@/lib/crm/leads";
 import { activitySchema } from "@/lib/crm/schemas";
 
 export const runtime = "nodejs";
+export const preferredRegion = "bom1";
 
 export async function GET(request: Request) {
   const user = await requireCrmUser();

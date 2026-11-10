@@ -1,3 +1,4 @@
+import { clearCrmCache } from "@/lib/crm/cache";
 import { isoToDb, kolkataToday } from "@/lib/crm/dates";
 import { prisma } from "@/lib/crm/db";
 import { channelForSource, createLead, findExistingLead, normalizeMobile, type LeadInput } from "@/lib/crm/leads";
@@ -46,6 +47,7 @@ export async function ingestEnquiry(input: IntakeBody) {
       }),
       prisma.lead.update({ where: { id: existing.id }, data: { updatedAt: new Date() } }),
     ]);
+    clearCrmCache();
     return { status: 409 as const, body: { leadCode: existing.leadCode, duplicate: true } };
   }
 

@@ -6,6 +6,7 @@ import { jsonError, readJson } from "@/lib/crm/http";
 import { commitImport, parseSpreadsheet, previewImport, suggestMapping, type ImportStrategy } from "@/lib/crm/importLeads";
 
 export const runtime = "nodejs";
+export const preferredRegion = "bom1";
 
 export async function GET() {
   const user = await requireCrmUser();

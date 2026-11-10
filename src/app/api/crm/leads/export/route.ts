@@ -7,6 +7,7 @@ import { listLeads } from "@/lib/crm/leads";
 import { leadQueryFromUrl } from "@/lib/crm/query";
 
 export const runtime = "nodejs";
+export const preferredRegion = "bom1";
 
 const COLUMNS: { header: string; value: (row: Awaited<ReturnType<typeof listLeads>>["rows"][number]) => unknown }[] = [
   { header: "Lead code", value: (row) => row.leadCode },

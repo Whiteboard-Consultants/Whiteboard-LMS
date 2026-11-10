@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import { requireCrmAdmin } from "@/lib/crm/auth";
+import { clearCrmCache } from "@/lib/crm/cache";
 import { prisma } from "@/lib/crm/db";
 import { jsonError, readJson, zodError } from "@/lib/crm/http";
 import { lookupWriteSchema } from "@/lib/crm/schemas";
 import { saveSetting } from "@/lib/crm/settings";
 
 export const runtime = "nodejs";
+export const preferredRegion = "bom1";
 
 const LEAD_FIELDS = {
   source: "source",
@@ -50,6 +52,7 @@ export async function PUT(request: Request) {
         prisma.lookupValue.update({ where: { id }, data: { sortOrder: index + 1 } }),
       ),
     );
+    clearCrmCache();
     return NextResponse.json({ ok: true });
   }
 
@@ -68,6 +71,7 @@ export async function PUT(request: Request) {
         meta: body.meta,
       },
     });
+    clearCrmCache();
     return NextResponse.json(created, { status: 201 });
   }
 
@@ -88,6 +92,7 @@ export async function PUT(request: Request) {
       meta: body.meta ?? (existing.meta === null ? undefined : existing.meta),
     },
   });
+  clearCrmCache();
   return NextResponse.json(updated);
 }
 

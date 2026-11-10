@@ -4,11 +4,13 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { getAppUserFromRequest } from "@/lib/admin-auth";
 import { signBridgeToken } from "@/lib/crm/auth";
+import { clearCrmCache } from "@/lib/crm/cache";
 import { prisma } from "@/lib/crm/db";
 import { jsonError } from "@/lib/crm/http";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export const runtime = "nodejs";
+export const preferredRegion = "bom1";
 
 export async function POST(request: NextRequest) {
   try {
@@ -39,6 +41,7 @@ export async function POST(request: NextRequest) {
           passwordHash: await bcrypt.hash(randomBytes(24).toString("hex"), 10),
         },
       });
+      clearCrmCache();
     }
     if (!user.active) return jsonError(403, "This CRM account is inactive");
     return NextResponse.json({ bridgeToken: signBridgeToken(user.id) });

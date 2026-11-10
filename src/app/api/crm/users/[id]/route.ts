@@ -1,11 +1,13 @@
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { requireCrmAdmin } from "@/lib/crm/auth";
+import { clearCrmCache } from "@/lib/crm/cache";
 import { prisma } from "@/lib/crm/db";
 import { jsonError, readJson, zodError } from "@/lib/crm/http";
 import { userPatchSchema } from "@/lib/crm/schemas";
 
 export const runtime = "nodejs";
+export const preferredRegion = "bom1";
 
 async function keepAnAdmin(userId: string, nextRole?: string, nextActive?: boolean) {
   const current = await prisma.user.findUnique({ where: { id: userId } });
@@ -42,5 +44,6 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     },
     select: { id: true, name: true, email: true, role: true, active: true },
   });
+  clearCrmCache();
   return NextResponse.json(user);
 }

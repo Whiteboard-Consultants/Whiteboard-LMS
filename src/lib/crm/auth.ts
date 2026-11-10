@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from "crypto";
 import bcrypt from "bcryptjs";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import { cached } from "@/lib/crm/cache";
 import { prisma } from "@/lib/crm/db";
 
 function authSecret(): string {
@@ -97,9 +98,10 @@ export async function requireCrmUser() {
   const session = await auth();
   const id = session?.user?.id;
   if (!id) return null;
-  const user = await prisma.user.findUnique({ where: { id } });
-  if (!user?.active) return null;
-  return user;
+  return cached(`crm-user:${id}`, 30_000, async () => {
+    const user = await prisma.user.findUnique({ where: { id } });
+    return user?.active ? user : null;
+  });
 }
 
 export async function requireCrmAdmin() {

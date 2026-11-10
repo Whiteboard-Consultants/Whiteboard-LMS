@@ -1,4 +1,5 @@
 import type { Prisma } from "@prisma/client";
+import { clearCrmCache } from "@/lib/crm/cache";
 import {
   DEFAULT_FIRST_CONTACT_DAYS,
   DEFAULT_LEAD_PREFIX,
@@ -6,6 +7,7 @@ import {
 } from "@/lib/crm/constants";
 import { prisma } from "@/lib/crm/db";
 import type { ScoringConfig } from "@/lib/crm/leadMetrics";
+import { getCrmReference, type ReferenceLookup, type ReferenceSetting } from "@/lib/crm/reference";
 
 export type CrmSettings = {
   leadCodePrefix: string;
@@ -44,8 +46,7 @@ export function normalizeScoring(value: unknown): ScoringConfig {
   };
 }
 
-export async function getCrmSettings(db: Db = prisma): Promise<CrmSettings> {
-  const rows = await db.setting.findMany();
+function settingsFromRows(rows: ReferenceSetting[]): CrmSettings {
   const values = new Map(rows.map((row) => [row.key, row.value]));
   const prefix = values.get("leadCodePrefix");
   const cursor = values.get("roundRobinCursor");
@@ -59,21 +60,22 @@ export async function getCrmSettings(db: Db = prisma): Promise<CrmSettings> {
   };
 }
 
+export async function getCrmSettings(db: Db = prisma): Promise<CrmSettings> {
+  if (db === prisma) return settingsFromRows((await getCrmReference()).settings);
+  const rows = await db.setting.findMany();
+  return settingsFromRows(rows.map((row) => ({ key: row.key, value: row.value })));
+}
+
 export async function saveSetting(key: string, value: Prisma.InputJsonValue, db: Db = prisma) {
   await db.setting.upsert({
     where: { key },
     create: { key, value },
     update: { value },
   });
+  if (db === prisma) clearCrmCache();
 }
 
-export async function metricContext(today: string, db: Db = prisma) {
-  const [settings, stages, products] = await Promise.all([
-    getCrmSettings(db),
-    db.lookupValue.findMany({ where: { type: "stage" } }),
-    db.lookupValue.findMany({ where: { type: "productCategory" } }),
-  ]);
-
+function buildMetricContext(today: string, settings: CrmSettings, stages: ReferenceLookup[], products: ReferenceLookup[]) {
   const stageProbability: Record<string, number> = {};
   const stageOrder: string[] = [];
   const orderedStages = [...stages].sort((a, b) => a.sortOrder - b.sortOrder);
@@ -93,6 +95,24 @@ export async function metricContext(today: string, db: Db = prisma) {
   }
 
   return { today, stageProbability, verticalByProduct, scoring: settings.scoring, stageOrder, settings };
+}
+
+export async function metricContext(today: string, db: Db = prisma) {
+  if (db !== prisma) {
+    const [settings, stages, products] = await Promise.all([
+      getCrmSettings(db),
+      db.lookupValue.findMany({ where: { type: "stage" } }),
+      db.lookupValue.findMany({ where: { type: "productCategory" } }),
+    ]);
+    return buildMetricContext(today, settings, stages, products);
+  }
+  const reference = await getCrmReference();
+  return buildMetricContext(
+    today,
+    settingsFromRows(reference.settings),
+    reference.lookups.filter((lookup) => lookup.type === "stage"),
+    reference.lookups.filter((lookup) => lookup.type === "productCategory"),
+  );
 }
 
 export async function allocateLeadCode(db: Db): Promise<string> {
@@ -118,7 +138,10 @@ export async function nextCounsellorId(db: Db): Promise<string | null> {
 }
 
 export async function productCategoriesForVertical(vertical: string, db: Db = prisma): Promise<string[]> {
-  const products = await db.lookupValue.findMany({ where: { type: "productCategory" } });
+  const products =
+    db === prisma
+      ? (await getCrmReference()).lookups.filter((lookup) => lookup.type === "productCategory")
+      : await db.lookupValue.findMany({ where: { type: "productCategory" } });
   return products
     .filter((product) => {
       const meta =

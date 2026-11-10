@@ -4,6 +4,7 @@ import { jsonError, readJson } from "@/lib/crm/http";
 import { getCrmSettings, saveSetting } from "@/lib/crm/settings";
 
 export const runtime = "nodejs";
+export const preferredRegion = "bom1";
 
 export async function GET() {
   const admin = await requireCrmAdmin();

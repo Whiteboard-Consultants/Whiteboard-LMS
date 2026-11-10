@@ -2,11 +2,13 @@ import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { requireCrmAdmin } from "@/lib/crm/auth";
+import { clearCrmCache } from "@/lib/crm/cache";
 import { prisma } from "@/lib/crm/db";
 import { jsonError, readJson, zodError } from "@/lib/crm/http";
 import { userCreateSchema } from "@/lib/crm/schemas";
 
 export const runtime = "nodejs";
+export const preferredRegion = "bom1";
 
 export async function GET() {
   const admin = await requireCrmAdmin();
@@ -34,6 +36,7 @@ export async function POST(request: Request) {
       },
       select: { id: true, name: true, email: true, role: true, active: true },
     });
+    clearCrmCache();
     return NextResponse.json(user, { status: 201 });
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
