@@ -43,6 +43,8 @@ const publicAllow = [
 /** App, transactional, and non-production routes */
 const disallow = [
   '/admin/*',
+  '/crm',
+  '/crm/*',
   '/api/*',
   '/student/*',
   '/instructor/*',

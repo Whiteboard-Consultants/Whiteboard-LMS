@@ -1,0 +1,140 @@
+// CRM data lives in Supabase Postgres. DATABASE_URL is the pooled connection.
+// DIRECT_URL is the direct connection Prisma uses for migrations.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+  schemas   = ["crm"]
+}
+
+model User {
+  id           String         @id @default(cuid())
+  name         String
+  email        String         @unique
+  passwordHash String
+  role         String
+  active       Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  leads        Lead[]         @relation("LeadOwner")
+  activities   Activity[]
+  stageChanges StageHistory[]
+
+  @@schema("crm")
+}
+
+model Lead {
+  id              String         @id @default(cuid())
+  leadCode        String         @unique
+  name            String
+  enquiryDate     DateTime
+  source          String?
+  campaign        String?
+  ownerId         String?
+  owner           User?          @relation("LeadOwner", fields: [ownerId], references: [id])
+  mobile          String?
+  email           String?
+  city            String?
+  currentLevel    String?
+  passoutYear     Int?
+  stream          String?
+  institution     String?
+  parentName      String?
+  parentMobile    String?
+  consent         Boolean        @default(false)
+  productCategory String?
+  programmeDetail String?
+  targetCountry   String?
+  targetIntake    String?
+  budget          Float?
+  stage           String?
+  temperature     String?
+  firstContactDue DateTime?
+  counsellingDate DateTime?
+  expectedValue   Float?
+  closedDate      DateTime?
+  lostReason      String?
+  remarks         String?
+  archived        Boolean        @default(false)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  activities      Activity[]
+  stageHistory    StageHistory[]
+
+  @@index([mobile])
+  @@index([email])
+  @@index([ownerId])
+  @@index([stage])
+  @@index([enquiryDate])
+  @@index([archived])
+  @@schema("crm")
+}
+
+model Activity {
+  id               String    @id @default(cuid())
+  leadId           String
+  lead             Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  date             DateTime
+  channel          String
+  outcome          String
+  loggedById       String?
+  loggedBy         User?     @relation(fields: [loggedById], references: [id])
+  summary          String
+  nextFollowUpDate DateTime?
+  nextAction       String?
+  createdAt        DateTime  @default(now())
+
+  @@index([leadId])
+  @@index([date])
+  @@index([loggedById])
+  @@schema("crm")
+}
+
+model StageHistory {
+  id          String   @id @default(cuid())
+  leadId      String
+  lead        Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  fromStage   String?
+  toStage     String
+  changedById String?
+  changedBy   User?    @relation(fields: [changedById], references: [id])
+  changedAt   DateTime @default(now())
+
+  @@index([leadId])
+  @@schema("crm")
+}
+
+model LookupValue {
+  id        String  @id @default(cuid())
+  type      String
+  label     String
+  sortOrder Int     @default(0)
+  active    Boolean @default(true)
+  meta      Json?
+
+  @@unique([type, label])
+  @@index([type, sortOrder])
+  @@schema("crm")
+}
+
+model Setting {
+  key   String @id
+  value Json
+
+  @@schema("crm")
+}
+
+model ApiKey {
+  id        String   @id @default(cuid())
+  name      String
+  keyHash   String
+  keyPrefix String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@schema("crm")
+}

@@ -247,6 +247,7 @@ export function TestForm({ initialData }: TestFormProps) {
           <CardContent className="space-y-6">
             {/* Manual Form Mode */}
             {mode === 'manual' && (
+            <>
             <FormField
               control={form.control}
               name="title"
@@ -318,7 +319,7 @@ export function TestForm({ initialData }: TestFormProps) {
                 </FormItem>
               )}
             />
-             {/* Debug Info: Role={userData?.role || 'Not loaded'}, Courses={courses.length}, Instructors={instructors.length}, LoadingCourses={loadingCourses.toString()}, LoadingInstructors={loadingInstructors.toString()}, InstructorValue={form.watch('instructorId')}, CourseValue={form.watch('courseId')} */}
+             {/* Debug counts for role, courses, and instructors are logged while developing. */}
              {userData?.role === 'admin' && (
                 <FormField
                     control={form.control}
@@ -439,6 +440,7 @@ export function TestForm({ initialData }: TestFormProps) {
                 />
               )}
             </div>
+            </>
             )}
 
             {/* Document Upload Mode */}

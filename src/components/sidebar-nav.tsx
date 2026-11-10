@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { BookMarked, LayoutDashboard, BarChart3, Users, Lightbulb, UserCheck, UserSquare, Megaphone, Award, FileText, Ticket, Rss, Package, ClipboardList, Mail, Zap, DollarSign, MessageSquare, HelpCircle, Folder, Compass, type LucideIcon } from "lucide-react";
+import { BookMarked, LayoutDashboard, BarChart3, Users, Lightbulb, UserCheck, UserSquare, Megaphone, Award, FileText, Ticket, Rss, Package, ClipboardList, Mail, Zap, DollarSign, MessageSquare, HelpCircle, Folder, Compass, Briefcase, type LucideIcon } from "lucide-react";
 import { Skeleton } from "./ui/skeleton";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
 import { canAccessPath, hasPermission, type PermissionKey } from "@/lib/permissions";
@@ -89,6 +89,19 @@ export function SidebarNav() {
 
     return (
      <div className="px-2 text-sm font-medium lg:px-4 space-y-1">
+        <Link
+          href="/crm"
+          onClick={() => setOpenMobile(false)}
+          className={cn(
+            "flex items-center gap-3 rounded-lg px-3 py-2 text-primary-foreground/80 transition-all",
+            pathname.startsWith("/crm")
+              ? "bg-primary-foreground/20 text-primary-foreground"
+              : "hover:bg-primary-foreground/10 hover:text-primary-foreground"
+          )}
+        >
+          <Briefcase className="h-5 w-5" />
+          CRM
+        </Link>
         {showDashboard && (
         <Link
             href="/admin/dashboard"

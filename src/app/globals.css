@@ -352,3 +352,13 @@
 .animation-delay-4000 {
   animation-delay: 4s;
 }
+
+.crm-app {
+  font-family: var(--font-lato), "Lato", sans-serif;
+  background: #f2f4f8;
+  color: #1a2340;
+}
+
+.crm-app :is(h1, h2, h3, h4) {
+  font-family: var(--font-montserrat), "Montserrat", sans-serif;
+}
