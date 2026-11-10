@@ -66,9 +66,10 @@ export function GradeBadge({ value }: { value: string | null }) {
   return <span className={cn("inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold", styles[value])}>{value}</span>;
 }
 
-export function LoadingBlock() {
+export function LoadingBlock({ label = "Loading…" }: { label?: string }) {
   return (
     <div className="space-y-3" aria-busy="true" aria-live="polite">
+      <p className="text-sm text-slate-600">{label}</p>
       <Skeleton className="h-8 w-48" />
       <Skeleton className="h-24 w-full" />
       <Skeleton className="h-64 w-full" />

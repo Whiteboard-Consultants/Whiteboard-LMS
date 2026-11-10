@@ -1,11 +1,13 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { LoadingBlock } from "@/components/crm/bits";
+import { useLmsBridge } from "@/components/crm/use-lms-bridge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,8 +21,35 @@ type Values = z.infer<typeof schema>;
 
 export function LoginScreen() {
   const router = useRouter();
+  const { data: session, status } = useSession();
+  const bridge = useLmsBridge();
   const [error, setError] = useState("");
   const form = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { email: "", password: "" } });
+
+  useEffect(() => {
+    if (status === "authenticated" || bridge.state === "signed-in") {
+      router.replace("/crm/today");
+    }
+  }, [status, bridge.state, router]);
+
+  if (status === "loading" || bridge.state === "waiting" || bridge.state === "working" || bridge.state === "signed-in" || session?.user?.id) {
+    return (
+      <main className="mx-auto max-w-md px-4 py-16">
+        <LoadingBlock label="Opening the CRM with your admin login…" />
+      </main>
+    );
+  }
+
+  if (bridge.lmsStaff) {
+    return (
+      <main className="mx-auto max-w-md px-4 py-16">
+        <h1 className="text-2xl font-semibold text-[#004B93]">CRM</h1>
+        <p role="alert" className="mt-3 text-sm text-[#C9002B]">
+          {bridge.message || "Your admin login was recognised, but the CRM could not open."}
+        </p>
+      </main>
+    );
+  }
 
   async function onSubmit(values: Values) {
     setError("");

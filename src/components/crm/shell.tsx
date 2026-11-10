@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { signIn, signOut, useSession } from "next-auth/react";
-import { useEffect, useRef, useState, type ReactNode } from "react";
-import { useAuth } from "@/hooks/use-auth";
+import { signOut, useSession } from "next-auth/react";
+import { useEffect, type ReactNode } from "react";
 import { LoadingBlock } from "@/components/crm/bits";
+import { useLmsBridge } from "@/components/crm/use-lms-bridge";
 
 const LINKS = [
   { href: "/crm/today", label: "Today" },
@@ -20,56 +20,39 @@ export function CrmShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session, status } = useSession();
-  const { userData, accessToken, loading } = useAuth();
-  const [bridging, setBridging] = useState(false);
-  const [bridgeDone, setBridgeDone] = useState(false);
-  const started = useRef(false);
-
-  const lmsStaff = userData?.role === "admin" || userData?.role === "manager";
+  const bridge = useLmsBridge();
 
   useEffect(() => {
-    if (pathname === "/crm/login") return;
-    if (status !== "unauthenticated" || loading || started.current) return;
-    if (!lmsStaff || !accessToken) {
-      setBridgeDone(true);
-      return;
-    }
-    started.current = true;
-    setBridging(true);
-    fetch("/api/crm/bridge", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${accessToken}` },
-    })
-      .then(async (response) => {
-        const data = (await response.json()) as { bridgeToken?: string };
-        if (!response.ok || !data.bridgeToken) return;
-        await signIn("credentials", { bridgeToken: data.bridgeToken, redirect: false });
-      })
-      .catch(() => undefined)
-      .finally(() => {
-        setBridging(false);
-        setBridgeDone(true);
-      });
-  }, [pathname, status, loading, lmsStaff, accessToken]);
-
-  useEffect(() => {
-    if (pathname === "/crm/login") return;
-    if (status === "unauthenticated" && bridgeDone && !bridging) {
-      router.replace("/crm/login");
-    }
-  }, [pathname, status, bridgeDone, bridging, router]);
+    if (pathname === "/crm/login" || status === "loading") return;
+    if (session?.user?.id || bridge.state === "waiting" || bridge.state === "working" || bridge.state === "signed-in") return;
+    if (bridge.state === "not-staff") router.replace("/crm/login");
+  }, [pathname, status, session?.user?.id, bridge.state, router]);
 
   if (pathname === "/crm/login") return <>{children}</>;
 
-  if (status === "loading" || loading || bridging || (status === "unauthenticated" && !bridgeDone)) {
+  if (status === "loading" || bridge.state === "waiting" || bridge.state === "working" || (bridge.state === "signed-in" && !session?.user?.id)) {
     return (
       <div className="p-6">
-        <LoadingBlock />
+        <LoadingBlock label="Opening the CRM with your admin login…" />
       </div>
     );
   }
 
-  if (!session?.user?.id) return null;
+  if (!session?.user?.id && bridge.state === "not-staff") {
+    return (
+      <div className="p-6">
+        <LoadingBlock label="Opening sign in…" />
+      </div>
+    );
+  }
+
+  if (!session?.user?.id) {
+    return (
+      <div className="p-6">
+        <p className="text-sm text-[#C9002B]">{bridge.message || "The CRM could not use your admin login."}</p>
+      </div>
+    );
+  }
 
   const admin = session.user.role === "ADMIN";
 
