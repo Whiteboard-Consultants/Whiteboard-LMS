@@ -362,3 +362,70 @@
 .crm-app :is(h1, h2, h3, h4) {
   font-family: var(--font-montserrat), "Montserrat", sans-serif;
 }
+
+.dark .crm-app {
+  background: #0b0f14;
+  color: #e8eef7;
+}
+
+.dark .crm-app main {
+  background: #0b0f14;
+  color: #e8eef7;
+}
+
+.dark .crm-app .bg-white {
+  background-color: #161d27 !important;
+  color: #e8eef7;
+}
+
+.dark .crm-app aside .bg-white {
+  background-color: #ffffff !important;
+  color: #004b93;
+}
+
+.dark .crm-app .bg-\[\#F2F4F8\] {
+  background-color: #1e293b !important;
+  color: #cbd5e1;
+}
+
+.dark .crm-app :is(.text-slate-500, .text-slate-600, .text-slate-700) {
+  color: #cbd5e1 !important;
+}
+
+.dark .crm-app .text-\[\#004B93\] {
+  color: #8ec5ff;
+}
+
+.dark .crm-app aside .text-\[\#004B93\] {
+  color: #004b93;
+}
+
+.dark .crm-app :is(th, td, label) {
+  color: #e8eef7;
+}
+
+.dark .crm-app :is(input, select, textarea) {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+.dark .crm-app :is(input, textarea)::placeholder {
+  color: #94a3b8 !important;
+}
+
+.dark .crm-app option {
+  background-color: #0f172a;
+  color: #f8fafc;
+}
+
+.dark .crm-app .border-slate-100,
+.dark .crm-app .border-slate-200,
+.dark .crm-app .border-slate-300 {
+  border-color: #334155;
+}
+
+.dark .crm-app .recharts-cartesian-axis-tick text,
+.dark .crm-app .recharts-legend-item-text {
+  fill: #cbd5e1;
+}
