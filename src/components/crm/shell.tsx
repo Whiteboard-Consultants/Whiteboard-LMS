@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { signOut, useSession } from "next-auth/react";
-import { useEffect, type ReactNode } from "react";
+import { signOut as signOutCrm, useSession } from "next-auth/react";
+import { useEffect, useState, type ReactNode } from "react";
 import { LoadingBlock } from "@/components/crm/bits";
 import { useLmsBridge } from "@/components/crm/use-lms-bridge";
+import { signOut as signOutAdmin } from "@/lib/supabase-auth";
 
 const LINKS = [
   { href: "/crm/today", label: "Today" },
@@ -21,14 +22,38 @@ export function CrmShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { data: session, status } = useSession();
   const bridge = useLmsBridge();
+  const [leaving, setLeaving] = useState(false);
+
+  async function signOutOfApp() {
+    if (leaving) return;
+    setLeaving(true);
+    const fallback = window.setTimeout(() => {
+      window.location.assign("/");
+    }, 4000);
+    try {
+      await signOutAdmin();
+      await signOutCrm({ redirect: false });
+    } finally {
+      window.clearTimeout(fallback);
+      window.location.assign("/");
+    }
+  }
 
   useEffect(() => {
-    if (pathname === "/crm/login" || status === "loading") return;
+    if (leaving || pathname === "/crm/login" || status === "loading") return;
     if (session?.user?.id || bridge.state === "waiting" || bridge.state === "working" || bridge.state === "signed-in") return;
     if (bridge.state === "not-staff") router.replace("/crm/login");
-  }, [pathname, status, session?.user?.id, bridge.state, router]);
+  }, [leaving, pathname, status, session?.user?.id, bridge.state, router]);
 
   if (pathname === "/crm/login") return <>{children}</>;
+
+  if (leaving) {
+    return (
+      <div className="p-6">
+        <LoadingBlock label="Signing out…" />
+      </div>
+    );
+  }
 
   if (status === "loading" || bridge.state === "waiting" || bridge.state === "working" || (bridge.state === "signed-in" && !session?.user?.id)) {
     return (
@@ -83,7 +108,7 @@ export function CrmShell({ children }: { children: ReactNode }) {
           <Link href="/admin/dashboard" className="block text-white/70 underline">
             Back to admin
           </Link>
-          <button type="button" className="text-left text-white underline" onClick={() => signOut({ callbackUrl: "/crm/login" })}>
+          <button type="button" className="text-left text-white underline" onClick={() => void signOutOfApp()}>
             Sign out
           </button>
         </div>
@@ -95,6 +120,12 @@ export function CrmShell({ children }: { children: ReactNode }) {
               {link.label}
             </Link>
           ))}
+          <Link href="/admin/dashboard" className="shrink-0 rounded-full bg-white/10 px-3 py-1 text-sm text-white">
+            Admin
+          </Link>
+          <button type="button" className="shrink-0 rounded-full bg-white/10 px-3 py-1 text-sm text-white" onClick={() => void signOutOfApp()}>
+            Sign out
+          </button>
         </div>
         <main className="p-4 md:p-6">{children}</main>
       </div>
