@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { formatDisplay } from "@/lib/crm/dates";
+import { formatDisplay, formatStamp } from "@/lib/crm/dates";
 import { formatInr } from "@/lib/crm/format";
 
 const schema = z.object({
@@ -75,6 +75,7 @@ type LeadDetail = Values & {
   contactAttempts: number;
   daysToFirstContact: number | null;
   daysSinceEnquiry: number;
+  updatedAt: string;
 };
 
 const emptyValues = (today = ""): Values => ({
@@ -145,7 +146,7 @@ export function LeadEditor({ id }: { id?: string }) {
   const router = useRouter();
   const [meta, setMeta] = useState<CrmMeta | null>(null);
   const [detail, setDetail] = useState<LeadDetail | null>(null);
-  const [activities, setActivities] = useState<{ id: string; date: string | null; channel: string; outcome: string; summary: string; nextFollowUpDate: string | null; nextAction: string | null; loggedBy: string }[]>([]);
+  const [activities, setActivities] = useState<{ id: string; date: string | null; channel: string; outcome: string; summary: string; nextFollowUpDate: string | null; nextAction: string | null; loggedBy: string; createdAt: string }[]>([]);
   const [duplicates, setDuplicates] = useState<{ id: string; leadCode: string; name: string }[]>([]);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -305,6 +306,7 @@ export function LeadEditor({ id }: { id?: string }) {
           <span>Score {detail.leadScore ?? "—"}</span>
           <span>Vertical {detail.businessVertical ?? "—"}</span>
           <span>Next {formatDisplay(detail.nextFollowUpDate)}</span>
+          <span>Updated {formatStamp(detail.updatedAt)}</span>
           <span>Attempts {detail.contactAttempts}</span>
           <span>Profile {Math.round(detail.profileCompleteness * 100)}%</span>
           <span>Weighted {formatInr(detail.weightedValue)}</span>
@@ -406,7 +408,7 @@ export function LeadEditor({ id }: { id?: string }) {
                   <p className="text-sm font-semibold">{formatDisplay(activity.date)} · {activity.channel} · {activity.outcome}</p>
                   <p className="text-sm">{activity.summary}</p>
                   <p className="text-xs text-slate-500">
-                    {activity.loggedBy}
+                    Logged {formatStamp(activity.createdAt)} · {activity.loggedBy}
                     {activity.nextFollowUpDate ? ` · next ${formatDisplay(activity.nextFollowUpDate)}` : ""}
                     {activity.nextAction ? ` · ${activity.nextAction}` : ""}
                   </p>

@@ -429,3 +429,10 @@
 .dark .crm-app .recharts-legend-item-text {
   fill: #cbd5e1;
 }
+
+.dark .crm-app tbody tr:hover,
+.dark .crm-app tbody tr:hover > td,
+.dark .crm-app tbody tr:hover > td.bg-white {
+  background-color: #243044 !important;
+  color: #e8eef7;
+}

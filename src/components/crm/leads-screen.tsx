@@ -11,7 +11,7 @@ import {
   type VisibilityState,
 } from "@tanstack/react-table";
 import { COLUMN_GROUPS, DATA_ALERTS } from "@/lib/crm/constants";
-import { formatDisplay } from "@/lib/crm/dates";
+import { formatDisplay, formatStamp } from "@/lib/crm/dates";
 import { formatInr } from "@/lib/crm/format";
 import {
   CrmMeta,
@@ -42,13 +42,14 @@ type Row = Record<string, unknown> & {
 
 const DEFAULT_VISIBLE = [
   "leadCode", "name", "mobile", "ownerName", "productCategory", "stage", "temperature",
-  "followUpStatus", "nextFollowUpDate", "leadScore", "leadGrade", "dataAlert",
+  "followUpStatus", "nextFollowUpDate", "updatedAt", "leadScore", "leadGrade", "dataAlert",
 ];
 
 function text(row: Row, key: string) {
   const value = row[key];
   if (value === null || value === undefined || value === "") return "—";
   if (typeof value === "boolean") return value ? "Yes" : "No";
+  if (key === "updatedAt" || key === "createdAt") return formatStamp(String(value));
   if (key.toLowerCase().includes("date") || key === "nextFollowUpDate" || key === "firstContactDate" || key === "lastContactDate") {
     return formatDisplay(String(value));
   }
@@ -78,7 +79,12 @@ export function LeadsScreen() {
   useEffect(() => {
     const stored = window.localStorage.getItem("crm-columns");
     const initial: VisibilityState = {};
-    const visible = stored ? (JSON.parse(stored) as string[]) : DEFAULT_VISIBLE;
+    let visible = stored ? (JSON.parse(stored) as string[]) : DEFAULT_VISIBLE;
+    if (stored && !window.localStorage.getItem("crm-updated-at-column")) {
+      if (!visible.includes("updatedAt")) visible = [...visible, "updatedAt"];
+      window.localStorage.setItem("crm-columns", JSON.stringify(visible));
+      window.localStorage.setItem("crm-updated-at-column", "1");
+    }
     for (const id of Object.values(COLUMN_GROUPS).flat()) initial[id] = visible.includes(id);
     setVisibility(initial);
   }, []);

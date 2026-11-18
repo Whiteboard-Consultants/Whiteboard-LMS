@@ -50,6 +50,24 @@ export function formatDisplay(iso: string | null | undefined): string {
   return `${String(day).padStart(2, "0")}-${MONTHS[month - 1]}-${year}`;
 }
 
+/** Date and clock time in Asia/Kolkata, for example 18-Nov-2026, 5:05 pm. */
+export function formatStamp(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "—";
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: CRM_TIMEZONE,
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }).formatToParts(date);
+  const part = (type: Intl.DateTimeFormatPartTypes) => parts.find((item) => item.type === type)?.value ?? "";
+  return `${part("day")}-${part("month")}-${part("year")}, ${part("hour")}:${part("minute")} ${part("dayPeriod").toLowerCase()}`;
+}
+
 export function isRealIsoDate(iso: string): boolean {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
   if (!match) return false;

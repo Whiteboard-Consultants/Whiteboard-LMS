@@ -653,6 +653,7 @@ export async function listActivities(query: {
       nextFollowUpDate: dbToIso(row.nextFollowUpDate),
       nextAction: row.nextAction,
       loggedBy: row.loggedBy?.name ?? "System",
+      createdAt: row.createdAt.toISOString(),
     })),
   };
 }

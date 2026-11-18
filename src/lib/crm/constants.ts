@@ -210,6 +210,7 @@ export const COLUMN_GROUPS: Record<string, string[]> = {
     "nextFollowUpDate",
     "closedDate",
     "lostReason",
+    "updatedAt",
   ],
   Scoring: [
     "leadCode",

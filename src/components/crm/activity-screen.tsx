@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ActivityForm } from "@/components/crm/activity-form";
 import { CrmMeta, EmptyBlock, ErrorBlock, LoadingBlock, crmFetch, fieldClass, optionsOf } from "@/components/crm/bits";
 import { DateField } from "@/components/crm/date-field";
-import { formatDisplay } from "@/lib/crm/dates";
+import { formatDisplay, formatStamp } from "@/lib/crm/dates";
 
 type ActivityRow = {
   id: string;
@@ -19,6 +19,7 @@ type ActivityRow = {
   nextFollowUpDate: string | null;
   nextAction: string | null;
   loggedBy: string;
+  createdAt: string;
 };
 
 export function ActivityScreen() {
@@ -128,12 +129,13 @@ export function ActivityScreen() {
         <div className="max-h-[65vh] overflow-auto rounded-lg bg-white shadow-sm">
           <table className="w-full min-w-[900px] text-left text-sm">
             <thead className="sticky top-0 bg-[#F2F4F8] text-xs uppercase">
-              <tr>{["Date", "Lead", "Channel", "Outcome", "Summary", "Next", "Logged by"].map((heading) => <th key={heading} className="px-3 py-2">{heading}</th>)}</tr>
+              <tr>{["Date", "Logged", "Lead", "Channel", "Outcome", "Summary", "Next", "Logged by"].map((heading) => <th key={heading} className="px-3 py-2">{heading}</th>)}</tr>
             </thead>
             <tbody>
               {rows.map((row) => (
                 <tr key={row.id} className="border-t border-slate-100">
                   <td className="px-3 py-2">{formatDisplay(row.date)}</td>
+                  <td className="whitespace-nowrap px-3 py-2">{formatStamp(row.createdAt)}</td>
                   <td className="px-3 py-2"><Link className="text-[#004B93] underline" href={`/crm/leads/${row.leadId}`}>{row.leadCode} {row.leadName}</Link></td>
                   <td className="px-3 py-2">{row.channel}</td>
                   <td className="px-3 py-2">{row.outcome}</td>
