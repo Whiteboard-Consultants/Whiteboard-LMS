@@ -59,6 +59,18 @@ function text(row: Row, key: string) {
   return String(value);
 }
 
+function stickyColumnClass(id: string, header: boolean, isAdmin: boolean) {
+  const background = header ? "bg-[#F2F4F8]" : "bg-white";
+  if (id === "select") return `sticky left-0 z-20 w-11 min-w-11 max-w-11 ${background}`;
+  if (id === "leadCode") {
+    return `sticky z-20 w-[7.5rem] min-w-[7.5rem] max-w-[7.5rem] ${background} ${isAdmin ? "left-11" : "left-0"}`;
+  }
+  if (id === "name") {
+    return `sticky z-20 min-w-52 whitespace-nowrap ${background} ${isAdmin ? "left-[10.25rem]" : "left-[7.5rem]"}`;
+  }
+  return "";
+}
+
 export function LeadsScreen() {
   const router = useRouter();
   const [meta, setMeta] = useState<CrmMeta | null>(null);
@@ -390,14 +402,14 @@ export function LeadsScreen() {
       {!loading && rows.length === 0 ? <EmptyBlock title="No leads" body="Nothing matches these filters." /> : null}
       {rows.length > 0 ? (
         <div className="max-h-[70vh] overflow-auto rounded-lg bg-white shadow-sm">
-          <table className="w-full min-w-[900px] text-left text-sm">
-            <thead className="sticky top-0 z-10 bg-[#F2F4F8]">
+          <table className="w-full min-w-[1100px] border-separate border-spacing-0 text-left text-sm">
+            <thead className="sticky top-0 z-30 bg-[#F2F4F8]">
               {table.getHeaderGroups().map((group) => (
                 <tr key={group.id}>
                   {group.headers.map((header) => (
                     <th
                       key={header.id}
-                      className={`whitespace-nowrap px-3 py-2 text-xs font-semibold uppercase ${header.column.id === "select" ? "sticky left-0 z-20 bg-[#F2F4F8]" : ""} ${header.column.id === "leadCode" ? "sticky left-10 z-20 bg-[#F2F4F8]" : ""}`}
+                      className={`whitespace-nowrap border-b border-slate-200 px-3 py-2 text-xs font-semibold uppercase ${stickyColumnClass(header.column.id, true, isAdmin)}`}
                     >
                       {header.column.id === "actions" || header.column.id === "select" ? (
                         flexRender(header.column.columnDef.header, header.getContext())
@@ -421,9 +433,9 @@ export function LeadsScreen() {
             </thead>
             <tbody>
               {table.getRowModel().rows.map((row) => (
-                <tr key={row.id} className="border-t border-slate-100 hover:bg-slate-50">
+                <tr key={row.id} className="hover:bg-slate-50">
                   {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} className={`px-3 py-2 ${cell.column.id === "select" ? "sticky left-0 z-10 w-10 bg-white" : ""} ${cell.column.id === "leadCode" ? "sticky left-10 z-10 bg-white" : ""}`}>
+                    <td key={cell.id} className={`border-b border-slate-100 px-3 py-2 ${stickyColumnClass(cell.column.id, false, isAdmin)}`}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
                   ))}
