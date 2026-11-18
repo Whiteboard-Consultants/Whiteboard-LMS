@@ -410,6 +410,10 @@
   border-color: #334155 !important;
 }
 
+.dark .crm-app input[type="checkbox"] {
+  accent-color: #8ec5ff;
+}
+
 .dark .crm-app :is(input, textarea)::placeholder {
   color: #94a3b8 !important;
 }

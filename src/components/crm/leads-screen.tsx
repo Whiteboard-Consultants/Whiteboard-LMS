@@ -74,6 +74,8 @@ export function LeadsScreen() {
   const [dir, setDir] = useState<"asc" | "desc">("desc");
   const [visibility, setVisibility] = useState<VisibilityState>({});
   const [ready, setReady] = useState(false);
+  const [selected, setSelected] = useState<string[]>([]);
+  const [deleting, setDeleting] = useState(false);
   const appliedInitialList = useRef(false);
 
   useEffect(() => {
@@ -134,6 +136,7 @@ export function LeadsScreen() {
       setRows(data.rows);
       setTotal(data.total);
       setPage(nextPage);
+      setSelected([]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not load leads");
     } finally {
@@ -171,7 +174,34 @@ export function LeadsScreen() {
       },
     }));
     if (!isAdmin) return dataColumns;
+    const pageIds = rows.map((item) => item.id);
+    const allSelected = pageIds.length > 0 && pageIds.every((id) => selected.includes(id));
     return [
+      {
+        id: "select",
+        header: () => (
+          <input
+            type="checkbox"
+            className="h-4 w-4"
+            checked={allSelected}
+            aria-label="Select all leads on this page"
+            onChange={() => setSelected(allSelected ? [] : pageIds)}
+          />
+        ),
+        enableHiding: false,
+        cell: ({ row }) => (
+          <input
+            type="checkbox"
+            className="h-4 w-4"
+            checked={selected.includes(row.original.id)}
+            aria-label={`Select ${row.original.leadCode}`}
+            onChange={() => {
+              const id = row.original.id;
+              setSelected((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]));
+            }}
+          />
+        ),
+      },
       ...dataColumns,
       {
         id: "actions",
@@ -202,7 +232,7 @@ export function LeadsScreen() {
         ),
       },
     ];
-  }, [isAdmin]);
+  }, [isAdmin, rows, selected]);
 
   const table = useReactTable({
     data: rows,
@@ -218,7 +248,7 @@ export function LeadsScreen() {
     const visible = COLUMN_GROUPS[name];
     const next: VisibilityState = {};
     for (const column of table.getAllColumns()) {
-      next[column.id] = column.id === "actions" || visible.includes(column.id);
+      next[column.id] = column.id === "actions" || column.id === "select" || visible.includes(column.id);
     }
     setVisibility(next);
     window.localStorage.setItem("crm-columns", JSON.stringify(visible));
@@ -240,6 +270,27 @@ export function LeadsScreen() {
     URL.revokeObjectURL(url);
   }
 
+  async function deleteSelected() {
+    if (selected.length === 0 || deleting) return;
+    const count = selected.length;
+    const confirmed = window.confirm(
+      count === 1
+        ? "Delete this lead? This cannot be undone."
+        : `Delete ${count} leads? This cannot be undone.`,
+    );
+    if (!confirmed) return;
+    setDeleting(true);
+    try {
+      await crmFetch("/api/crm/leads", { method: "DELETE", body: JSON.stringify({ ids: selected }) });
+      setSelected([]);
+      await load(page);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not delete the leads");
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   if (!meta && !error) return <LoadingBlock />;
   if (!meta && error) return <ErrorBlock message={error} />;
 
@@ -250,6 +301,17 @@ export function LeadsScreen() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold text-[#004B93]">Leads</h1>
         <div className="flex gap-2">
+          {isAdmin && selected.length > 0 ? (
+            <Button
+              type="button"
+              variant="outline"
+              className="border-[#C9002B] text-[#C9002B] hover:bg-[#C9002B] hover:text-white"
+              disabled={deleting}
+              onClick={() => void deleteSelected()}
+            >
+              {deleting ? "Deleting…" : `Delete ${selected.length}`}
+            </Button>
+          ) : null}
           <Button type="button" variant="outline" onClick={() => void exportCsv()}>Export CSV</Button>
           <Button type="button" className="bg-[#004B93] hover:bg-[#1A6CC8]" onClick={() => router.push("/crm/leads/new")}>New lead</Button>
         </div>
@@ -314,7 +376,7 @@ export function LeadsScreen() {
         <details className="text-sm">
           <summary className="cursor-pointer font-medium">Columns</summary>
           <div className="mt-2 grid max-h-48 grid-cols-2 gap-1 overflow-auto rounded-md bg-white p-2 shadow-sm">
-            {table.getAllColumns().filter((column) => column.id !== "actions").map((column) => (
+            {table.getAllColumns().filter((column) => column.id !== "actions" && column.id !== "select").map((column) => (
               <label key={column.id} className="flex items-center gap-2">
                 <input type="checkbox" checked={column.getIsVisible()} onChange={column.getToggleVisibilityHandler()} />
                 {column.id}
@@ -333,8 +395,13 @@ export function LeadsScreen() {
               {table.getHeaderGroups().map((group) => (
                 <tr key={group.id}>
                   {group.headers.map((header) => (
-                    <th key={header.id} className="whitespace-nowrap px-3 py-2 text-xs font-semibold uppercase">
-                      {header.column.id === "actions" ? null : (
+                    <th
+                      key={header.id}
+                      className={`whitespace-nowrap px-3 py-2 text-xs font-semibold uppercase ${header.column.id === "select" ? "sticky left-0 z-20 bg-[#F2F4F8]" : ""} ${header.column.id === "leadCode" ? "sticky left-10 z-20 bg-[#F2F4F8]" : ""}`}
+                    >
+                      {header.column.id === "actions" || header.column.id === "select" ? (
+                        flexRender(header.column.columnDef.header, header.getContext())
+                      ) : (
                         <button
                           type="button"
                           className="text-left"
@@ -356,7 +423,7 @@ export function LeadsScreen() {
               {table.getRowModel().rows.map((row) => (
                 <tr key={row.id} className="border-t border-slate-100 hover:bg-slate-50">
                   {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} className={`px-3 py-2 ${cell.column.id === "leadCode" ? "sticky left-0 bg-white" : ""}`}>
+                    <td key={cell.id} className={`px-3 py-2 ${cell.column.id === "select" ? "sticky left-0 z-10 w-10 bg-white" : ""} ${cell.column.id === "leadCode" ? "sticky left-10 z-10 bg-white" : ""}`}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
                   ))}

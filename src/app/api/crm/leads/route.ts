@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { requireCrmUser } from "@/lib/crm/auth";
+import { requireCrmAdmin, requireCrmUser } from "@/lib/crm/auth";
 import { kolkataToday } from "@/lib/crm/dates";
 import { jsonError, readJson, zodError } from "@/lib/crm/http";
-import { createLead, listLeads } from "@/lib/crm/leads";
+import { createLead, deleteLeads, listLeads } from "@/lib/crm/leads";
 import { leadQueryFromUrl } from "@/lib/crm/query";
 import { leadWriteSchema } from "@/lib/crm/schemas";
 
@@ -28,4 +28,16 @@ export async function POST(request: Request) {
   }
   const lead = await createLead(parsed.data, user.id);
   return NextResponse.json({ id: lead.id, leadCode: lead.leadCode }, { status: 201 });
+}
+
+export async function DELETE(request: Request) {
+  const admin = await requireCrmAdmin();
+  if (!admin) return jsonError(403, "Only an admin can delete leads");
+  const body = await readJson(request);
+  const ids = body && typeof body === "object" && Array.isArray((body as { ids?: unknown }).ids)
+    ? (body as { ids: unknown[] }).ids.filter((id): id is string => typeof id === "string")
+    : [];
+  if (ids.length === 0) return jsonError(400, "Choose at least one lead");
+  const deleted = await deleteLeads(ids);
+  return NextResponse.json({ deleted: deleted.length });
 }

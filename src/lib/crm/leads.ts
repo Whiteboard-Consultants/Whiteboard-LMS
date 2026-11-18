@@ -503,17 +503,26 @@ export async function setLeadArchived(id: string, archived: boolean) {
 }
 
 export async function deleteLead(id: string) {
-  const existing = await prisma.lead.findUnique({
-    where: { id },
+  const deleted = await deleteLeads([id]);
+  return deleted[0] ?? null;
+}
+
+export async function deleteLeads(ids: string[]) {
+  const unique = [...new Set(ids.map((id) => id.trim()).filter(Boolean))].slice(0, 200);
+  if (unique.length === 0) return [];
+  const existing = await prisma.lead.findMany({
+    where: { id: { in: unique } },
     select: { id: true, leadCode: true, name: true },
   });
-  if (!existing) return null;
+  if (existing.length === 0) return [];
+  const found = existing.map((lead) => lead.id);
   await prisma.$transaction([
-    prisma.activity.deleteMany({ where: { leadId: id } }),
-    prisma.stageHistory.deleteMany({ where: { leadId: id } }),
-    prisma.lead.delete({ where: { id } }),
+    prisma.activity.deleteMany({ where: { leadId: { in: found } } }),
+    prisma.stageHistory.deleteMany({ where: { leadId: { in: found } } }),
+    prisma.lead.deleteMany({ where: { id: { in: found } } }),
   ]);
-  return fresh(existing);
+  clearCrmCache();
+  return existing;
 }
 
 export async function getLeadDetail(id: string) {
